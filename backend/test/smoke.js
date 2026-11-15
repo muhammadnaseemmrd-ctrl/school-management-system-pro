@@ -270,6 +270,9 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await expect('owner creates backup', call('POST', `/superadmin/schools/${bsid}/backups`, SA, {}), [201, 429]);
   const z3 = await getZip(`/superadmin/schools/${bsid}/backups/${bid}/download`, SA); log(z3.status === 200, `owner downloads stored backup (${z3.status})`);
   await expect('admin cannot use owner routes', call('GET', `/superadmin/schools/${bsid}/backups`, A), [401, 403]);
+  const pub = await fetch(base + '/api/public/plans'); const pubj = await pub.json();
+  log(pub.status === 200 && Array.isArray(pubj.plans) && pubj.plans.length >= 1, `public plans endpoint works without login (${pubj.plans && pubj.plans.length} plans)`);
+  log(pubj.plans.every((p) => p.slug && p.label && Array.isArray(p.features)) && !JSON.stringify(pubj).includes('"code"'), 'public plans expose no offer codes');
   await expect('cron without secret is unavailable', call('GET', '/cron/backup'), [503]);
   process.env.CRON_SECRET = 'cron-test-secret';
   const cr0 = await fetch(base + '/api/cron/backup', { headers: { authorization: 'Bearer wrong' } }); log(cr0.status === 401, `cron rejects wrong secret (${cr0.status})`);

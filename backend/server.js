@@ -125,6 +125,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/backup', require('./routes/backupRoutes'));
 app.use('/api/cron', require('./routes/cronRoutes'));
+app.use('/api/public', require('./routes/publicRoutes'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

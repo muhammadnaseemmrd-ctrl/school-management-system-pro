@@ -1,269 +1,457 @@
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {
-  ArrowRight,
-  BarChart3,
-  Bell,
-  BookOpen,
-  CalendarDays,
-  CheckCircle,
-  ClipboardList,
-  GraduationCap,
-  Inbox,
-  MessageSquare,
-  ShieldCheck,
-  Users,
+  ArrowRight, BarChart3, Bell, Check, ChevronDown, CheckCircle, Menu, X, XCircle, Sparkles, UserCheck, Wallet,
 } from 'lucide-react';
 import LanguageToggle from '../components/LanguageToggle';
 import Logo from '../components/Logo';
+import apiClient from '../utils/apiClient';
+import {
+  NAV, HERO_CHIPS, STATS, BEFORE_AFTER, MODULES, ROLES, STEPS, PAKISTAN, TRUST, FAQ,
+  DEMO_LOGINS, DEMO_SCHOOL_CODE, FALLBACK_PLANS,
+} from './landing/content';
+
+const pkr = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
+const goTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+const Eyebrow = ({ children }) => (
+  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b27d0e]">{children}</p>
+);
+
+const SectionHead = ({ eyebrow, title, text, center }) => (
+  <div className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`}>
+    <Eyebrow>{eyebrow}</Eyebrow>
+    <h2 className="mt-3 text-3xl font-black leading-tight tracking-tight text-[#0c2f25] sm:text-4xl">{title}</h2>
+    {text && <p className="mt-4 text-lg leading-8 text-[#355e4d]">{text}</p>}
+  </div>
+);
+
+/* A small, honest picture of what the admin dashboard looks like. Numbers are samples. */
+const DashboardPreview = () => (
+  <div className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#f7fbf8] p-3 shadow-xl shadow-[#0f6b4f]/15">
+    <div className="flex items-center gap-1.5 px-2 pb-3 pt-1">
+      <span className="h-2.5 w-2.5 rounded-full bg-[#c0483a]/70" />
+      <span className="h-2.5 w-2.5 rounded-full bg-[#e0a526]" />
+      <span className="h-2.5 w-2.5 rounded-full bg-[#2f9e6a]" />
+      <span className="ms-3 rounded-full bg-[#e9f2ed] px-3 py-1 text-[11px] font-semibold text-[#4f7262]">Admin dashboard · sample</span>
+    </div>
+    <div className="rounded-2xl border border-[#d3e4da] bg-[#fbfdfb] p-4">
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          ['Students', '482', UserCheck],
+          ['Present today', '94%', CheckCircle],
+          ['Fees received', 'Rs 1.2M', Wallet],
+        ].map(([label, value, Icon]) => (
+          <div key={label} className="rounded-xl border border-[#dbe9e1] bg-[#edf5f0] p-3">
+            <Icon className="h-4 w-4 text-[#0f6b4f]" />
+            <p className="mt-2 text-lg font-black text-[#0c2f25] sm:text-xl">{value}</p>
+            <p className="text-[11px] text-[#4f7262]">{label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 rounded-xl border border-[#dbe9e1] p-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold text-[#0c2f25]">Attendance this week</p>
+          <BarChart3 className="h-4 w-4 text-[#0f6b4f]" />
+        </div>
+        <div className="mt-3 flex h-24 items-end gap-2">
+          {[92, 95, 90, 96, 94, 88].map((h, i) => (
+            <div key={i} className="flex-1 rounded-t-lg bg-gradient-to-t from-[#0f6b4f] to-[#2f9e6a]" style={{ height: `${h}%` }} />
+          ))}
+        </div>
+        <div className="mt-1 flex gap-2 text-[10px] text-[#4f7262]">
+          {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => <span key={d} className="flex-1 text-center">{d}</span>)}
+        </div>
+      </div>
+      <div className="mt-4 flex items-start gap-3 rounded-xl bg-[#fdf4dc] p-3">
+        <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#b27d0e]" />
+        <div>
+          <p className="text-xs font-bold text-[#0c2f25]">New notice: Parent–teacher meeting</p>
+          <p className="text-[11px] text-[#6f5a1d]">Sent to parents and teachers</p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const [menu, setMenu] = useState(false);
+  const [role, setRole] = useState('admin');
+  const [yearly, setYearly] = useState(false);
+  const [pricing, setPricing] = useState({ plans: FALLBACK_PLANS, offers: [], live: false });
 
-  const services = [
-    {
-      icon: Users,
-      title: 'Student records',
-      text: 'Keep admission details, class data, attendance and progress in one place.',
-    },
-    {
-      icon: GraduationCap,
-      title: 'Teacher tools',
-      text: 'Assign classes, manage subjects, take attendance and enter marks without extra steps.',
-    },
-    {
-      icon: Bell,
-      title: 'Notices and alerts',
-      text: 'Share announcements, reminders and updates with students, teachers and parents.',
-    },
-    {
-      icon: MessageSquare,
-      title: 'Communication',
-      text: 'Use complaints, messages and replies to keep school communication clear.',
-    },
-  ];
+  useEffect(() => {
+    let off = false;
+    apiClient.get('/public/plans')
+      .then((r) => { if (!off && r.data?.plans?.length) setPricing({ plans: r.data.plans, offers: r.data.offers || [], live: true }); })
+      .catch(() => {});
+    return () => { off = true; };
+  }, []);
 
-  const issues = [
-    'Manual registers make attendance and marks hard to track.',
-    'Separate systems for students, teachers and notices waste time.',
-    'School data gets mixed when there is no proper role-based access.',
-    'Parents and students need a simple place to check updates and homework.',
-  ];
+  const activeRole = useMemo(() => ROLES.find((r) => r.id === role) || ROLES[0], [role]);
+  const hasYearly = pricing.plans.some((p) => p.yearlyPricePKR > 0);
+  const popular = pricing.plans.length >= 3 ? pricing.plans[1].slug : null;
 
-  const platformPoints = [
-    'One login for admin, teacher and student roles.',
-    'Multi-school setup with separate data for each school.',
-    'Cleaner workflows for attendance, marks, timetable and homework.',
-    'Simple dashboard style screens that are easy to understand.',
-  ];
+  const jump = (id) => { setMenu(false); goTo(id); };
 
   return (
     <div className="min-h-screen bg-[#e9f2ed] text-[#0c2f25]">
       <div className="fixed end-4 bottom-4 z-50"><LanguageToggle /></div>
+
+      {/* ───────── Top bar ───────── */}
       {!isAuthenticated && (
-        <nav className="sticky top-0 z-30 border-b border-[#aec7ba] bg-[#edf5f0]/95 backdrop-blur-lg">
-          <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
-            <Logo subtitle="School management system for Pakistan" />
-
-            <div className="hidden items-center gap-2 md:flex">
-              <button onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full px-4 py-2 text-sm font-semibold text-[#355e4d] transition hover:bg-[#e1eee6]">
-                About Us
-              </button>
-              <button onClick={() => document.getElementById('platform')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full px-4 py-2 text-sm font-semibold text-[#355e4d] transition hover:bg-[#e1eee6]">
-                Platform
-              </button>
-              <button onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })} className="rounded-full px-4 py-2 text-sm font-semibold text-[#355e4d] transition hover:bg-[#e1eee6]">
-                Services
-              </button>
-              <button onClick={() => navigate('/login')} className="rounded-full border border-[#2f8f6f] px-4 py-2 text-sm font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]">
-                Login
-              </button>
-            </div>
-          </div>
-        </nav>
-      )}
-
-      <section className="px-5 py-16 lg:px-8 lg:py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#aec7ba] bg-[#e8f2ec] px-4 py-2 text-sm text-[#0f6b4f]">
-              <span className="h-2 w-2 rounded-full bg-[#0f6b4f]" />
-              Simple school management for daily use
-            </div>
-            <h1 className="mt-6 max-w-2xl text-5xl font-black leading-tight tracking-tight lg:text-6xl">
-              A school platform that keeps admin work, teachers and students in one easy system.
-            </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#355e4d]">
-              Darsgah is a school management platform built for Pakistan: attendance, marks, notices, homework, fees in PKR with JazzCash / Easypaisa / bank proof, and parent communication, in English and Urdu.
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-              <button onClick={() => navigate('/register')} className="inline-flex items-center gap-2 rounded-full bg-[#0f6b4f] px-6 py-3 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340]">
-                Register School
-                <ArrowRight className="h-4 w-4" />
-              </button>
-              <button onClick={() => navigate('/login')} className="inline-flex items-center gap-2 rounded-full border border-[#2f8f6f] bg-[#edf5f0] px-6 py-3 font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]">
-                Login
-              </button>
-            </div>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {[
-                ['3', 'User roles'],
-                ['15+', 'Backend models'],
-                ['14+', 'Route groups'],
-                ['1', 'Multi-school system'],
-              ].map(([value, label]) => (
-                <div key={label} className="rounded-3xl border border-[#cfe0d6] bg-[#f4f8f5] p-4">
-                  <p className="text-3xl font-black text-[#0f6b4f]">{value}</p>
-                  <p className="mt-1 text-sm text-[#355e4d]">{label}</p>
-                </div>
+        <header className="sticky top-0 z-40 border-b border-[#aec7ba] bg-[#edf5f0]/95 backdrop-blur-lg">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 lg:px-8">
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Darsgah home" className="text-start">
+              <Logo subtitle="School management system for Pakistan" />
+            </button>
+            <nav className="hidden items-center gap-1 lg:flex" aria-label="Sections">
+              {NAV.map((n) => (
+                <button key={n.id} onClick={() => jump(n.id)} className="rounded-full px-3 py-2 text-sm font-semibold text-[#355e4d] transition hover:bg-[#e1eee6]">{n.label}</button>
               ))}
+            </nav>
+            <div className="hidden items-center gap-2 lg:flex">
+              <button onClick={() => navigate('/login')} className="rounded-full border border-[#2f8f6f] px-4 py-2 text-sm font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]">Login</button>
+              <button onClick={() => navigate('/register')} className="rounded-full bg-[#0f6b4f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0b5340]">Register School</button>
             </div>
+            <button onClick={() => setMenu((v) => !v)} className="rounded-xl border border-[#aec7ba] p-2 text-[#0f6b4f] lg:hidden" aria-label="Menu" aria-expanded={menu}>
+              {menu ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
-
-          <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-5 shadow-lg shadow-[#2f8f6f]/15">
-            <div className="rounded-[1.5rem] border border-[#d3e4da] bg-[#fbfdfb] p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-[#4f7262]">What this platform does</p>
-                  <h2 className="text-2xl font-extrabold text-[#0c2f25]">One place for school operations</h2>
-                </div>
-                <div className="rounded-2xl bg-[#e3efe8] px-3 py-2 text-sm font-semibold text-[#0f6b4f]">
-                  Easy to use
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {[
-                  ['Attendance', ClipboardList],
-                  ['Marks', BarChart3],
-                  ['Notices', Bell],
-                  ['Messages', Inbox],
-                ].map(([label, Icon]) => (
-                  <div key={label} className="rounded-2xl border border-[#dbe9e1] bg-[#edf5f0] p-4">
-                    <Icon className="h-5 w-5 text-[#0f6b4f]" />
-                    <p className="mt-3 font-semibold text-[#0c2f25]">{label}</p>
-                  </div>
+          {menu && (
+            <div className="border-t border-[#cfe0d6] bg-[#edf5f0] px-5 pb-4 lg:hidden">
+              <div className="grid gap-1 py-3">
+                {NAV.map((n) => (
+                  <button key={n.id} onClick={() => jump(n.id)} className="rounded-xl px-3 py-3 text-start text-sm font-semibold text-[#355e4d] hover:bg-[#e1eee6]">{n.label}</button>
                 ))}
               </div>
-
-              <div className="mt-5 rounded-3xl border border-[#d3e4da] bg-[#e9f2ed] p-4">
-                <p className="text-sm font-semibold text-[#0f6b4f]">Login</p>
-                <p className="mt-2 text-sm leading-6 text-[#355e4d]">
-                  Use the login page to enter the school code, email and password. Each role sees only the parts it should use.
-                </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => navigate('/login')} className="rounded-full border border-[#2f8f6f] px-4 py-3 text-sm font-semibold text-[#0f6b4f]">Login</button>
+                <button onClick={() => navigate('/register')} className="rounded-full bg-[#0f6b4f] px-4 py-3 text-sm font-semibold text-white">Register School</button>
               </div>
+            </div>
+          )}
+        </header>
+      )}
+
+      {/* ───────── Hero ───────── */}
+      <section className="px-5 pb-14 pt-12 lg:px-8 lg:pb-20 lg:pt-16">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#aec7ba] bg-[#e8f2ec] px-4 py-2 text-sm font-semibold text-[#0f6b4f]">
+              <Sparkles className="h-4 w-4 text-[#b27d0e]" />
+              Built in Pakistan, for Pakistani schools
+            </div>
+            <h1 className="mt-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Run your whole school from one simple place.
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-[#355e4d]">
+              Darsgah brings attendance, marks, homework, fees, notices and parent updates together. Admin, teachers, students and parents each get their own easy screen, in English and Urdu.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <button onClick={() => navigate('/register')} className="inline-flex items-center gap-2 rounded-full bg-[#0f6b4f] px-6 py-3 font-semibold text-white shadow-lg shadow-[#0f6b4f]/25 transition hover:bg-[#0b5340]">
+                Register your school <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </button>
+              <button onClick={() => jump('features')} className="inline-flex items-center gap-2 rounded-full border border-[#2f8f6f] bg-[#edf5f0] px-6 py-3 font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]">
+                See all features
+              </button>
+              <button onClick={() => jump('demo')} className="inline-flex items-center gap-2 rounded-full px-4 py-3 font-semibold text-[#355e4d] transition hover:bg-[#e1eee6]">
+                Try the demo
+              </button>
+            </div>
+            <ul className="mt-8 flex flex-wrap gap-2">
+              {HERO_CHIPS.map((c) => (
+                <li key={c} className="rounded-full border border-[#cfe0d6] bg-[#f7fbf8] px-3 py-1.5 text-sm font-semibold text-[#355e4d]">{c}</li>
+              ))}
+            </ul>
+          </div>
+          <DashboardPreview />
+        </div>
+      </section>
+
+      {/* ───────── Numbers ───────── */}
+      <section className="px-5 pb-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {STATS.map((s) => (
+            <div key={s.label} className="rounded-3xl border border-[#cfe0d6] bg-[#f7fbf8] p-4 sm:p-5">
+              <p className="text-3xl font-black text-[#0f6b4f] sm:text-4xl"><span dir="ltr" className="inline-block">{s.value}</span></p>
+              <p className="mt-1 font-bold">{s.label}</p>
+              <p className="mt-1 text-sm text-[#4f7262]">{s.note}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ───────── Before / after ───────── */}
+      <section className="px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHead eyebrow="Why a school needs it" title="From scattered registers to one clear system" text="Most schools already do all of this work. Darsgah just puts it in one place so nothing is lost and nobody has to ask twice." />
+          <div className="mt-10 grid gap-5 lg:grid-cols-2">
+            <div className="rounded-[1.75rem] border border-[#e0c9c5] bg-[#fbf5f3] p-6">
+              <p className="font-black text-[#a8392d]">Without it</p>
+              <ul className="mt-4 space-y-3">
+                {BEFORE_AFTER.before.map((t) => (
+                  <li key={t} className="flex gap-3 text-[#5b3b36]"><XCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#c0483a]" /><span>{t}</span></li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-[1.75rem] border border-[#9fc9b3] bg-[#f1f8f4] p-6">
+              <p className="font-black text-[#0f6b4f]">With Darsgah</p>
+              <ul className="mt-4 space-y-3">
+                {BEFORE_AFTER.after.map((t) => (
+                  <li key={t} className="flex gap-3 text-[#254a3b]"><CheckCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0f6b4f]" /><span>{t}</span></li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="about" className="px-5 py-12 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-6 lg:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4f7262]">About Us</p>
-          <h2 className="mt-3 text-4xl font-black tracking-tight text-[#0c2f25]">Built for normal school work, not for show.</h2>
-          <p className="mt-4 max-w-4xl text-lg leading-8 text-[#355e4d]">
-            This platform is made to handle the repeated tasks schools do every day. It keeps student records, teacher actions, notices and school communication together so the system feels simple instead of scattered.
-          </p>
+      {/* ───────── Features ───────── */}
+      <section id="features" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHead eyebrow="Features" title="Everything a school does every week" text="Twelve modules that work together. Each one is simple on its own, and they share the same student records." />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {MODULES.map(({ icon: Icon, title, text }) => (
+              <article key={title} className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0f6b4f]/10">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e3efe8] text-[#0f6b4f]"><Icon className="h-6 w-6" /></div>
+                <h3 className="mt-4 text-lg font-extrabold">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#355e4d]">{text}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="platform" className="px-5 py-12 lg:px-8">
+      {/* ───────── Roles ───────── */}
+      <section id="roles" className="scroll-mt-20 px-5 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4f7262]">What is this platform</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight text-[#0c2f25]">A multi-school management system for admins, teachers and students.</h2>
-            <p className="mt-4 text-lg leading-8 text-[#355e4d]">
-              It works like a shared dashboard for the whole school, with role-based access so every user sees only what matters to them.
-            </p>
+          <SectionHead eyebrow="Who uses it" title="A clear screen for every person in the school" text="Pick a role to see exactly what that person can do." />
+          <div role="tablist" aria-label="Roles" className="mt-8 flex gap-2 overflow-x-auto pb-2">
+            {ROLES.map((r) => {
+              const Icon = r.icon; const on = r.id === role;
+              return (
+                <button key={r.id} role="tab" aria-selected={on} onClick={() => setRole(r.id)}
+                  className={`inline-flex flex-shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-bold transition ${on ? 'border-[#0f6b4f] bg-[#0f6b4f] text-white' : 'border-[#cfe0d6] bg-[#f7fbf8] text-[#355e4d] hover:bg-[#e3efe8]'}`}>
+                  <Icon className="h-4 w-4" />{r.tab}
+                </button>
+              );
+            })}
           </div>
+          <div role="tabpanel" className="mt-4 grid gap-6 rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-6 lg:grid-cols-[0.8fr_1.2fr] lg:p-8">
+            <div>
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0f6b4f] text-white"><activeRole.icon className="h-7 w-7" /></div>
+              <h3 className="mt-5 text-2xl font-black leading-tight">{activeRole.headline}</h3>
+              <p className="mt-3 leading-7 text-[#355e4d]">{activeRole.text}</p>
+            </div>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {activeRole.points.map((p) => (
+                <li key={p} className="flex gap-3 rounded-2xl border border-[#dbe9e1] bg-[#fbfdfb] p-4 text-sm leading-6 text-[#254a3b]">
+                  <Check className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0f6b4f]" /><span>{p}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {platformPoints.map((point) => (
-              <div key={point} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5">
-                <CheckCircle className="h-5 w-5 text-[#0f6b4f]" />
-                <p className="mt-3 text-sm leading-6 text-[#355e4d]">{point}</p>
+      {/* ───────── How it works ───────── */}
+      <section id="how" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHead eyebrow="How it works" title="Up and running in four steps" center />
+          <ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            {STEPS.map((s) => (
+              <li key={s.n} className="relative rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#0f6b4f] text-lg font-black text-white">{s.n}</span>
+                <h3 className="mt-4 text-lg font-extrabold">{s.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#355e4d]">{s.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      {/* ───────── Pakistan ───────── */}
+      <section id="pakistan" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-[#0c2f25] p-7 text-[#edf5f0] lg:p-12">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#e0a526]">Made for Pakistan</p>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">It speaks the way your school already works</h2>
+            <p className="mt-4 text-lg leading-8 text-[#a9d6c0]">Rupees, JazzCash, CNIC, provinces and Urdu are part of the system, not an afterthought.</p>
+          </div>
+          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PAKISTAN.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="rounded-3xl border border-[#1d5a45] bg-[#0f3d30] p-5">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#e0a526] text-[#0c2f25]"><Icon className="h-5 w-5" /></div>
+                <h3 className="mt-4 font-extrabold">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#a9d6c0]">{text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="px-5 py-12 lg:px-8">
-        <div className="mx-auto max-w-7xl grid gap-6 lg:grid-cols-2">
-          <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-6 lg:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4f7262]">What issues it solves</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#0c2f25]">It replaces the slow, messy parts of school admin.</h2>
-            <div className="mt-5 space-y-4">
-              {issues.map((item) => (
-                <div key={item} className="flex gap-3 rounded-2xl bg-[#edf5f0] px-4 py-3">
-                  <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-[#0f6b4f]" />
-                  <p className="text-sm leading-6 text-[#355e4d]">{item}</p>
+      {/* ───────── Trust ───────── */}
+      <section className="px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHead eyebrow="Safe and in your hands" title="Your school data is separate, protected and downloadable" />
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {TRUST.map(({ icon: Icon, title, text }) => (
+              <div key={title} className="flex gap-4 rounded-[1.5rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-[#e3efe8] text-[#0f6b4f]"><Icon className="h-5 w-5" /></div>
+                <div>
+                  <h3 className="font-extrabold">{title}</h3>
+                  <p className="mt-1 text-sm leading-6 text-[#355e4d]">{text}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-6 lg:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4f7262]">Login</p>
-            <h2 className="mt-3 text-3xl font-black tracking-tight text-[#0c2f25]">The login page is the entry point for the whole app.</h2>
-            <p className="mt-4 text-lg leading-8 text-[#355e4d]">
-              Admins register the school first, then use login to access the dashboard. Teachers and students use the same base system with their own role permissions.
-            </p>
-            <button onClick={() => navigate('/login')} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0f6b4f] px-6 py-3 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340]">
-              Go to Login
-              <ArrowRight className="h-4 w-4" />
-            </button>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="services" className="px-5 py-12 lg:px-8">
+      {/* ───────── Pricing ───────── */}
+      <section id="pricing" className="scroll-mt-20 px-5 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#4f7262]">Services</p>
-            <h2 className="mt-3 text-4xl font-black tracking-tight text-[#0c2f25]">The platform gives the services a school usually needs every week.</h2>
-            <p className="mt-4 text-lg leading-8 text-[#355e4d]">
-              Instead of jumping between tools, the school can use one system for records, communication and daily updates.
-            </p>
-          </div>
+          <SectionHead eyebrow="Pricing" title="Simple plans in rupees" text="Start free. Move up when your school grows. Plans are set by the platform owner, so what you see here is what is on offer today." center />
 
-          <div className="mt-8 grid gap-5 lg:grid-cols-2">
-            {services.map((service) => {
-              const Icon = service.icon;
+          {pricing.offers.length > 0 && (
+            <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-[#e0c06a] bg-[#fdf4dc] p-5 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b27d0e]">Running now</p>
+              {pricing.offers.slice(0, 2).map((o) => (
+                <p key={o.title} className="mt-2 font-bold text-[#0c2f25]">
+                  {o.title}
+                  <span className="ms-2 rounded-full bg-[#0f6b4f] px-2.5 py-0.5 text-xs font-bold text-white">
+                    {o.discountType === 'percent' ? `${o.discountValue}% off` : `${pkr(o.discountValue)} off`}
+                  </span>
+                </p>
+              ))}
+            </div>
+          )}
+
+          {hasYearly && (
+            <div className="mt-8 flex justify-center">
+              <div className="inline-flex rounded-full border border-[#cfe0d6] bg-[#f7fbf8] p-1">
+                {[['Monthly', false], ['Yearly', true]].map(([label, val]) => (
+                  <button key={label} onClick={() => setYearly(val)} aria-pressed={yearly === val}
+                    className={`rounded-full px-5 py-2 text-sm font-bold transition ${yearly === val ? 'bg-[#0f6b4f] text-white' : 'text-[#355e4d]'}`}>{label}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className={`mt-8 grid gap-5 ${pricing.plans.length >= 3 ? 'lg:grid-cols-3' : pricing.plans.length === 2 ? 'lg:grid-cols-2' : ''}`}>
+            {pricing.plans.map((p) => {
+              const star = p.slug === popular;
+              const showYear = yearly && p.yearlyPricePKR > 0;
+              const amount = showYear ? p.yearlyPricePKR : p.pricePKR;
               return (
-                <div key={service.title} className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e8f2ec] text-[#0f6b4f]">
-                    <Icon className="h-5 w-5" />
-                  </div>
-                  <h3 className="mt-4 text-xl font-bold text-[#0c2f25]">{service.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#355e4d]">{service.text}</p>
+                <div key={p.slug} className={`relative flex flex-col rounded-[2rem] border p-7 ${star ? 'border-[#0f6b4f] bg-[#0f6b4f] text-white shadow-xl shadow-[#0f6b4f]/25' : 'border-[#cfe0d6] bg-[#fbfdfb]'}`}>
+                  {star && <span className="absolute -top-3 start-7 rounded-full bg-[#e0a526] px-3 py-1 text-xs font-black text-[#0c2f25]">Most popular</span>}
+                  <h3 className="text-xl font-black">{p.label}</h3>
+                  <p className={`mt-1 text-sm ${star ? 'text-[#cfe6da]' : 'text-[#4f7262]'}`}>{p.description}</p>
+                  <p className="mt-5 flex items-baseline gap-1">
+                    <span className="text-4xl font-black">{amount === 0 ? 'Free' : pkr(amount)}</span>
+                    {amount > 0 && <span className={`text-sm ${star ? 'text-[#cfe6da]' : 'text-[#4f7262]'}`}>{showYear ? 'per year' : 'per month'}</span>}
+                  </p>
+                  <ul className={`mt-5 space-y-1 text-sm font-semibold ${star ? 'text-[#edf5f0]' : 'text-[#254a3b]'}`}>
+                    <li>{p.studentLimit ? `Up to ${p.studentLimit} students` : 'Unlimited students'}</li>
+                    <li>{p.teacherLimit ? `Up to ${p.teacherLimit} teachers` : 'Unlimited teachers'}</li>
+                  </ul>
+                  <ul className="mt-5 flex-1 space-y-2 border-t border-current/10 pt-5 text-sm">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex gap-2"><Check className={`mt-0.5 h-4 w-4 flex-shrink-0 ${star ? 'text-[#e0a526]' : 'text-[#0f6b4f]'}`} /><span>{f}</span></li>
+                    ))}
+                  </ul>
+                  <button onClick={() => navigate('/register')}
+                    className={`mt-7 rounded-full px-5 py-3 font-bold transition ${star ? 'bg-[#edf5f0] text-[#0f6b4f] hover:bg-white' : 'bg-[#0f6b4f] text-white hover:bg-[#0b5340]'}`}>
+                    Start with {p.label}
+                  </button>
                 </div>
               );
             })}
           </div>
+          <p className="mt-6 text-center text-sm text-[#4f7262]">Every plan includes a separate school code, Urdu and English, and the weekly backup.</p>
         </div>
       </section>
 
-      <section className="px-5 py-12 lg:px-8">
-        <div className="mx-auto max-w-7xl rounded-[2rem] border border-[#cfe0d6] bg-[#0f6b4f] p-8 text-[#edf5f0]">
-          <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#e3efe8]">Start here</p>
-              <h2 className="mt-3 text-4xl font-black tracking-tight">Login, register and manage the school from one place.</h2>
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-[#e3efe8]">
-                The app is built for direct school work, with a clear landing page that explains what it does before the user logs in.
-              </p>
-            </div>
-            <button onClick={() => navigate('/register')} className="inline-flex items-center justify-center gap-2 rounded-full bg-[#edf5f0] px-6 py-3 font-semibold text-[#0f6b4f] transition hover:bg-white">
-              Register School
-              <ArrowRight className="h-4 w-4" />
+      {/* ───────── Demo ───────── */}
+      <section id="demo" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-6 rounded-[2rem] border border-[#cfe0d6] bg-[#f7fbf8] p-7 lg:grid-cols-[1fr_1fr] lg:p-10">
+          <div>
+            <Eyebrow>Try it yourself</Eyebrow>
+            <h2 className="mt-3 text-3xl font-black leading-tight sm:text-4xl">Log in to a demo school</h2>
+            <p className="mt-4 leading-7 text-[#355e4d]">
+              Look around a sample school with real-looking classes, students and fees. Use the school code and any login below. It is shared demo data, so please do not enter real information.
+            </p>
+            <button onClick={() => navigate('/login')} className="mt-6 inline-flex items-center gap-2 rounded-full bg-[#0f6b4f] px-6 py-3 font-semibold text-white transition hover:bg-[#0b5340]">
+              Go to login <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </button>
+          </div>
+          <div className="rounded-3xl border border-[#dbe9e1] bg-[#fbfdfb] p-5" dir="ltr" data-no-i18n>
+            <p className="text-sm text-[#4f7262]">School code</p>
+            <p className="mt-1 font-mono text-2xl font-black text-[#0f6b4f]">{DEMO_SCHOOL_CODE}</p>
+            <div className="mt-4 divide-y divide-[#e3efe8] text-sm">
+              {DEMO_LOGINS.map((d) => (
+                <div key={d.role} className="grid grid-cols-[5rem_1fr] gap-x-3 py-3">
+                  <span className="font-bold text-[#0c2f25]">{d.role}</span>
+                  <span className="break-all font-mono text-[#355e4d]">{d.email}<br />{d.password}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ───────── FAQ ───────── */}
+      <section id="faq" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-3xl">
+          <SectionHead eyebrow="Questions" title="Common questions, plain answers" center />
+          <div className="mt-8 space-y-3">
+            {FAQ.map((f) => (
+              <details key={f.q} className="group rounded-2xl border border-[#cfe0d6] bg-[#fbfdfb] px-5 py-4 open:bg-[#f1f8f4]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-bold">
+                  <span>{f.q}</span>
+                  <ChevronDown className="h-5 w-5 flex-shrink-0 text-[#0f6b4f] transition group-open:rotate-180" />
+                </summary>
+                <p className="mt-3 leading-7 text-[#355e4d]">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── Final call ───────── */}
+      <section className="px-5 pb-16 pt-6 lg:px-8">
+        <div className="mx-auto max-w-7xl rounded-[2rem] bg-[#0f6b4f] p-8 text-center text-[#edf5f0] lg:p-14">
+          <h2 className="mx-auto max-w-3xl text-3xl font-black leading-tight sm:text-4xl">Give your school one place to work from.</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-[#cfe6da]">Register in a minute, start on the Free plan, and upgrade only when you need to.</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <button onClick={() => navigate('/register')} className="inline-flex items-center gap-2 rounded-full bg-[#e0a526] px-7 py-3 font-bold text-[#0c2f25] transition hover:bg-[#f0b83a]">
+              Register your school <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+            </button>
+            <button onClick={() => navigate('/login')} className="rounded-full border border-[#a9d6c0] px-7 py-3 font-bold transition hover:bg-[#0b5340]">Login</button>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── Footer ───────── */}
+      <footer className="border-t border-[#aec7ba] bg-[#edf5f0] px-5 py-10 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-sm">
+            <Logo subtitle="School management system for Pakistan" />
+            <p className="mt-4 text-sm leading-6 text-[#4f7262]">Attendance, marks, homework, fees and parent updates for schools in Pakistan.</p>
+          </div>
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-10 gap-y-2 text-sm font-semibold text-[#355e4d]">
+            {NAV.map((n) => (<button key={n.id} onClick={() => goTo(n.id)} className="text-start hover:text-[#0f6b4f]">{n.label}</button>))}
+            <button onClick={() => navigate('/login')} className="text-start hover:text-[#0f6b4f]">Login</button>
+            <button onClick={() => navigate('/register')} className="text-start hover:text-[#0f6b4f]">Register School</button>
+          </nav>
+        </div>
+        <p className="mx-auto mt-8 max-w-7xl border-t border-[#cfe0d6] pt-5 text-sm text-[#4f7262]">© 2026 Darsgah. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

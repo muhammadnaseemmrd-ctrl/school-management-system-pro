@@ -1,3 +1,4 @@
+import landingUr from './landingUr';
 // Urdu dictionary. Keys are the English text used in the UI; anything missing falls back to English.
 const ur = {
   "Darsgah": "درسگاہ",
@@ -688,4 +689,4 @@ const ur = {
   "Easypaisa": "ایزی پیسہ",
 };
 
-export default ur;
+export default { ...landingUr, ...ur };

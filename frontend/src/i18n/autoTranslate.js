@@ -12,6 +12,12 @@ const attrRec = new WeakMap(); // element -> { attr: { en, ur } }
 const PATTERNS = [
   [/^Welcome,\s*(.+)$/i, (m) => `خوش آمدید، ${m[1]}`],
   [/^Std\s+(\S+)\s*\(([^)]+)\)$/i, (m) => `جماعت ${m[1]} (${m[2]})`],
+  [/^Up to (\d+) students$/, (m) => `${m[1]} طلبہ تک`],
+  [/^Up to (\d+) teachers$/, (m) => `${m[1]} اساتذہ تک`],
+  [/^Start with (.+)$/, (m) => `${ur[m[1]] || m[1]} سے شروع کریں`],
+  [/^(\d+)% off$/, (m) => `${m[1]}% رعایت`],
+  [/^Rs ([\d,]+) off$/, (m) => `${m[1]} روپے رعایت`],
+  [/^Rs ([\d,.]+[MK]?)$/, (m) => `${m[1]} روپے`],
 ];
 
 const lookup = (raw) => {
