@@ -1,4 +1,10 @@
 const Complaint = require('../models/Complaint');
+const N = require('../utils/notify');
+const tellRaiser = async (req, c, title) => {
+  const role = N.roleOfModel(c.raisedByModel);
+  const id = c.raisedBy && (c.raisedBy._id || c.raisedBy);
+  if (role && id) await N.notify({ schoolId: req.user.schoolId, recipients: [{ id, role }], title, body: c.title || c.subject || '', link: `/${role}/dashboard#/grievances`, type: 'complaint' });
+};
 
 // Create Complaint
 exports.createComplaint = async (req, res) => {
@@ -144,6 +150,7 @@ exports.resolveComplaint = async (req, res) => {
       return res.status(404).json({ message: 'Complaint not found' });
     }
 
+    await tellRaiser(req, complaint, 'Your complaint was resolved');
     res.json({
       message: 'Complaint resolved successfully',
       complaint,
@@ -217,6 +224,7 @@ exports.updateComplaintStatus = async (req, res) => {
       return res.status(404).json({ message: 'Complaint not found' });
     }
 
+    if (status) await tellRaiser(req, complaint, `Your complaint is now: ${status}`);
     res.json({
       message: `Complaint status updated successfully to ${status}`,
       complaint,

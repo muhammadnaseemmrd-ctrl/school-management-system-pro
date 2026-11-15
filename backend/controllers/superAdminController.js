@@ -202,7 +202,7 @@ exports.createSchool = async (req, res) => {
 exports.updateSchool = async (req, res) => {
   try {
     const allowed = ['name', 'email', 'phone', 'address', 'principalName', 'principalEmail', 'website',
-      'plan', 'studentLimit', 'teacherLimit', 'subscriptionExpiresAt', 'timezone'];
+      'plan', 'studentLimit', 'teacherLimit', 'subscriptionExpiresAt', 'timezone', 'offerId'];
     const patch = {};
     allowed.forEach((k) => { if (req.body[k] !== undefined) patch[k] = req.body[k]; });
 
@@ -215,6 +215,7 @@ exports.updateSchool = async (req, res) => {
     }
     if (patch.timezone && !isValidTz(patch.timezone)) return res.status(400).json({ message: 'Invalid time zone (use an IANA name like Asia/Karachi)' });
     if (patch.subscriptionExpiresAt === '') patch.subscriptionExpiresAt = null;
+    if (patch.offerId === '') patch.offerId = null;
 
     clearSchoolPlanCache();
     const school = await School.findByIdAndUpdate(req.params.id, patch, { new: true, runValidators: true })
@@ -357,4 +358,63 @@ exports.deletePlan = async (req, res) => {
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
+};
+
+
+/* ─────────────────────── OFFERS ─────────────────────── */
+const Offer = require('../models/Offer');
+const cleanOffer = (b) => {
+  const o = {};
+  if (b.title !== undefined) o.title = String(b.title).trim();
+  if (b.description !== undefined) o.description = String(b.description).trim();
+  if (b.code !== undefined) o.code = String(b.code).trim().toUpperCase();
+  if (b.discountType !== undefined) o.discountType = b.discountType === 'fixed' ? 'fixed' : 'percent';
+  if (b.discountValue !== undefined) o.discountValue = Math.max(0, Number(b.discountValue) || 0);
+  if (b.planSlugs !== undefined) o.planSlugs = Array.isArray(b.planSlugs) ? b.planSlugs : [];
+  if (b.validFrom !== undefined) o.validFrom = b.validFrom || new Date();
+  if (b.validUntil !== undefined) o.validUntil = b.validUntil || null;
+  if (b.isActive !== undefined) o.isActive = !!b.isActive;
+  if (o.discountType === 'percent' && o.discountValue > 100) o.discountValue = 100;
+  return o;
+};
+
+exports.listOffers = async (req, res) => {
+  try {
+    const offers = await Offer.find().sort({ createdAt: -1 });
+    const used = await School.aggregate([{ $match: { offerId: { $ne: null } } }, { $group: { _id: '$offerId', n: { $sum: 1 } } }]);
+    const map = new Map(used.map((u) => [String(u._id), u.n]));
+    res.json({ offers: offers.map((o) => ({ ...o.toObject(), schoolsUsing: map.get(String(o._id)) || 0 })) });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+exports.createOffer = async (req, res) => {
+  try {
+    const data = cleanOffer(req.body);
+    if (!data.title) return res.status(400).json({ message: 'Offer title is required' });
+    if (!data.discountValue) return res.status(400).json({ message: 'Enter the discount amount' });
+    const offer = await Offer.create(data);
+    // Tell school admins about a new live offer
+    if (offer.isActive) {
+      const N = require('../utils/notify');
+      const admins = await User.find({ role: 'admin' }).select('_id').limit(1500);
+      await N.notify({ recipients: admins.map((a) => ({ id: a._id, role: 'admin' })), title: `New offer: ${offer.title}`, body: offer.description, link: '/admin/dashboard#/setup', type: 'offer' });
+    }
+    res.status(201).json({ message: 'Offer created', offer });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+exports.updateOffer = async (req, res) => {
+  try {
+    const offer = await Offer.findByIdAndUpdate(req.params.id, cleanOffer(req.body), { new: true });
+    if (!offer) return res.status(404).json({ message: 'Offer not found' });
+    res.json({ message: 'Offer saved', offer });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+exports.deleteOffer = async (req, res) => {
+  try {
+    await School.updateMany({ offerId: req.params.id }, { offerId: null });
+    await Offer.deleteOne({ _id: req.params.id });
+    res.json({ message: 'Offer deleted' });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 };

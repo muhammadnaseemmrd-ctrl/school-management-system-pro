@@ -11,6 +11,7 @@ const TransportAssignment = require('../models/TransportAssignment');
 const Student = require('../models/Student');
 const Class = require('../models/Class');
 const Parent = require('../models/Parent');
+const N = require('../utils/notify');
 
 const oid = (v) => (mongoose.isValidObjectId(v) ? new mongoose.Types.ObjectId(v) : null);
 const fail = (res, e) => res.status(500).json({ message: e.message });
@@ -173,6 +174,7 @@ exports.submitProof = async (req, res) => {
       screenshotUrl,
       note: String(note).slice(0, 500),
     });
+    await N.notify({ schoolId: req.user.schoolId, recipients: await N.admins(req.user.schoolId), title: `Payment screenshot from ${student.name}`, body: `Rs ${proof.totalAmount.toLocaleString('en-PK')} - waiting for your review`, link: '/admin/dashboard#/feesCenter', type: 'fee' });
     res.status(201).json({ message: 'Payment proof sent. The school will check it and mark the fee as paid.', proof });
   } catch (e) { fail(res, e); }
 };
@@ -225,7 +227,13 @@ exports.reviewProof = async (req, res) => {
     proof.reviewedAt = new Date();
     proof.reviewNote = String(note).slice(0, 500);
     await proof.save();
-    res.json({ message: action === 'approve' ? 'Marked as paid' : 'Payment rejected', proof });
+    const ok = action === 'approve';
+    await N.notify({
+      schoolId: req.user.schoolId, recipients: await N.studentAndParents(req.user.schoolId, [proof.studentId]),
+      title: ok ? 'Payment confirmed - marked as paid' : 'Payment screenshot was rejected',
+      body: ok ? `Rs ${proof.totalAmount.toLocaleString('en-PK')} received. Thank you!` : proof.reviewNote, link: { parent: '/parent/dashboard#/fees', student: '/student/dashboard#/fees' }, type: 'fee',
+    });
+    res.json({ message: ok ? 'Marked as paid' : 'Payment rejected', proof });
   } catch (e) { fail(res, e); }
 };
 
@@ -262,6 +270,7 @@ exports.createCharges = async (req, res) => {
       dueDate: dueDate || undefined, note, createdBy: req.user.userId,
     }));
     await FeeCharge.insertMany(docs);
+    await N.notify({ schoolId: req.user.schoolId, recipients: await N.studentAndParents(req.user.schoolId, students.map((s) => s._id)), title: `New fee: ${String(title).trim()}`, body: `Rs ${amt.toLocaleString('en-PK')}${dueDate ? ` - due ${new Date(dueDate).toLocaleDateString('en-GB')}` : ''}`, link: { parent: '/parent/dashboard#/fees', student: '/student/dashboard#/fees' }, type: 'fee' });
     res.status(201).json({ message: `Fee added for ${docs.length} student${docs.length === 1 ? '' : 's'}`, count: docs.length });
   } catch (e) { fail(res, e); }
 };

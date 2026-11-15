@@ -41,8 +41,8 @@ const toCloudinary = (buffer) =>
       .end(buffer);
   });
 
-// Payment screenshots (fees) are allowed on every plan; other uploads follow the "fileUploads" feature.
-const gate = (req, res, next) => (req.query.purpose === 'payment' ? next() : featureGate('fileUploads')(req, res, next));
+// Payment screenshots, profile files and school logos are allowed on every plan; other uploads follow the "fileUploads" feature.
+const gate = (req, res, next) => (['payment', 'profile', 'branding'].includes(req.query.purpose) ? next() : featureGate('fileUploads')(req, res, next));
 
 router.post('/', authenticate, gate, (req, res) => {
   upload.single('file')(req, res, async (err) => {

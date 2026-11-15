@@ -39,6 +39,20 @@ const schoolSchema = new mongoose.Schema(
       default: null,
     },
     website: String,
+    motto: { type: String, default: '' },
+    academicYear: { type: String, default: '' },
+    // Shown to parents/students on the fee screen so they know where to send money
+    paymentInfo: {
+      bankName: { type: String, default: '' },
+      accountTitle: { type: String, default: '' },
+      accountNumber: { type: String, default: '' },
+      iban: { type: String, default: '' },
+      jazzcash: { type: String, default: '' },
+      easypaisa: { type: String, default: '' },
+      instructions: { type: String, default: '' },
+    },
+    // Offer the platform owner applied to this school
+    offerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Offer', default: null },
     principalName: String,
     principalEmail: String,
     studentCount: {

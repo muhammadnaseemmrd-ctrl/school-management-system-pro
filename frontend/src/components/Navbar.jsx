@@ -6,6 +6,8 @@ import { BookOpen, LogOut, Menu, Shield, X } from 'lucide-react';
 import { clearAuth } from '../store/authSlice';
 import { useLang } from '../i18n/LanguageContext';
 import LanguageToggle from './LanguageToggle';
+import NotificationBell from './NotificationBell';
+import useBranding, { clearBranding } from '../utils/useBranding';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,8 +15,11 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { user, school } = useSelector((state) => state.auth);
   const { t } = useLang();
+  const isSchoolUser = !!user && user.role !== 'superadmin';
+  const branding = useBranding(isSchoolUser);
 
   const handleLogout = () => {
+    clearBranding();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('adminActiveTab');
@@ -34,11 +39,15 @@ const Navbar = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#7a4e2d] text-[#f7efe4] shadow-sm">
-              <BookOpen size={20} />
-            </div>
-            <div>
-              <h1 className="text-lg font-extrabold tracking-tight text-[#3f2a1d]">SchoolHub</h1>
+            {isSchoolUser && branding?.logo ? (
+              <img src={branding.logo} alt="" className="h-10 w-10 rounded-2xl border border-[#d9c5b0] bg-white object-contain shadow-sm" />
+            ) : (
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#7a4e2d] text-[#f7efe4] shadow-sm">
+                <BookOpen size={20} />
+              </div>
+            )}
+            <div className="min-w-0">
+              <h1 className="max-w-[11rem] truncate text-lg font-extrabold tracking-tight text-[#3f2a1d] sm:max-w-xs">{(isSchoolUser && branding?.name) || 'SchoolHub'}</h1>
               <p className="text-xs text-[#7f634e]">{user?.role === 'superadmin' ? t('Platform console') : t('School management system')}</p>
             </div>
           </div>
@@ -51,6 +60,7 @@ const Navbar = () => {
                 {school?.name && <span className="text-[#8a6a50]">· {school.name}</span>}
               </div>
             )}
+            {isSchoolUser && <NotificationBell />}
             <LanguageToggle />
             <button
               onClick={handleLogout}
@@ -62,6 +72,7 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
+            {isSchoolUser && <NotificationBell />}
             <LanguageToggle />
             <button onClick={() => setIsOpen(!isOpen)} className="rounded-full border border-[#b68c67] bg-[#fffaf3] p-2 text-[#7a4e2d]">
               {isOpen ? <X size={24} /> : <Menu size={24} />}

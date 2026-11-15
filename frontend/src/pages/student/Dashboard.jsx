@@ -7,6 +7,7 @@ import {
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import usePlan from '../../utils/usePlan';
+import ProfileEditor from '../../components/ProfileEditor';
 import FeesPanel from '../../components/fees/FeesPanel';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
@@ -800,6 +801,13 @@ const StudentDashboard = () => {
         )}
 
         {/* TAB 2: PROFILE */}
+        {activeSubTab === 'profile' && (
+          <div className="mb-6 space-y-2">
+            <h2 className="text-xl font-black text-[#3f2a1d]">Edit my profile & documents</h2>
+            <ProfileEditor />
+          </div>
+        )}
+
         {activeSubTab === 'profile' && profileData && (
           <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-6">
             

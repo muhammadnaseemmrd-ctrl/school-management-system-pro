@@ -61,4 +61,23 @@ const userSchema = new mongoose.Schema(
 // Compound unique index: email + schoolId + role
 userSchema.index({ email: 1, schoolId: 1, role: 1 }, { unique: true });
 
+// Self-service profile (editable by the person) + uploaded documents
+userSchema.add({
+  profileExtra: {
+    about: { type: String, default: '' },
+    address: { type: String, default: '' },
+    city: { type: String, default: '' },
+    emergencyName: { type: String, default: '' },
+    emergencyPhone: { type: String, default: '' },
+  },
+  uploadedDocuments: [{
+    title: { type: String, required: true },
+    category: { type: String, default: 'Other' },
+    url: { type: String, required: true },
+    fileName: { type: String, default: '' },
+    uploadedAt: { type: Date, default: Date.now },
+  }],
+});
+
+
 module.exports = mongoose.model('User', userSchema);

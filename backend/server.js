@@ -29,6 +29,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const fileProxyRoutes = require('./routes/fileProxyRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
 const parentRoutes = require('./routes/parentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Import middleware
 const { errorHandler, notFound } = require('./middleware/errorHandler');
@@ -119,6 +121,8 @@ app.use('/api/fees', require('./routes/feeRoutes'));
 app.use('/api/files', fileProxyRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/parents', gate('parentPortal'), parentRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

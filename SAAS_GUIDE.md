@@ -95,3 +95,24 @@ The single web service serves both the API and the built React app. Free Render 
 ## Languages
 
 English and Urdu (right-to-left). The toggle is on every page including login. New/rewritten screens use `t('English text')`; the dictionary is `frontend/src/i18n/ur.js`; older screens are translated by `autoTranslate.js` for exact-match text. Add Urdu for a new string by adding `"English": "اردو"` to `ur.js`.
+
+
+## Offers, notifications, school setup and profiles
+
+* **Offers** (Super Admin > Offers): percent or fixed PKR discounts, optional code, plan filter and end date. Live offers show on every school admin's **School Setup > Plan & offers** page with the discounted price per plan, and admins get a notification. Give an offer to one school from the school's Edit window.
+* **Notifications** (bell in the header, every role): new notices, homework, absent / late / half-day marks (to parent and student), fee requests, payment approved / rejected, messages, complaint updates, offers (to admins). The bell checks every 40 seconds while the app is open. Users can also tap "Get alerts on this phone / browser" to receive **Web Push** even when the app is closed (the app generates its own push keys on first start and keeps them in the database; on iPhone the site must be added to the Home Screen first). The free host has no live sockets, so this polling + push combination is how real-time works here.
+* **School Setup** (admin): logo, name, motto, academic year, contact, address, time zone, principal, bank / JazzCash / Easypaisa details (shown on parents' fee screen), plan usage, offers, and a viewer for documents uploaded by students, teachers and parents.
+* **My profile & documents**: students, teachers, parents and admins can change their photo, phone, address, emergency contact and upload up to 25 documents (4 MB each).
+
+## Database choice and how far MongoDB scales
+
+The app stays on MongoDB (Atlas). Moving to PostgreSQL would mean rewriting the data layer of all ~30 collections and every controller; it gives no extra free capacity (Neon and Supabase free tiers are also about 500 MB) and the data here (per-school documents keyed by `schoolId`) fits MongoDB well.
+
+Rough capacity (estimates, not guarantees). A 500-student school stores about 40-50 MB of data per school year (daily attendance is the biggest part). Uploaded files are the real risk: one payment screenshot is about 250 KB, so 2,000 a year is about 500 MB.
+
+| Setup | Realistic capacity |
+|---|---|
+| Atlas M0 free (512 MB, throttled) with files in the database | demo / 1-2 pilot schools |
+| M0 free with files on Cloudinary (set `CLOUDINARY_*`) | about 8-10 schools, up to ~5,000 students, ~100-300 people online at once |
+| Atlas M10 (~$57 / month, 10 GB) + Cloudinary | about 150-200 school-years, ~75,000-100,000 students, ~1,000+ concurrent users |
+| M30 or larger, then sharding by `schoolId` | hundreds of thousands to millions of students |

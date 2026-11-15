@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
+import ProfileEditor from '../../components/ProfileEditor';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
@@ -1801,7 +1802,14 @@ const TeacherDashboard = () => {
             )}
 
             {/* PROFILE TAB */}
-            {activeTab === 'profile' && profileData && (
+            {activeTab === 'profile' && (
+          <div className="mb-6 space-y-2">
+            <h2 className="text-xl font-black text-[#3f2a1d]">Edit my profile & documents</h2>
+            <ProfileEditor />
+          </div>
+        )}
+
+        {activeTab === 'profile' && profileData && (
               <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-6">
                 
                 {/* Banner */}

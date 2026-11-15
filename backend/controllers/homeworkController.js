@@ -1,5 +1,6 @@
 const Homework = require('../models/Homework');
 const Student = require('../models/Student');
+const N = require('../utils/notify');
 
 // Create Homework
 exports.createHomework = async (req, res) => {
@@ -82,6 +83,11 @@ exports.createHomework = async (req, res) => {
       dueDate,
       totalStudents: studentCount,
     });
+
+    try {
+      const st = await N.students(req.user.schoolId, { classId: resolvedClassId });
+      await N.notify({ schoolId: req.user.schoolId, recipients: st, title: `New homework: ${title}`, body: dueDate ? `Due ${new Date(dueDate).toLocaleDateString('en-GB')}` : '', link: '/student/dashboard#/homework', type: 'homework' });
+    } catch (e) { console.error('homework notify', e.message); }
 
     res.status(201).json({
       message: 'Homework assigned successfully',

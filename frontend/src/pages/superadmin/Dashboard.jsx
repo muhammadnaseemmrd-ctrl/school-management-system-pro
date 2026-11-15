@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   BarChart3, Building2, CheckCircle2, Copy, GraduationCap, KeyRound, Lock, Menu, PauseCircle, PlayCircle,
-  Plus, Search, Trash2, Users, X, Wallet, UserCheck, CalendarClock, Layers, Pencil,
+  Plus, Search, Trash2, Users, X, Wallet, UserCheck, CalendarClock, Layers, Pencil, Gift,
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
@@ -11,6 +11,7 @@ const PLAN_COLORS = { free: '#b68c67', standard: '#7a4e2d', premium: '#c28a42' }
 const EXTRA = ['#0ea5e9', '#10b981', '#8b5cf6', '#f43f5e', '#14b8a6', '#f59e0b'];
 const planColor = (k, i = 0) => PLAN_COLORS[k] || EXTRA[i % EXTRA.length];
 const pkr = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
+const blankOffer = { title: '', description: '', code: '', discountType: 'percent', discountValue: 20, planSlugs: [], validFrom: '', validUntil: '', isActive: true };
 const blankPlan = { slug: '', label: '', description: '', pricePKR: 0, yearlyPricePKR: 0, studentLimit: 100, teacherLimit: 10, isActive: true, features: {} };
 const Card = ({ className = '', children }) => <div className={`rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm ${className}`}>{children}</div>;
 const Field = ({ label, children }) => (<div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">{label}</label>{children}</div>);
@@ -25,7 +26,7 @@ const Modal = ({ title, onClose, children, wide }) => (
   </div>
 );
 
-const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['security', 'Account Security', Lock]];
+const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['offers', 'Offers', Gift], ['security', 'Account Security', Lock]];
 
 const emptyForm = { name: '', code: '', email: '', phone: '', city: '', adminName: '', adminEmail: '', adminPassword: '', plan: 'free', subscriptionExpiresAt: '', timezone: 'Asia/Karachi' };
 
@@ -36,6 +37,8 @@ const SuperAdminDashboard = () => {
   const [plans, setPlans] = useState({});
   const [featureList, setFeatureList] = useState([]);
   const [planForm, setPlanForm] = useState(null); // plan being created/edited
+  const [offers, setOffers] = useState([]);
+  const [offerForm, setOfferForm] = useState(null);
   const [schools, setSchools] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, pages: 1, currentPage: 1 });
   const [filters, setFilters] = useState({ search: '', status: '', plan: '', page: 1 });
@@ -67,7 +70,25 @@ const SuperAdminDashboard = () => {
   useEffect(() => { loadStats(); }, [loadStats]);
   useEffect(() => { const t = setTimeout(loadSchools, 250); return () => clearTimeout(t); }, [loadSchools]);
 
-  const refresh = () => { loadStats(); loadSchools(); };
+  const loadOffers = useCallback(async () => {
+    try { const r = await apiClient.get('/superadmin/offers'); setOffers(r.data.offers); } catch (e) { toast.error(e.response?.data?.message || 'Failed to load offers'); }
+  }, []);
+  useEffect(() => { loadOffers(); }, [loadOffers]);
+  const saveOffer = async (e) => {
+    e.preventDefault();
+    const body = { ...offerForm, discountValue: Number(offerForm.discountValue) || 0, validFrom: offerForm.validFrom || undefined, validUntil: offerForm.validUntil || '' };
+    try {
+      if (offerForm._id) await apiClient.put(`/superadmin/offers/${offerForm._id}`, body); else await apiClient.post('/superadmin/offers', body);
+      toast.success(offerForm._id ? 'Offer saved' : 'Offer created. School admins were notified.'); setOfferForm(null); loadOffers();
+    } catch (err) { toast.error(err.response?.data?.message || 'Could not save offer'); }
+  };
+  const removeOffer = async (o) => {
+    if (!window.confirm(`Delete "${o.title}"? Schools using it go back to the normal price.`)) return;
+    try { await apiClient.delete(`/superadmin/offers/${o._id}`); toast.success('Offer deleted'); loadOffers(); } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+  };
+  const toggleOffer = async (o) => { try { await apiClient.put(`/superadmin/offers/${o._id}`, { isActive: !o.isActive }); loadOffers(); } catch (err) { toast.error(err.response?.data?.message || 'Failed'); } };
+
+  const refresh = () => { loadStats(); loadSchools(); loadOffers(); };
   const close = () => { setModal(null); setTempPwd(null); setConfirmCode(''); setSuspendReason(''); };
 
   const createSchool = async (e) => {
@@ -83,14 +104,14 @@ const SuperAdminDashboard = () => {
   };
 
   const openEdit = (s) => {
-    setEdit({ plan: s.plan, studentLimit: s.studentLimit, teacherLimit: s.teacherLimit, subscriptionExpiresAt: s.subscriptionExpiresAt ? s.subscriptionExpiresAt.slice(0, 10) : '', timezone: s.timezone || 'UTC' });
+    setEdit({ offerId: s.offerId || '', plan: s.plan, studentLimit: s.studentLimit, teacherLimit: s.teacherLimit, subscriptionExpiresAt: s.subscriptionExpiresAt ? s.subscriptionExpiresAt.slice(0, 10) : '', timezone: s.timezone || 'UTC' });
     setModal({ type: 'edit', school: s });
   };
   const saveEdit = async (e) => {
     e.preventDefault();
     try {
       await apiClient.put(`/superadmin/schools/${modal.school._id}`, {
-        plan: edit.plan, studentLimit: Number(edit.studentLimit), teacherLimit: Number(edit.teacherLimit), subscriptionExpiresAt: edit.subscriptionExpiresAt || '', timezone: edit.timezone,
+        plan: edit.plan, studentLimit: Number(edit.studentLimit), teacherLimit: Number(edit.teacherLimit), subscriptionExpiresAt: edit.subscriptionExpiresAt || '', timezone: edit.timezone, offerId: edit.offerId || '',
       });
       toast.success('Subscription updated'); close(); refresh();
     } catch (err) { toast.error(err.response?.data?.message || 'Update failed'); }
@@ -294,6 +315,35 @@ const SuperAdminDashboard = () => {
             </div>
           )}
 
+          {/* OFFERS */}
+          {tab === 'offers' && (
+            <div className="space-y-4">
+              <Card className="flex flex-wrap items-center justify-between gap-3">
+                <div className="max-w-2xl"><h2 className="text-xl font-bold">Offers & discounts</h2><p className="mt-1 text-sm text-[#7f634e]">Create a promotion (for example "Admission season 25% off"). Live offers appear to every school admin under School Setup, and they get a notification. To give an offer to a school, pick it in the school's Edit (pencil) window.</p></div>
+                <button onClick={() => setOfferForm({ ...blankOffer })} className="inline-flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-xs font-bold text-[#f7efe4] hover:bg-[#633d22]"><Plus className="h-4 w-4" /> New offer</button>
+              </Card>
+              {offers.length === 0 && <Card><p className="py-6 text-center text-sm italic text-[#8a6a50]">No offers yet.</p></Card>}
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {offers.map((o) => {
+                  const expired = o.validUntil && new Date(o.validUntil) < new Date();
+                  return (
+                    <Card key={o._id} className={`space-y-2 ${!o.isActive || expired ? 'opacity-60' : ''}`}>
+                      <div className="flex items-start justify-between gap-2"><p className="text-base font-black">🎁 {o.title}</p><span className="shrink-0 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-black text-white">{o.discountType === 'percent' ? `${o.discountValue}% off` : `Rs ${o.discountValue} off`}</span></div>
+                      {o.description && <p className="text-xs text-[#6d4c35]">{o.description}</p>}
+                      <p className="text-[11px] font-semibold text-[#8a6a50]">{o.code ? `Code ${o.code} · ` : ''}{o.planSlugs?.length ? `Plans: ${o.planSlugs.join(', ')}` : 'All plans'} · {o.validUntil ? `until ${new Date(o.validUntil).toLocaleDateString()}` : 'no end date'}</p>
+                      <p className="text-[11px] text-[#8a6a50]">{o.schoolsUsing} school(s) using · {expired ? 'Expired' : o.isActive ? 'Live' : 'Paused'}</p>
+                      <div className="flex gap-2 pt-1">
+                        <button onClick={() => setOfferForm({ ...o, validFrom: o.validFrom ? o.validFrom.slice(0, 10) : '', validUntil: o.validUntil ? o.validUntil.slice(0, 10) : '' })} className="flex-1 rounded-xl border border-[#d9c5b0] bg-white px-3 py-2 text-xs font-bold text-[#7a4e2d] hover:bg-[#f4ecdf]"><Pencil className="mr-1 inline h-3.5 w-3.5" />Edit</button>
+                        <button onClick={() => toggleOffer(o)} className="rounded-xl border border-[#d9c5b0] bg-white px-3 py-2 text-xs font-bold text-[#6d4c35] hover:bg-[#f4ecdf]">{o.isActive ? 'Pause' : 'Resume'}</button>
+                        <button onClick={() => removeOffer(o)} className="rounded-xl border border-[#d9c5b0] bg-white px-3 py-2 text-[#be123c] hover:bg-[#fff1f2]" title="Delete"><Trash2 className="h-4 w-4" /></button>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* SECURITY */}
           {tab === 'security' && (
             <Card className="max-w-lg"><h2 className="text-xl font-bold">Change your password</h2>
@@ -308,6 +358,26 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* MODALS */}
+      {offerForm && (
+        <Modal title={offerForm._id ? 'Edit offer' : 'New offer'} onClose={() => setOfferForm(null)} wide>
+          <form onSubmit={saveOffer} className="grid gap-3 sm:grid-cols-2">
+            <div className="sm:col-span-2"><Field label="Offer title"><input required className={inputCls} value={offerForm.title} onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })} placeholder="e.g. Admission season special" /></Field></div>
+            <div className="sm:col-span-2"><Field label="Description"><textarea rows={2} className={inputCls} value={offerForm.description || ''} onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })} /></Field></div>
+            <Field label="Discount type"><select className={inputCls} value={offerForm.discountType} onChange={(e) => setOfferForm({ ...offerForm, discountType: e.target.value })}><option value="percent">Percent (%)</option><option value="fixed">Fixed amount per month (PKR)</option></select></Field>
+            <Field label={offerForm.discountType === 'percent' ? 'Discount (%)' : 'Discount (PKR / month)'}><input required type="number" min="1" className={inputCls} value={offerForm.discountValue} onChange={(e) => setOfferForm({ ...offerForm, discountValue: e.target.value })} /></Field>
+            <Field label="Offer code (optional)"><input className={`${inputCls} uppercase`} value={offerForm.code || ''} onChange={(e) => setOfferForm({ ...offerForm, code: e.target.value.toUpperCase() })} /></Field>
+            <Field label="Valid until (blank = no end)"><input type="date" className={inputCls} value={offerForm.validUntil || ''} onChange={(e) => setOfferForm({ ...offerForm, validUntil: e.target.value })} /></Field>
+            <div className="sm:col-span-2">
+              <p className="mb-1 text-xs font-bold text-[#6d4c35]">Applies to plans (none ticked = all plans)</p>
+              <div className="flex flex-wrap gap-2">{Object.entries(plans).map(([k, p]) => (
+                <label key={k} className={`flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-1.5 text-xs font-bold ${offerForm.planSlugs?.includes(k) ? 'border-[#7a4e2d] bg-[#f7efe4]' : 'border-[#d9c5b0] bg-white'}`}>
+                  <input type="checkbox" className="accent-[#7a4e2d]" checked={!!offerForm.planSlugs?.includes(k)} onChange={(e) => setOfferForm({ ...offerForm, planSlugs: e.target.checked ? [...(offerForm.planSlugs || []), k] : (offerForm.planSlugs || []).filter((x) => x !== k) })} />{p.label}</label>))}</div>
+            </div>
+            <label className="flex items-center gap-2 text-xs font-bold text-[#6d4c35] sm:col-span-2"><input type="checkbox" className="h-4 w-4 accent-[#7a4e2d]" checked={offerForm.isActive !== false} onChange={(e) => setOfferForm({ ...offerForm, isActive: e.target.checked })} /> Live (visible to school admins)</label>
+            <div className="sm:col-span-2"><button className="rounded-xl bg-[#7a4e2d] px-5 py-2.5 text-xs font-bold text-[#f7efe4]">{offerForm._id ? 'Save offer' : 'Create offer'}</button></div>
+          </form>
+        </Modal>
+      )}
       {planForm && (
         <Modal title={planForm._editing ? `Edit plan - ${planForm.label}` : 'New plan'} onClose={() => setPlanForm(null)} wide>
           <form onSubmit={savePlan} className="space-y-4">
@@ -364,6 +434,7 @@ const SuperAdminDashboard = () => {
               <Field label="Student limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={edit.studentLimit} onChange={(e) => setEdit({ ...edit, studentLimit: e.target.value })} /></Field>
               <Field label="Teacher limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={edit.teacherLimit} onChange={(e) => setEdit({ ...edit, teacherLimit: e.target.value })} /></Field>
             </div>
+            <Field label="Offer for this school (optional)"><select className={inputCls} value={edit.offerId || ''} onChange={(e) => setEdit({ ...edit, offerId: e.target.value })}><option value="">No offer</option>{offers.map((o) => <option key={o._id} value={o._id}>{o.title} ({o.discountType === 'percent' ? `${o.discountValue}%` : `Rs ${o.discountValue}`} off){o.isActive ? '' : ' - paused'}</option>)}</select></Field>
             <Field label="School time zone"><input className={inputCls} value={edit.timezone || ''} onChange={(e) => setEdit({ ...edit, timezone: e.target.value })} placeholder="Asia/Karachi" /></Field>
             <Field label="Expires on (blank = never)"><input type="date" className={inputCls} value={edit.subscriptionExpiresAt} onChange={(e) => setEdit({ ...edit, subscriptionExpiresAt: e.target.value })} /></Field>
             <button className="rounded-xl bg-[#7a4e2d] px-5 py-2.5 text-xs font-bold text-[#f7efe4]">Save changes</button>

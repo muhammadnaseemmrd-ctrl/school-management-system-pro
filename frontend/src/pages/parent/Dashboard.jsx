@@ -8,6 +8,7 @@ import { Ring, STATUS, StatusChip, todaySentence } from '../../components/attend
 import FeesPanel from '../../components/fees/FeesPanel';
 import RichText, { extractLinks } from '../../components/RichText';
 import usePlan from '../../utils/usePlan';
+import ProfileEditor from '../../components/ProfileEditor';
 import { openProxiedFile } from '../../utils/fileProxy';
 
 const Card = ({ className = '', children }) => (
@@ -229,6 +230,8 @@ const ParentDashboard = () => {
             )}
 
             {tab === 'account' && (
+              <div className="space-y-5">
+              <ProfileEditor />
               <Card>
                 <h2 className="text-2xl font-black">{t('My account')}</h2>
                 <p className="mt-1 text-sm text-[#6d4c35]">{data?.parent?.email} · {data?.parent?.relationship}</p>
@@ -243,6 +246,7 @@ const ParentDashboard = () => {
                   <button className="rounded-xl bg-[#7a4e2d] px-6 py-3 text-base font-black text-white hover:bg-[#633d22]">{t('Update password')}</button>
                 </form>
               </Card>
+              </div>
             )}
           </>
         )}

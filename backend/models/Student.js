@@ -264,4 +264,23 @@ studentSchema.pre('validate', function (next) {
 // Compound unique index: email + schoolId
 studentSchema.index({ email: 1, schoolId: 1 }, { unique: true });
 
+// Self-service profile (editable by the person) + uploaded documents
+studentSchema.add({
+  profileExtra: {
+    about: { type: String, default: '' },
+    address: { type: String, default: '' },
+    city: { type: String, default: '' },
+    emergencyName: { type: String, default: '' },
+    emergencyPhone: { type: String, default: '' },
+  },
+  uploadedDocuments: [{
+    title: { type: String, required: true },
+    category: { type: String, default: 'Other' },
+    url: { type: String, required: true },
+    fileName: { type: String, default: '' },
+    uploadedAt: { type: Date, default: Date.now },
+  }],
+});
+
+
 module.exports = mongoose.model('Student', studentSchema);

@@ -11,6 +11,7 @@ import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
 import FeesCenter from '../../components/fees/FeesCenter';
+import SchoolSetup from '../../components/admin/SchoolSetup';
 import usePlan from '../../utils/usePlan';
 
 const AdminDashboard = () => {
@@ -19,7 +20,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1477,7 +1478,8 @@ const AdminDashboard = () => {
                   { id: 'fees', label: 'Manage Fees', icon: DollarSign },
                   { id: 'feesCenter', label: 'Payments & Other Fees', icon: Wallet },
                   { id: 'teacherAssignments', label: 'Teacher Assignments', icon: BookOpenCheck },
-                  { id: 'timetable', label: 'Manage Timetable', icon: Calendar }
+                  { id: 'timetable', label: 'Manage Timetable', icon: Calendar },
+                  { id: 'setup', label: 'School Setup', icon: Settings }
                 ].filter(item => {
                   const need = { exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' }[item.id];
                   return need ? has(need) : true;
@@ -2633,6 +2635,16 @@ const AdminDashboard = () => {
             )}
 
             {/* ===================== MANAGE FEES TAB ===================== */}
+            {activeTab === 'setup' && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-black text-[#3f2a1d]">School Setup</h2>
+                  <p className="text-xs text-[#8a6a50] mt-1">Logo, name, contact details, payment details, your plan and offers, and the documents people have uploaded.</p>
+                </div>
+                <SchoolSetup />
+              </div>
+            )}
+
             {activeTab === 'feesCenter' && (
               <div className="space-y-4">
                 <div>

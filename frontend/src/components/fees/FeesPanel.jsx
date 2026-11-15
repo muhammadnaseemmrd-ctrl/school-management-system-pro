@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import { compressImage } from '../../utils/imageCompress';
 import { useLang } from '../../i18n/LanguageContext';
+import useBranding from '../../utils/useBranding';
 
 export const rs = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
 const METHODS = ['Bank transfer', 'JazzCash', 'Easypaisa', 'Cash deposit', 'Other'];
@@ -22,6 +23,9 @@ export const StatusPill = ({ status }) => {
 // Students and parents can only SEND a payment screenshot here. The school decides if it is Paid.
 const FeesPanel = ({ studentId, studentName }) => {
   const { t, fmtDate } = useLang();
+  const branding = useBranding(true);
+  const pay = branding?.paymentInfo || {};
+  const payRows = [['Bank', pay.bankName], ['Account title', pay.accountTitle], ['Account no.', pay.accountNumber], ['IBAN', pay.iban], ['JazzCash', pay.jazzcash], ['Easypaisa', pay.easypaisa]].filter(([, v]) => v);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [picked, setPicked] = useState([]);
@@ -87,6 +91,16 @@ const FeesPanel = ({ studentId, studentName }) => {
           <div key={l} className="rounded-2xl border border-[#d9c5b0] bg-white px-2 py-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#8a6a50]">{t(l)}</p><p className={`text-base font-black sm:text-lg ${c}`}>{rs(v)}</p></div>
         ))}
       </div>
+
+      {(payRows.length > 0 || pay.instructions) && (
+        <div className="rounded-2xl border border-[#d9c5b0] bg-[#fffaf3] p-4">
+          <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#8a6a50]">{t('Send the fee to')}</p>
+          <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
+            {payRows.map(([l, v]) => <div key={l} className="flex justify-between gap-2 border-b border-[#f1e6d6] py-1"><dt className="text-[#8a6a50]">{t(l)}</dt><dd className="select-all font-black text-[#3f2a1d]">{v}</dd></div>)}
+          </dl>
+          {pay.instructions && <p className="mt-2 text-xs font-semibold text-[#6d4c35]">{pay.instructions}</p>}
+        </div>
+      )}
 
       {!data.hasStructure && data.items.length === 0 && (
         <div className="rounded-2xl border border-dashed border-[#d9c5b0] bg-white p-6 text-center text-sm text-[#8a6a50]">{t('The school has not added any fees for {name} yet.', { name: studentName || data.student.name })}</div>

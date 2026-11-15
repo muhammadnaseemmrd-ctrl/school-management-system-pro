@@ -13,6 +13,9 @@ router.get('/', authenticate, authorize('superadmin'), schoolController.getAllSc
 // The school's current plan + enabled features (any signed-in school user)
 router.get('/my-plan', authenticate, schoolController.getMyPlan);
 
+router.get('/branding', authenticate, schoolController.getBranding);
+router.get('/billing', authenticate, authorize('admin'), schoolController.getBilling);
+
 // Get My School (For Admin)
 router.get('/my', authenticate, authorize('admin'), schoolController.getMySchool);
 

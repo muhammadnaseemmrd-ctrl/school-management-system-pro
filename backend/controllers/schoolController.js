@@ -148,7 +148,17 @@ exports.updateSchool = async (req, res) => {
     }
 
     // Admins may only edit profile fields – never plan, limits, status or ownership
-    const allowed = ['name', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail'];
+    const allowed = ['name', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail', 'motto', 'academicYear', 'paymentInfo', 'timezone'];
+    if (req.body.timezone !== undefined) {
+      try { new Intl.DateTimeFormat('en', { timeZone: req.body.timezone }); } catch (e) { return res.status(400).json({ message: 'Invalid time zone (use a name like Asia/Karachi)' }); }
+    }
+    if (req.body.name !== undefined && !String(req.body.name).trim()) return res.status(400).json({ message: 'School name cannot be empty' });
+    if (req.body.logo && !/^(https?:\/\/|\/api\/files\/stored\/)/.test(req.body.logo)) return res.status(400).json({ message: 'Invalid logo' });
+    if (req.body.paymentInfo) {
+      const pi = {};
+      ['bankName', 'accountTitle', 'accountNumber', 'iban', 'jazzcash', 'easypaisa', 'instructions'].forEach((k) => { pi[k] = String(req.body.paymentInfo[k] || '').slice(0, 300); });
+      req.body.paymentInfo = pi;
+    }
     const patch = {};
     allowed.forEach((k) => { if (req.body[k] !== undefined) patch[k] = req.body[k]; });
 
@@ -236,4 +246,46 @@ exports.getMyPlan = async (req, res) => {
   } catch (e) {
     res.status(500).json({ message: e.message });
   }
+};
+
+
+// Name, logo and payment details – shown in the app header and on the fee screen (any signed-in school user)
+exports.getBranding = async (req, res) => {
+  try {
+    if (!req.user.schoolId) return res.json({ branding: null });
+    const s = await School.findById(req.user.schoolId).select('name logo motto academicYear paymentInfo phone email website');
+    res.json({ branding: s });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+// Plan, usage and offers for the school admin
+exports.getBilling = async (req, res) => {
+  try {
+    const Offer = require('../models/Offer');
+    const Student = require('../models/Student');
+    const Teacher = require('../models/Teacher');
+    const { getPlansMap } = require('../utils/plans');
+    const school = await School.findById(req.user.schoolId);
+    const plans = await getPlansMap();
+    const plan = plans[school.plan] || null;
+    const now = new Date();
+    const live = await Offer.find({ isActive: true, validFrom: { $lte: now }, $or: [{ validUntil: null }, { validUntil: { $gte: now } }] });
+    const price = plan?.pricePKR || 0;
+    const calc = (o, base) => Math.max(0, Math.round(o.discountType === 'percent' ? base * (1 - o.discountValue / 100) : base - o.discountValue));
+    const shape = (o) => ({
+      _id: o._id, title: o.title, description: o.description, code: o.code, discountType: o.discountType, discountValue: o.discountValue,
+      validUntil: o.validUntil, planSlugs: o.planSlugs,
+      prices: Object.fromEntries(Object.entries(plans).filter(([k, p]) => p.isActive !== false && (!o.planSlugs.length || o.planSlugs.includes(k))).map(([k, p]) => [k, { label: p.label, original: p.pricePKR, discounted: calc(o, p.pricePKR) }])),
+    });
+    const applied = school.offerId ? await Offer.findById(school.offerId) : null;
+    const [students, teachers] = await Promise.all([Student.countDocuments({ schoolId: school._id }), Teacher.countDocuments({ schoolId: school._id })]);
+    res.json({
+      plan: { slug: school.plan, label: plan?.label || school.plan, pricePKR: price, yearlyPricePKR: plan?.yearlyPricePKR || 0, features: plan?.features || {} },
+      pricePayablePKR: applied ? calc(applied, price) : price,
+      appliedOffer: applied ? shape(applied) : null,
+      offers: live.map(shape),
+      usage: { students, teachers, studentLimit: school.studentLimit, teacherLimit: school.teacherLimit },
+      expiresAt: school.subscriptionExpiresAt,
+    });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 };

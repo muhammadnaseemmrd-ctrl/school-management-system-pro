@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const N = require('../utils/notify');
 const DailyAttendance = require('../models/DailyAttendance');
 const { STATUSES } = DailyAttendance;
 const Class = require('../models/Class');
@@ -142,6 +143,21 @@ exports.saveClassSheet = async (req, res) => {
       });
     }
     await DailyAttendance.bulkWrite(ops);
+
+    // Parents (and the student) hear about absences, late arrivals and half days
+    try {
+      const flagged = incoming.filter((r) => ['Absent', 'Late', 'HalfDay'].includes(r.status));
+      const label = { Absent: 'was marked absent', Late: 'arrived late', HalfDay: 'left early (half day)' };
+      for (const r of flagged) {
+        const stu = await Student.findById(r.studentId).select('name');
+        const who = stu?.name || 'Your child';
+        await N.notify({
+          schoolId: req.user.schoolId, recipients: await N.studentAndParents(req.user.schoolId, [r.studentId]),
+          title: `${who} ${label[r.status]}`, body: `${dayKey(dateUTC)}${r.status === 'HalfDay' && r.leftAt ? ` at ${r.leftAt}` : ''}`,
+          link: { parent: '/parent/dashboard#/attendance', student: '/student/dashboard#/attendance' }, type: 'attendance', key: `att:${r.studentId}:${dayKey(dateUTC)}:${r.status}`,
+        });
+      }
+    } catch (e) { console.error('attendance notify', e.message); }
 
     res.json({ message: 'Attendance saved', date: dayKey(dateUTC), summary: tallyDaily(clean) });
   } catch (e) {

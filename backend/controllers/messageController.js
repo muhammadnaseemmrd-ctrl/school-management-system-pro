@@ -2,6 +2,7 @@ const Message = require('../models/Message');
 const User = require('../models/User');
 const Teacher = require('../models/Teacher');
 const Student = require('../models/Student');
+const N = require('../utils/notify');
 
 // Send Message
 exports.sendMessage = async (req, res) => {
@@ -33,6 +34,7 @@ exports.sendMessage = async (req, res) => {
       attachments,
     });
 
+    await N.notify({ schoolId: req.user.schoolId, recipients: [{ id: recipientId, role: N.roleOfModel(recipientModel) }], title: `New message${subject ? `: ${subject}` : ''}`, body: String(message || '').slice(0, 140), link: `/${N.roleOfModel(recipientModel)}/dashboard#/messages`, type: 'message' });
     await newMessage.populate('senderId', 'name email');
     await newMessage.populate('recipientId', 'name email');
 

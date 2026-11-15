@@ -1,4 +1,5 @@
 const Notice = require('../models/Notice');
+const N = require('../utils/notify');
 
 // Create Notice
 exports.createNotice = async (req, res) => {
@@ -24,6 +25,21 @@ exports.createNotice = async (req, res) => {
       attachments: attachments || [],
       expiresAt,
     });
+
+    // Tell everyone who can see it
+    try {
+      const sid = req.user.schoolId;
+      let to = [];
+      const aud = notice.targetAudience;
+      if (aud === 'All') to = [...await N.admins(sid), ...await N.teachers(sid), ...await N.students(sid), ...await N.parents(sid)];
+      else if (aud === 'Students') { const st = await N.students(sid); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
+      else if (aud === 'Teachers') to = await N.teachers(sid);
+      else if (aud === 'Class Specific' && targetClassId) { const st = await N.students(sid, { classId: targetClassId }); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
+      else if (aud === 'Individual' && notice.targetUserId) { const role = await N.resolveRole(notice.targetUserId); if (role) to = [{ id: notice.targetUserId, role }]; }
+      const linkFor = { admin: '/admin/dashboard#/notices', teacher: '/teacher/dashboard#/notices', student: '/student/dashboard#/notices', parent: '/parent/dashboard#/notices' };
+      await Promise.all(['admin', 'teacher', 'student', 'parent'].map((role) =>
+        N.notify({ schoolId: sid, recipients: to.filter((r) => r.role === role), title: `New notice: ${notice.title}`, body: String(notice.content || '').slice(0, 140), link: linkFor[role], type: 'notice', exclude: req.user.userId })));
+    } catch (e) { console.error('notice notify', e.message); }
 
     res.status(201).json({
       message: 'Notice created successfully',

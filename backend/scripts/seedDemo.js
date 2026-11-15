@@ -54,6 +54,7 @@ const run = async () => {
     // Keep the demo on the all-features plan and make sure fee demo data exists
     await School.updateOne({ _id: existing._id }, { plan: 'premium', studentLimit: 0, teacherLimit: 0 });
     if (await require('./seedDemoFees')(existing._id, existing.adminId)) console.log('Added demo fee data.');
+    await require('./seedDemoExtras')(existing._id, existing.adminId);
     return;
   }
   if (existing) {
@@ -208,6 +209,7 @@ const run = async () => {
   ]);
 
   await require('./seedDemoFees')(schoolId, adminId);
+  await require('./seedDemoExtras')(schoolId, adminId);
 
   console.log('\n✅ Demo school ready');
   console.log(`   School code : ${CODE}`);
