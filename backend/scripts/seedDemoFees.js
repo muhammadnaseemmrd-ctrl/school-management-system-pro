@@ -43,7 +43,10 @@ const makeSlipPng = () => {
 };
 
 module.exports = async function seedDemoFees(schoolId, adminId) {
-  if (await FeeStructure.exists({ schoolId })) return false;
+  // Already seeded with the new fee center data?
+  if (await TransportRoute.exists({ schoolId })) return false;
+  // Demo school only: clear older tuition test data so the demo starts clean
+  await Promise.all([FeeStructure.deleteMany({ schoolId }), StudentFee.deleteMany({ schoolId })]);
 
   const classes = await Class.find({ schoolId });
   const students = await Student.find({ schoolId }).sort({ rollNumber: 1 });
