@@ -455,11 +455,19 @@ const TeacherDashboard = () => {
     s.registrationNumber?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Real homework figures for this teacher (previously hard-coded)
+  const myHomework = (assignedHomework || []).filter((hw) => {
+    const tId = hw.teacherId?._id || hw.teacherId;
+    return tId && profileData?._id && tId.toString() === profileData._id.toString();
+  });
+  const pendingHomeworkCount = myHomework.reduce((n, hw) => n + Math.max(0, (hw.totalStudents || 0) - (hw.submittedCount || 0)), 0);
+  const ungradedCount = myHomework.reduce((n, hw) => n + (hw.submissions || []).filter((x) => ['Submitted', 'Late'].includes(x.status) && (x.marks === undefined || x.marks === null)).length, 0);
+
   const stats = [
     { icon: Users, title: 'Total Students', value: students.length, tone: 'bg-sky-500/10 text-sky-700' },
     { icon: BookOpen, title: 'Classes Assigned', value: profileData?.subjectClassAssignments ? [...new Set(profileData.subjectClassAssignments.map(ass => ass.classId?._id || ass.classId).filter(Boolean))].length : 0, tone: 'bg-emerald-500/10 text-emerald-700' },
-    { icon: CheckCircle, title: 'Pending Homework', value: '15', tone: 'bg-amber-500/10 text-amber-700' },
-    { icon: AlertCircle, title: 'Ungraded Submissions', value: '8', tone: 'bg-rose-500/10 text-rose-700' },
+    { icon: CheckCircle, title: 'Pending Homework', value: pendingHomeworkCount, tone: 'bg-amber-500/10 text-amber-700' },
+    { icon: AlertCircle, title: 'Ungraded Submissions', value: ungradedCount, tone: 'bg-rose-500/10 text-rose-700' },
   ];
 
   return (

@@ -315,7 +315,7 @@ export default function Landing() {
       {/* ───────── Roadmap ───────── */}
       <section id="roadmap" className="scroll-mt-20 px-5 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <SectionHead eyebrow="Roadmap" title="What is live today and what we are building next" text="We list what is planned separately from what is working, so you always know what you are getting." />
+          <SectionHead eyebrow="Roadmap" title="What is live today and what we are building next" text="Phase 1 is working now. Phases 2 and 3 are on the way." />
           <div className="mt-10 grid gap-5 lg:grid-cols-3">
             {ROADMAP.map((ph) => {
               const badge = ph.tone === 'live' ? 'bg-[#0f6b4f] text-white' : ph.tone === 'next' ? 'bg-[#e0a526] text-[#0c2f25]' : 'bg-[#e3efe8] text-[#355e4d]';
@@ -339,7 +339,6 @@ export default function Landing() {
               );
             })}
           </div>
-          <p className="mt-6 text-center text-sm text-[#4f7262]">Phase 2 and 3 are plans, not promises of dates. The order may change based on what schools ask for.</p>
         </div>
       </section>
 

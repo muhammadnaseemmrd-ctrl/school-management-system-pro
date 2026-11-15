@@ -264,7 +264,7 @@ const landingUr = {
   "Many campuses, shifts and sessions under one owner, plus accounts and profit and loss": "ایک مالک کے تحت کئی کیمپس، شفٹیں اور سیشن، نیز اکاؤنٹس اور نفع و نقصان",
   "Online classes and parent video meetings, video lectures": "آن لائن کلاسیں اور والدین کی ویڈیو میٹنگ، ویڈیو لیکچرز",
   "School-branded app, custom domain and open API for larger groups": "بڑے گروپس کے لیے اسکول کے نام کی ایپ، اپنا ڈومین اور اوپن API",
-  "Phase 2 and 3 are plans, not promises of dates. The order may change based on what schools ask for.": "مرحلہ 2 اور 3 منصوبے ہیں، تاریخوں کے وعدے نہیں۔ اسکولوں کی مانگ کے مطابق ترتیب بدل سکتی ہے۔",
+  "Phase 1 is working now. Phases 2 and 3 are on the way.": "مرحلہ 1 ابھی چل رہا ہے۔ مرحلہ 2 اور 3 آ رہے ہیں۔",
 };
 
 export default landingUr;

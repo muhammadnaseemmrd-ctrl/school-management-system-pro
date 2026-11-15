@@ -1630,10 +1630,10 @@ const AdminDashboard = () => {
 
                   for (const struct of feeStructures) {
                     const qAmt = Math.round(struct.totalAmount / 4);
-                    // Add the configured annual amount for this standard
-                    totalExpected += struct.totalAmount;
-                    // Add collected from all students in this standard
+                    // Collected is summed over every student in this standard, so expected must be too:
+                    // the configured annual amount is per student.
                     const stdFees = allStudentFees.filter(f => f.classId?.standard === struct.standard);
+                    totalExpected += struct.totalAmount * stdFees.length;
                     const collected = stdFees.reduce((acc, f) => {
                       const paid = ['q1Status','q2Status','q3Status','q4Status'].filter(k => f[k] === 'Paid').length;
                       return acc + paid * qAmt;
@@ -1641,8 +1641,8 @@ const AdminDashboard = () => {
                     totalCollected += collected;
                   }
 
-                  const totalPending = totalExpected - totalCollected;
-                  const pct = totalExpected > 0 ? Math.round((totalCollected / totalExpected) * 100) : 0;
+                  const totalPending = Math.max(0, totalExpected - totalCollected);
+                  const pct = totalExpected > 0 ? Math.min(100, Math.round((totalCollected / totalExpected) * 100)) : 0;
                   const radius = 54;
                   const circumference = 2 * Math.PI * radius;
                   const offset = circumference - (pct / 100) * circumference;
