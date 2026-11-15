@@ -1,10 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
 import { Ring, STATUS, StatusChip, todaySentence } from '../../components/attendance/shared';
+import FeesPanel from '../../components/fees/FeesPanel';
+import RichText, { extractLinks } from '../../components/RichText';
+import usePlan from '../../utils/usePlan';
+import { openProxiedFile } from '../../utils/fileProxy';
 
 const Card = ({ className = '', children }) => (
   <div className={`rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm ${className}`}>{children}</div>
@@ -16,10 +20,13 @@ const BANNER = {
   Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#0ea5e9]', None: 'bg-stone-400',
 };
 
-const TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['notices', 'Notices', Bell], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['account', 'My account', Lock]];
+const fileName = (u = '') => decodeURIComponent((u.split('?')[0].split('/').pop() || 'Attachment')).slice(0, 40);
 
 const ParentDashboard = () => {
   const { t, fmtDate, isRtl } = useLang();
+  const { has } = usePlan();
+  const TABS = useMemo(() => ALL_TABS.filter(([id]) => (id === 'fees' ? has('fees') : id === 'notices' ? has('notices') : true)), [has]);
   const [tab, setTab] = useState(() => {
     const h = window.location.hash.replace('#/', '');
     return TABS.some(([id]) => id === h) ? h : 'home';
@@ -92,7 +99,7 @@ const ParentDashboard = () => {
         </div>
 
         {/* big, simple tab buttons (bottom bar on phones) */}
-        <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-[#d9c5b0] bg-[#fffaf3] md:static md:z-auto md:rounded-2xl md:border md:shadow-sm">
+        <nav className={`fixed inset-x-0 bottom-0 z-30 grid ${TABS.length === 5 ? 'grid-cols-5' : TABS.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} border-t border-[#d9c5b0] bg-[#fffaf3] md:static md:z-auto md:rounded-2xl md:border md:shadow-sm`}>
           {TABS.map(([id, label, Icon]) => (
             <button key={id} onClick={() => setTab(id)} className={`flex flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:flex-row md:justify-center md:gap-2 md:text-sm ${tab === id ? 'bg-[#7a4e2d] text-white md:rounded-2xl' : 'text-[#6d4c35] hover:bg-[#f4ecdf] md:rounded-2xl'}`}>
               <Icon className="h-6 w-6 md:h-5 md:w-5" /> {t(label)}
@@ -171,20 +178,53 @@ const ParentDashboard = () => {
               </div>
             )}
 
-            {tab === 'notices' && (
+            {tab === 'fees' && (
               <div className="space-y-4">
+                <Switcher />
+                {child ? (
+                  <>
+                    <Card>
+                      <h2 className="text-2xl font-black">{t('Fees')} · {child.name}</h2>
+                      <p className="mt-1 text-sm font-semibold text-[#6d4c35]">{t('Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot. The school checks it and marks the fee as paid.')}</p>
+                    </Card>
+                    <FeesPanel key={child._id} studentId={child._id} studentName={child.name} />
+                  </>
+                ) : <Card><p>{t('No child selected.')}</p></Card>}
+              </div>
+            )}
+
+            {tab === 'notices' && (
+              <div className="space-y-3">
                 {notices.length === 0 && <Card><p className="py-4 text-center text-base text-[#8a6a50]">{t('No notices right now.')}</p></Card>}
-                {notices.map((n) => (
-                  <Card key={n._id}>
-                    <div className="flex flex-wrap items-center gap-2">
-                      {n.isPinned && <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">{t('Pinned')}</span>}
-                      <span className="rounded-full bg-[#7a4e2d]/10 px-2.5 py-0.5 text-xs font-bold text-[#7a4e2d]">{n.category}</span>
-                      <span className="text-xs text-[#8a6a50]">{new Date(n.createdAt).toLocaleDateString()}</span>
+                {notices.map((n) => {
+                  const links = extractLinks(n.content);
+                  return (
+                    <div key={n._id} className="flex items-start gap-3">
+                      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#7a4e2d] text-white"><Bell className="h-5 w-5" /></div>
+                      {/* message-style bubble */}
+                      <div className="min-w-0 flex-1 rounded-3xl rounded-tl-md border border-[#d9c5b0] bg-[#fffaf3] px-5 py-4 shadow-sm">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          <span className="font-black text-[#7a4e2d]">{t('School')}</span>
+                          {n.isPinned && <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-800"><Pin className="h-3 w-3" />{t('Pinned')}</span>}
+                          <span className="rounded-full bg-[#7a4e2d]/10 px-2 py-0.5 font-bold text-[#7a4e2d]">{n.category}</span>
+                          <span className="ml-auto text-[#8a6a50]">{new Date(n.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <h3 className="mt-2 text-base font-black leading-snug">{n.title}</h3>
+                        <RichText text={n.content} className="mt-1 text-base leading-7 text-[#4f3727]" />
+                        {(links.length > 0 || (n.attachments || []).length > 0) && (
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {links.slice(0, 4).map((u) => (
+                              <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-[#bae6fd] bg-[#f0f9ff] px-3 py-1.5 text-xs font-black text-[#0369a1] hover:bg-[#e0f2fe]"><ExternalLink className="h-3.5 w-3.5" />{t('Open link')}</a>
+                            ))}
+                            {(n.attachments || []).map((u) => (
+                              <button key={u} onClick={() => openProxiedFile(u)} className="inline-flex items-center gap-1.5 rounded-full border border-[#d9c5b0] bg-white px-3 py-1.5 text-xs font-black text-[#7a4e2d] hover:bg-[#f4ecdf]"><Paperclip className="h-3.5 w-3.5" />{fileName(u)}</button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <h3 className="mt-2 text-lg font-black">{n.title}</h3>
-                    <p className="mt-1 whitespace-pre-line text-base leading-7 text-[#6d4c35]">{n.content}</p>
-                  </Card>
-                ))}
+                  );
+                })}
               </div>
             )}
 

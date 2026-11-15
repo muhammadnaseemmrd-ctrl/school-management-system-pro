@@ -1,74 +1,85 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
+const crypto = require('crypto');
 const cloudinary = require('cloudinary').v2;
 const { authenticate } = require('../middleware/auth');
+const { featureGate } = require('../utils/plans');
+const StoredFile = require('../models/StoredFile');
 
-// Make sure local uploads directory exists
-// (serverless hosts have a read-only app folder; use the temp dir there)
-const uploadsDir = process.env.VERCEL
-  ? path.join(require('os').tmpdir(), 'uploads')
-  : path.join(__dirname, '../uploads');
-try {
-  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-} catch (e) {
-  console.error('Could not create uploads dir:', e.message);
-}
+// Vercel functions accept ~4.5 MB bodies, so keep uploads under 4 MB
+// (the web app shrinks photos before uploading).
+const MAX_BYTES = 4 * 1024 * 1024;
+const ALLOWED = new Set([
+  'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+  'application/pdf', 'text/plain',
+  'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint', 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+]);
 
-// Multer storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_BYTES },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED.has(file.mimetype)) return cb(null, true);
+    cb(new Error('This file type is not allowed. Use an image, PDF or Office document.'));
   },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
 });
 
-const upload = multer({ storage });
+const cloudinaryOn = () => !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET);
 
-// Configure Cloudinary
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
-});
+const toCloudinary = (buffer) =>
+  new Promise((resolve, reject) => {
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+    cloudinary.uploader
+      .upload_stream({ resource_type: 'auto', folder: 'school_management' }, (err, result) => (err ? reject(err) : resolve(result)))
+      .end(buffer);
+  });
 
-router.post('/', authenticate, upload.single('file'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+// Payment screenshots (fees) are allowed on every plan; other uploads follow the "fileUploads" feature.
+const gate = (req, res, next) => (req.query.purpose === 'payment' ? next() : featureGate('fileUploads')(req, res, next));
+
+router.post('/', authenticate, gate, (req, res) => {
+  upload.single('file')(req, res, async (err) => {
+    if (err) {
+      const message = err.code === 'LIMIT_FILE_SIZE' ? 'File is too large (max 4 MB).' : err.message;
+      return res.status(400).json({ message });
     }
+    try {
+      if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
-    // Try to upload to Cloudinary if keys are set
-    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
-      try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          resource_type: 'auto',
-          folder: 'school_management'
-        });
-        
-        // Remove local file after successful upload to Cloudinary
-        fs.unlinkSync(req.file.path);
-        
-        return res.json({ url: result.secure_url });
-      } catch (cloudinaryError) {
-        console.error('Cloudinary upload error, falling back to local storage:', cloudinaryError);
+      if (cloudinaryOn()) {
+        try {
+          const result = await toCloudinary(req.file.buffer);
+          return res.json({ url: result.secure_url, storage: 'cloudinary' });
+        } catch (e) {
+          console.error('Cloudinary upload failed, storing in MongoDB instead:', e.message);
+        }
       }
-    }
 
-    // Fallback: return local path url
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
-    
-    return res.json({ url: fileUrl });
-  } catch (error) {
-    console.error('File upload error:', error);
-    res.status(500).json({ message: 'Server error during file upload' });
-  }
+      const key = crypto.randomBytes(16).toString('hex');
+      const doc = await StoredFile.create({
+        schoolId: req.user.schoolId,
+        uploadedBy: req.user.userId,
+        key,
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        data: req.file.buffer,
+      });
+      // Relative-to-host URL so it works on any domain
+      const url = `${req.protocol}://${req.get('host')}/api/files/stored/${doc._id}/${key}`;
+      return res.json({ url, storage: 'database' });
+    } catch (error) {
+      console.error('File upload error:', error);
+      res.status(500).json({ message: 'Server error during file upload' });
+    }
+  });
 });
 
 module.exports = router;

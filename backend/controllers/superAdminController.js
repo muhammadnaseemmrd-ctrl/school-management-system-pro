@@ -10,7 +10,8 @@ const Class = require('../models/Class');
 const DailyAttendance = require('../models/DailyAttendance');
 const { hashPassword, comparePassword, validatePasswordStrength } = require('../utils/password');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
-const { PLANS } = require('../utils/plans');
+const Plan = require('../models/Plan');
+const { FEATURES, FEATURE_KEYS, getPlansMap, invalidatePlans, clearSchoolPlanCache } = require('../utils/plans');
 const { isValidTz } = require('../utils/time');
 const { invalidateSchoolStatus } = require('../middleware/auth');
 
@@ -78,11 +79,13 @@ exports.getStats = async (req, res) => {
       }),
     ]);
 
-    const planDistribution = { free: 0, standard: 0, premium: 0 };
-    planAgg.forEach((p) => { if (p._id in planDistribution) planDistribution[p._id] = p.count; });
+    const PLANS = await getPlansMap();
+    const planDistribution = {};
+    Object.keys(PLANS).forEach((k) => { planDistribution[k] = 0; });
+    planAgg.forEach((p) => { planDistribution[p._id] = p.count; });
 
-    // Estimated monthly recurring revenue
-    const mrr = Object.entries(planDistribution).reduce((sum, [k, v]) => sum + (PLANS[k]?.priceUSD || 0) * v, 0);
+    // Estimated monthly recurring revenue (PKR)
+    const mrr = Object.entries(planDistribution).reduce((sum, [k, v]) => sum + (PLANS[k]?.pricePKR || 0) * v, 0);
 
     const signups = [];
     for (let i = 5; i >= 0; i--) {
@@ -101,6 +104,7 @@ exports.getStats = async (req, res) => {
         planDistribution, mrr, expiringSoon, signups,
       },
       plans: PLANS,
+      features: FEATURES,
     });
   } catch (e) {
     res.status(500).json({ message: e.message });
@@ -128,7 +132,7 @@ exports.listSchools = async (req, res) => {
     }
     if (status === 'active') query.isActive = true;
     if (status === 'suspended') query.isActive = false;
-    if (plan && PLANS[plan]) query.plan = plan;
+    if (plan) query.plan = plan;
 
     const lim = Math.min(parseInt(limit) || 10, 100);
     const schools = await School.find(query)
@@ -163,6 +167,7 @@ exports.createSchool = async (req, res) => {
     if (!name || !code || !email || !phone || !adminName || !adminEmail || !adminPassword) {
       return res.status(400).json({ message: 'name, code, email, phone, adminName, adminEmail and adminPassword are required' });
     }
+    const PLANS = await getPlansMap();
     if (!PLANS[plan]) return res.status(400).json({ message: 'Invalid plan' });
     if (timezone && !isValidTz(timezone)) return res.status(400).json({ message: 'Invalid time zone (use an IANA name like Asia/Karachi)' });
     if (!validatePasswordStrength(adminPassword)) {
@@ -203,6 +208,7 @@ exports.updateSchool = async (req, res) => {
 
     // Picking a plan applies its default limits unless explicit limits are sent too
     if (patch.plan) {
+      const PLANS = await getPlansMap();
       if (!PLANS[patch.plan]) return res.status(400).json({ message: 'Invalid plan' });
       if (patch.studentLimit === undefined) patch.studentLimit = PLANS[patch.plan].studentLimit;
       if (patch.teacherLimit === undefined) patch.teacherLimit = PLANS[patch.plan].teacherLimit;
@@ -210,6 +216,7 @@ exports.updateSchool = async (req, res) => {
     if (patch.timezone && !isValidTz(patch.timezone)) return res.status(400).json({ message: 'Invalid time zone (use an IANA name like Asia/Karachi)' });
     if (patch.subscriptionExpiresAt === '') patch.subscriptionExpiresAt = null;
 
+    clearSchoolPlanCache();
     const school = await School.findByIdAndUpdate(req.params.id, patch, { new: true, runValidators: true })
       .populate('adminId', 'name email lastLogin');
     if (!school) return res.status(404).json({ message: 'School not found' });
@@ -282,4 +289,72 @@ exports.deleteSchool = async (req, res) => {
   }
 };
 
-exports.getPlans = (req, res) => res.json({ plans: PLANS });
+exports.getPlans = async (req, res) => {
+  try { res.json({ plans: await getPlansMap(), features: FEATURES }); } catch (e) { res.status(500).json({ message: e.message }); }
+};
+
+/* ─────────────────────── PLAN MANAGEMENT ─────────────────────── */
+const cleanFeatures = (input) => Object.fromEntries(FEATURE_KEYS.map((k) => [k, !!(input && input[k])]));
+const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? Math.round(n) : d; };
+
+exports.createPlan = async (req, res) => {
+  try {
+    const { label, description = '', pricePKR, yearlyPricePKR, studentLimit, teacherLimit, features, isActive = true } = req.body;
+    if (!label || !String(label).trim()) return res.status(400).json({ message: 'Plan name is required' });
+    const slug = String(req.body.slug || label).trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    if (!slug) return res.status(400).json({ message: 'Invalid plan name' });
+    if (await Plan.findOne({ slug })) return res.status(400).json({ message: 'A plan with this name already exists' });
+    const last = await Plan.findOne().sort({ sortOrder: -1 });
+    const plan = await Plan.create({
+      slug, label: String(label).trim(), description, pricePKR: num(pricePKR), yearlyPricePKR: num(yearlyPricePKR),
+      studentLimit: num(studentLimit), teacherLimit: num(teacherLimit), features: cleanFeatures(features),
+      isActive: !!isActive, sortOrder: (last?.sortOrder || 0) + 1,
+    });
+    invalidatePlans();
+    res.status(201).json({ message: 'Plan created', plan });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.updatePlan = async (req, res) => {
+  try {
+    const plan = await Plan.findOne({ slug: req.params.slug });
+    if (!plan) return res.status(404).json({ message: 'Plan not found' });
+    const b = req.body;
+    if (b.label !== undefined) plan.label = String(b.label).trim() || plan.label;
+    if (b.description !== undefined) plan.description = b.description;
+    if (b.pricePKR !== undefined) plan.pricePKR = num(b.pricePKR);
+    if (b.yearlyPricePKR !== undefined) plan.yearlyPricePKR = num(b.yearlyPricePKR);
+    if (b.studentLimit !== undefined) plan.studentLimit = num(b.studentLimit);
+    if (b.teacherLimit !== undefined) plan.teacherLimit = num(b.teacherLimit);
+    if (b.features !== undefined) plan.features = cleanFeatures(b.features);
+    if (b.isActive !== undefined) plan.isActive = !!b.isActive;
+    await plan.save();
+
+    // Schools on this plan follow its limits (features are read live from the plan)
+    let updated = 0;
+    if (b.applyLimitsToSchools !== false && (b.studentLimit !== undefined || b.teacherLimit !== undefined)) {
+      const r = await School.updateMany({ plan: plan.slug }, { studentLimit: plan.studentLimit, teacherLimit: plan.teacherLimit });
+      updated = r.modifiedCount || 0;
+    }
+    invalidatePlans();
+    clearSchoolPlanCache();
+    res.json({ message: 'Plan updated', plan, schoolsUpdated: updated });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
+
+exports.deletePlan = async (req, res) => {
+  try {
+    const inUse = await School.countDocuments({ plan: req.params.slug });
+    if (inUse) return res.status(400).json({ message: `${inUse} school(s) are on this plan. Move them to another plan first, or just deactivate the plan.` });
+    const r = await Plan.deleteOne({ slug: req.params.slug });
+    if (!r.deletedCount) return res.status(404).json({ message: 'Plan not found' });
+    invalidatePlans();
+    res.json({ message: 'Plan deleted' });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};

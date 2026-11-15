@@ -18,6 +18,7 @@ const Timetable = require('../models/Timetable');
 const TimetableConfig = require('../models/TimetableConfig');
 const DailyAttendance = require('../models/DailyAttendance');
 const Notice = require('../models/Notice');
+require('../models/FeeStructure'); require('../models/StudentFee'); require('../models/FeeCharge'); require('../models/PaymentProof'); require('../models/TransportRoute'); require('../models/TransportAssignment'); require('../models/StoredFile');
 const { hashPassword } = require('../utils/password');
 
 const CODE = 'DEMO01';
@@ -50,6 +51,9 @@ const run = async () => {
   let existing = await School.findOne({ code: CODE });
   if (existing && !reset) {
     console.log(`Demo school ${CODE} already exists. Use --reset to rebuild it.`);
+    // Keep the demo on the all-features plan and make sure fee demo data exists
+    await School.updateOne({ _id: existing._id }, { plan: 'premium', studentLimit: 0, teacherLimit: 0 });
+    if (await require('./seedDemoFees')(existing._id, existing.adminId)) console.log('Added demo fee data.');
     return;
   }
   if (existing) {
@@ -69,7 +73,7 @@ const run = async () => {
     _id: schoolId, name: 'Demo Public School', code: CODE, adminId, email: 'info@demo.school',
     phone: '+92-300-0000000', address: { street: '12 Education Road', city: 'Islamabad', state: 'ICT', country: 'Pakistan' },
     principalName: 'Dr. Demo Principal', principalEmail: 'admin@demo.school', isActive: true,
-    plan: 'standard', studentLimit: 500, teacherLimit: 50, createdVia: 'seed', timezone: 'Asia/Karachi',
+    plan: 'premium', studentLimit: 0, teacherLimit: 0, createdVia: 'seed', timezone: 'Asia/Karachi',
   });
   await User.create({ _id: adminId, schoolId, name: 'Demo Admin', email: 'admin@demo.school', password: hash.admin, phone: '+92-300-1111111', role: 'admin' });
 
@@ -202,6 +206,8 @@ const run = async () => {
     { schoolId, title: 'Parent-Teacher Meeting', category: 'Event', content: 'The parent-teacher meeting will be held on the last Saturday of this month. Please check your child\'s attendance record beforehand.', createdBy: adminId, createdByModel: 'User', targetAudience: 'All', priority: 'Medium' },
     { schoolId, title: 'Attendance policy reminder', category: 'General', content: 'Students must maintain at least 75% attendance to be eligible for final examinations. Parents are notified from the parent dashboard when attendance drops below this level.', createdBy: adminId, createdByModel: 'User', targetAudience: 'Students', priority: 'High' },
   ]);
+
+  await require('./seedDemoFees')(schoolId, adminId);
 
   console.log('\n✅ Demo school ready');
   console.log(`   School code : ${CODE}`);

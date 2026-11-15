@@ -8,6 +8,10 @@ import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer,
 import apiClient from '../../utils/apiClient';
 
 const PLAN_COLORS = { free: '#b68c67', standard: '#7a4e2d', premium: '#c28a42' };
+const EXTRA = ['#0ea5e9', '#10b981', '#8b5cf6', '#f43f5e', '#14b8a6', '#f59e0b'];
+const planColor = (k, i = 0) => PLAN_COLORS[k] || EXTRA[i % EXTRA.length];
+const pkr = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
+const blankPlan = { slug: '', label: '', description: '', pricePKR: 0, yearlyPricePKR: 0, studentLimit: 100, teacherLimit: 10, isActive: true, features: {} };
 const Card = ({ className = '', children }) => <div className={`rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm ${className}`}>{children}</div>;
 const Field = ({ label, children }) => (<div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">{label}</label>{children}</div>);
 const inputCls = 'w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]';
@@ -30,6 +34,8 @@ const SuperAdminDashboard = () => {
   const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [stats, setStats] = useState(null);
   const [plans, setPlans] = useState({});
+  const [featureList, setFeatureList] = useState([]);
+  const [planForm, setPlanForm] = useState(null); // plan being created/edited
   const [schools, setSchools] = useState([]);
   const [pagination, setPagination] = useState({ total: 0, pages: 1, currentPage: 1 });
   const [filters, setFilters] = useState({ search: '', status: '', plan: '', page: 1 });
@@ -45,7 +51,7 @@ const SuperAdminDashboard = () => {
   useEffect(() => { localStorage.setItem('superadminActiveTab', tab); }, [tab]);
 
   const loadStats = useCallback(async () => {
-    try { const r = await apiClient.get('/superadmin/stats'); setStats(r.data.stats); setPlans(r.data.plans); }
+    try { const r = await apiClient.get('/superadmin/stats'); setStats(r.data.stats); setPlans(r.data.plans); setFeatureList(r.data.features || []); }
     catch (e) { toast.error(e.response?.data?.message || 'Failed to load stats'); }
   }, []);
 
@@ -119,6 +125,23 @@ const SuperAdminDashboard = () => {
     } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
   };
 
+  const savePlan = async (e) => {
+    e.preventDefault();
+    const body = { ...planForm, pricePKR: Number(planForm.pricePKR) || 0, yearlyPricePKR: Number(planForm.yearlyPricePKR) || 0, studentLimit: Number(planForm.studentLimit) || 0, teacherLimit: Number(planForm.teacherLimit) || 0 };
+    try {
+      if (planForm._editing) {
+        const r = await apiClient.put(`/superadmin/plans/${planForm.slug}`, body);
+        toast.success(r.data.schoolsUpdated ? `Plan saved. ${r.data.schoolsUpdated} school(s) updated.` : 'Plan saved');
+      } else { await apiClient.post('/superadmin/plans', body); toast.success('Plan created'); }
+      setPlanForm(null); refresh();
+    } catch (err) { toast.error(err.response?.data?.message || 'Could not save plan'); }
+  };
+  const removePlan = async (slug) => {
+    if (!window.confirm('Delete this plan? This cannot be undone.')) return;
+    try { await apiClient.delete(`/superadmin/plans/${slug}`); toast.success('Plan deleted'); refresh(); }
+    catch (err) { toast.error(err.response?.data?.message || 'Could not delete'); }
+  };
+
   const copy = (t) => { navigator.clipboard?.writeText(t); toast.success('Copied'); };
   const expiry = (s) => (s.subscriptionExpiresAt ? new Date(s.subscriptionExpiresAt).toLocaleDateString() : 'Never');
   const limitText = (n) => (n === 0 ? '∞' : n);
@@ -128,7 +151,7 @@ const SuperAdminDashboard = () => {
     ['Students', stats.totalStudents, 'across all schools', GraduationCap, 'bg-emerald-500/10 text-emerald-700'],
     ['Teachers', stats.totalTeachers, 'across all schools', Users, 'bg-[#0ea5e9]/10 text-[#0369a1]'],
     ['Parents', stats.totalParents, 'linked accounts', UserCheck, 'bg-[#f43f5e]/10 text-[#be123c]'],
-    ['Est. MRR', `$${stats.mrr}`, 'from paid plans', Wallet, 'bg-violet-500/10 text-violet-700'],
+    ['Est. monthly income', pkr(stats.mrr), 'from plan prices', Wallet, 'bg-violet-500/10 text-violet-700'],
     ['New (30 days)', stats.newSchools30d, 'school sign-ups', Plus, 'bg-teal-500/10 text-teal-700'],
     ['Attendance today', stats.attendanceToday, 'records marked', CheckCircle2, 'bg-lime-500/10 text-lime-700'],
     ['Expiring ≤14d', stats.expiringSoon, 'subscriptions', CalendarClock, 'bg-orange-500/10 text-orange-700'],
@@ -180,7 +203,7 @@ const SuperAdminDashboard = () => {
                     <h3 className="mb-3 text-lg font-bold">Plan distribution</h3>
                     <div className="h-64"><ResponsiveContainer width="100%" height="100%"><PieChart>
                       <Pie data={Object.entries(stats.planDistribution).map(([k, v]) => ({ name: plans[k]?.label || k, key: k, value: v })).filter((x) => x.value > 0)} dataKey="value" innerRadius={50} outerRadius={80} paddingAngle={3}>
-                        {Object.keys(stats.planDistribution).map((k) => <Cell key={k} fill={PLAN_COLORS[k]} />)}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer></div>
+                        {Object.keys(stats.planDistribution).filter((k) => stats.planDistribution[k] > 0).map((k, i) => <Cell key={k} fill={planColor(k, i)} />)}</Pie><Tooltip /><Legend iconType="circle" wrapperStyle={{ fontSize: 11 }} /></PieChart></ResponsiveContainer></div>
                   </Card>
                 </div>
               )}
@@ -210,7 +233,7 @@ const SuperAdminDashboard = () => {
                       <tr key={s._id} className="border-b border-[#d9c5b0]/40 hover:bg-white/60">
                         <td className="px-4 py-3"><p className="font-bold text-[#3f2a1d]">{s.name}</p><p className="text-[10px] text-[#8a6a50]">{s.adminId?.email || s.email}</p></td>
                         <td className="px-4 py-3 font-mono font-bold">{s.code}</td>
-                        <td className="px-4 py-3"><span className="rounded-full px-2.5 py-1 text-[10px] font-black uppercase text-white" style={{ background: PLAN_COLORS[s.plan] }}>{plans[s.plan]?.label || s.plan}</span></td>
+                        <td className="px-4 py-3"><span className="rounded-full px-2.5 py-1 text-[10px] font-black uppercase text-white" style={{ background: planColor(s.plan, Object.keys(plans).indexOf(s.plan)) }}>{plans[s.plan]?.label || s.plan}</span></td>
                         <td className="px-4 py-3">{s.counts.students}<span className="text-[#8a6a50]"> / {limitText(s.studentLimit)}</span></td>
                         <td className="px-4 py-3">{s.counts.teachers}<span className="text-[#8a6a50]"> / {limitText(s.teacherLimit)}</span></td>
                         <td className="px-4 py-3">{s.counts.parents}</td>
@@ -245,12 +268,27 @@ const SuperAdminDashboard = () => {
           {/* PLANS */}
           {tab === 'plans' && (
             <div className="space-y-4">
-              <Card><h2 className="text-xl font-bold">Plans & pricing</h2><p className="mt-1 text-sm text-[#7f634e]">Every plan sets default student and teacher limits. Schools self-register on <b>Free</b>; upgrade them from the Schools tab. Limits are enforced when admins add students or teachers. Prices below are the values used for the MRR estimate.</p></Card>
-              <div className="grid gap-4 md:grid-cols-3">
-                {Object.entries(plans).map(([k, p]) => (
-                  <Card key={k} className="space-y-3"><span className="inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase text-white" style={{ background: PLAN_COLORS[k] }}>{p.label}</span>
-                    <p className="text-3xl font-black">${p.priceUSD}<span className="text-sm font-semibold text-[#8a6a50]"> / month</span></p>
-                    <ul className="space-y-1.5 text-sm text-[#6d4c35]"><li>👩‍🎓 {limitText(p.studentLimit) === '∞' ? 'Unlimited' : `Up to ${p.studentLimit}`} students</li><li>👩‍🏫 {limitText(p.teacherLimit) === '∞' ? 'Unlimited' : `Up to ${p.teacherLimit}`} teachers</li><li>👨‍👩‍👧 Parent dashboards</li><li>🗓️ Timetable & attendance</li></ul></Card>
+              <Card className="flex flex-wrap items-center justify-between gap-3">
+                <div className="max-w-2xl"><h2 className="text-xl font-bold">Plans & pricing (PKR)</h2><p className="mt-1 text-sm text-[#7f634e]">Set the price, student/teacher limits and which features each plan includes. Changes apply immediately: schools on a plan lose or gain the features at once. New schools sign up on <b>Free</b>; move them to a paid plan from the Schools tab.</p></div>
+                <button onClick={() => setPlanForm({ ...blankPlan, features: Object.fromEntries(featureList.map((f) => [f.key, true])) })} className="inline-flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-xs font-bold text-[#f7efe4] hover:bg-[#633d22]"><Plus className="h-4 w-4" /> New plan</button>
+              </Card>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {Object.entries(plans).map(([k, p], i) => (
+                  <Card key={k} className={`space-y-3 ${p.isActive === false ? 'opacity-60' : ''}`}>
+                    <div className="flex items-center justify-between"><span className="inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase text-white" style={{ background: planColor(k, i) }}>{p.label}</span>
+                      {p.isActive === false && <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-bold text-stone-600">Hidden</span>}</div>
+                    <div><p className="text-3xl font-black">{pkr(p.pricePKR)}<span className="text-sm font-semibold text-[#8a6a50]"> / month</span></p>
+                      {p.yearlyPricePKR > 0 && <p className="text-xs font-semibold text-[#8a6a50]">or {pkr(p.yearlyPricePKR)} / year</p>}</div>
+                    {p.description && <p className="text-xs text-[#7f634e]">{p.description}</p>}
+                    <p className="text-sm text-[#6d4c35]">{p.studentLimit ? `Up to ${p.studentLimit}` : 'Unlimited'} students · {p.teacherLimit ? `Up to ${p.teacherLimit}` : 'Unlimited'} teachers</p>
+                    <ul className="grid grid-cols-1 gap-1 text-xs">
+                      {featureList.map((f) => (<li key={f.key} className={p.features?.[f.key] ? 'font-semibold text-emerald-800' : 'text-[#a58b76] line-through'}>{p.features?.[f.key] ? '✓' : '✕'} {f.label}</li>))}
+                    </ul>
+                    <div className="flex gap-2 pt-1">
+                      <button onClick={() => setPlanForm({ ...p, slug: k, _editing: true, features: { ...(p.features || {}) } })} className="flex-1 rounded-xl border border-[#d9c5b0] bg-white px-3 py-2 text-xs font-bold text-[#7a4e2d] hover:bg-[#f4ecdf]"><Pencil className="mr-1 inline h-3.5 w-3.5" />Edit</button>
+                      <button onClick={() => removePlan(k)} className="rounded-xl border border-[#d9c5b0] bg-white px-3 py-2 text-[#be123c] hover:bg-[#fff1f2]" title="Delete plan"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -270,6 +308,35 @@ const SuperAdminDashboard = () => {
       </div>
 
       {/* MODALS */}
+      {planForm && (
+        <Modal title={planForm._editing ? `Edit plan - ${planForm.label}` : 'New plan'} onClose={() => setPlanForm(null)} wide>
+          <form onSubmit={savePlan} className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Plan name"><input required className={inputCls} value={planForm.label} onChange={(e) => setPlanForm({ ...planForm, label: e.target.value })} placeholder="e.g. Gold" /></Field>
+              <Field label="Description (optional)"><input className={inputCls} value={planForm.description || ''} onChange={(e) => setPlanForm({ ...planForm, description: e.target.value })} /></Field>
+              <Field label="Monthly price (PKR)"><input type="number" min="0" className={inputCls} value={planForm.pricePKR} onChange={(e) => setPlanForm({ ...planForm, pricePKR: e.target.value })} /></Field>
+              <Field label="Yearly price (PKR, 0 = not offered)"><input type="number" min="0" className={inputCls} value={planForm.yearlyPricePKR} onChange={(e) => setPlanForm({ ...planForm, yearlyPricePKR: e.target.value })} /></Field>
+              <Field label="Student limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={planForm.studentLimit} onChange={(e) => setPlanForm({ ...planForm, studentLimit: e.target.value })} /></Field>
+              <Field label="Teacher limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={planForm.teacherLimit} onChange={(e) => setPlanForm({ ...planForm, teacherLimit: e.target.value })} /></Field>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-bold text-[#6d4c35]">Features included in this plan</p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {featureList.map((f) => (
+                  <label key={f.key} className={`flex cursor-pointer items-start gap-2 rounded-xl border px-3 py-2 text-xs ${planForm.features?.[f.key] ? 'border-[#7a4e2d] bg-[#f7efe4]' : 'border-[#d9c5b0] bg-white'}`}>
+                    <input type="checkbox" className="mt-0.5 h-4 w-4 accent-[#7a4e2d]" checked={!!planForm.features?.[f.key]} onChange={(e) => setPlanForm({ ...planForm, features: { ...planForm.features, [f.key]: e.target.checked } })} />
+                    <span><b className="block text-[#3f2a1d]">{f.label}</b><span className="text-[#8a6a50]">{f.desc}</span></span>
+                  </label>
+                ))}
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-xs font-bold text-[#6d4c35]"><input type="checkbox" className="h-4 w-4 accent-[#7a4e2d]" checked={planForm.isActive !== false} onChange={(e) => setPlanForm({ ...planForm, isActive: e.target.checked })} /> Available when adding schools</label>
+            {planForm._editing && <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-900">Saving also sets the student/teacher limits of every school on this plan to the values above.</p>}
+            <button className="rounded-xl bg-[#7a4e2d] px-5 py-2.5 text-xs font-bold text-[#f7efe4]">{planForm._editing ? 'Save plan' : 'Create plan'}</button>
+          </form>
+        </Modal>
+      )}
+
       {modal?.type === 'create' && (
         <Modal title="Add a school (tenant)" onClose={close} wide>
           <form onSubmit={createSchool} className="grid gap-3 sm:grid-cols-2">
@@ -278,7 +345,7 @@ const SuperAdminDashboard = () => {
             <Field label="School email"><input required type="email" className={inputCls} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Field>
             <Field label="Phone"><input required className={inputCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></Field>
             <Field label="City"><input className={inputCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></Field>
-            <Field label="Plan"><select className={inputCls} value={form.plan} onChange={(e) => setForm({ ...form, plan: e.target.value })}>{Object.entries(plans).map(([k, p]) => <option key={k} value={k}>{p.label}</option>)}</select></Field>
+            <Field label="Plan"><select className={inputCls} value={form.plan} onChange={(e) => setForm({ ...form, plan: e.target.value })}>{Object.entries(plans).filter(([, p]) => p.isActive !== false).map(([k, p]) => <option key={k} value={k}>{p.label} - {pkr(p.pricePKR)}/mo</option>)}</select></Field>
             <Field label="Admin name"><input required className={inputCls} value={form.adminName} onChange={(e) => setForm({ ...form, adminName: e.target.value })} /></Field>
             <Field label="Admin email"><input required type="email" className={inputCls} value={form.adminEmail} onChange={(e) => setForm({ ...form, adminEmail: e.target.value })} /></Field>
             <Field label="Admin password"><input required type="text" className={inputCls} value={form.adminPassword} onChange={(e) => setForm({ ...form, adminPassword: e.target.value })} placeholder="Min 6, 1 capital, 1 number, 1 special" /></Field>
@@ -292,7 +359,7 @@ const SuperAdminDashboard = () => {
       {modal?.type === 'edit' && (
         <Modal title={`Subscription — ${modal.school.name}`} onClose={close}>
           <form onSubmit={saveEdit} className="space-y-3">
-            <Field label="Plan"><select className={inputCls} value={edit.plan} onChange={(e) => { const p = plans[e.target.value]; setEdit({ ...edit, plan: e.target.value, studentLimit: p.studentLimit, teacherLimit: p.teacherLimit }); }}>{Object.entries(plans).map(([k, p]) => <option key={k} value={k}>{p.label} (${p.priceUSD}/mo)</option>)}</select></Field>
+            <Field label="Plan"><select className={inputCls} value={edit.plan} onChange={(e) => { const p = plans[e.target.value]; setEdit({ ...edit, plan: e.target.value, studentLimit: p.studentLimit, teacherLimit: p.teacherLimit }); }}>{Object.entries(plans).map(([k, p]) => <option key={k} value={k}>{p.label} ({pkr(p.pricePKR)}/mo)</option>)}</select></Field>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Student limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={edit.studentLimit} onChange={(e) => setEdit({ ...edit, studentLimit: e.target.value })} /></Field>
               <Field label="Teacher limit (0 = unlimited)"><input type="number" min="0" className={inputCls} value={edit.teacherLimit} onChange={(e) => setEdit({ ...edit, teacherLimit: e.target.value })} /></Field>

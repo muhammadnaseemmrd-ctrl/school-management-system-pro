@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
-  Trash2, X, ClipboardList, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu 
+  Trash2, X, ClipboardList, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet 
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
@@ -10,12 +10,16 @@ import ParentsManager from './ParentsManager';
 import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
+import FeesCenter from '../../components/fees/FeesCenter';
+import usePlan from '../../utils/usePlan';
 
 const AdminDashboard = () => {
   const { t } = useLang();
+  const { has } = usePlan();
+  const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -151,6 +155,10 @@ const AdminDashboard = () => {
   const [savingSubjects, setSavingSubjects] = useState(false);
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [grievances, setGrievances] = useState([]);
+  useEffect(() => {
+    if (!has('fees')) return;
+    apiClient.get('/fees/overview').then((r) => setPendingProofs(r.data.pendingProofs || 0)).catch(() => {});
+  }, [activeTab, has]);
   const [selectedGrievance, setSelectedGrievance] = useState(null);
   const [revertMessage, setRevertMessage] = useState('');
   const [grievanceSubTab, setGrievanceSubTab] = useState('teacher'); // 'teacher' or 'student'
@@ -1434,7 +1442,7 @@ const AdminDashboard = () => {
                   { id: 'teachers', label: 'Teachers List', icon: Users },
                   { id: 'students', label: 'Students List', icon: GraduationCap },
                   { id: 'parents', label: 'Parents & Guardians', icon: Users }
-                ].map(item => {
+                ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
                   const active = activeTab === item.id;
                   return (
@@ -1467,9 +1475,13 @@ const AdminDashboard = () => {
                   { id: 'notices', label: 'Manage Notice', icon: Bell },
                   { id: 'grievances', label: 'Manage Grievance', icon: Shield },
                   { id: 'fees', label: 'Manage Fees', icon: DollarSign },
+                  { id: 'feesCenter', label: 'Payments & Other Fees', icon: Wallet },
                   { id: 'teacherAssignments', label: 'Teacher Assignments', icon: BookOpenCheck },
                   { id: 'timetable', label: 'Manage Timetable', icon: Calendar }
-                ].map(item => {
+                ].filter(item => {
+                  const need = { exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' }[item.id];
+                  return need ? has(need) : true;
+                }).map(item => {
                   const Icon = item.icon;
                   const active = activeTab === item.id;
                   return (
@@ -1487,6 +1499,9 @@ const AdminDashboard = () => {
                     >
                       <Icon className="h-4 w-4" />
                       <span className="flex-1 text-left">{item.label}</span>
+                      {item.id === 'feesCenter' && pendingProofs > 0 && (
+                        <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white shrink-0 leading-none">{pendingProofs}</span>
+                      )}
                       {item.id === 'grievances' && (() => {
                         const count = grievances.filter(g => g.status === 'Pending').length;
                         return count > 0 ? (
@@ -1667,14 +1682,14 @@ const AdminDashboard = () => {
                               <span className="h-3 w-3 rounded-full bg-[#7a4e2d] inline-block"></span>
                               <span className="text-xs font-bold text-[#6d4c35]">Collected</span>
                             </div>
-                            <span className="font-extrabold text-[#3f2a1d] text-sm">₹{totalCollected.toLocaleString()}</span>
+                            <span className="font-extrabold text-[#3f2a1d] text-sm">Rs {totalCollected.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-white border border-[#d9c5b0]/50 rounded-xl">
                             <div className="flex items-center gap-2">
                               <span className="h-3 w-3 rounded-full bg-rose-400 inline-block"></span>
                               <span className="text-xs font-bold text-[#6d4c35]">Pending</span>
                             </div>
-                            <span className="font-extrabold text-rose-600 text-sm">₹{totalPending.toLocaleString()}</span>
+                            <span className="font-extrabold text-rose-600 text-sm">Rs {totalPending.toLocaleString()}</span>
                           </div>
                           <div className="flex justify-between items-center p-3 bg-[#7a4e2d]/5 border border-[#d9c5b0]/50 rounded-xl">
                             <div className="flex items-center gap-2">
@@ -1682,7 +1697,7 @@ const AdminDashboard = () => {
                               <span className="text-xs font-bold text-[#6d4c35]">Total</span>
                             </div>
                             <span className="font-extrabold text-[#3f2a1d] text-sm">
-                              ₹{totalCollected.toLocaleString()} / ₹{totalExpected.toLocaleString()}
+                              Rs {totalCollected.toLocaleString()} / Rs {totalExpected.toLocaleString()}
                             </span>
                           </div>
                         </div>
@@ -2618,6 +2633,16 @@ const AdminDashboard = () => {
             )}
 
             {/* ===================== MANAGE FEES TAB ===================== */}
+            {activeTab === 'feesCenter' && (
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-2xl font-black text-[#3f2a1d]">Payments & Other Fees</h2>
+                  <p className="text-xs text-[#8a6a50] mt-1">Check payment screenshots from students and parents, add uniform / book / exam fees, and manage transport.</p>
+                </div>
+                <FeesCenter classes={classes} students={students} transportOn={has('transport')} />
+              </div>
+            )}
+
             {activeTab === 'fees' && (
               <div className="space-y-6">
                 {/* Header */}
@@ -2698,11 +2723,11 @@ const AdminDashboard = () => {
                                 <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
                                   <div>
                                     <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Paid</span>
-                                    <span className="font-extrabold text-emerald-600">₹{totalPaid.toLocaleString()}</span>
+                                    <span className="font-extrabold text-emerald-600">Rs {totalPaid.toLocaleString()}</span>
                                   </div>
                                   <div className="border-l border-[#d9c5b0]/30">
                                     <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Pending</span>
-                                    <span className="font-extrabold text-rose-600">₹{totalPending.toLocaleString()}</span>
+                                    <span className="font-extrabold text-rose-600">Rs {totalPending.toLocaleString()}</span>
                                   </div>
                                 </div>
 
@@ -2729,7 +2754,7 @@ const AdminDashboard = () => {
                                     );
                                   })}
                                 </div>
-                                <p className="text-[10px] text-[#8a6a50] text-center">₹{instAmt.toLocaleString()} per installment ({totalInst} terms)</p>
+                                <p className="text-[10px] text-[#8a6a50] text-center">Rs {instAmt.toLocaleString()} per installment ({totalInst} terms)</p>
                               </div>
                             );
                           })}
@@ -2796,11 +2821,11 @@ const AdminDashboard = () => {
                               <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
                                 <div>
                                   <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Annual Fee</span>
-                                  <span className="font-extrabold text-[#6d4c35] text-base">₹{struct.totalAmount.toLocaleString()}</span>
+                                  <span className="font-extrabold text-[#6d4c35] text-base">Rs {struct.totalAmount.toLocaleString()}</span>
                                 </div>
                                 <div className="border-l border-[#d9c5b0]/30">
                                   <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Per Term</span>
-                                  <span className="font-extrabold text-[#6d4c35] text-base">₹{instAmt.toLocaleString()}</span>
+                                  <span className="font-extrabold text-[#6d4c35] text-base">Rs {instAmt.toLocaleString()}</span>
                                 </div>
                               </div>
 
@@ -2808,7 +2833,7 @@ const AdminDashboard = () => {
                               <div className="grid grid-cols-4 gap-1.5">
                                 {Array.from({ length: Math.min(totalInst, 4) }, (_, i) => (
                                   <div key={i} className="rounded-lg bg-[#7a4e2d]/10 text-[#7a4e2d] text-[10px] font-bold text-center py-1.5">
-                                    Term {i+1}<br/><span className="text-[8px]">₹{instAmt.toLocaleString()}</span>
+                                    Term {i+1}<br/><span className="text-[8px]">Rs {instAmt.toLocaleString()}</span>
                                   </div>
                                 ))}
                                 {totalInst > 4 && (
@@ -2870,7 +2895,7 @@ const AdminDashboard = () => {
 
                     {/* Total annual fee */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Annual Total Fee (₹) *</label>
+                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Annual Total Fee (Rs ) *</label>
                       <input
                         type="number"
                         min="1"
@@ -2930,7 +2955,7 @@ const AdminDashboard = () => {
                           {Array.from({ length: feeForm.totalInstallments || 4 }, (_, idx) => (
                             <div key={idx} className="bg-white rounded-lg py-2 border border-[#d9c5b0]/50">
                               <p className="text-[10px] font-bold text-[#7a4e2d]">Term {idx + 1}</p>
-                              <p className="text-xs font-extrabold text-[#3f2a1d]">₹{Math.round(Number(feeForm.totalAmount) / (feeForm.totalInstallments || 4)).toLocaleString()}</p>
+                              <p className="text-xs font-extrabold text-[#3f2a1d]">Rs {Math.round(Number(feeForm.totalAmount) / (feeForm.totalInstallments || 4)).toLocaleString()}</p>
                             </div>
                           ))}
                         </div>

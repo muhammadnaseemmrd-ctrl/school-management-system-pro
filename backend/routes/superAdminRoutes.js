@@ -12,6 +12,9 @@ router.use(authenticate, authorize('superadmin'));
 
 router.get('/stats', c.getStats);
 router.get('/plans', c.getPlans);
+router.post('/plans', c.createPlan);
+router.put('/plans/:slug', c.updatePlan);
+router.delete('/plans/:slug', c.deletePlan);
 router.get('/schools', c.listSchools);
 router.post('/schools', c.createSchool);
 router.get('/schools/:id', c.getSchool);

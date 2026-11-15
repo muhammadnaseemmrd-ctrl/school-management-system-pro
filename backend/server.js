@@ -32,6 +32,9 @@ const parentRoutes = require('./routes/parentRoutes');
 
 // Import middleware
 const { errorHandler, notFound } = require('./middleware/errorHandler');
+const { authenticate } = require('./middleware/auth');
+const { featureGate } = require('./utils/plans');
+const gate = (key) => [authenticate, featureGate(key)];
 
 // Initialize Express and Socket.io
 const allowedOrigins = [
@@ -84,6 +87,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Database Connection (+ bootstrap the platform owner account from env vars)
 const ready = connectDB()
+  .then(() => require('./utils/plans').ensurePlans())
   .then(() => seedSuperAdmin())
   .then(() => (process.env.SEED_DEMO === 'true' ? require('./scripts/seedDemo')() : null))
   .catch((e) => console.error('Startup error:', e.message));
@@ -100,21 +104,21 @@ app.use('/api/students', studentRoutes);
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/classes', classRoutes);
 app.use('/api/subjects', subjectRoutes);
-app.use('/api/timetables', timetableRoutes);
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/daily-attendance', dailyAttendanceRoutes);
-app.use('/api/marks', marksRoutes);
-app.use('/api/notices', noticeRoutes);
-app.use('/api/homework', homeworkRoutes);
-app.use('/api/complaints', complaintRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/messages', messageRoutes);
+app.use('/api/timetables', gate('timetable'), timetableRoutes);
+app.use('/api/attendance', gate('attendance'), attendanceRoutes);
+app.use('/api/daily-attendance', gate('attendance'), dailyAttendanceRoutes);
+app.use('/api/marks', gate('marks'), marksRoutes);
+app.use('/api/notices', gate('notices'), noticeRoutes);
+app.use('/api/homework', gate('homework'), homeworkRoutes);
+app.use('/api/complaints', gate('complaints'), complaintRoutes);
+app.use('/api/events', gate('events'), eventRoutes);
+app.use('/api/messages', gate('messages'), messageRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/fees', require('./routes/feeRoutes'));
 app.use('/api/files', fileProxyRoutes);
 app.use('/api/superadmin', superAdminRoutes);
-app.use('/api/parents', parentRoutes);
+app.use('/api/parents', gate('parentPortal'), parentRoutes);
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 

@@ -16,6 +16,8 @@ export function proxyFileUrl(rawUrl) {
   if (!rawUrl) return '';
   // Already a proxy URL – return as-is to avoid double-wrapping
   if (rawUrl.includes('/api/files/view')) return rawUrl;
+  // Files stored in our own database are already served by this app
+  if (rawUrl.includes('/api/files/stored/')) return rawUrl;
   return `${API_BASE}/files/view?url=${encodeURIComponent(rawUrl)}`;
 }
 
@@ -27,6 +29,7 @@ export function proxyFileUrl(rawUrl) {
  */
 export function openProxiedFile(rawUrl) {
   if (!rawUrl) return;
+  if (rawUrl.includes('/api/files/stored/')) { window.open(rawUrl, '_blank', 'noopener,noreferrer'); return; }
   const token = localStorage.getItem('accessToken') || '';
   const proxied = `${API_BASE}/files/view?url=${encodeURIComponent(rawUrl)}&token=${encodeURIComponent(token)}`;
   window.open(proxied, '_blank', 'noopener,noreferrer');

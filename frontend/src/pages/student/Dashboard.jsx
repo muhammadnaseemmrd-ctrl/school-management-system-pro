@@ -6,6 +6,8 @@ import {
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
+import usePlan from '../../utils/usePlan';
+import FeesPanel from '../../components/fees/FeesPanel';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
@@ -13,6 +15,7 @@ import { StatusChip } from '../../components/attendance/shared';
 
 const StudentDashboard = () => {
   const { t } = useLang();
+  const { has } = usePlan();
   const [profileData, setProfileData] = useState(null);
   const [myGrievances, setMyGrievances] = useState([]);
   const [studentHomework, setStudentHomework] = useState([]);
@@ -125,9 +128,6 @@ const StudentDashboard = () => {
       const resSubjects = await apiClient.get('/subjects').catch(() => ({ data: { subjects: [] } }));
       setSubjects(resSubjects.data.subjects || []);
 
-      const resFee = await apiClient.get('/fees/my-fee').catch(() => ({ data: { fee: null, structure: null } }));
-      setFeeRecord(resFee.data.fee || null);
-      setFeeStructure(resFee.data.structure || null);
 
       if (resProfile.data.user?.classId?._id || resProfile.data.user?.classId) {
         const classId = resProfile.data.user.classId._id || resProfile.data.user.classId;
@@ -138,34 +138,6 @@ const StudentDashboard = () => {
       console.error('Error fetching student details:', err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handlePayQuarter = async (quarter) => {
-    try {
-      setIsPayingFee(true);
-      const res = await apiClient.post('/fees/pay-quarter', { quarter });
-      toast.success(`${quarter.toUpperCase()} payment successful!`);
-      setFeeRecord(res.data.fee || null);
-      setFeeStructure(res.data.structure || null);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed.');
-    } finally {
-      setIsPayingFee(false);
-    }
-  };
-
-  const handlePayFull = async () => {
-    try {
-      setIsPayingFee(true);
-      const res = await apiClient.post('/fees/pay-full');
-      toast.success('Full fees payment successful!');
-      setFeeRecord(res.data.fee || null);
-      setFeeStructure(res.data.structure || null);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed.');
-    } finally {
-      setIsPayingFee(false);
     }
   };
 
@@ -404,7 +376,7 @@ const StudentDashboard = () => {
               </div>
             </div>
 
-            <div>
+            {has('fees') && <div>
               <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Payments</p>
               <div className="space-y-1">
                 <button
@@ -417,7 +389,7 @@ const StudentDashboard = () => {
                   <DollarSign className="h-4 w-4" /> Fees & Payments
                 </button>
               </div>
-            </div>
+            </div>}
 
             <div>
               <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Account & security</p>
@@ -1371,112 +1343,12 @@ const StudentDashboard = () => {
 
         {/* TAB: FEES */}
         {activeSubTab === 'fees' && (
-          <div className="space-y-6">
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-[#3f2a1d]">Fees & Payments</h2>
-                <p className="text-sm text-[#7f634e]">View academic year fee details, track paid installments, and complete online payments.</p>
-              </div>
-              {(() => {
-                const totalInst = feeStructure?.totalInstallments || 4;
-                const paidAll = Array.from({ length: totalInst }, (_, i) => i + 1).every(idx => 
-                  feeRecord?.paidInstallments?.includes(idx) || (idx <= 4 && feeRecord?.[`q${idx}Status`] === 'Paid')
-                );
-                return feeRecord && !paidAll && (
-                  <button
-                    onClick={handlePayFull}
-                    disabled={isPayingFee}
-                    className="rounded-xl bg-[#7a4e2d] px-5 py-2.5 text-xs font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-md disabled:opacity-50"
-                  >
-                    Pay Full Fees
-                  </button>
-                );
-              })()}
+          <div className="space-y-4">
+            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#3f2a1d]">Fees & Payments</h2>
+              <p className="text-sm text-[#7f634e]">Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot here. The school checks it and marks the fee as paid.</p>
             </div>
-
-            {feeStructure ? (
-              <div className="grid gap-6 md:grid-cols-2">
-                
-                {/* Structure Overview Card */}
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-                  <h3 className="font-black text-lg text-[#3f2a1d]">Academic Fee Summary</h3>
-                  <div className="space-y-3 divide-y divide-[#d9c5b0]/20">
-                    <div className="flex justify-between py-2 text-sm">
-                      <span className="font-semibold text-[#8a6a50]">Academic Year</span>
-                      <span className="font-bold text-[#3f2a1d]">{feeStructure.academicYear || 'Current Year'}</span>
-                    </div>
-                    <div className="flex justify-between py-2 text-sm">
-                      <span className="font-semibold text-[#8a6a50]">Total Class Fees</span>
-                      <span className="font-black text-[#7a4e2d] text-lg">₹ {feeStructure.totalAmount}</span>
-                    </div>
-                    <div className="flex justify-between py-2 text-sm">
-                      <span className="font-semibold text-[#8a6a50]">Roster Installment Terms</span>
-                      <span className="font-bold text-[#3f2a1d]">{feeStructure.totalInstallments || 4} Installments</span>
-                    </div>
-                    <div className="flex justify-between py-2 text-sm">
-                      <span className="font-semibold text-[#8a6a50]">Fee Status</span>
-                      {(() => {
-                        const totalInst = feeStructure.totalInstallments || 4;
-                        const paidAll = Array.from({ length: totalInst }, (_, i) => i + 1).every(idx => 
-                          feeRecord?.paidInstallments?.includes(idx) || (idx <= 4 && feeRecord?.[`q${idx}Status`] === 'Paid')
-                        );
-                        return paidAll ? (
-                          <span className="rounded-lg bg-emerald-500/10 px-2 py-0.5 text-xs font-bold text-emerald-700">Fully Paid</span>
-                        ) : (
-                          <span className="rounded-lg bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-700">Payment Pending</span>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Installments Listing */}
-                <div className="md:col-span-1 space-y-4">
-                  <h3 className="font-black text-lg text-[#3f2a1d] px-1">Installment Schedule</h3>
-                  
-                  {(() => {
-                    const totalInst = feeStructure.totalInstallments || 4;
-                    const instAmt = Math.round(feeStructure.totalAmount / totalInst);
-                    return Array.from({ length: totalInst }, (_, idx) => {
-                      const termNum = idx + 1;
-                      const isPaid = feeRecord?.paidInstallments?.includes(termNum) || (termNum <= 4 && feeRecord?.[`q${termNum}Status`] === 'Paid');
-                      const paidDate = feeRecord?.paidInstallments?.includes(termNum)
-                        ? (feeRecord.paidDates?.[termNum.toString()] || feeRecord.paidDates?.get?.(termNum.toString()))
-                        : feeRecord?.[`q${termNum}PaidDate`];
-                      
-                      return (
-                        <div key={termNum} className="rounded-2xl border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm flex items-center justify-between">
-                          <div>
-                            <h4 className="font-bold text-[#3f2a1d] text-sm">Term {termNum} Installment</h4>
-                            <p className="text-xs text-[#7f634e] mt-0.5">Amount: ₹ {instAmt}</p>
-                            {isPaid && paidDate && (
-                              <p className="text-[10px] text-emerald-700 font-semibold mt-1">Paid on: {new Date(paidDate).toLocaleDateString()}</p>
-                            )}
-                          </div>
-                          <div>
-                            {isPaid ? (
-                              <span className="rounded-lg bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700">Paid</span>
-                            ) : (
-                              <button
-                                onClick={() => handlePayQuarter(termNum.toString())}
-                                disabled={isPayingFee}
-                                className="rounded-lg bg-[#7a4e2d] px-3.5 py-1.5 text-xs font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm disabled:opacity-50"
-                              >
-                                Pay ₹{instAmt}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12 text-[#8a6a50] italic border border-dashed border-[#d9c5b0] rounded-[2rem] bg-[#fffaf3]">
-                No fee structure has been configured for your standard by the admin.
-              </div>
-            )}
+            <FeesPanel />
           </div>
         )}
 

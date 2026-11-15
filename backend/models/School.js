@@ -60,10 +60,12 @@ const schoolSchema = new mongoose.Schema(
     // IANA time zone used for period windows & "today" (e.g. Asia/Karachi)
     timezone: { type: String, default: () => process.env.DEFAULT_TIMEZONE || 'UTC' },
     // ── SaaS subscription fields ──
+    // slug of a Plan managed by the Super Admin (see models/Plan.js)
     plan: {
       type: String,
-      enum: ['free', 'standard', 'premium'],
       default: 'free',
+      lowercase: true,
+      trim: true,
     },
     // 0 = unlimited
     studentLimit: { type: Number, default: 100 },

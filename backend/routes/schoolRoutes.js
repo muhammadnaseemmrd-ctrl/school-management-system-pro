@@ -10,6 +10,9 @@ router.post('/', signupLimiter, schoolController.createSchool);
 // List all schools (Super Admin only – previously public)
 router.get('/', authenticate, authorize('superadmin'), schoolController.getAllSchools);
 
+// The school's current plan + enabled features (any signed-in school user)
+router.get('/my-plan', authenticate, schoolController.getMyPlan);
+
 // Get My School (For Admin)
 router.get('/my', authenticate, authorize('admin'), schoolController.getMySchool);
 

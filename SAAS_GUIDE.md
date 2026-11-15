@@ -15,15 +15,19 @@ The original project had no super admin. Set the two `SUPERADMIN_*` variables in
 
 Platform overview, school list with search and filters, add / edit / suspend / delete schools, reset a school admin's password, plan and limit management. Deleting a school requires typing its school code.
 
-## Plans and limits
+## Plans, prices and features (dynamic, in PKR)
 
-| Plan | Students | Teachers | Default price |
-|---|---|---|---|
-| free | 100 | 10 | $0 |
-| standard | 500 | 50 | $29 |
-| premium | unlimited | unlimited | $79 |
+Super Admin > **Plans & Pricing**: create, edit or delete plans. Each plan has a monthly and yearly price in PKR, a student and teacher limit (0 = unlimited) and a checklist of features (attendance, parent portal, fees, transport, homework, marks, timetable, notices, events, messages, grievances, file uploads). Saving a plan applies immediately: schools on that plan gain or lose the modules at once (menus hide, the server answers HTTP 403 `FEATURE_LOCKED`) and their limits follow the plan. First start seeds Free (Rs 0), Standard (Rs 4,999) and Premium (Rs 12,999); change them freely. Estimated monthly income on the overview page is calculated from these prices.
 
-Limits are enforced on the server when creating or importing students and teachers (HTTP 402). Suspended or expired schools cannot sign in and existing sessions are blocked (HTTP 423). Public self-registration always creates a Free school. Edit `backend/utils/plans.js` to change prices and limits.
+Limits are enforced on the server when creating or importing students and teachers (HTTP 402). Suspended or expired schools cannot sign in (HTTP 423). Public self-registration always creates a Free school.
+
+## Fees, payment screenshots and transport
+
+* Students and parents can **never** mark a fee paid. They tick the fees they paid, upload a payment screenshot (JazzCash, Easypaisa, bank, cash deposit) and the fee shows **Under review**.
+* Admin > **Payments & Other Fees** > *Payment reviews* shows each screenshot with student, class and the fees included. **Mark as paid** or **Reject** (a reason is required and is shown to the parent, who can resubmit).
+* *Other fees*: add uniform, books, admission, exam, trip or other fees for one class, a whole standard, selected students or everyone. Admin can also record cash received at school.
+* *Transport*: define routes with a monthly PKR fee, put students on routes and press **Create monthly fees** (never creates the same month twice).
+* Uploaded files are stored in MongoDB by default (max 4 MB, photos are shrunk in the browser). Set the three `CLOUDINARY_*` variables to store in Cloudinary's free tier instead.
 
 ## Parent dashboard
 

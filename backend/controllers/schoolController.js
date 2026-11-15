@@ -216,3 +216,24 @@ exports.getSchoolStats = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+// Current plan and which modules are switched on (used by the apps to hide locked tabs)
+exports.getMyPlan = async (req, res) => {
+  try {
+    if (!req.user.schoolId) return res.json({ plan: null, features: {} });
+    const { featuresForSchool } = require('../utils/plans');
+    const School = require('../models/School');
+    const [{ slug, plan, features }, school] = await Promise.all([
+      featuresForSchool(req.user.schoolId),
+      School.findById(req.user.schoolId).select('subscriptionExpiresAt studentLimit teacherLimit'),
+    ]);
+    res.json({
+      plan: slug, label: plan?.label || slug, features,
+      studentLimit: school?.studentLimit ?? 0, teacherLimit: school?.teacherLimit ?? 0,
+      expiresAt: school?.subscriptionExpiresAt || null,
+    });
+  } catch (e) {
+    res.status(500).json({ message: e.message });
+  }
+};
