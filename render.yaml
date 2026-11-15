@@ -1,0 +1,32 @@
+# One-click free deployment on Render (Blueprint).
+# Single web service: Express API + built React app on the same URL.
+services:
+  - type: web
+    name: school-saas
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install --omit=dev
+    startCommand: cd backend && node server.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI          # MongoDB Atlas free (M0) connection string
+        sync: false
+      - key: SUPERADMIN_EMAIL     # platform-owner login
+        sync: false
+      - key: SUPERADMIN_PASSWORD  # min 6 chars, 1 capital, 1 number, 1 special
+        sync: false
+      - key: DEFAULT_TIMEZONE      # school clock for attendance windows
+        value: Asia/Karachi
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE
+        value: 7d
+      - key: JWT_REFRESH_EXPIRE
+        value: 30d
