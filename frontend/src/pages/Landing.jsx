@@ -9,7 +9,7 @@ import Logo from '../components/Logo';
 import apiClient from '../utils/apiClient';
 import {
   NAV, HERO_CHIPS, STATS, BEFORE_AFTER, MODULES, ROLES, STEPS, PAKISTAN, TRUST, FAQ,
-  DEMO_LOGINS, DEMO_SCHOOL_CODE, FALLBACK_PLANS,
+  DEMO_LOGINS, DEMO_SCHOOL_CODE, FALLBACK_PLANS, ROADMAP,
 } from './landing/content';
 
 const pkr = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
@@ -309,6 +309,37 @@ export default function Landing() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ───────── Roadmap ───────── */}
+      <section id="roadmap" className="scroll-mt-20 px-5 py-16 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <SectionHead eyebrow="Roadmap" title="What is live today and what we are building next" text="We list what is planned separately from what is working, so you always know what you are getting." />
+          <div className="mt-10 grid gap-5 lg:grid-cols-3">
+            {ROADMAP.map((ph) => {
+              const badge = ph.tone === 'live' ? 'bg-[#0f6b4f] text-white' : ph.tone === 'next' ? 'bg-[#e0a526] text-[#0c2f25]' : 'bg-[#e3efe8] text-[#355e4d]';
+              return (
+                <div key={ph.phase} className={`flex flex-col rounded-[2rem] border p-6 ${ph.tone === 'live' ? 'border-[#0f6b4f] bg-[#f1f8f4]' : 'border-[#cfe0d6] bg-[#fbfdfb]'}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-black uppercase tracking-wider text-[#4f7262]">{ph.phase}</p>
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${badge}`}>{ph.status}</span>
+                  </div>
+                  <h3 className="mt-4 text-xl font-black leading-snug">{ph.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#355e4d]">{ph.text}</p>
+                  <ul className="mt-5 space-y-3">
+                    {ph.items.map(({ icon: Icon, t }) => (
+                      <li key={t} className="flex gap-3 text-sm leading-6 text-[#254a3b]">
+                        <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-[#e3efe8] text-[#0f6b4f]"><Icon className="h-4 w-4" /></span>
+                        <span>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-6 text-center text-sm text-[#4f7262]">Phase 2 and 3 are plans, not promises of dates. The order may change based on what schools ask for.</p>
         </div>
       </section>
 

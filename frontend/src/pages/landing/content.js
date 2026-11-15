@@ -2,6 +2,7 @@ import {
   Banknote, BellRing, BookOpen, Bus, CalendarDays, ClipboardList, Database, Download,
   GraduationCap, Home, Languages, LayoutDashboard, Lock, Megaphone, MessageSquare, Receipt, School, Settings,
   Shield, Smartphone, Upload, UserCheck, Wallet, Clock, Building2, Layers, Eye,
+  FileText, MessageCircle, UserPlus, Calculator, MapPin, Fingerprint, Video, QrCode, ScanLine, Brain, GitBranch, Printer, CreditCard,
 } from 'lucide-react';
 
 // Every English string below has an Urdu entry in i18n/ur.js, so the page switches language in one tap.
@@ -11,6 +12,7 @@ export const NAV = [
   { id: 'roles', label: 'Who uses it' },
   { id: 'how', label: 'How it works' },
   { id: 'pakistan', label: 'Made for Pakistan' },
+  { id: 'roadmap', label: 'Roadmap' },
   { id: 'pricing', label: 'Pricing' },
   { id: 'faq', label: 'FAQ' },
 ];
@@ -176,3 +178,48 @@ export const FALLBACK_PLANS = [
     features: ['Daily attendance', 'Parent portal', 'Fees & payment proofs', 'Transport fees', 'Homework', 'Exams & marks', 'Timetable', 'Notices', 'Events', 'Messages', 'Grievances', 'File uploads'] },
 ];
 
+
+// Honest roadmap: phase 1 is live today; phases 2 and 3 are planned and shown as such.
+export const ROADMAP = [
+  {
+    phase: 'Phase 1', status: 'Live now', tone: 'live',
+    title: 'The daily school core',
+    text: 'Everything in the Features section above is working today.',
+    items: [
+      { icon: UserCheck, t: 'Attendance, marks, homework, timetable' },
+      { icon: Wallet, t: 'Fees in PKR with payment proof approval' },
+      { icon: Megaphone, t: 'Notices, events, messages, grievances' },
+      { icon: Database, t: 'Weekly backup and downloadable data' },
+    ],
+  },
+  {
+    phase: 'Phase 2', status: 'Planned · next', tone: 'next',
+    title: 'Money, paperwork and messaging',
+    text: 'The tools Pakistani school offices ask for first, so you can run fees and results without any other software.',
+    items: [
+      { icon: Printer, t: 'Printable fee vouchers (challans) with your logo, single or bulk' },
+      { icon: Wallet, t: 'Automatic late fee, concessions, sibling discount and defaulter list' },
+      { icon: FileText, t: 'PDF report cards, datasheets, roll number slips and certificates' },
+      { icon: MessageCircle, t: 'WhatsApp and SMS: attendance alerts, fee reminders, notices' },
+      { icon: UserPlus, t: 'Admissions, inquiries, promotions, withdrawals and bulk import from Excel' },
+      { icon: Smartphone, t: 'Installable mobile app with attendance that works offline' },
+      { icon: Calculator, t: 'Teacher attendance, payroll, salary slips and expenses' },
+      { icon: CalendarDays, t: 'Leave requests and substitute teacher cover' },
+    ],
+  },
+  {
+    phase: 'Phase 3', status: 'Planned · later', tone: 'later',
+    title: 'Payments, AI and connected devices',
+    text: 'Bigger features that need partners or more build time, and that set Darsgah apart.',
+    items: [
+      { icon: QrCode, t: 'Bank and wallet payment with QR (1BILL, RAAST) and automatic reconciliation' },
+      { icon: MapPin, t: 'Live school bus tracking with a driver app' },
+      { icon: ScanLine, t: 'Scan a paper test with the phone camera and enter marks automatically' },
+      { icon: Brain, t: 'AI test maker in English and Urdu, AI parent summaries, at-risk student alerts' },
+      { icon: Fingerprint, t: 'Biometric and face attendance devices, digital student ID cards' },
+      { icon: GitBranch, t: 'Many campuses, shifts and sessions under one owner, plus accounts and profit and loss' },
+      { icon: Video, t: 'Online classes and parent video meetings, video lectures' },
+      { icon: CreditCard, t: 'School-branded app, custom domain and open API for larger groups' },
+    ],
+  },
+];
