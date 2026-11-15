@@ -7,9 +7,14 @@ const cloudinary = require('cloudinary').v2;
 const { authenticate } = require('../middleware/auth');
 
 // Make sure local uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// (serverless hosts have a read-only app folder; use the temp dir there)
+const uploadsDir = process.env.VERCEL
+  ? path.join(require('os').tmpdir(), 'uploads')
+  : path.join(__dirname, '../uploads');
+try {
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+} catch (e) {
+  console.error('Could not create uploads dir:', e.message);
 }
 
 // Multer storage configuration
