@@ -1,6 +1,14 @@
 // Notifications for every role. Saved in the database (bell icon) and, when the person has
 // allowed it, delivered as a browser/phone push even if the app is closed (Web Push, free).
-const webpush = require('web-push');
+// web-push is loaded lazily so a problem with the push library can never stop the API from starting.
+let _webpush;
+const getWebpush = () => {
+  if (_webpush === undefined) {
+    try { _webpush = require('web-push'); } catch (e) { console.warn('web-push unavailable:', e.message); _webpush = null; }
+  }
+  if (!_webpush) throw new Error('web-push unavailable');
+  return _webpush;
+};
 const mongoose = require('mongoose');
 const Notification = require('../models/Notification');
 const PushSubscription = require('../models/PushSubscription');
@@ -10,6 +18,7 @@ let vapidReady = null;
 const getVapid = () => {
   if (!vapidReady) {
     vapidReady = (async () => {
+      const webpush = getWebpush();
       let doc = await AppSetting.findOne({ key: 'vapid' });
       if (!doc) {
         const keys = webpush.generateVAPIDKeys();
@@ -59,7 +68,7 @@ const notify = async ({ schoolId, recipients, title, body = '', link = '', type 
     await getVapid();
     await Promise.race([
       Promise.allSettled(subs.map(async (s) => {
-        try { await webpush.sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title, body: String(body).slice(0, 140), url: linkFor(s.userRole) || '/' }), { TTL: 86400 }); }
+        try { await getWebpush().sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title, body: String(body).slice(0, 140), url: linkFor(s.userRole) || '/' }), { TTL: 86400 }); }
         catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await PushSubscription.deleteOne({ _id: s._id }); }
       })),
       new Promise((r) => setTimeout(r, 6000)),
