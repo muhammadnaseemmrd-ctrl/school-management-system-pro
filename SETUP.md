@@ -28,7 +28,7 @@ Before setting up the project, make sure the following software is installed.
 | ----------- | ------------------------------ |
 | Node.js     | 16+                            |
 | npm         | 7+                             |
-| MongoDB     | Local MongoDB or MongoDB Atlas |
+| PostgreSQL     | Local embedded PostgreSQL (PGlite) or Neon PostgreSQL |
 | Git         | Latest stable version          |
 | Postman     | Optional, for API testing      |
 | Code Editor | VS Code or equivalent          |
@@ -51,10 +51,10 @@ npm --version
 git --version
 ```
 
-### Verify MongoDB
+### Verify PostgreSQL
 
 ```
-mongod --version
+psql --version   # optional; the app can also use the embedded PGlite database
 ```
 
 > Use the Node.js version supported by the project's `package.json` if an `engines` configuration is specified.
@@ -141,7 +141,7 @@ Example development configuration:
 PORT=5000
 NODE_ENV=development
 
-MONGODB_URI=mongodb://localhost:27017/school_management
+PGLITE_DIR=./.data
 
 JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_refresh_token_secret
@@ -260,54 +260,54 @@ The exact port may vary depending on the Vite configuration.
 
 # 🗄️ Database Setup
 
-The application uses MongoDB as its database.
+The application uses PostgreSQL as its database.
 
 You can configure either:
 
-* Local MongoDB
-* MongoDB Atlas
+* Local embedded PostgreSQL (PGlite)
+* Neon PostgreSQL
 
 ---
 
-## Option 1: Local MongoDB
+## Option 1: Local embedded PostgreSQL (PGlite)
 
-Make sure MongoDB is installed and running.
+Make sure PostgreSQL is installed and running.
 
-Verify the MongoDB Shell:
+Verify the PostgreSQL Shell:
 
 ```
-mongosh
+psql "$DATABASE_URL"
 ```
 
-Connect to the local MongoDB instance if required.
+Connect to the local PostgreSQL instance if required.
 
 Example connection string:
 
 ```
-MONGODB_URI=mongodb://localhost:27017/school_management
+PGLITE_DIR=./.data
 ```
 
 The database will be created automatically when the application writes data to it.
 
 ---
 
-## Option 2: MongoDB Atlas
+## Option 2: Neon PostgreSQL
 
-If using MongoDB Atlas:
+If using Neon PostgreSQL:
 
 1. Create an Atlas cluster.
 2. Create a database user.
 3. Configure network access.
-4. Obtain the MongoDB connection string.
+4. Obtain the PostgreSQL connection string.
 5. Add the connection string to the backend `.env` file.
 
 Example:
 
 ```
-MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>/<database>
+DATABASE_URL=postgresql://<user>:<password>@<host>/<database>?sslmode=require
 ```
 
-> Never commit a MongoDB Atlas connection string containing credentials.
+> Never commit a Neon PostgreSQL connection string containing credentials.
 
 ---
 
@@ -321,7 +321,7 @@ Environment variables are used to keep application configuration and sensitive v
 | ----------------------- | -------- | --------------------------------- |
 | `PORT`                  | Yes      | Backend server port               |
 | `NODE_ENV`              | Yes      | Application environment           |
-| `MONGODB_URI`           | Yes      | MongoDB connection string         |
+| `DATABASE_URL`          | Yes      | PostgreSQL connection string (or set `PGLITE_DIR` for a local file DB) |
 | `JWT_SECRET`            | Yes      | JWT signing secret                |
 | `JWT_REFRESH_SECRET`    | Yes      | Refresh-token secret              |
 | `JWT_EXPIRY`            | Yes      | JWT expiration duration           |
@@ -393,7 +393,7 @@ Node.js + Express Backend
    │
    │ Mongoose
    ▼
-MongoDB
+PostgreSQL
 ```
 
 The frontend communicates with the backend through the configured API URL.
@@ -508,20 +508,20 @@ npm run lint
 
 # 🛠️ Troubleshooting
 
-## MongoDB Connection Error
+## PostgreSQL Connection Error
 
-If the backend cannot connect to MongoDB:
+If the backend cannot connect to PostgreSQL:
 
-1. Make sure MongoDB is running.
+1. Make sure PostgreSQL is running.
 2. Verify the `MONGODB_URI`.
-3. Verify the MongoDB port.
+3. Verify the PostgreSQL port.
 4. If using Atlas, verify database credentials.
 5. Check Atlas network access configuration.
 
 Example local configuration:
 
 ```
-MONGODB_URI=mongodb://localhost:27017/school_management
+PGLITE_DIR=./.data
 ```
 
 ---
@@ -700,7 +700,7 @@ Use `.env.example` to document required variables without exposing real values.
 Example:
 
 ```
-MONGODB_URI=
+DATABASE_URL=
 JWT_SECRET=
 JWT_REFRESH_SECRET=
 CLOUDINARY_CLOUD_NAME=
@@ -760,13 +760,13 @@ Before starting development, verify:
 [ ] Node.js installed
 [ ] npm installed
 [ ] Git installed
-[ ] MongoDB configured
+[ ] PostgreSQL configured
 [ ] Repository cloned
 [ ] Backend dependencies installed
 [ ] Frontend dependencies installed
 [ ] Backend .env configured
 [ ] Frontend .env configured
-[ ] MongoDB connection verified
+[ ] PostgreSQL connection verified
 [ ] Backend starts successfully
 [ ] Frontend starts successfully
 [ ] Frontend can communicate with backend

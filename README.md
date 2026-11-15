@@ -102,7 +102,7 @@ The application is designed around **role-based access control (RBAC)** so that 
                                  │
                                  ▼
                     ┌──────────────────────────┐
-                    │         MongoDB           │
+                    │         PostgreSQL           │
                     │                          │
                     │ Schools / Users           │
                     │ Students / Teachers       │
@@ -143,7 +143,7 @@ Controller
 Business Logic
   │
   ▼
-MongoDB
+PostgreSQL
   │
   ▼
 API Response
@@ -173,8 +173,8 @@ React UI
 
 * **Node.js**
 * **Express.js**
-* **MongoDB**
-* **Mongoose**
+* **PostgreSQL**
+* **pgdoc (Mongoose-compatible layer over PostgreSQL JSONB)**
 * **JWT**
 * **bcryptjs**
 * **Socket.io**

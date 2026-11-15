@@ -14,7 +14,7 @@ services:
         value: 20
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI          # MongoDB Atlas free (M0) connection string
+      - key: DATABASE_URL          # PostgreSQL connection string (Neon / Vercel Postgres / Render Postgres)
         sync: false
       - key: SUPERADMIN_EMAIL     # platform-owner login
         sync: false

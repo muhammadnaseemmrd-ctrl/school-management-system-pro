@@ -27,7 +27,7 @@ Limits are enforced on the server when creating or importing students and teache
 * Admin > **Payments & Other Fees** > *Payment reviews* shows each screenshot with student, class and the fees included. **Mark as paid** or **Reject** (a reason is required and is shown to the parent, who can resubmit).
 * *Other fees*: add uniform, books, admission, exam, trip or other fees for one class, a whole standard, selected students or everyone. Admin can also record cash received at school.
 * *Transport*: define routes with a monthly PKR fee, put students on routes and press **Create monthly fees** (never creates the same month twice).
-* Uploaded files are stored in MongoDB by default (max 4 MB, photos are shrunk in the browser). Set the three `CLOUDINARY_*` variables to store in Cloudinary's free tier instead.
+* Uploaded files are stored in PostgreSQL by default (max 4 MB, photos are shrunk in the browser). Set the three `CLOUDINARY_*` variables to store in Cloudinary's free tier instead.
 
 ## Parent dashboard
 
@@ -64,12 +64,16 @@ npm run seed:demo -- --reset   # wipes and recreates the demo school
 
 Delete or change these before going live.
 
-## Free deployment (Render + MongoDB Atlas)
+## Free deployment (Vercel or Render + Neon PostgreSQL)
 
-1. Create a free MongoDB Atlas M0 cluster and copy its connection string.
+On Vercel: Storage > Create > Neon (Free), connect it to the project (this adds `DATABASE_URL`), push to GitHub, then open any `/api/...` URL once so the tables and demo data are created.
+
+On Render:
+
+1. Create a free Neon (or Render) PostgreSQL database and copy its connection string.
 2. Push this project to GitHub.
 3. In Render choose New > Blueprint, pick the repository (uses `render.yaml`).
-4. Set `MONGODB_URI`, `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` when prompted.
+4. Set `DATABASE_URL`, `SUPERADMIN_EMAIL` and `SUPERADMIN_PASSWORD` when prompted.
 5. Open `https://<your-service>.onrender.com/superadmin/login`.
 
 The single web service serves both the API and the built React app. Free Render services sleep when idle, so the first request after a pause is slow.
@@ -104,15 +108,17 @@ English and Urdu (right-to-left). The toggle is on every page including login. N
 * **School Setup** (admin): logo, name, motto, academic year, contact, address, time zone, principal, bank / JazzCash / Easypaisa details (shown on parents' fee screen), plan usage, offers, and a viewer for documents uploaded by students, teachers and parents.
 * **My profile & documents**: students, teachers, parents and admins can change their photo, phone, address, emergency contact and upload up to 25 documents (4 MB each).
 
-## Database choice and how far MongoDB scales
+## Database: PostgreSQL (Neon) and how far it scales
 
-The app stays on MongoDB (Atlas). Moving to PostgreSQL would mean rewriting the data layer of all ~30 collections and every controller; it gives no extra free capacity (Neon and Supabase free tiers are also about 500 MB) and the data here (per-school documents keyed by `schoolId`) fits MongoDB well.
+The app runs on PostgreSQL. `backend/lib/pgdoc` is a small Mongoose-compatible layer: every model is one table (`id` text key + `doc` JSONB, files in `bytea` columns), queries are translated to SQL with indexes on the fields the app filters by (including `schoolId`), and tables are created automatically on first start. So the models and controllers did not change, and the data stays isolated per school. It is a document-style design on Postgres, not a fully normalised relational schema; reports that need heavy joins would be a later step.
 
-Rough capacity (estimates, not guarantees). A 500-student school stores about 40-50 MB of data per school year (daily attendance is the biggest part). Uploaded files are the real risk: one payment screenshot is about 250 KB, so 2,000 a year is about 500 MB.
+Set `DATABASE_URL` (or `POSTGRES_URL`) to any Postgres connection string. For local development with no install, set `PGLITE_DIR=./.data` (an embedded Postgres). Run `node backend/test/smoke.js` for the 120-check end-to-end test.
+
+Rough capacity (estimates, not guarantees). A 500-student school stores about 40-50 MB per school year (daily attendance is the biggest part). Uploaded files are the real risk: one payment screenshot is about 250 KB, so 2,000 a year is about 500 MB.
 
 | Setup | Realistic capacity |
 |---|---|
-| Atlas M0 free (512 MB, throttled) with files in the database | demo / 1-2 pilot schools |
-| M0 free with files on Cloudinary (set `CLOUDINARY_*`) | about 8-10 schools, up to ~5,000 students, ~100-300 people online at once |
-| Atlas M10 (~$57 / month, 10 GB) + Cloudinary | about 150-200 school-years, ~75,000-100,000 students, ~1,000+ concurrent users |
-| M30 or larger, then sharding by `schoolId` | hundreds of thousands to millions of students |
+| Neon Free (1 GB per project, 100 compute-hours a month) with files in the database | demo / 2-3 pilot schools |
+| Neon Free with files on Cloudinary (set `CLOUDINARY_*`) | about 15-20 schools, ~10,000 students, ~100-300 people online at once |
+| Neon Launch / Scale (paid, 10 GB+, autoscaling) + Cloudinary | about 200-300 school-years, 100,000+ students, ~1,000+ concurrent users |
+| Larger Postgres with read replicas / partitioning by `schoolId` | hundreds of thousands to millions of students |

@@ -17,7 +17,7 @@ npm install
 
 # Create .env file with your configuration
 # Copy from .env.example and fill in your details:
-# - MONGODB_URI: Your MongoDB connection string
+# - DATABASE_URL: Your PostgreSQL connection string (Neon, Vercel Postgres, ...)
 # - JWT_SECRET: Any random string for JWT encoding
 # - CLOUDINARY credentials (optional for image storage)
 
@@ -50,14 +50,14 @@ Open your browser and go to: **http://localhost:5173**
 
 ## 📝 First Time Setup - Create a School
 
-1. **Create MongoDB Database**:
-   - Sign up at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+1. **Create a PostgreSQL database**:
+   - Sign up at [Neon](https://neon.tech) (free) or add Neon from Vercel > Storage
    - Create a cluster and database named `school_management`
    - Copy your connection URI
 
 2. **Set Environment Variables** in `backend/.env`:
    ```
-   MONGODB_URI=your_connection_uri_here
+   DATABASE_URL=your_postgres_connection_string_here
    JWT_SECRET=your_secret_key_here
    PORT=5000
    ```
@@ -102,7 +102,7 @@ If you use the demo data:
 
 ```
 school/
-├── backend/          (Express.js + MongoDB)
+├── backend/          (Express.js + PostgreSQL)
 │   ├── models/       (Database schemas)
 │   ├── controllers/  (Business logic)
 │   ├── routes/       (API endpoints)
@@ -156,9 +156,9 @@ Content-Type: application/json
 
 ## 🔧 Troubleshooting
 
-### MongoDB Connection Error
-- Check your MongoDB URI in `.env`
-- Ensure your IP is whitelisted in MongoDB Atlas
+### Database Connection Error
+- Check `DATABASE_URL` in `.env` (or set `PGLITE_DIR=./.data` for a local embedded database)
+- Neon free databases sleep when idle; the first request can take a few seconds
 - Make sure your password doesn't have special characters that need encoding
 
 ### Port Already in Use

@@ -18,11 +18,18 @@ async function connectPg(url) {
     connectionString: url,
     max: Number(process.env.PG_POOL_MAX || 4),
     idleTimeoutMillis: 10000,
-    connectionTimeoutMillis: 15000,
+    connectionTimeoutMillis: 20000,
     ssl: /localhost|127\.0\.0\.1/.test(u.hostname) || u.searchParams.get('sslmode') === 'disable' ? undefined : { rejectUnauthorized: false },
   });
   pool.on('error', (e) => console.error('pg pool error:', e.message));
-  await pool.query('select 1');
+  // A sleeping Neon compute can take several seconds to wake: retry the first query instead of failing the cold start.
+  for (let attempt = 1; ; attempt++) {
+    try { await pool.query('select 1'); break; } catch (e) {
+      if (attempt >= 3) throw e;
+      console.warn(`Database not ready (attempt ${attempt}): ${e.message}`);
+      await new Promise((r) => setTimeout(r, 1500 * attempt));
+    }
+  }
   info = { host: u.hostname, driver: 'pg' };
   return {
     query: async (text, params) => normalize(await pool.query(text, params)),
