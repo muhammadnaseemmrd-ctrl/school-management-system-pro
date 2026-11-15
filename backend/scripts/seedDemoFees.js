@@ -44,9 +44,9 @@ const makeSlipPng = () => {
 
 module.exports = async function seedDemoFees(schoolId, adminId) {
   // Already seeded with the new fee center data?
-  if (await TransportRoute.exists({ schoolId })) return false;
+  if (await PaymentProof.exists({ schoolId })) return false;
   // Demo school only: clear older tuition test data so the demo starts clean
-  await Promise.all([FeeStructure.deleteMany({ schoolId }), StudentFee.deleteMany({ schoolId })]);
+  await Promise.all([FeeStructure, StudentFee, FeeCharge, TransportRoute, TransportAssignment].map((M) => M.deleteMany({ schoolId })));
 
   const classes = await Class.find({ schoolId });
   const students = await Student.find({ schoolId }).sort({ rollNumber: 1 });
@@ -84,9 +84,8 @@ module.exports = async function seedDemoFees(schoolId, adminId) {
   }
 
   // Uniform fee for everyone in class 8
-  const std8 = classes.find((c) => c.standard === '8');
   const uniformCharges = [];
-  for (const s of students.filter((x) => String(x.classId) === String(std8?._id))) {
+  for (const s of students.filter((x) => stdOf.get(String(x.classId)) === '8')) {
     uniformCharges.push(await FeeCharge.create({ schoolId, studentId: s._id, classId: s.classId, type: 'Uniform', title: 'Winter uniform set', amount: 6500, dueDate: new Date(Date.now() + 14 * 864e5), createdBy: adminId }));
   }
 
