@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // Subscription plans are managed by the platform owner (Super Admin).
 const planSchema = new mongoose.Schema(

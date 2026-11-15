@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const { authenticate } = require('../middleware/auth');
 const Notification = require('../models/Notification');
 const PushSubscription = require('../models/PushSubscription');

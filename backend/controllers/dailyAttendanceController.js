@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const N = require('../utils/notify');
 const DailyAttendance = require('../models/DailyAttendance');
 const { STATUSES } = DailyAttendance;

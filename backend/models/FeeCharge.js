@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // One amount a student owes: uniform, transport month, books, admission, exam fee...
 // (Tuition installments live in StudentFee / FeeStructure.)

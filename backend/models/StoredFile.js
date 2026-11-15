@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
-// Files kept inside MongoDB (used when Cloudinary keys are not configured).
+// Files kept inside the database (used when Cloudinary keys are not configured).
 // Served through /api/files/stored/:id/:key – `key` is a random secret so the
 // link works in <img> tags but cannot be guessed.
 const storedFileSchema = new mongoose.Schema(

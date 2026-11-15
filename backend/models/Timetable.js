@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 const timetableSchema = new mongoose.Schema(
   {

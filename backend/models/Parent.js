@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // Parent / guardian account. One parent can be linked to many children
 // (students) of the same school and gets a read-only dashboard.

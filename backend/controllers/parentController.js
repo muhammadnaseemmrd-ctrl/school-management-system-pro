@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const Parent = require('../models/Parent');
 const Student = require('../models/Student');
 const DailyAttendance = require('../models/DailyAttendance');

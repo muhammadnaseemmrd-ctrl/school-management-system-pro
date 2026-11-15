@@ -4,7 +4,7 @@ const Student = require('../models/Student');
 const Teacher = require('../models/Teacher');
 const Parent = require('../models/Parent');
 const SuperAdmin = require('../models/SuperAdmin');
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const { hashPassword, comparePassword } = require('../utils/password');
 const { generateAccessToken, generateRefreshToken, verifyToken } = require('../utils/jwt');
 

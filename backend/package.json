@@ -16,12 +16,13 @@
     "management",
     "mern",
     "express",
-    "mongodb"
+    "postgresql"
   ],
   "author": "School SaaS",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "bson": "^5.5.1",
     "cloudinary": "^1.38.0",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -30,15 +31,16 @@
     "express-validator": "^7.0.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
-    "mongoose": "^7.5.0",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^9.0.3",
     "pdfkit": "^0.13.0",
+    "pg": "^8.23.1",
     "socket.io": "^4.6.1",
     "web-push": "^3.6.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
     "jest": "^29.7.0",
     "nodemon": "^3.0.1"
   }

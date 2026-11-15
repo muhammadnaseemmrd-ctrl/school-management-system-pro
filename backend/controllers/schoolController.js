@@ -1,6 +1,6 @@
 const School = require('../models/School');
 const User = require('../models/User');
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const { hashPassword, validatePasswordStrength } = require('../utils/password');
 
 // Public self-service school sign-up (always starts on the Free plan).

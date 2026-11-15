@@ -58,7 +58,7 @@ router.post('/', authenticate, gate, (req, res) => {
           const result = await toCloudinary(req.file.buffer);
           return res.json({ url: result.secure_url, storage: 'cloudinary' });
         } catch (e) {
-          console.error('Cloudinary upload failed, storing in MongoDB instead:', e.message);
+          console.error('Cloudinary upload failed, storing in the database instead:', e.message);
         }
       }
 

@@ -9,7 +9,7 @@ const getWebpush = () => {
   if (!_webpush) throw new Error('web-push unavailable');
   return _webpush;
 };
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const Notification = require('../models/Notification');
 const PushSubscription = require('../models/PushSubscription');
 const AppSetting = require('../models/AppSetting');

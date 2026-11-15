@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // A payment screenshot submitted by a student/parent. Only the school admin can
 // turn it into "Paid" (approve) or reject it.

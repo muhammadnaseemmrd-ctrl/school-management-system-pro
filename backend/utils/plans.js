@@ -1,4 +1,4 @@
-// Subscription plans are stored in MongoDB and edited by the Super Admin.
+// Subscription plans are stored in the database and edited by the Super Admin.
 // This module seeds sensible defaults, caches lookups and exposes feature flags.
 const Plan = require('../models/Plan');
 

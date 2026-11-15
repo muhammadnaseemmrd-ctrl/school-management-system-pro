@@ -1,7 +1,7 @@
 // Self-service profile and documents for every role + admin view of documents.
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const { authenticate, authorize } = require('../middleware/auth');
 
 router.use(authenticate);

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // One record per student per school day, marked once by the class head master.
 // Present / Absent / Late / HalfDay (left before closing) / Leave

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // Represents a single break slot in the school day
 const breakSlotSchema = new mongoose.Schema({

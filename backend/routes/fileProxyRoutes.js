@@ -6,7 +6,7 @@ const { authenticate } = require('../middleware/auth');
 const StoredFile = require('../models/StoredFile');
 
 /**
- * GET /api/files/stored/:id/:key  – files kept in MongoDB. The random key is the secret.
+ * GET /api/files/stored/:id/:key  – files kept in the database. The random key is the secret.
  */
 router.get('/stored/:id/:key', async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // Platform-level owner account (SaaS operator). Not tied to any school.
 const superAdminSchema = new mongoose.Schema(

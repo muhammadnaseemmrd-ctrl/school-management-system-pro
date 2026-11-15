@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 
 // Promotional offer created by the platform owner (Super Admin) and shown to school admins.
 const offerSchema = new mongoose.Schema(

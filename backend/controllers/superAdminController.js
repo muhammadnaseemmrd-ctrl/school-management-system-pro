@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const crypto = require('crypto');
 const SuperAdmin = require('../models/SuperAdmin');
 const School = require('../models/School');

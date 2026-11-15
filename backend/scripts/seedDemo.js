@@ -6,7 +6,7 @@
  *   node scripts/seedDemo.js --reset    -> wipe DEMO01 and rebuild it
  */
 require('dotenv').config();
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const School = require('../models/School');
 const User = require('../models/User');
 const Teacher = require('../models/Teacher');
@@ -45,7 +45,7 @@ const STUDENTS = [
 ];
 
 const run = async () => {
-  if (mongoose.connection.readyState === 0) await mongoose.connect(process.env.MONGODB_URI);
+  if (mongoose.connection.readyState === 0) await mongoose.connect();
   const reset = process.argv.includes('--reset');
 
   let existing = await School.findOne({ code: CODE });

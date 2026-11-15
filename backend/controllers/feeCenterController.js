@@ -1,7 +1,7 @@
 // Fee payments, other fees (uniform, books...) and transport.
 // Rule: students/parents can only SUBMIT a payment screenshot. Only the school
 // admin can turn a fee into "Paid" (approve) or reject the screenshot.
-const mongoose = require('mongoose');
+const mongoose = require('../lib/pgdoc');
 const FeeStructure = require('../models/FeeStructure');
 const StudentFee = require('../models/StudentFee');
 const FeeCharge = require('../models/FeeCharge');
