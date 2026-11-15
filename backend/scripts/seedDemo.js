@@ -43,8 +43,8 @@ const STUDENTS = [
   ['Daniyal Khan', '9', '06', 0.72, 'Imran Khan', 'Sadia Khan'],
 ];
 
-(async () => {
-  await mongoose.connect(process.env.MONGODB_URI);
+const run = async () => {
+  if (mongoose.connection.readyState === 0) await mongoose.connect(process.env.MONGODB_URI);
   const reset = process.argv.includes('--reset');
 
   let existing = await School.findOne({ code: CODE });
@@ -210,6 +210,12 @@ const STUDENTS = [
   console.log(`   Student     : ayesha.khan@demo.school / ${PASSWORDS.student}`);
   console.log(`   Parent      : parent@demo.school / ${PASSWORDS.parent}  (2 children)`);
   console.log(`   Attendance rows created: ${records.length}\n`);
-})()
-  .catch((e) => { console.error(e); process.exitCode = 1; })
-  .finally(() => mongoose.disconnect());
+};
+
+if (require.main === module) {
+  run()
+    .catch((e) => { console.error(e); process.exitCode = 1; })
+    .finally(() => mongoose.disconnect());
+} else {
+  module.exports = () => run().catch((e) => console.error('Demo seed failed:', e.message));
+}

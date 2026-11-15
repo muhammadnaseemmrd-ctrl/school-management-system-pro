@@ -83,7 +83,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database Connection (+ bootstrap the platform owner account from env vars)
-connectDB().then(() => seedSuperAdmin()).catch((e) => console.error('Startup error:', e.message));
+const ready = connectDB()
+  .then(() => seedSuperAdmin())
+  .then(() => (process.env.SEED_DEMO === 'true' ? require('./scripts/seedDemo')() : null))
+  .catch((e) => console.error('Startup error:', e.message));
+
+// On serverless hosts (Vercel) wait for DB + bootstrap before handling the first request
+if (process.env.VERCEL) {
+  app.use((req, res, next) => ready.then(() => next(), next));
+}
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -168,7 +176,7 @@ app.use(errorHandler);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => {
+if (!process.env.VERCEL) server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
@@ -204,7 +212,7 @@ server.listen(PORT, () => {
 // Handle Unhandled Rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
-  process.exit(1);
+  if (!process.env.VERCEL) process.exit(1);
 });
 
 module.exports = app;
