@@ -7,7 +7,7 @@ services:
     plan: free
     region: frankfurt
     buildCommand: cd frontend && npm install && npm run build && cd ../backend && npm install --omit=dev
-    startCommand: cd backend && node server.js
+    startCommand: cd backend && ([ "$SEED_DEMO" = "true" ] && node scripts/seedDemo.js || true) && node server.js
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
@@ -20,6 +20,8 @@ services:
         sync: false
       - key: SUPERADMIN_PASSWORD  # min 6 chars, 1 capital, 1 number, 1 special
         sync: false
+      - key: SEED_DEMO            # true = create the DEMO01 demo school on boot (safe to repeat)
+        value: true
       - key: DEFAULT_TIMEZONE      # school clock for attendance windows
         value: Asia/Karachi
       - key: JWT_SECRET
