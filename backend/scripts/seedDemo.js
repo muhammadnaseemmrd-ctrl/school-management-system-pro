@@ -72,7 +72,7 @@ const run = async () => {
 
   await School.create({
     _id: schoolId, name: 'Demo Public School', code: CODE, adminId, email: 'info@demo.school',
-    phone: '+92-300-0000000', address: { street: '12 Education Road', city: 'Islamabad', state: 'ICT', country: 'Pakistan' },
+    phone: '+92-300-0000000', address: { street: '12 Education Road', city: 'Islamabad', province: 'Islamabad Capital Territory', country: 'Pakistan' },
     principalName: 'Dr. Demo Principal', principalEmail: 'admin@demo.school', isActive: true,
     plan: 'premium', studentLimit: 0, teacherLimit: 0, createdVia: 'seed', timezone: 'Asia/Karachi',
   });

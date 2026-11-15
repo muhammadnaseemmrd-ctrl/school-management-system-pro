@@ -56,8 +56,8 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-canvas">
         <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#7a4e2d]"></div>
-          <p className="mt-4 text-[#7a4e2d]">Loading...</p>
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#0f6b4f]"></div>
+          <p className="mt-4 text-[#0f6b4f]">Loading...</p>
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/superAdminController');
+const bk = require('../controllers/backupController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { loginLimiter } = require('../middleware/rateLimit');
 
@@ -26,5 +27,13 @@ router.put('/schools/:id', c.updateSchool);
 router.patch('/schools/:id/status', c.setSchoolStatus);
 router.post('/schools/:id/reset-admin-password', c.resetAdminPassword);
 router.delete('/schools/:id', c.deleteSchool);
+
+// Backups (any school) + weekly run for all schools
+router.get('/schools/:id/backups', bk.forOwner.list);
+router.post('/schools/:id/backups', bk.forOwner.create);
+router.get('/schools/:id/backups/download', bk.forOwner.download);
+router.get('/schools/:id/backups/:bid/download', bk.forOwner.downloadSnapshot);
+router.delete('/schools/:id/backups/:bid', bk.forOwner.remove);
+router.post('/backups/run-weekly', bk.runWeekly);
 
 module.exports = router;

@@ -30,8 +30,8 @@ const schoolSchema = new mongoose.Schema(
     address: {
       street: String,
       city: String,
-      state: String,
-      zipCode: String,
+      province: String,
+      postalCode: String,
       country: String,
     },
     logo: {

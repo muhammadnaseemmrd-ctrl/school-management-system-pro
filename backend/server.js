@@ -123,6 +123,8 @@ app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/parents', gate('parentPortal'), parentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/backup', require('./routes/backupRoutes'));
+app.use('/api/cron', require('./routes/cronRoutes'));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -187,6 +189,11 @@ const PORT = process.env.PORT || 5000;
 if (!process.env.VERCEL) server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Weekly automatic school backups (Sunday 02:00 Pakistan time). On Vercel this is done by the cron job instead.
+  require('node-cron').schedule('0 2 * * 0', () => {
+    ready.then(() => require('./utils/backup').runWeekly({ budgetMs: 10 * 60 * 1000 })).catch((e) => console.error('[backup] weekly job failed:', e.message));
+  }, { timezone: 'Asia/Karachi' });
 
   // Auto Notice Expiration Cleanup Task
   const Notice = require('./models/Notice');

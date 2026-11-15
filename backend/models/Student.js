@@ -101,19 +101,19 @@ const studentSchema = new mongoose.Schema(
     dateOfBirth: Date,
     bloodGroup: String,
     photo: String, // URL
-    aadhaarNumber: {
+    cnicNumber: {
       type: String,
       default: '',
     },
     nationality: {
       type: String,
-      default: 'Indian',
+      default: 'Pakistani',
     },
     religion: {
       type: String,
       default: '',
     },
-    casteCategory: {
+    motherTongue: {
       type: String,
       default: '',
     },
@@ -124,12 +124,12 @@ const studentSchema = new mongoose.Schema(
     currentAddress: String,
     permanentAddress: String,
     city: String,
-    state: String,
+    province: String,
     country: {
       type: String,
-      default: 'India',
+      default: 'Pakistan',
     },
-    pinCode: String,
+    postalCode: String,
 
     // 3. Parent/Guardian Details
     father: {
@@ -234,7 +234,7 @@ const studentSchema = new mongoose.Schema(
     // 13. Documents
     documents: {
       birthCertificate: { type: String, default: '' },
-      aadhaarCard: { type: String, default: '' },
+      cnicCopy: { type: String, default: '' },
       previousMarksheet: { type: String, default: '' },
       transferCertificate: { type: String, default: '' },
       leavingCertificate: { type: String, default: '' },
@@ -242,7 +242,7 @@ const studentSchema = new mongoose.Schema(
       parentIdProof: { type: String, default: '' },
       addressProof: { type: String, default: '' },
       incomeCertificate: { type: String, default: '' },
-      casteCertificate: { type: String, default: '' },
+      domicileCertificate: { type: String, default: '' },
     },
 
     attendancePercentage: {

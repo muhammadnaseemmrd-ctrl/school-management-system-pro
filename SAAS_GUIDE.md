@@ -1,4 +1,4 @@
-# SchoolHub Pro: SaaS, Super Admin and Parent Dashboard
+# Darsgah: SaaS, Super Admin and Parent Dashboard
 
 This guide covers what was added on top of the original project so it can be sold as a multi-school SaaS.
 
@@ -107,6 +107,16 @@ English and Urdu (right-to-left). The toggle is on every page including login. N
 * **Notifications** (bell in the header, every role): new notices, homework, absent / late / half-day marks (to parent and student), fee requests, payment approved / rejected, messages, complaint updates, offers (to admins). The bell checks every 40 seconds while the app is open. Users can also tap "Get alerts on this phone / browser" to receive **Web Push** even when the app is closed (the app generates its own push keys on first start and keeps them in the database; on iPhone the site must be added to the Home Screen first). The free host has no live sockets, so this polling + push combination is how real-time works here.
 * **School Setup** (admin): logo, name, motto, academic year, contact, address, time zone, principal, bank / JazzCash / Easypaisa details (shown on parents' fee screen), plan usage, offers, and a viewer for documents uploaded by students, teachers and parents.
 * **My profile & documents**: students, teachers, parents and admins can change their photo, phone, address, emergency contact and upload up to 25 documents (4 MB each).
+
+## Backups
+
+* **Weekly automatic backup.** Every school gets a stored copy of its data each week (the latest 4 are kept). On Vercel a daily cron job (`/api/cron/backup`, protected by the `CRON_SECRET` variable) backs up every school whose last automatic copy is about a week old; on Render/Node hosting a timer does it on Sundays at 02:00 Pakistan time.
+* **School admin:** School Setup > *Backup & export* lets the admin save a backup now, download a stored backup, or download a full backup (.zip) with an Excel workbook (one sheet per table), the complete data as `backup.json` and, optionally, the uploaded documents. Downloads never contain passwords.
+* **Platform owner:** the archive icon on each school in the Schools tab opens the same screen for that school; *Run weekly backups* runs the job on demand. Deleting a school also deletes its stored backups, so download one first.
+* **Limits on the free Vercel server:** a single download must stay under 4.5 MB. Very large schools, or large uploaded files, may exceed that; the app then says so and the owner can export from the command line.
+* **Restore:** `node backend/scripts/restoreBackup.js --backup <id>` (a stored copy, keeps passwords) or `--file backup.json` (a downloaded copy; users then reset their passwords). Add `--replace` to first remove the school's current rows and `--dry-run` to preview.
+* Uploaded file contents are not part of the stored weekly copies (they can be large). Use Cloudinary (`CLOUDINARY_*`) and the file links stay valid, or include files in a manual download.
+* Neon also keeps its own short history for point-in-time recovery; treat it as an extra safety net, not a replacement for these backups.
 
 ## Database: PostgreSQL (Neon) and how far it scales
 

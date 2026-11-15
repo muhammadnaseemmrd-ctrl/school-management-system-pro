@@ -269,20 +269,20 @@ const StudentDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f4ecdf] flex flex-col md:flex-row text-[#3f2a1d]">
+    <div className="min-h-screen bg-[#e9f2ed] flex flex-col md:flex-row text-[#0c2f25]">
       <Toaster position="top-right" />
       
       {/* Sidebar Navigation */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#fffaf3] border-r border-[#d9c5b0] transform transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:-ml-64'} shrink-0`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#fbfdfb] border-r border-[#cfe0d6] transform transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:-ml-64'} shrink-0`}>
         <div className="space-y-6 flex-1 overflow-y-auto pr-1">
-          <div className="flex items-center justify-between border-b border-[#d9c5b0]/30 pb-4">
+          <div className="flex items-center justify-between border-b border-[#cfe0d6]/30 pb-4">
             <div>
-              <h2 className="font-black text-[#7a4e2d] tracking-wide text-lg">SCHOOL PORTAL</h2>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase">Student Desk</p>
+              <h2 className="font-black text-[#0f6b4f] tracking-wide text-lg">SCHOOL PORTAL</h2>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase">Student Desk</p>
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden rounded-full p-1.5 hover:bg-[#7a4e2d]/10 text-[#7a4e2d]"
+              className="md:hidden rounded-full p-1.5 hover:bg-[#0f6b4f]/10 text-[#0f6b4f]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -290,7 +290,7 @@ const StudentDashboard = () => {
 
           <div className="space-y-4">
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
               <div className="space-y-1">
                 {[
                   ['dashboard', 'Dashboard Overview', LayoutGrid],
@@ -301,7 +301,7 @@ const StudentDashboard = () => {
                       setActiveSubTab(id);
                       setIsSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                   >
                     <Icon className="h-4 w-4" /> {label}
                   </button>
@@ -310,7 +310,7 @@ const StudentDashboard = () => {
             </div>
 
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Academics</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Academics</p>
               <div className="space-y-1">
                 {[
                   ['homework', 'My Homework', ClipboardList],
@@ -324,7 +324,7 @@ const StudentDashboard = () => {
                       setActiveSubTab(id);
                       setIsSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                   >
                     <Icon className="h-4 w-4" /> {label}
                   </button>
@@ -333,8 +333,8 @@ const StudentDashboard = () => {
             </div>
 
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Academic Marks</p>
-              <div className="space-y-1 pl-2 border-l border-[#d9c5b0]/45 ml-2">
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Academic Marks</p>
+              <div className="space-y-1 pl-2 border-l border-[#cfe0d6]/45 ml-2">
                 <button
                   onClick={() => {
                     setActiveSubTab('marks');
@@ -343,8 +343,8 @@ const StudentDashboard = () => {
                   }}
                   className={`w-full text-left block px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
                     activeSubTab === 'marks' && !selectedSubjectId
-                      ? 'bg-[#7a4e2d] text-[#f7efe4]' 
-                      : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'
+                      ? 'bg-[#0f6b4f] text-[#edf5f0]' 
+                      : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'
                   }`}
                 >
                   📊 All Subjects Report Card
@@ -365,8 +365,8 @@ const StudentDashboard = () => {
                         }}
                         className={`w-full text-left block px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
                           isSelected 
-                            ? 'bg-[#7a4e2d] text-[#f7efe4]' 
-                            : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'
+                            ? 'bg-[#0f6b4f] text-[#edf5f0]' 
+                            : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'
                         }`}
                       >
                         📝 {sub.name}
@@ -378,14 +378,14 @@ const StudentDashboard = () => {
             </div>
 
             {has('fees') && <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Payments</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Payments</p>
               <div className="space-y-1">
                 <button
                   onClick={() => {
                     setActiveSubTab('fees');
                     setIsSidebarOpen(false);
                   }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === 'fees' ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === 'fees' ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                 >
                   <DollarSign className="h-4 w-4" /> Fees & Payments
                 </button>
@@ -393,7 +393,7 @@ const StudentDashboard = () => {
             </div>}
 
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Account & security</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Account & security</p>
               <div className="space-y-1">
                 {[
                   ['profile', 'My Detailed Profile', User],
@@ -406,7 +406,7 @@ const StudentDashboard = () => {
                       setActiveSubTab(id);
                       setIsSidebarOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                   >
                     <Icon className="h-4 w-4" /> {label}
                   </button>
@@ -432,12 +432,12 @@ const StudentDashboard = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="rounded-xl border border-[#d9c5b0] bg-white p-2.5 text-[#7a4e2d] hover:bg-[#7a4e2d]/10 transition shadow-sm"
+              className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#0f6b4f]/10 transition shadow-sm"
               title="Toggle Sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex-1 rounded-2xl bg-gradient-hero p-3.5 text-[#3f2a1d] shadow-sm flex justify-between items-center flex-wrap gap-4">
+            <div className="flex-1 rounded-2xl bg-gradient-hero p-3.5 text-[#0c2f25] shadow-sm flex justify-between items-center flex-wrap gap-4">
               <h1 className="text-sm md:text-base font-black tracking-tight uppercase">Welcome, {profileData?.name || 'Student'}</h1>
             </div>
           </div>
@@ -449,25 +449,25 @@ const StudentDashboard = () => {
               {stats.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div key={item.title} className="rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm">
+                  <div key={item.title} className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
                     <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.tone}`}>
                       <Icon className="h-5 w-5" />
                     </div>
-                    <p className="mt-4 text-sm font-medium text-[#7f634e]">{item.title}</p>
-                    <p className="mt-1 text-3xl font-black text-[#3f2a1d]">{item.value}</p>
+                    <p className="mt-4 text-sm font-medium text-[#4d7262]">{item.title}</p>
+                    <p className="mt-1 text-3xl font-black text-[#0c2f25]">{item.value}</p>
                   </div>
                 );
               })}
             </div>
 
             <div className="grid gap-6 lg:grid-cols-1">
-              <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
+              <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Today&apos;s focus</h2>
-                    <p className="mt-1 text-sm text-[#7f634e]">A student should see only what is important.</p>
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Today&apos;s focus</h2>
+                    <p className="mt-1 text-sm text-[#4d7262]">A student should see only what is important.</p>
                   </div>
-                  <Sparkles className="h-5 w-5 text-[#b68c67]" />
+                  <Sparkles className="h-5 w-5 text-[#2f8f6f]" />
                 </div>
                 <div className="mt-5 space-y-4">
                   {[
@@ -475,7 +475,7 @@ const StudentDashboard = () => {
                     'Science period starts at 11:00 AM.',
                     'Check the notice board for annual day practice.',
                   ].map((item) => (
-                    <div key={item} className="rounded-2xl bg-[#f4ecdf] px-4 py-3 text-sm leading-6 text-[#6d4c35]">{item}</div>
+                    <div key={item} className="rounded-2xl bg-[#e9f2ed] px-4 py-3 text-sm leading-6 text-[#355e4d]">{item}</div>
                   ))}
                 </div>
               </div>
@@ -486,9 +486,9 @@ const StudentDashboard = () => {
         {/* TAB 1.5: HOMEWORK */}
         {activeSubTab === 'homework' && (
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#3f2a1d]">My Homework Assignments</h2>
-              <p className="mt-1 text-sm text-[#7f634e]">View class work assigned by your teachers. Upload files before the deadline, or submit explanations for late items.</p>
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#0c2f25]">My Homework Assignments</h2>
+              <p className="mt-1 text-sm text-[#4d7262]">View class work assigned by your teachers. Upload files before the deadline, or submit explanations for late items.</p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -500,14 +500,14 @@ const StudentDashboard = () => {
                   const isPastDue = new Date() > new Date(hw.dueDate);
 
                   return (
-                    <div key={hw._id} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                    <div key={hw._id} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4 hover:shadow-md transition">
                       <div className="flex items-start justify-between">
                         <div>
-                          <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#7a4e2d]/10 text-[#7a4e2d]">
+                          <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#0f6b4f]/10 text-[#0f6b4f]">
                             Subject: {hw.subjectId?.name || 'N/A'}
                           </span>
-                          <h3 className="text-lg font-bold text-[#3f2a1d] mt-2">{hw.title}</h3>
-                          <p className="text-xs text-[#8a6a50] mt-0.5">Assigned by: {hw.teacherId?.name || 'Teacher'}</p>
+                          <h3 className="text-lg font-bold text-[#0c2f25] mt-2">{hw.title}</h3>
+                          <p className="text-xs text-[#4f7262] mt-0.5">Assigned by: {hw.teacherId?.name || 'Teacher'}</p>
                         </div>
                         <div className="text-right">
                           <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold ${
@@ -527,27 +527,27 @@ const StudentDashboard = () => {
                                 ? 'Missed'
                                 : 'Pending'}
                           </span>
-                          <p className="text-[10px] text-[#8a6a50] mt-1 font-bold">
+                          <p className="text-[10px] text-[#4f7262] mt-1 font-bold">
                             Due: {new Date(hw.dueDate).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
 
-                      <div className="text-sm text-[#6d4c35] space-y-2 bg-[#f4ecdf] p-3 rounded-2xl">
+                      <div className="text-sm text-[#355e4d] space-y-2 bg-[#e9f2ed] p-3 rounded-2xl">
                         <p><strong>Instructions:</strong> {hw.description || 'No description provided.'}</p>
                       </div>
 
                       {/* Submitted State */}
                       {studentSubmission && (
-                        <div className="border-t border-[#f4ecdf] pt-3 space-y-2">
-                          <p className="text-xs font-bold text-[#7a4e2d]">My Submission Detail:</p>
+                        <div className="border-t border-[#e9f2ed] pt-3 space-y-2">
+                          <p className="text-xs font-bold text-[#0f6b4f]">My Submission Detail:</p>
                           {studentSubmission.fileUrl && (
-                            <p className="text-xs text-[#6d4c35]">
+                            <p className="text-xs text-[#355e4d]">
                               Submitted File:{' '}
                               <button
                                 type="button"
                                 onClick={() => openProxiedFile(studentSubmission.fileUrl)}
-                                className="underline font-bold text-[#7a4e2d] hover:text-[#624021]"
+                                className="underline font-bold text-[#0f6b4f] hover:text-[#0b5340]"
                               >
                                 View Document
                               </button>
@@ -559,7 +559,7 @@ const StudentDashboard = () => {
                             </p>
                           )}
                           {studentSubmission.submittedDate && (
-                            <p className="text-[10px] text-[#8a6a50]">
+                            <p className="text-[10px] text-[#4f7262]">
                               Submitted On: {new Date(studentSubmission.submittedDate).toLocaleString()}
                             </p>
                           )}
@@ -574,15 +574,15 @@ const StudentDashboard = () => {
 
                       {/* Action Submission (If not submitted/excused yet) */}
                       {!studentSubmission && (
-                        <div className="border-t border-[#f4ecdf] pt-3">
+                        <div className="border-t border-[#e9f2ed] pt-3">
                           {!isPastDue ? (
                             <div className="space-y-2">
-                              <label className="block text-xs font-bold text-[#6d4c35]">Upload Assignment File *</label>
+                              <label className="block text-xs font-bold text-[#355e4d]">Upload Assignment File *</label>
                               <input
                                 type="file"
                                 onChange={(e) => handleHomeworkUpload(e, hw._id)}
                                 disabled={uploadingHomeworkId === hw._id}
-                                className="block w-full text-xs text-[#8a6a50] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#7a4e2d]/10 file:text-[#7a4e2d] hover:file:bg-[#7a4e2d]/20"
+                                className="block w-full text-xs text-[#4f7262] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#0f6b4f]/10 file:text-[#0f6b4f] hover:file:bg-[#0f6b4f]/20"
                               />
                               {uploadingHomeworkId === hw._id && (
                                 <p className="text-xs text-amber-600">Uploading and submitting...</p>
@@ -597,12 +597,12 @@ const StudentDashboard = () => {
                                   placeholder="Type explanation why homework was missed..."
                                   value={homeworkIssues[hw._id] || ''}
                                   onChange={(e) => setHomeworkIssues(prev => ({ ...prev, [hw._id]: e.target.value }))}
-                                  className="flex-1 rounded-xl border border-rose-300 bg-[#faf4ea] px-3 py-2 text-xs outline-none focus:border-rose-500"
+                                  className="flex-1 rounded-xl border border-rose-300 bg-[#f4f8f5] px-3 py-2 text-xs outline-none focus:border-rose-500"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => handleHomeworkIssueSubmit(hw._id)}
-                                  className="bg-rose-600 hover:bg-rose-700 text-[#f7efe4] font-bold text-xs px-3 py-2 rounded-xl transition"
+                                  className="bg-rose-600 hover:bg-rose-700 text-[#edf5f0] font-bold text-xs px-3 py-2 rounded-xl transition"
                                 >
                                   Submit Reason
                                 </button>
@@ -615,7 +615,7 @@ const StudentDashboard = () => {
                   );
                 })
               ) : (
-                <div className="col-span-2 text-center py-10 text-[#8a6a50]">
+                <div className="col-span-2 text-center py-10 text-[#4f7262]">
                   No homework assignments found.
                 </div>
               )}
@@ -626,9 +626,9 @@ const StudentDashboard = () => {
         {/* TAB 1.6: NOTICES */}
         {activeSubTab === 'notices' && (
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#3f2a1d]">School Notice Board</h2>
-              <p className="mt-1 text-sm text-[#7f634e]">Stay updated with the latest events, exam schedules, achievements, and results.</p>
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#0c2f25]">School Notice Board</h2>
+              <p className="mt-1 text-sm text-[#4d7262]">Stay updated with the latest events, exam schedules, achievements, and results.</p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
@@ -636,7 +636,7 @@ const StudentDashboard = () => {
                 notices.map((notice) => {
                   const isPdf = notice.attachments?.[0]?.toLowerCase().endsWith('.pdf');
                   return (
-                    <div key={notice._id} className="rounded-2xl border border-[#d9c5b0] bg-white p-5 shadow-sm space-y-3 relative hover:shadow-md transition">
+                    <div key={notice._id} className="rounded-2xl border border-[#cfe0d6] bg-white p-5 shadow-sm space-y-3 relative hover:shadow-md transition">
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <div className="flex gap-2 flex-wrap items-center">
@@ -659,11 +659,11 @@ const StudentDashboard = () => {
                               </span>
                             )}
                           </div>
-                          <h3 className="font-bold text-base text-[#3f2a1d] mt-1.5">{notice.title}</h3>
-                          <p className="text-[10px] text-[#8a6a50] mt-0.5">By: {notice.createdBy?.name || 'Admin'} | To: {notice.targetAudience} | {new Date(notice.createdAt).toLocaleDateString()}</p>
+                          <h3 className="font-bold text-base text-[#0c2f25] mt-1.5">{notice.title}</h3>
+                          <p className="text-[10px] text-[#4f7262] mt-0.5">By: {notice.createdBy?.name || 'Admin'} | To: {notice.targetAudience} | {new Date(notice.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <p className="text-xs text-[#6d4c35] bg-[#fffaf3] p-3 rounded-xl whitespace-pre-line">{notice.content}</p>
+                      <p className="text-xs text-[#355e4d] bg-[#fbfdfb] p-3 rounded-xl whitespace-pre-line">{notice.content}</p>
                       {notice.attachments && notice.attachments.length > 0 && notice.attachments[0] && (
                         <div className="pt-2">
                           <a
@@ -671,7 +671,7 @@ const StudentDashboard = () => {
                             download
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-bold text-[#7a4e2d] hover:underline"
+                            className="inline-flex items-center gap-1 text-xs font-bold text-[#0f6b4f] hover:underline"
                           >
                             <FileText className="h-4 w-4" /> Download Attached Document {isPdf ? '(PDF)' : ''}
                           </a>
@@ -681,7 +681,7 @@ const StudentDashboard = () => {
                   );
                 })
               ) : (
-                <div className="col-span-2 text-center py-10 text-[#8a6a50]">
+                <div className="col-span-2 text-center py-10 text-[#4f7262]">
                   No notices published yet.
                 </div>
               )}
@@ -692,9 +692,9 @@ const StudentDashboard = () => {
         {/* TAB 1.65: MARKS */}
         {activeSubTab === 'marks' && (
           <div className="space-y-6">
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#3f2a1d]">My Academic Marks</h2>
-              <p className="mt-1 text-sm text-[#7f634e]">Review your exam results, subject scores, teacher feedback, and average performance status.</p>
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#0c2f25]">My Academic Marks</h2>
+              <p className="mt-1 text-sm text-[#4d7262]">Review your exam results, subject scores, teacher feedback, and average performance status.</p>
             </div>
 
             {(() => {
@@ -712,35 +712,35 @@ const StudentDashboard = () => {
               return (
                 <>
                   <div className="grid gap-4 md:grid-cols-3">
-                    <div className="rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm space-y-2">
-                      <p className="text-xs font-bold text-[#8a6a50] uppercase tracking-wider">Average Score</p>
-                      <p className="text-3xl font-black text-[#7a4e2d]">{avgPercentage}%</p>
-                      <p className="text-xs text-[#8a6a50]">Weighted average across all subjects</p>
+                    <div className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm space-y-2">
+                      <p className="text-xs font-bold text-[#4f7262] uppercase tracking-wider">Average Score</p>
+                      <p className="text-3xl font-black text-[#0f6b4f]">{avgPercentage}%</p>
+                      <p className="text-xs text-[#4f7262]">Weighted average across all subjects</p>
                     </div>
-                    <div className="rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm space-y-2">
-                      <p className="text-xs font-bold text-[#8a6a50] uppercase tracking-wider">Total Exams Marked</p>
-                      <p className="text-3xl font-black text-[#7a4e2d]">{filteredMarks.length}</p>
-                      <p className="text-xs text-[#8a6a50]">Grades recorded in current term</p>
+                    <div className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm space-y-2">
+                      <p className="text-xs font-bold text-[#4f7262] uppercase tracking-wider">Total Exams Marked</p>
+                      <p className="text-3xl font-black text-[#0f6b4f]">{filteredMarks.length}</p>
+                      <p className="text-xs text-[#4f7262]">Grades recorded in current term</p>
                     </div>
-                    <div className="rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm space-y-2">
-                      <p className="text-xs font-bold text-[#8a6a50] uppercase tracking-wider">Pass / Fail Status</p>
+                    <div className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm space-y-2">
+                      <p className="text-xs font-bold text-[#4f7262] uppercase tracking-wider">Pass / Fail Status</p>
                       <div className="flex gap-4 items-center mt-2">
-                        <span className="text-sm font-semibold text-[#6d4c35]">
+                        <span className="text-sm font-semibold text-[#355e4d]">
                           Passed: <span className="text-emerald-700 font-bold">{passedCount}</span>
                         </span>
-                        <span className="text-sm font-semibold text-[#6d4c35]">
+                        <span className="text-sm font-semibold text-[#355e4d]">
                           Failed: <span className="text-rose-700 font-bold">{failedCount}</span>
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-                    <h3 className="font-bold text-lg text-[#3f2a1d]">Report Card</h3>
-                    <div className="overflow-x-auto rounded-2xl border border-[#d9c5b0]">
+                  <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+                    <h3 className="font-bold text-lg text-[#0c2f25]">Report Card</h3>
+                    <div className="overflow-x-auto rounded-2xl border border-[#cfe0d6]">
                       <table className="w-full text-left border-collapse bg-white">
                         <thead>
-                          <tr className="bg-[#f4ecdf] text-xs font-bold text-[#6d4c35] uppercase">
+                          <tr className="bg-[#e9f2ed] text-xs font-bold text-[#355e4d] uppercase">
                             <th className="p-3">Exam Name</th>
                             <th className="p-3">Subject</th>
                             <th className="p-3">Marks Obtained</th>
@@ -749,12 +749,12 @@ const StudentDashboard = () => {
                             <th className="p-3">Remarks / Feedback</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#f4ecdf] text-sm text-[#6d4c35]">
+                        <tbody className="divide-y divide-[#e9f2ed] text-sm text-[#355e4d]">
                           {filteredMarks && filteredMarks.length > 0 ? (
                             filteredMarks.map((m) => (
-                              <tr key={m._id} className="hover:bg-[#fffaf3]/50">
+                              <tr key={m._id} className="hover:bg-[#fbfdfb]/50">
                                 <td className="p-3 font-semibold">{m.examId?.name || 'Test/Assessment'}</td>
-                                <td className="p-3 font-bold text-[#3f2a1d]">{m.subjectId?.name || 'N/A'}</td>
+                                <td className="p-3 font-bold text-[#0c2f25]">{m.subjectId?.name || 'N/A'}</td>
                                 <td className="p-3 font-semibold">{m.marks} / {m.outOfMarks}</td>
                                 <td className="p-3">{m.percentage}%</td>
                                 <td className="p-3 text-center">
@@ -773,7 +773,7 @@ const StudentDashboard = () => {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan="6" className="p-6 text-center italic text-[#8a6a50]">
+                              <td colSpan="6" className="p-6 text-center italic text-[#4f7262]">
                                 No academic marks have been recorded yet for this view.
                               </td>
                             </tr>
@@ -791,9 +791,9 @@ const StudentDashboard = () => {
         {/* TAB 1.7: ATTENDANCE (once a day, marked by the class head master) */}
         {activeSubTab === 'attendance' && (
           <div className="space-y-5">
-            <div className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-              <h2 className="text-2xl font-black text-[#3f2a1d]">{t('My Attendance')}</h2>
-              <p className="mt-1 text-sm text-[#7f634e]">{t('Your class head master marks attendance once every school day.')}</p>
+            <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+              <h2 className="text-2xl font-black text-[#0c2f25]">{t('My Attendance')}</h2>
+              <p className="mt-1 text-sm text-[#4d7262]">{t('Your class head master marks attendance once every school day.')}</p>
               <div className="mt-3"><StatusChip status={attendanceData?.todayStatus || 'None'} leftAt={attendanceData?.daily?.find((d) => d.date === attendanceData?.today)?.leftAt} /></div>
             </div>
             <AttendanceReportView report={attendanceData} today={attendanceData?.today} threshold={attendanceData?.stats?.threshold || 75} />
@@ -803,32 +803,32 @@ const StudentDashboard = () => {
         {/* TAB 2: PROFILE */}
         {activeSubTab === 'profile' && (
           <div className="mb-6 space-y-2">
-            <h2 className="text-xl font-black text-[#3f2a1d]">Edit my profile & documents</h2>
+            <h2 className="text-xl font-black text-[#0c2f25]">Edit my profile & documents</h2>
             <ProfileEditor />
           </div>
         )}
 
         {activeSubTab === 'profile' && profileData && (
-          <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-6">
+          <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-6">
             
             {/* Main Header / Banner */}
-            <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-[#f4ecdf]">
+            <div className="flex flex-col md:flex-row items-center gap-6 pb-6 border-b border-[#e9f2ed]">
               {profileData.photo ? (
                 <img 
                   src={profileData.photo} 
                   alt={profileData.name} 
-                  className="h-28 w-28 rounded-full object-cover border-2 border-[#7a4e2d] shadow-sm"
+                  className="h-28 w-28 rounded-full object-cover border-2 border-[#0f6b4f] shadow-sm"
                 />
               ) : (
-                <div className="h-28 w-28 rounded-full bg-[#7a4e2d]/10 text-[#7a4e2d] flex items-center justify-center font-bold text-3xl">
+                <div className="h-28 w-28 rounded-full bg-[#0f6b4f]/10 text-[#0f6b4f] flex items-center justify-center font-bold text-3xl">
                   {profileData.name.charAt(0)}
                 </div>
               )}
               <div className="text-center md:text-left space-y-1">
-                <h2 className="text-2xl font-black text-[#3f2a1d]">{profileData.fullName || profileData.name}</h2>
-                <p className="text-[#8a6a50] text-sm font-semibold">Student ID: {profileData._id} | Roll: {profileData.rollNumber || 'N/A'}</p>
+                <h2 className="text-2xl font-black text-[#0c2f25]">{profileData.fullName || profileData.name}</h2>
+                <p className="text-[#4f7262] text-sm font-semibold">Student ID: {profileData._id} | Roll: {profileData.rollNumber || 'N/A'}</p>
                 <div className="flex flex-wrap justify-center md:justify-start gap-2 mt-2">
-                  <span className="bg-[#7a4e2d]/10 text-[#7a4e2d] text-xs font-bold px-3 py-1 rounded-full">
+                  <span className="bg-[#0f6b4f]/10 text-[#0f6b4f] text-xs font-bold px-3 py-1 rounded-full">
                     Class: {profileData.classId?.standard || 'N/A'} ({profileData.division || 'N/A'})
                   </span>
                   <span className="bg-sky-500/10 text-sky-700 text-xs font-bold px-3 py-1 rounded-full font-mono">
@@ -842,40 +842,40 @@ const StudentDashboard = () => {
             <div className="grid gap-6 md:grid-cols-2">
               
               {/* Category 0: Personal Details */}
-              <div className="rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <User className="h-4 w-4" /> Personal Details
                 </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm text-[#6d4c35]">
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">First Name:</span>{profileData.firstName || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Middle Name:</span>{profileData.middleName || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Last Name:</span>{profileData.lastName || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Gender:</span>{profileData.gender || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Date of Birth:</span>{profileData.dateOfBirth ? profileData.dateOfBirth.split('T')[0] : 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Aadhaar Number:</span>{profileData.aadhaarNumber || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Nationality:</span>{profileData.nationality || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Religion:</span>{profileData.religion || 'N/A'}</div>
-                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#8a6a50]">Caste/Category:</span>{profileData.casteCategory || 'N/A'}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-[#355e4d]">
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">First Name:</span>{profileData.firstName || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Middle Name:</span>{profileData.middleName || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Last Name:</span>{profileData.lastName || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Gender:</span>{profileData.gender || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Date of Birth:</span>{profileData.dateOfBirth ? profileData.dateOfBirth.split('T')[0] : 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">B-Form / CNIC No.:</span>{profileData.cnicNumber || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Nationality:</span>{profileData.nationality || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Religion:</span>{profileData.religion || 'N/A'}</div>
+                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#4f7262]">Mother Tongue:</span>{profileData.motherTongue || 'N/A'}</div>
                 </div>
               </div>
 
               {/* Category 1: Academic */}
-              <div className="rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <LayoutGrid className="h-4 w-4" /> Academic Records
                 </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm text-[#6d4c35]">
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">House:</span>{profileData.house || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Academic Year:</span>{profileData.academicYear || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Medium:</span>{profileData.medium || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Admission Date:</span>{profileData.admissionDate ? profileData.admissionDate.split('T')[0] : 'N/A'}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-[#355e4d]">
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">House:</span>{profileData.house || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Academic Year:</span>{profileData.academicYear || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Medium:</span>{profileData.medium || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Admission Date:</span>{profileData.admissionDate ? profileData.admissionDate.split('T')[0] : 'N/A'}</div>
                   <div className="col-span-2">
-                    <span className="font-semibold block text-xs text-[#8a6a50]">Previous School:</span>
+                    <span className="font-semibold block text-xs text-[#4f7262]">Previous School:</span>
                     {profileData.previousSchool || 'Fresh'}
                   </div>
                   <div className="col-span-2">
-                    <span className="font-semibold block text-xs text-[#8a6a50]">Enrolled Subjects:</span>
-                    <p className="text-xs mt-1 bg-[#f4ecdf] p-2 rounded-xl text-[#3f2a1d] font-semibold">
+                    <span className="font-semibold block text-xs text-[#4f7262]">Enrolled Subjects:</span>
+                    <p className="text-xs mt-1 bg-[#e9f2ed] p-2 rounded-xl text-[#0c2f25] font-semibold">
                       {profileData.subjectsEnrolled && profileData.subjectsEnrolled.length > 0
                         ? profileData.subjectsEnrolled.map(s => s.name || s).join(', ')
                         : 'No Subjects Enrolled'}
@@ -885,26 +885,26 @@ const StudentDashboard = () => {
               </div>
 
               {/* Category 2: Parent Details */}
-              <div className="rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <User className="h-4 w-4" /> Parent / Guardian details
                 </h3>
-                <div className="grid grid-cols-2 gap-3 text-sm text-[#6d4c35]">
-                  <div className="border-r border-[#f4ecdf] pr-2">
-                    <span className="font-bold block text-xs text-[#7a4e2d] mb-1">Father</span>
-                    <p><span className="text-[#8a6a50] text-xs">Name:</span> {profileData.father?.name || 'N/A'}</p>
-                    <p><span className="text-[#8a6a50] text-xs">Occ:</span> {profileData.father?.occupation || 'N/A'}</p>
-                    <p><span className="text-[#8a6a50] text-xs">Ph:</span> {profileData.father?.mobileNumber || 'N/A'}</p>
+                <div className="grid grid-cols-2 gap-3 text-sm text-[#355e4d]">
+                  <div className="border-r border-[#e9f2ed] pr-2">
+                    <span className="font-bold block text-xs text-[#0f6b4f] mb-1">Father</span>
+                    <p><span className="text-[#4f7262] text-xs">Name:</span> {profileData.father?.name || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs">Occ:</span> {profileData.father?.occupation || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs">Ph:</span> {profileData.father?.mobileNumber || 'N/A'}</p>
                   </div>
                   <div>
-                    <span className="font-bold block text-xs text-[#7a4e2d] mb-1">Mother</span>
-                    <p><span className="text-[#8a6a50] text-xs">Name:</span> {profileData.mother?.name || 'N/A'}</p>
-                    <p><span className="text-[#8a6a50] text-xs">Occ:</span> {profileData.mother?.occupation || 'N/A'}</p>
-                    <p><span className="text-[#8a6a50] text-xs">Ph:</span> {profileData.mother?.mobileNumber || 'N/A'}</p>
+                    <span className="font-bold block text-xs text-[#0f6b4f] mb-1">Mother</span>
+                    <p><span className="text-[#4f7262] text-xs">Name:</span> {profileData.mother?.name || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs">Occ:</span> {profileData.mother?.occupation || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs">Ph:</span> {profileData.mother?.mobileNumber || 'N/A'}</p>
                   </div>
                   {profileData.guardian?.name && (
                     <div className="col-span-2 border-t pt-2 mt-1">
-                      <span className="font-bold block text-xs text-[#7a4e2d]">Guardian (Different)</span>
+                      <span className="font-bold block text-xs text-[#0f6b4f]">Guardian (Different)</span>
                       <p className="text-xs mt-1">
                         Name: {profileData.guardian.name} | Relation: {profileData.guardian.relationship} | Ph: {profileData.guardian.mobileNumber}
                       </p>
@@ -914,31 +914,31 @@ const StudentDashboard = () => {
               </div>
 
               {/* Category 3: Contact & Address */}
-              <div className="rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <Phone className="h-4 w-4" /> Contact Information
                 </h3>
-                <div className="text-sm text-[#6d4c35] space-y-2">
+                <div className="text-sm text-[#355e4d] space-y-2">
                   <div className="grid grid-cols-2 gap-2">
-                    <p><span className="text-[#8a6a50] text-xs font-bold block">Mobile:</span>{profileData.mobileNumber || 'N/A'}</p>
-                    <p><span className="text-[#8a6a50] text-xs font-bold block">Alt Mobile:</span>{profileData.alternateMobileNumber || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs font-bold block">Mobile:</span>{profileData.mobileNumber || 'N/A'}</p>
+                    <p><span className="text-[#4f7262] text-xs font-bold block">Alt Mobile:</span>{profileData.alternateMobileNumber || 'N/A'}</p>
                   </div>
-                  <p><span className="text-[#8a6a50] text-xs font-bold block">Current Address:</span>{profileData.currentAddress || 'N/A'}</p>
-                  <p><span className="text-[#8a6a50] text-xs font-bold block">Permanent Address:</span>{profileData.permanentAddress || 'N/A'}</p>
+                  <p><span className="text-[#4f7262] text-xs font-bold block">Current Address:</span>{profileData.currentAddress || 'N/A'}</p>
+                  <p><span className="text-[#4f7262] text-xs font-bold block">Permanent Address:</span>{profileData.permanentAddress || 'N/A'}</p>
                 </div>
               </div>
 
               {/* Category 4: Health & Transport */}
-              <div className="rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <AlertCircle className="h-4 w-4" /> Health & School Bus
                 </h3>
-                <div className="grid grid-cols-2 gap-2 text-sm text-[#6d4c35]">
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Blood Group:</span>{profileData.bloodGroup || 'N/A'}</div>
-                  <div><span className="font-semibold block text-xs text-[#8a6a50]">Disability:</span>{profileData.disability || 'No'}</div>
-                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#8a6a50]">Medical Conditions:</span>{profileData.medicalConditions || 'None'}</div>
+                <div className="grid grid-cols-2 gap-2 text-sm text-[#355e4d]">
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Blood Group:</span>{profileData.bloodGroup || 'N/A'}</div>
+                  <div><span className="font-semibold block text-xs text-[#4f7262]">Disability:</span>{profileData.disability || 'No'}</div>
+                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#4f7262]">Medical Conditions:</span>{profileData.medicalConditions || 'None'}</div>
                   <div className="col-span-2 border-t pt-2">
-                    <span className="font-bold block text-xs text-[#7a4e2d]">School Bus settings:</span>
+                    <span className="font-bold block text-xs text-[#0f6b4f]">School Bus settings:</span>
                     <p className="text-xs mt-1">
                       Uses Bus: {profileData.usesSchoolBus} 
                       {profileData.usesSchoolBus === 'Yes' && ` (Route: ${profileData.busRoute || 'N/A'} | Stop: ${profileData.busStop || 'N/A'} | Number: ${profileData.busNumber || 'N/A'})`}
@@ -948,14 +948,14 @@ const StudentDashboard = () => {
               </div>
 
               {/* Category 5: Documents */}
-              <div className="col-span-2 rounded-2xl border border-[#d9c5b0] bg-white p-5 space-y-3">
-                <h3 className="font-bold text-[#7a4e2d] flex items-center gap-2 border-b pb-2">
+              <div className="col-span-2 rounded-2xl border border-[#cfe0d6] bg-white p-5 space-y-3">
+                <h3 className="font-bold text-[#0f6b4f] flex items-center gap-2 border-b pb-2">
                   <FileText className="h-4 w-4" /> Uploaded Registry Documents
                 </h3>
                 <div className="grid gap-2 sm:grid-cols-3 text-xs">
                   {[
                     ['Birth Certificate', profileData.documents?.birthCertificate],
-                    ['Aadhaar Card', profileData.documents?.aadhaarCard],
+                    ['B-Form / CNIC Copy', profileData.documents?.cnicCopy],
                     ['Previous Marksheet', profileData.documents?.previousMarksheet],
                     ['Transfer Certificate', profileData.documents?.transferCertificate],
                     ['Leaving Certificate', profileData.documents?.leavingCertificate],
@@ -963,19 +963,19 @@ const StudentDashboard = () => {
                     ['Parent ID Proof', profileData.documents?.parentIdProof],
                     ['Address Proof', profileData.documents?.addressProof],
                   ].map(([label, url]) => (
-                    <div key={label} className="border border-[#f4ecdf] p-2 rounded-xl bg-[#fffaf3] flex justify-between items-center">
-                      <span className="font-bold text-[#6d4c35]">{label}</span>
+                    <div key={label} className="border border-[#e9f2ed] p-2 rounded-xl bg-[#fbfdfb] flex justify-between items-center">
+                      <span className="font-bold text-[#355e4d]">{label}</span>
                       {url ? (
                         <a 
                           href={url} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="bg-[#7a4e2d] text-[#f7efe4] hover:bg-[#624021] px-2.5 py-1 rounded-lg font-bold"
+                          className="bg-[#0f6b4f] text-[#edf5f0] hover:bg-[#0b5340] px-2.5 py-1 rounded-lg font-bold"
                         >
                           View File
                         </a>
                       ) : (
-                        <span className="text-[#8a6a50] italic">Not Uploaded</span>
+                        <span className="text-[#4f7262] italic">Not Uploaded</span>
                       )}
                     </div>
                   ))}
@@ -991,33 +991,33 @@ const StudentDashboard = () => {
           <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
             
             {/* Form to Raise Grievance */}
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-              <h2 className="text-xl font-bold text-[#3f2a1d] flex items-center gap-2">
-                <Send className="h-5 w-5 text-[#b68c67]" />
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+              <h2 className="text-xl font-bold text-[#0c2f25] flex items-center gap-2">
+                <Send className="h-5 w-5 text-[#2f8f6f]" />
                 Raise a Grievance
               </h2>
-              <p className="text-sm text-[#7f634e]">Submit your issue directly to the school administration. You can upload an issue photo if relevant.</p>
+              <p className="text-sm text-[#4d7262]">Submit your issue directly to the school administration. You can upload an issue photo if relevant.</p>
 
               <form onSubmit={handleRaiseGrievance} className="space-y-4 pt-2">
                 <div>
-                  <label className="block text-xs font-bold text-[#6d4c35] mb-1">Grievance / Complaint Title *</label>
+                  <label className="block text-xs font-bold text-[#355e4d] mb-1">Grievance / Complaint Title *</label>
                   <input
                     type="text"
                     required
                     value={grievanceTitle}
                     onChange={(e) => setGrievanceTitle(e.target.value)}
                     placeholder="E.g., Classroom fan not working"
-                    className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                    className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-[#6d4c35] mb-1">Category *</label>
+                    <label className="block text-xs font-bold text-[#355e4d] mb-1">Category *</label>
                     <select
                       value={grievanceCategory}
                       onChange={(e) => setGrievanceCategory(e.target.value)}
-                      className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                      className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                     >
                       {['Facilities', 'Academic', 'Behavioral', 'Profile Update', 'Other'].map(cat => (
                         <option key={cat} value={cat}>{cat}</option>
@@ -1025,11 +1025,11 @@ const StudentDashboard = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-[#6d4c35] mb-1">Priority *</label>
+                    <label className="block text-xs font-bold text-[#355e4d] mb-1">Priority *</label>
                     <select
                       value={grievancePriority}
                       onChange={(e) => setGrievancePriority(e.target.value)}
-                      className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                      className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                     >
                       {['Low', 'Medium', 'High'].map(pr => (
                         <option key={pr} value={pr}>{pr}</option>
@@ -1039,23 +1039,23 @@ const StudentDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#6d4c35] mb-1">Explain Detail Message *</label>
+                  <label className="block text-xs font-bold text-[#355e4d] mb-1">Explain Detail Message *</label>
                   <textarea
                     required
                     value={grievanceDescription}
                     onChange={(e) => setGrievanceDescription(e.target.value)}
                     placeholder="Explain what needs to be fixed..."
-                    className="w-full h-28 rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                    className="w-full h-28 rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#6d4c35] mb-1">Attachment / Photo of Issue (Optional)</label>
+                  <label className="block text-xs font-bold text-[#355e4d] mb-1">Attachment / Photo of Issue (Optional)</label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handlePhotoUpload}
-                    className="block w-full text-xs text-[#8a6a50] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#7a4e2d]/10 file:text-[#7a4e2d] hover:file:bg-[#7a4e2d]/20"
+                    className="block w-full text-xs text-[#4f7262] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#0f6b4f]/10 file:text-[#0f6b4f] hover:file:bg-[#0f6b4f]/20"
                   />
                   {uploadingPhoto && <p className="text-xs text-amber-600 mt-1">Uploading photo...</p>}
                   {grievancePhoto && (
@@ -1065,7 +1065,7 @@ const StudentDashboard = () => {
 
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-[#7a4e2d] py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition"
+                  className="w-full rounded-xl bg-[#0f6b4f] py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition"
                 >
                   Submit Grievance
                 </button>
@@ -1073,19 +1073,19 @@ const StudentDashboard = () => {
             </div>
 
             {/* Grievance History */}
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-              <h2 className="text-xl font-bold text-[#3f2a1d] flex items-center gap-2">
-                <History className="h-5 w-5 text-[#b68c67]" />
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+              <h2 className="text-xl font-bold text-[#0c2f25] flex items-center gap-2">
+                <History className="h-5 w-5 text-[#2f8f6f]" />
                 Complaint History
               </h2>
-              <p className="text-sm text-[#7f634e]">See active and resolved support tickets.</p>
+              <p className="text-sm text-[#4d7262]">See active and resolved support tickets.</p>
 
               <div className="space-y-4 max-h-[500px] overflow-y-auto pr-1">
                 {myGrievances.length > 0 ? (
                   myGrievances.map((complaint) => (
-                    <div key={complaint._id} className="border border-[#d9c5b0] rounded-2xl bg-white p-4 space-y-2">
+                    <div key={complaint._id} className="border border-[#cfe0d6] rounded-2xl bg-white p-4 space-y-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-xs font-bold text-[#8a6a50]">{new Date(complaint.createdAt).toLocaleDateString()}</span>
+                        <span className="text-xs font-bold text-[#4f7262]">{new Date(complaint.createdAt).toLocaleDateString()}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase ${
                           complaint.status === 'Resolved' 
                             ? 'bg-emerald-500/10 text-emerald-700' 
@@ -1096,21 +1096,21 @@ const StudentDashboard = () => {
                           {complaint.status === 'In Progress' ? 'Under Process' : (complaint.status === 'Resolved' ? 'Completed' : 'Pending')}
                         </span>
                       </div>
-                      <h4 className="font-bold text-sm text-[#3f2a1d]">{complaint.title}</h4>
-                      <p className="text-xs text-[#6d4c35] leading-relaxed bg-[#f4ecdf] p-2 rounded-xl">
+                      <h4 className="font-bold text-sm text-[#0c2f25]">{complaint.title}</h4>
+                      <p className="text-xs text-[#355e4d] leading-relaxed bg-[#e9f2ed] p-2 rounded-xl">
                         {complaint.description}
                       </p>
                       {complaint.attachments && complaint.attachments.length > 0 && (
                         <div className="pt-1">
-                          <a href={complaint.attachments[0]} target="_blank" rel="noopener noreferrer" className="text-[10px] underline font-bold text-[#7a4e2d] hover:text-[#624021]">
+                          <a href={complaint.attachments[0]} target="_blank" rel="noopener noreferrer" className="text-[10px] underline font-bold text-[#0f6b4f] hover:text-[#0b5340]">
                             View Attached Photo
                           </a>
                         </div>
                       )}
                       {complaint.resolution ? (
-                        <div className="border-t border-[#f4ecdf] pt-2 mt-2">
+                        <div className="border-t border-[#e9f2ed] pt-2 mt-2">
                           <span className="text-xs font-bold text-emerald-700 block">Revert Message from Admin:</span>
-                          <p className="text-xs text-[#6d4c35] italic mt-0.5">{complaint.resolution}</p>
+                          <p className="text-xs text-[#355e4d] italic mt-0.5">{complaint.resolution}</p>
                         </div>
                       ) : (
                         complaint.status === 'In Progress' && (
@@ -1120,7 +1120,7 @@ const StudentDashboard = () => {
                     </div>
                   ))
                 ) : (
-                  <p className="text-sm text-[#8a6a50] italic text-center py-6">You have not raised any grievances yet.</p>
+                  <p className="text-sm text-[#4f7262] italic text-center py-6">You have not raised any grievances yet.</p>
                 )}
               </div>
             </div>
@@ -1130,12 +1130,12 @@ const StudentDashboard = () => {
 
         {/* TAB 4: PASSWORD SECURITY */}
         {activeSubTab === 'security' && (
-          <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm max-w-xl mx-auto">
-            <h2 className="text-xl font-bold text-[#3f2a1d] flex items-center gap-2">
-              <Lock className="h-5 w-5 text-[#b68c67]" />
+          <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm max-w-xl mx-auto">
+            <h2 className="text-xl font-bold text-[#0c2f25] flex items-center gap-2">
+              <Lock className="h-5 w-5 text-[#2f8f6f]" />
               Update Security Password
             </h2>
-            <p className="mt-1 text-sm text-[#7f634e]">Change your password. Keep your account details secure.</p>
+            <p className="mt-1 text-sm text-[#4d7262]">Change your password. Keep your account details secure.</p>
 
             <form onSubmit={handleChangePassword} className="mt-5 space-y-4">
               {error && (
@@ -1149,26 +1149,26 @@ const StudentDashboard = () => {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold text-[#6d4c35] mb-1">Current Password *</label>
+                <label className="block text-xs font-bold text-[#355e4d] mb-1">Current Password *</label>
                 <input
                   type="password"
                   required
                   value={oldPassword}
                   onChange={(e) => setOldPassword(e.target.value)}
-                  className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                  className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#6d4c35] mb-1">New Password *</label>
+                <label className="block text-xs font-bold text-[#355e4d] mb-1">New Password *</label>
                 <input
                   type="password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                  className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                 />
                 <div className="mt-1.5 space-y-1 text-[10px]">
-                  <p className="font-semibold text-[#6d4c35]">Password requirements:</p>
+                  <p className="font-semibold text-[#355e4d]">Password requirements:</p>
                   <div className="grid grid-cols-2 gap-1 mt-0.5">
                     <div className="flex items-center gap-1">
                       <span className={`inline-block h-1.5 w-1.5 rounded-full ${(newPassword || '').length >= 6 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -1190,20 +1190,20 @@ const StudentDashboard = () => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-bold text-[#6d4c35] mb-1">Confirm New Password *</label>
+                <label className="block text-xs font-bold text-[#355e4d] mb-1">Confirm New Password *</label>
                 <input
                   type="password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                  className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-[#7a4e2d] py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition disabled:opacity-50"
+                className="w-full rounded-xl bg-[#0f6b4f] py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition disabled:opacity-50"
               >
                 {loading ? 'Updating...' : 'Update Password'}
               </button>
@@ -1240,15 +1240,15 @@ const StudentDashboard = () => {
             if (!match) return null;
             if (match.isBreak) {
               return (
-                <div className="p-2 bg-[#ecd9c5]/40 border border-dashed border-[#b68c67]/40 rounded-xl text-center text-[10px] text-[#8a6a50] font-extrabold select-none">
+                <div className="p-2 bg-[#e3efe8]/40 border border-dashed border-[#2f8f6f]/40 rounded-xl text-center text-[10px] text-[#4f7262] font-extrabold select-none">
                   ☕ {match.breakName || 'Break'}
                 </div>
               );
             }
             return (
-              <div className="p-2 bg-[#faf4ea] border border-[#e1d0be] rounded-xl text-center shadow-xs">
-                <p className="font-bold text-[#3f2a1d] text-xs leading-tight">{match.subjectId?.name || 'Subject'}</p>
-                <p className="text-[10px] text-[#8a6a50] mt-1 font-semibold">{match.teacherId?.name || 'Teacher'}</p>
+              <div className="p-2 bg-[#f4f8f5] border border-[#dbe9e1] rounded-xl text-center shadow-xs">
+                <p className="font-bold text-[#0c2f25] text-xs leading-tight">{match.subjectId?.name || 'Subject'}</p>
+                <p className="text-[10px] text-[#4f7262] mt-1 font-semibold">{match.teacherId?.name || 'Teacher'}</p>
               </div>
             );
           };
@@ -1258,16 +1258,16 @@ const StudentDashboard = () => {
             : 'My Class';
 
           return (
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4 printable-timetable">
-              <div className="flex justify-between items-center border-b border-[#d9c5b0]/35 pb-2 no-print">
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4 printable-timetable">
+              <div className="flex justify-between items-center border-b border-[#cfe0d6]/35 pb-2 no-print">
                 <div>
-                  <h2 className="text-xl font-bold text-[#3f2a1d]">Class Timetable</h2>
-                  <p className="text-xs text-[#8a6a50]">Weekly class timetable for {classNameStr}</p>
+                  <h2 className="text-xl font-bold text-[#0c2f25]">Class Timetable</h2>
+                  <p className="text-xs text-[#4f7262]">Weekly class timetable for {classNameStr}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-[#7a4e2d] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#624021] transition flex items-center gap-1.5 no-print"
+                  className="px-4 py-2 bg-[#0f6b4f] text-white rounded-xl text-xs font-bold shadow-md hover:bg-[#0b5340] transition flex items-center gap-1.5 no-print"
                 >
                   📥 Download / Print Timetable
                 </button>
@@ -1275,21 +1275,21 @@ const StudentDashboard = () => {
 
               {/* Print Only Header (Visible during printing) */}
               <div className="hidden print:block mb-4 text-center">
-                <h1 className="text-2xl font-black text-[#3f2a1d]">{profileData?.schoolName || 'School Hub'}</h1>
-                <h2 className="text-lg font-bold text-[#7a4e2d] mt-1">Class Timetable — {classNameStr}</h2>
-                <p className="text-xs text-[#8a6a50]">Academic Year: 2026-2027</p>
+                <h1 className="text-2xl font-black text-[#0c2f25]">{profileData?.schoolName || 'School Hub'}</h1>
+                <h2 className="text-lg font-bold text-[#0f6b4f] mt-1">Class Timetable — {classNameStr}</h2>
+                <p className="text-xs text-[#4f7262]">Academic Year: 2026-2027</p>
               </div>
 
               {timeSlots.length > 0 ? (
-                <div className="min-w-full overflow-x-auto border border-[#d9c5b0] rounded-2xl bg-white shadow-sm">
+                <div className="min-w-full overflow-x-auto border border-[#cfe0d6] rounded-2xl bg-white shadow-sm">
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                      <tr className="bg-[#faf4ea] border-b border-[#d9c5b0]">
-                        <th className="p-4 text-xs font-black text-[#6d4c35] border-r border-[#d9c5b0] w-32 bg-[#faf4ea]">
+                      <tr className="bg-[#f4f8f5] border-b border-[#cfe0d6]">
+                        <th className="p-4 text-xs font-black text-[#355e4d] border-r border-[#cfe0d6] w-32 bg-[#f4f8f5]">
                           Day / Time
                         </th>
                         {timeSlots.map(slot => (
-                          <th key={slot} className="p-4 text-xs font-black text-[#6d4c35] text-center border-r border-[#d9c5b0]/40 last:border-r-0">
+                          <th key={slot} className="p-4 text-xs font-black text-[#355e4d] text-center border-r border-[#cfe0d6]/40 last:border-r-0">
                             {slot}
                           </th>
                         ))}
@@ -1297,8 +1297,8 @@ const StudentDashboard = () => {
                     </thead>
                     <tbody>
                       {daysOrder.map((day, dayIdx) => (
-                        <tr key={day} className="border-b border-[#d9c5b0]/60 last:border-b-0 hover:bg-[#fffaf3]/45 transition">
-                          <td className="p-4 text-xs font-black text-[#7a4e2d] border-r border-[#d9c5b0] bg-[#faf4ea]">
+                        <tr key={day} className="border-b border-[#cfe0d6]/60 last:border-b-0 hover:bg-[#fbfdfb]/45 transition">
+                          <td className="p-4 text-xs font-black text-[#0f6b4f] border-r border-[#cfe0d6] bg-[#f4f8f5]">
                             {day}
                           </td>
                           {timeSlots.map(slot => {
@@ -1313,7 +1313,7 @@ const StudentDashboard = () => {
                             if (breakMatch) {
                               if (dayIdx !== 0) return null;
                               return (
-                                <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[80px] bg-[#ecd9c5]/30 text-center font-extrabold text-[#8a6a50] align-middle select-none">
+                                <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[80px] bg-[#e3efe8]/30 text-center font-extrabold text-[#4f7262] align-middle select-none">
                                   <div className="flex flex-col items-center justify-center space-y-1 py-4">
                                     <span>☕</span>
                                     <span className="uppercase tracking-widest text-[9px] font-black" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>
@@ -1326,7 +1326,7 @@ const StudentDashboard = () => {
 
                             const cell = getCellContent(day, slot);
                             return (
-                              <td key={slot} className="p-2 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[140px]">
+                              <td key={slot} className="p-2 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[140px]">
                                 {cell || (
                                   <div className="p-2 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center text-[10px] text-gray-300 font-bold">
                                     Free
@@ -1341,7 +1341,7 @@ const StudentDashboard = () => {
                   </table>
                 </div>
               ) : (
-                <div className="text-center py-8 text-[#8a6a50] italic text-sm">
+                <div className="text-center py-8 text-[#4f7262] italic text-sm">
                   No lectures are currently scheduled for your class division.
                 </div>
               )}
@@ -1352,9 +1352,9 @@ const StudentDashboard = () => {
         {/* TAB: FEES */}
         {activeSubTab === 'fees' && (
           <div className="space-y-4">
-            <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#3f2a1d]">Fees & Payments</h2>
-              <p className="text-sm text-[#7f634e]">Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot here. The school checks it and marks the fee as paid.</p>
+            <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-[#0c2f25]">Fees & Payments</h2>
+              <p className="text-sm text-[#4d7262]">Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot here. The school checks it and marks the fee as paid.</p>
             </div>
             <FeesPanel />
           </div>

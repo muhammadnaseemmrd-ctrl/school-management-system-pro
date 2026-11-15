@@ -3,7 +3,7 @@ import { Link2, Pencil, Plus, Search, Trash2, X, UserCheck } from 'lucide-react'
 import { toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 
-const inputCls = 'w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]';
+const inputCls = 'w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]';
 const empty = { name: '', email: '', phone: '', relationship: 'Father', password: '', childIds: [] };
 const cls = (c) => (c ? `${c.standard}-${c.division}` : '—');
 
@@ -83,40 +83,40 @@ const ParentsManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
+      <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="flex items-center gap-2 text-xl font-bold text-[#3f2a1d]"><UserCheck className="h-5 w-5" /> Parent accounts</h2>
-            <p className="mt-1 text-sm text-[#7f634e]">Create login accounts for parents/guardians and link them to their children. Parents get a read-only dashboard with live attendance.</p>
+            <h2 className="flex items-center gap-2 text-xl font-bold text-[#0c2f25]"><UserCheck className="h-5 w-5" /> Parent accounts</h2>
+            <p className="mt-1 text-sm text-[#4d7262]">Create login accounts for parents/guardians and link them to their children. Parents get a read-only dashboard with live attendance.</p>
           </div>
-          <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-xs font-bold text-[#f7efe4] hover:bg-[#633d22]"><Plus className="h-4 w-4" /> Add parent</button>
+          <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-xs font-bold text-[#edf5f0] hover:bg-[#0b5340]"><Plus className="h-4 w-4" /> Add parent</button>
         </div>
-        <div className="relative mt-4 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8a6a50]" />
+        <div className="relative mt-4 max-w-md"><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#4f7262]" />
           <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name, email or phone…" className={`${inputCls} pl-9`} /></div>
       </div>
 
-      <div className="overflow-x-auto rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] shadow-sm">
+      <div className="overflow-x-auto rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] shadow-sm">
         <table className="w-full min-w-[760px] text-left text-xs">
-          <thead className="border-b border-[#d9c5b0] bg-[#f7efe4] text-[10px] uppercase tracking-wider text-[#8a6a50]">
+          <thead className="border-b border-[#cfe0d6] bg-[#edf5f0] text-[10px] uppercase tracking-wider text-[#4f7262]">
             <tr>{['Parent', 'Relation', 'Children linked', 'Status', 'Last login', ''].map((h) => <th key={h} className="px-4 py-3 font-bold">{h}</th>)}</tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={6} className="py-10 text-center text-[#8a6a50]">Loading…</td></tr>}
-            {!loading && parents.length === 0 && <tr><td colSpan={6} className="py-10 text-center italic text-[#8a6a50]">No parent accounts yet. Click “Add parent”.</td></tr>}
+            {loading && <tr><td colSpan={6} className="py-10 text-center text-[#4f7262]">Loading…</td></tr>}
+            {!loading && parents.length === 0 && <tr><td colSpan={6} className="py-10 text-center italic text-[#4f7262]">No parent accounts yet. Click “Add parent”.</td></tr>}
             {parents.map((p) => (
-              <tr key={p._id} className="border-b border-[#d9c5b0]/40 hover:bg-white/60">
-                <td className="px-4 py-3"><p className="font-bold text-[#3f2a1d]">{p.name}</p><p className="text-[10px] text-[#8a6a50]">{p.email}{p.phone ? ` · ${p.phone}` : ''}</p></td>
+              <tr key={p._id} className="border-b border-[#cfe0d6]/40 hover:bg-white/60">
+                <td className="px-4 py-3"><p className="font-bold text-[#0c2f25]">{p.name}</p><p className="text-[10px] text-[#4f7262]">{p.email}{p.phone ? ` · ${p.phone}` : ''}</p></td>
                 <td className="px-4 py-3">{p.relationship}</td>
-                <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{p.children.length === 0 ? <span className="italic text-[#8a6a50]">none</span> : p.children.map((c) => (
-                  <span key={c._id} className="inline-flex items-center gap-1 rounded-full bg-[#7a4e2d]/10 px-2 py-0.5 text-[10px] font-bold text-[#7a4e2d]"><Link2 className="h-3 w-3" /> {c.name} ({cls(c.classId)})</span>))}</div></td>
+                <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{p.children.length === 0 ? <span className="italic text-[#4f7262]">none</span> : p.children.map((c) => (
+                  <span key={c._id} className="inline-flex items-center gap-1 rounded-full bg-[#0f6b4f]/10 px-2 py-0.5 text-[10px] font-bold text-[#0f6b4f]"><Link2 className="h-3 w-3" /> {c.name} ({cls(c.classId)})</span>))}</div></td>
                 <td className="px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${p.isActive ? 'bg-emerald-50 text-emerald-800' : 'bg-[#fff1f2] text-[#9f1239]'}`}>{p.isActive ? 'Active' : 'Disabled'}</span></td>
-                <td className="px-4 py-3 text-[#8a6a50]">{p.lastLogin ? new Date(p.lastLogin).toLocaleString() : 'Never'}</td>
+                <td className="px-4 py-3 text-[#4f7262]">{p.lastLogin ? new Date(p.lastLogin).toLocaleString() : 'Never'}</td>
                 <td className="px-4 py-3">
                   {confirmDelete === p._id ? (
-                    <div className="flex items-center gap-1"><button onClick={() => remove(p)} className="rounded-lg bg-[#be123c] px-2.5 py-1.5 font-bold text-white">Confirm</button><button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-[#d9c5b0] bg-white px-2.5 py-1.5 font-bold">Cancel</button></div>
+                    <div className="flex items-center gap-1"><button onClick={() => remove(p)} className="rounded-lg bg-[#be123c] px-2.5 py-1.5 font-bold text-white">Confirm</button><button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-[#cfe0d6] bg-white px-2.5 py-1.5 font-bold">Cancel</button></div>
                   ) : (
-                    <div className="flex gap-1"><button onClick={() => openEdit(p)} className="rounded-lg border border-[#d9c5b0] bg-white p-1.5 text-[#7a4e2d] hover:bg-[#f4ecdf]"><Pencil className="h-4 w-4" /></button>
-                      <button onClick={() => setConfirmDelete(p._id)} className="rounded-lg border border-[#d9c5b0] bg-white p-1.5 text-[#be123c] hover:bg-[#fff1f2]"><Trash2 className="h-4 w-4" /></button></div>
+                    <div className="flex gap-1"><button onClick={() => openEdit(p)} className="rounded-lg border border-[#cfe0d6] bg-white p-1.5 text-[#0f6b4f] hover:bg-[#e9f2ed]"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => setConfirmDelete(p._id)} className="rounded-lg border border-[#cfe0d6] bg-white p-1.5 text-[#be123c] hover:bg-[#fff1f2]"><Trash2 className="h-4 w-4" /></button></div>
                   )}
                 </td>
               </tr>
@@ -127,42 +127,42 @@ const ParentsManager = () => {
 
       {modal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/45 p-4">
-          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-2xl">
-            <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-black">{modal === 'create' ? 'Add parent account' : `Edit ${modal.name}`}</h3><button onClick={() => setModal(null)} className="rounded-full p-1.5 hover:bg-[#7a4e2d]/10"><X className="h-5 w-5" /></button></div>
+          <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between"><h3 className="text-lg font-black">{modal === 'create' ? 'Add parent account' : `Edit ${modal.name}`}</h3><button onClick={() => setModal(null)} className="rounded-full p-1.5 hover:bg-[#0f6b4f]/10"><X className="h-5 w-5" /></button></div>
             <form onSubmit={save} className="space-y-4">
               <div>
-                <label className="mb-1 block text-xs font-bold text-[#6d4c35]">1. Select child / children</label>
+                <label className="mb-1 block text-xs font-bold text-[#355e4d]">1. Select child / children</label>
                 <input value={studentSearch} onChange={(e) => setStudentSearch(e.target.value)} placeholder="Search student by name, roll or class…" className={`${inputCls} mb-2`} />
-                <div className="grid max-h-44 gap-1.5 overflow-y-auto rounded-xl border border-[#d9c5b0] bg-white p-2 sm:grid-cols-2">
+                <div className="grid max-h-44 gap-1.5 overflow-y-auto rounded-xl border border-[#cfe0d6] bg-white p-2 sm:grid-cols-2">
                   {filteredStudents.map((s) => (
-                    <label key={s._id} className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs ${form.childIds.includes(s._id) ? 'bg-[#7a4e2d]/10 font-bold text-[#7a4e2d]' : 'hover:bg-[#f4ecdf]'}`}>
+                    <label key={s._id} className={`flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs ${form.childIds.includes(s._id) ? 'bg-[#0f6b4f]/10 font-bold text-[#0f6b4f]' : 'hover:bg-[#e9f2ed]'}`}>
                       <input type="checkbox" checked={form.childIds.includes(s._id)} onChange={() => toggleChild(s._id)} />
-                      <span className="flex-1">{s.name} <span className="text-[#8a6a50]">· {cls(s.classId)}{s.rollNumber ? ` · #${s.rollNumber}` : ''}</span></span>
+                      <span className="flex-1">{s.name} <span className="text-[#4f7262]">· {cls(s.classId)}{s.rollNumber ? ` · #${s.rollNumber}` : ''}</span></span>
                       {linkedElsewhere.get(s._id) ? <span className="rounded bg-amber-100 px-1.5 text-[9px] font-bold text-amber-800">has parent</span> : null}
                     </label>
                   ))}
-                  {filteredStudents.length === 0 && <p className="p-2 text-xs italic text-[#8a6a50]">No students match.</p>}
+                  {filteredStudents.length === 0 && <p className="p-2 text-xs italic text-[#4f7262]">No students match.</p>}
                 </div>
               </div>
 
               {modal === 'create' && form.childIds.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 text-xs"><span className="font-bold text-[#6d4c35]">Quick fill from student record:</span>
-                  <button type="button" onClick={() => prefillFromStudent('father')} className="rounded-full border border-[#d9c5b0] bg-white px-3 py-1 font-bold text-[#7a4e2d] hover:bg-[#f4ecdf]">Father's details</button>
-                  <button type="button" onClick={() => prefillFromStudent('mother')} className="rounded-full border border-[#d9c5b0] bg-white px-3 py-1 font-bold text-[#7a4e2d] hover:bg-[#f4ecdf]">Mother's details</button></div>
+                <div className="flex flex-wrap items-center gap-2 text-xs"><span className="font-bold text-[#355e4d]">Quick fill from student record:</span>
+                  <button type="button" onClick={() => prefillFromStudent('father')} className="rounded-full border border-[#cfe0d6] bg-white px-3 py-1 font-bold text-[#0f6b4f] hover:bg-[#e9f2ed]">Father's details</button>
+                  <button type="button" onClick={() => prefillFromStudent('mother')} className="rounded-full border border-[#cfe0d6] bg-white px-3 py-1 font-bold text-[#0f6b4f] hover:bg-[#e9f2ed]">Mother's details</button></div>
               )}
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">Full name</label><input required className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                <div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">Login email</label><input required type="email" disabled={modal !== 'create'} className={`${inputCls} disabled:bg-stone-100`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-                <div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">Phone</label><input className={inputCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
-                <div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">Relationship</label><select className={inputCls} value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })}><option>Father</option><option>Mother</option><option>Guardian</option></select></div>
-                <div><label className="mb-1 block text-xs font-bold text-[#6d4c35]">{modal === 'create' ? 'Password' : 'New password (leave blank to keep)'}</label>
+                <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">Full name</label><input required className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+                <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">Login email</label><input required type="email" disabled={modal !== 'create'} className={`${inputCls} disabled:bg-stone-100`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+                <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">Phone</label><input className={inputCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+                <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">Relationship</label><select className={inputCls} value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })}><option>Father</option><option>Mother</option><option>Guardian</option></select></div>
+                <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">{modal === 'create' ? 'Password' : 'New password (leave blank to keep)'}</label>
                   <input required={modal === 'create'} type="text" className={inputCls} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} placeholder="Min 6, 1 capital, 1 number, 1 special" /></div>
                 {modal !== 'create' && (
-                  <div className="flex items-end"><label className="flex items-center gap-2 text-xs font-bold text-[#6d4c35]"><input type="checkbox" checked={!!form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Account active</label></div>)}
+                  <div className="flex items-end"><label className="flex items-center gap-2 text-xs font-bold text-[#355e4d]"><input type="checkbox" checked={!!form.isActive} onChange={(e) => setForm({ ...form, isActive: e.target.checked })} /> Account active</label></div>)}
               </div>
-              <p className="text-[11px] text-[#8a6a50]">The parent signs in at the normal login page using the <b>school code</b>, this email and password.</p>
-              <button className="rounded-xl bg-[#7a4e2d] px-5 py-2.5 text-xs font-bold text-[#f7efe4] hover:bg-[#633d22]">{modal === 'create' ? 'Create parent account' : 'Save changes'}</button>
+              <p className="text-[11px] text-[#4f7262]">The parent signs in at the normal login page using the <b>school code</b>, this email and password.</p>
+              <button className="rounded-xl bg-[#0f6b4f] px-5 py-2.5 text-xs font-bold text-[#edf5f0] hover:bg-[#0b5340]">{modal === 'create' ? 'Create parent account' : 'Save changes'}</button>
             </form>
           </div>
         </div>

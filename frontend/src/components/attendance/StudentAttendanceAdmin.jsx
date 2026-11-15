@@ -23,23 +23,23 @@ const StudentAttendanceAdmin = ({ studentId, attendance, today, onChanged }) => 
 
   return (
     <div className="space-y-5">
-      <form onSubmit={save} className="grid items-end gap-3 rounded-2xl border border-[#d9c5b0] bg-white p-4 sm:grid-cols-2 md:grid-cols-5">
-        <div className="md:col-span-5"><p className="text-sm font-black text-[#3f2a1d]">{t('Correct a day')}</p></div>
-        <label className="text-xs font-bold text-[#6d4c35]">{t('Date')}
-          <input type="date" required max={today} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1 w-full rounded-xl border border-[#d9c5b0] px-3 py-2.5 text-sm font-bold" />
+      <form onSubmit={save} className="grid items-end gap-3 rounded-2xl border border-[#cfe0d6] bg-white p-4 sm:grid-cols-2 md:grid-cols-5">
+        <div className="md:col-span-5"><p className="text-sm font-black text-[#0c2f25]">{t('Correct a day')}</p></div>
+        <label className="text-xs font-bold text-[#355e4d]">{t('Date')}
+          <input type="date" required max={today} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} className="mt-1 w-full rounded-xl border border-[#cfe0d6] px-3 py-2.5 text-sm font-bold" />
         </label>
-        <label className="text-xs font-bold text-[#6d4c35]">{t('Status')}
-          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="mt-1 w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm font-bold">
+        <label className="text-xs font-bold text-[#355e4d]">{t('Status')}
+          <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })} className="mt-1 w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm font-bold">
             {STATUS_ORDER.map((k) => <option key={k} value={k}>{t(STATUS[k].label)}</option>)}
           </select>
         </label>
-        <label className={`text-xs font-bold text-[#6d4c35] ${form.status === 'HalfDay' ? '' : 'opacity-40'}`}>{t('Left at')}
-          <input type="time" disabled={form.status !== 'HalfDay'} value={form.leftAt} onChange={(e) => setForm({ ...form, leftAt: e.target.value })} className="mt-1 w-full rounded-xl border border-[#d9c5b0] px-3 py-2.5 text-sm font-bold" />
+        <label className={`text-xs font-bold text-[#355e4d] ${form.status === 'HalfDay' ? '' : 'opacity-40'}`}>{t('Left at')}
+          <input type="time" disabled={form.status !== 'HalfDay'} value={form.leftAt} onChange={(e) => setForm({ ...form, leftAt: e.target.value })} className="mt-1 w-full rounded-xl border border-[#cfe0d6] px-3 py-2.5 text-sm font-bold" />
         </label>
-        <label className="text-xs font-bold text-[#6d4c35]">{t('Note (optional)')}
-          <input value={form.remarks} maxLength={200} onChange={(e) => setForm({ ...form, remarks: e.target.value })} className="mt-1 w-full rounded-xl border border-[#d9c5b0] px-3 py-2.5 text-sm" />
+        <label className="text-xs font-bold text-[#355e4d]">{t('Note (optional)')}
+          <input value={form.remarks} maxLength={200} onChange={(e) => setForm({ ...form, remarks: e.target.value })} className="mt-1 w-full rounded-xl border border-[#cfe0d6] px-3 py-2.5 text-sm" />
         </label>
-        <button disabled={saving} className="rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-sm font-black text-white hover:bg-[#633d22] disabled:opacity-50">{saving ? t('Saving...') : t('Save')}</button>
+        <button disabled={saving} className="rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-sm font-black text-white hover:bg-[#0b5340] disabled:opacity-50">{saving ? t('Saving...') : t('Save')}</button>
       </form>
       <AttendanceReportView report={attendance && { stats: attendance.stats, daily: attendance.records, monthly: attendance.monthly }} today={today} />
     </div>

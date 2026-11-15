@@ -99,17 +99,17 @@ const teacherSchema = new mongoose.Schema(
     },
     dateOfBirth: Date,
     bloodGroup: String,
-    aadhaarNumber: {
+    cnicNumber: {
       type: String,
       default: '',
     },
-    panNumber: {
+    ntnNumber: {
       type: String,
       default: '',
     },
     nationality: {
       type: String,
-      default: 'Indian',
+      default: 'Pakistani',
     },
     maritalStatus: {
       type: String,
@@ -123,12 +123,12 @@ const teacherSchema = new mongoose.Schema(
     currentAddress: String,
     permanentAddress: String,
     city: String,
-    state: String,
+    province: String,
     country: {
       type: String,
-      default: 'India',
+      default: 'Pakistan',
     },
-    pinCode: String,
+    postalCode: String,
 
     // 3. Professional Information
     designation: String,
@@ -246,8 +246,8 @@ const teacherSchema = new mongoose.Schema(
 
     // 13. Documents (Upload URLs)
     documents: {
-      aadhaarCard: String,
-      panCard: String,
+      cnicCopy: String,
+      ntnCertificate: String,
       degreeCertificates: String,
       experienceCertificates: String,
       resume: String,

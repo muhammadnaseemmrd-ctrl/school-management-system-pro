@@ -1,4 +1,4 @@
-# Quick Start Guide - School Management System
+# Quick Start Guide - Darsgah School Management System
 
 ## 🚀 Get Started in 5 Minutes
 
@@ -75,7 +75,7 @@ Open your browser and go to: **http://localhost:5173**
      "address": {
        "street": "123 Main St",
        "city": "City",
-       "state": "State",
+       "province": "Punjab",
        "zipCode": "12345"
      },
      "principalName": "Mr. Principal",

@@ -26,7 +26,7 @@ const getVapid = () => {
         doc = await AppSetting.findOne({ key: 'vapid' });
       }
       const { publicKey, privateKey } = doc.value;
-      webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:admin@schoolhub.local', publicKey, privateKey);
+      webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:admin@darsgah.local', publicKey, privateKey);
       return publicKey;
     })().catch((e) => { vapidReady = null; throw e; });
   }

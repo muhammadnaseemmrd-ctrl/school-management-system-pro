@@ -32,19 +32,19 @@ const sendResetEmail = async (email, code) => {
     });
 
     const mailOptions = {
-      from: `"SchoolHub Support" <${user}>`,
+      from: `"Darsgah Support" <${user}>`,
       to: email,
       subject: 'Password Reset Verification Code',
       text: `Your password reset code is: ${code}. This code is valid for 1 minute only.`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; color: #3f2a1d; background-color: #fffaf3; max-width: 600px; border: 1px solid #d9c5b0; border-radius: 16px;">
-          <h2 style="color: #7a4e2d; margin-bottom: 20px;">Password Reset Request</h2>
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #0c2f25; background-color: #fbfdfb; max-width: 600px; border: 1px solid #cfe0d6; border-radius: 16px;">
+          <h2 style="color: #0f6b4f; margin-bottom: 20px;">Password Reset Request</h2>
           <p>You requested to reset your password. Use the verification code below to proceed:</p>
-          <div style="font-size: 28px; font-weight: bold; background-color: #f4ecdf; padding: 15px; border-radius: 12px; text-align: center; max-width: 250px; margin: 25px auto; border: 1px solid #d9c5b0; letter-spacing: 5px; color: #7a4e2d;">
+          <div style="font-size: 28px; font-weight: bold; background-color: #e9f2ed; padding: 15px; border-radius: 12px; text-align: center; max-width: 250px; margin: 25px auto; border: 1px solid #cfe0d6; letter-spacing: 5px; color: #0f6b4f;">
             ${code}
           </div>
-          <p style="color: #6d4c35; font-size: 14px;">This code is valid for <strong>1 minute only</strong>.</p>
-          <p style="color: #8a6a50; font-size: 12px; margin-top: 30px; border-top: 1px solid #d9c5b0; pt-15px;">If you did not request this password reset, please ignore this email.</p>
+          <p style="color: #355e4d; font-size: 14px;">This code is valid for <strong>1 minute only</strong>.</p>
+          <p style="color: #587b6a; font-size: 12px; margin-top: 30px; border-top: 1px solid #cfe0d6; pt-15px;">If you did not request this password reset, please ignore this email.</p>
         </div>
       `,
     };

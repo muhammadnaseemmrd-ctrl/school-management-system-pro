@@ -193,6 +193,11 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   const sid = (stu.data.student || stu.data)._id;
   if (sid) {
     await expect('update student', call('PUT', `/students/${sid}`, A, { phone: '0300-3' }));
+    await expect('update student with Pakistan fields', call('PUT', `/students/${sid}`, A, { cnicNumber: '35202-1234567-1', province: 'Punjab', postalCode: '54000', motherTongue: 'Punjabi', documents: { cnicCopy: 'https://example.com/cnic.pdf' } }));
+    const pk = (await call('GET', `/students/${sid}`, A)).data; const pks = pk.student || pk;
+    log(pks.cnicNumber === '35202-1234567-1' && pks.province === 'Punjab' && pks.postalCode === '54000' && pks.motherTongue === 'Punjabi', `Pakistan fields saved (CNIC/B-Form, province, postal code, mother tongue)`);
+    log(pks.nationality === 'Pakistani' && pks.country === 'Pakistan', `defaults are Pakistani / Pakistan (${pks.nationality} / ${pks.country})`);
+    log(pks.documents && pks.documents.cnicCopy === 'https://example.com/cnic.pdf', 'CNIC copy document saved');
     const other = cl.find((c) => String(c._id) !== String(classId));
     if (other) await expect('promote student', call('POST', `/students/${sid}/promote`, A, { newClassId: other._id }));
     await expect('delete student', call('DELETE', `/students/${sid}`, A));
@@ -233,6 +238,50 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await expect('edit plan', call('PUT', '/superadmin/plans/smoke', SA, { pricePKR: 1200, label: 'Smoke' }));
   await expect('delete plan', call('DELETE', '/superadmin/plans/smoke', SA));
   const schools = (await expect('schools list', call('GET', '/superadmin/schools', SA))).data;
+  // ---- backups
+  const JSZip = require('jszip');
+  const getZip = async (url, token) => {
+    const r = await fetch(base + '/api' + url, { headers: { authorization: `Bearer ${token}` } });
+    const buf = Buffer.from(await r.arrayBuffer());
+    return { status: r.status, type: r.headers.get('content-type'), buf };
+  };
+  const bl0 = await expect('backups list (admin)', call('GET', '/backup', A)); log(Array.isArray(bl0.data.backups), 'backups list is an array');
+  await expect('teacher cannot list backups', call('GET', '/backup', tokens.teacher), [403]);
+  await expect('student cannot download backup', call('GET', '/backup/download', tokens.student), [403]);
+  await expect('unauthenticated backup refused', call('GET', '/backup'), [401]);
+  const mk1 = await expect('create manual backup', call('POST', '/backup', A, {}), [201]);
+  const bid = mk1.data.backup && mk1.data.backup._id; log(!!bid, 'backup has an id');
+  log(mk1.data.backup && mk1.data.backup.counts && mk1.data.backup.counts.Student > 0, `backup counts include students (${mk1.data.backup && mk1.data.backup.counts && mk1.data.backup.counts.Student})`);
+  const bl1 = (await call('GET', '/backup', A)).data; log(bl1.backups.length === 1 && bl1.backups[0].size > 0 && !('data' in bl1.backups[0]), 'list shows 1 backup without its data blob');
+  const z1 = await getZip('/backup/download', A);
+  log(z1.status === 200 && /zip/.test(z1.type || ''), `full download is a zip (${z1.status}, ${z1.buf.length} bytes)`);
+  const zz = await JSZip.loadAsync(z1.buf);
+  log(!!zz.file('backup.json') && !!zz.file('school-data.xlsx') && !!zz.file('README.txt'), 'zip contains backup.json, school-data.xlsx, README.txt');
+  const bj = await zz.file('backup.json').async('string'); const bobj = JSON.parse(bj);
+  log(bobj.format === 'darsgah-backup' && bobj.tables.Student.length > 0 && bobj.tables.Teacher.length > 0, 'backup.json has students and teachers');
+  log(!/"password"/.test(bj) && !/\$2[aby]\$/.test(bj), 'downloaded backup contains no password hashes');
+  const ExcelJS = require('exceljs'); const wbk = new ExcelJS.Workbook(); await wbk.xlsx.load(await zz.file('school-data.xlsx').async('nodebuffer'));
+  log(wbk.getWorksheet('Student') && wbk.getWorksheet('Student').rowCount > 1, 'xlsx has a Student sheet with rows');
+  log(Object.values(bobj.tables).every((rows) => rows.every((r) => !r.schoolId || String(r.schoolId) === String(bobj.school._id))), 'every row belongs to this school (tenant isolation)');
+  const zf = await getZip('/backup/download?includeFiles=1', A); log(zf.status === 429 || zf.status === 200, `second download inside the cooldown is throttled or ok (${zf.status})`);
+  const z2 = await getZip(`/backup/${bid}/download`, A); log(z2.status === 200 && /zip/.test(z2.type || ''), `stored backup downloads as zip (${z2.status})`);
+  const sch = (schools.schools || schools)[0]; const bsid = sch && sch._id;
+  await expect('owner lists school backups', call('GET', `/superadmin/schools/${bsid}/backups`, SA));
+  await expect('owner creates backup', call('POST', `/superadmin/schools/${bsid}/backups`, SA, {}), [201, 429]);
+  const z3 = await getZip(`/superadmin/schools/${bsid}/backups/${bid}/download`, SA); log(z3.status === 200, `owner downloads stored backup (${z3.status})`);
+  await expect('admin cannot use owner routes', call('GET', `/superadmin/schools/${bsid}/backups`, A), [401, 403]);
+  await expect('cron without secret is unavailable', call('GET', '/cron/backup'), [503]);
+  process.env.CRON_SECRET = 'cron-test-secret';
+  const cr0 = await fetch(base + '/api/cron/backup', { headers: { authorization: 'Bearer wrong' } }); log(cr0.status === 401, `cron rejects wrong secret (${cr0.status})`);
+  const cr1 = await fetch(base + '/api/cron/backup', { headers: { authorization: 'Bearer cron-test-secret' } }); const crj = await cr1.json();
+  log(cr1.status === 200 && crj.backedUp >= 1, `cron runs weekly backups (${JSON.stringify(crj)})`);
+  const cr2 = await (await fetch(base + '/api/cron/backup', { headers: { authorization: 'Bearer cron-test-secret' } })).json(); log(cr2.backedUp === 0, 'cron does not repeat a school backed up this week');
+  const bl2 = (await call('GET', '/backup', A)).data; log(bl2.backups.some((b) => b.kind === 'auto') && bl2.backups.some((b) => b.kind === 'manual'), 'list has automatic and manual backups');
+  for (let i = 0; i < 4; i++) { await new Promise((r) => setTimeout(r, 16000 * 0)); await require('../utils/backup').createSnapshot(bsid, { kind: 'manual' }); }
+  const bl3 = (await call('GET', '/backup', A)).data; log(bl3.backups.filter((b) => b.kind === 'manual').length === 3, 'only the 3 newest manual backups are kept');
+  await expect('delete a backup', call('DELETE', `/backup/${bl3.backups[0]._id}`, A));
+  await expect('delete unknown backup', call('DELETE', '/backup/000000000000000000000000', A), [404]);
+
   console.log(`\n${checks - failures}/${checks} checks passed`);
   server.close(); process.exit(failures ? 1 : 0);
 })().catch((e) => { console.error('Smoke crashed:', e); process.exit(2); });

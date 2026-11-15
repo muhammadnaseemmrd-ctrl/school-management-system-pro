@@ -28,7 +28,7 @@ export const StatusChip = ({ status, leftAt, className = '' }) => {
 export const Legend = () => {
   const { t } = useLang();
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-[#6d4c35]">
+    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-[#355e4d]">
       {['Present', 'Late', 'HalfDay', 'Absent', 'Leave'].map((k) => (
         <span key={k} className="inline-flex items-center gap-1.5"><span className={`h-3 w-3 rounded ${STATUS[k].dot}`} /> {t(STATUS[k].label)}</span>
       ))}
@@ -51,12 +51,12 @@ export const MonthCalendar = ({ month, onMonthChange, byDate, today, selected, o
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m - 1, 1)))} className="rounded-xl border border-[#d9c5b0] bg-white p-2.5 text-[#7a4e2d] hover:bg-[#f4ecdf]" aria-label={t('Previous month')}><Prev className="h-5 w-5" /></button>
-        <span className="text-base font-black text-[#3f2a1d]">{month.toLocaleDateString(locale, { timeZone: 'UTC', month: 'long', year: 'numeric' })}</span>
-        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m + 1, 1)))} className="rounded-xl border border-[#d9c5b0] bg-white p-2.5 text-[#7a4e2d] hover:bg-[#f4ecdf]" aria-label={t('Next month')}><Next className="h-5 w-5" /></button>
+        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m - 1, 1)))} className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#e9f2ed]" aria-label={t('Previous month')}><Prev className="h-5 w-5" /></button>
+        <span className="text-base font-black text-[#0c2f25]">{month.toLocaleDateString(locale, { timeZone: 'UTC', month: 'long', year: 'numeric' })}</span>
+        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m + 1, 1)))} className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#e9f2ed]" aria-label={t('Next month')}><Next className="h-5 w-5" /></button>
       </div>
       <div className={`grid grid-cols-7 gap-1.5 text-center transition-opacity ${loading ? 'opacity-50' : ''}`}>
-        {weekdays.map((d) => <div key={d} className="pb-1 text-[11px] font-bold uppercase tracking-wide text-[#8a6a50]">{t(d)}</div>)}
+        {weekdays.map((d) => <div key={d} className="pb-1 text-[11px] font-bold uppercase tracking-wide text-[#4f7262]">{t(d)}</div>)}
         {cells.map((day, i) => {
           if (!day) return <div key={`b${i}`} />;
           const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -67,7 +67,7 @@ export const MonthCalendar = ({ month, onMonthChange, byDate, today, selected, o
             <button
               key={key} type="button" disabled={!rec}
               onClick={() => onSelect && onSelect(selected === key ? null : key)}
-              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#f4ecdf]/60 text-[#c4b09a]' : 'bg-stone-50 text-stone-300'} ${key === today ? 'ring-2 ring-[#7a4e2d] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#3f2a1d]' : ''}`}
+              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#e9f2ed]/60 text-[#a9c2b5]' : 'bg-stone-50 text-stone-300'} ${key === today ? 'ring-2 ring-[#0f6b4f] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#0c2f25]' : ''}`}
             >
               {day}
             </button>
@@ -88,12 +88,12 @@ export const Ring = ({ value, total, size = 112 }) => {
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#eadcc9" strokeWidth="12" fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#e1eee6" strokeWidth="12" fill="none" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth="12" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * pct) / 100} style={{ transition: 'stroke-dashoffset .8s ease' }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-black text-[#3f2a1d]">{total ? `${value}%` : "—"}</span>
-        <span className="text-[10px] font-bold uppercase tracking-wide text-[#8a6a50]">{t('attendance')}</span>
+        <span className="text-xl font-black text-[#0c2f25]">{total ? `${value}%` : "—"}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wide text-[#4f7262]">{t('attendance')}</span>
       </div>
     </div>
   );

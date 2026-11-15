@@ -1,7 +1,7 @@
 {
   "name": "school-management-backend",
   "version": "1.0.0",
-  "description": "Multi-School Management System Backend with MERN Stack",
+  "description": "Darsgah: multi-school management platform for Pakistan (Express + PostgreSQL)",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
@@ -31,6 +31,7 @@
     "express-validator": "^7.0.0",
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.0",
+    "jszip": "^3.10.2",
     "multer": "^1.4.5-lts.1",
     "node-cron": "^3.0.3",
     "nodemailer": "^9.0.3",

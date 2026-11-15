@@ -1,4 +1,4 @@
-# API Documentation - School Management System
+# API Documentation - Darsgah School Management System
 
 ## Base URL
 ```
@@ -152,7 +152,7 @@ Content-Type: application/json
   "address": {
     "street": "123 Main St",
     "city": "City",
-    "state": "State",
+    "province": "Punjab",
     "zipCode": "12345"
   },
   "principalName": "Mr. Principal",

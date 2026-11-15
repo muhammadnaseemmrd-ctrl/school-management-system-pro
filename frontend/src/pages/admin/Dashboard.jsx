@@ -13,6 +13,7 @@ import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanc
 import FeesCenter from '../../components/fees/FeesCenter';
 import SchoolSetup from '../../components/admin/SchoolSetup';
 import usePlan from '../../utils/usePlan';
+import { PROVINCES } from '../../utils/pakistan';
 
 const AdminDashboard = () => {
   const { t } = useLang();
@@ -375,17 +376,17 @@ const AdminDashboard = () => {
     gender: 'Male',
     dateOfBirth: '',
     bloodGroup: '',
-    aadhaarNumber: '',
-    panNumber: '',
-    nationality: 'Indian',
+    cnicNumber: '',
+    ntnNumber: '',
+    nationality: 'Pakistani',
     maritalStatus: 'Single',
     alternateMobileNumber: '',
     emergencyContactNumber: '',
     currentAddress: '',
     permanentAddress: '',
     city: '',
-    state: '',
-    pinCode: '',
+    province: '',
+    postalCode: '',
     designation: '',
     department: '',
     joiningDate: '',
@@ -413,8 +414,8 @@ const AdminDashboard = () => {
       { degree: 'B.Ed', university: '', year: '', percentageCGPA: '' },
       { degree: 'M.Ed', university: '', year: '', percentageCGPA: '' },
     ],
-    docAadhaarCard: '',
-    docPanCard: '',
+    docCnicCopy: '',
+    docNtnCertificate: '',
     docDegreeCertificates: '',
     docResume: '',
   });
@@ -435,10 +436,10 @@ const AdminDashboard = () => {
     dateOfBirth: '',
     bloodGroup: '',
     photo: '',
-    aadhaarNumber: '',
-    nationality: 'Indian',
+    cnicNumber: '',
+    nationality: 'Pakistani',
     religion: '',
-    casteCategory: '',
+    motherTongue: '',
 
     mobileNumber: '',
     alternateMobileNumber: '',
@@ -446,9 +447,9 @@ const AdminDashboard = () => {
     currentAddress: '',
     permanentAddress: '',
     city: '',
-    state: '',
-    country: 'India',
-    pinCode: '',
+    province: '',
+    country: 'Pakistan',
+    postalCode: '',
 
     fatherName: '',
     fatherOccupation: '',
@@ -504,7 +505,7 @@ const AdminDashboard = () => {
     accountStatus: 'Active',
 
     docBirthCertificate: '',
-    docAadhaarCard: '',
+    docCnicCopy: '',
     docPreviousMarksheet: '',
     docTransferCertificate: '',
     docLeavingCertificate: '',
@@ -512,7 +513,7 @@ const AdminDashboard = () => {
     docParentIdProof: '',
     docAddressProof: '',
     docIncomeCertificate: '',
-    docCasteCertificate: '',
+    docDomicileCertificate: '',
   });
 
   const [studentModalTab, setStudentModalTab] = useState('basic');
@@ -737,9 +738,9 @@ const AdminDashboard = () => {
     setTeacherForm({
       name: '', email: '', password: '', phone: '', employeeId: '', staffCode: '',
       firstName: '', middleName: '', lastName: '', gender: 'Male', dateOfBirth: '',
-      bloodGroup: '', aadhaarNumber: '', panNumber: '', nationality: 'Indian',
+      bloodGroup: '', cnicNumber: '', ntnNumber: '', nationality: 'Pakistani',
       maritalStatus: 'Single', alternateMobileNumber: '', emergencyContactNumber: '',
-      currentAddress: '', permanentAddress: '', city: '', state: '', pinCode: '',
+      currentAddress: '', permanentAddress: '', city: '', province: '', postalCode: '',
       designation: '', department: '', joiningDate: '', employmentType: 'Full-Time',
       experience: 0, previousSchool: '', employeeStatus: 'Active', reportingTo: '',
       basicSalary: 0, hra: 0, da: 0, otherAllowances: 0, deductions: 0, pf: 0, tax: 0,
@@ -749,7 +750,7 @@ const AdminDashboard = () => {
         { degree: 'B.Ed', university: '', year: '', percentageCGPA: '' },
         { degree: 'M.Ed', university: '', year: '', percentageCGPA: '' },
       ],
-      docAadhaarCard: '', docPanCard: '', docDegreeCertificates: '', docResume: '',
+      docCnicCopy: '', docNtnCertificate: '', docDegreeCertificates: '', docResume: '',
     });
     setTeacherModalTab('basic');
     setShowAddTeacherModal(true);
@@ -770,17 +771,17 @@ const AdminDashboard = () => {
       gender: teacher.gender || 'Male',
       dateOfBirth: teacher.dateOfBirth ? teacher.dateOfBirth.split('T')[0] : '',
       bloodGroup: teacher.bloodGroup || '',
-      aadhaarNumber: teacher.aadhaarNumber || '',
-      panNumber: teacher.panNumber || '',
-      nationality: teacher.nationality || 'Indian',
+      cnicNumber: teacher.cnicNumber || '',
+      ntnNumber: teacher.ntnNumber || '',
+      nationality: teacher.nationality || 'Pakistani',
       maritalStatus: teacher.maritalStatus || 'Single',
       alternateMobileNumber: teacher.alternateMobileNumber || '',
       emergencyContactNumber: teacher.emergencyContactNumber || '',
       currentAddress: teacher.currentAddress || '',
       permanentAddress: teacher.permanentAddress || '',
       city: teacher.city || '',
-      state: teacher.state || '',
-      pinCode: teacher.pinCode || '',
+      province: teacher.province || '',
+      postalCode: teacher.postalCode || '',
       designation: teacher.designation || '',
       department: teacher.department || '',
       joiningDate: teacher.joiningDate ? teacher.joiningDate.split('T')[0] : '',
@@ -813,8 +814,8 @@ const AdminDashboard = () => {
         { degree: 'B.Ed', university: '', year: '', percentageCGPA: '' },
         { degree: 'M.Ed', university: '', year: '', percentageCGPA: '' },
       ],
-      docAadhaarCard: teacher.documents?.aadhaarCard || '',
-      docPanCard: teacher.documents?.panCard || '',
+      docCnicCopy: teacher.documents?.cnicCopy || '',
+      docNtnCertificate: teacher.documents?.ntnCertificate || '',
       docDegreeCertificates: teacher.documents?.degreeCertificates || '',
       docResume: teacher.documents?.resume || '',
     });
@@ -831,10 +832,10 @@ const AdminDashboard = () => {
     setStudentForm({
       name: '', email: '', password: '', phone: '', rollNumber: '', admissionNumber: '',
       firstName: '', middleName: '', lastName: '', fullName: '', gender: 'Male',
-      dateOfBirth: '', bloodGroup: '', photo: '', aadhaarNumber: '', nationality: 'Indian',
-      religion: '', casteCategory: '', mobileNumber: '', alternateMobileNumber: '',
-      emailAddress: '', currentAddress: '', permanentAddress: '', city: '', state: '',
-      country: 'India', pinCode: '', fatherName: '', fatherOccupation: '',
+      dateOfBirth: '', bloodGroup: '', photo: '', cnicNumber: '', nationality: 'Pakistani',
+      religion: '', motherTongue: '', mobileNumber: '', alternateMobileNumber: '',
+      emailAddress: '', currentAddress: '', permanentAddress: '', city: '', province: '',
+      country: 'Pakistan', postalCode: '', fatherName: '', fatherOccupation: '',
       fatherMobileNumber: '', fatherEmail: '', motherName: '', motherOccupation: '',
       motherMobileNumber: '', motherEmail: '', guardianName: '', guardianRelationship: '',
       guardianMobileNumber: '', guardianAddress: '', classStandard: '', classDivision: '',
@@ -845,9 +846,9 @@ const AdminDashboard = () => {
       medicalNotes: '', usesSchoolBus: 'No', busRoute: '', busStop: '', busNumber: '',
       driverName: '', driverContact: '', libraryCardNumber: '', booksIssued: 0,
       issueDate: '', returnDate: '', fine: 0, bookStatus: '', username: '', accountStatus: 'Active',
-      docBirthCertificate: '', docAadhaarCard: '', docPreviousMarksheet: '',
+      docBirthCertificate: '', docCnicCopy: '', docPreviousMarksheet: '',
       docTransferCertificate: '', docLeavingCertificate: '', docPassportPhoto: '',
-      docParentIdProof: '', docAddressProof: '', docIncomeCertificate: '', docCasteCertificate: '',
+      docParentIdProof: '', docAddressProof: '', docIncomeCertificate: '', docDomicileCertificate: '',
     });
     setStudentModalTab('basic');
     setShowAddStudentModal(true);
@@ -870,19 +871,19 @@ const AdminDashboard = () => {
       dateOfBirth: student.dateOfBirth ? student.dateOfBirth.split('T')[0] : '',
       bloodGroup: student.bloodGroup || '',
       photo: student.photo || '',
-      aadhaarNumber: student.aadhaarNumber || '',
-      nationality: student.nationality || 'Indian',
+      cnicNumber: student.cnicNumber || '',
+      nationality: student.nationality || 'Pakistani',
       religion: student.religion || '',
-      casteCategory: student.casteCategory || '',
+      motherTongue: student.motherTongue || '',
       mobileNumber: student.mobileNumber || '',
       alternateMobileNumber: student.alternateMobileNumber || '',
       emailAddress: student.emailAddress || student.email || '',
       currentAddress: student.currentAddress || '',
       permanentAddress: student.permanentAddress || '',
       city: student.city || '',
-      state: student.state || '',
-      country: student.country || 'India',
-      pinCode: student.pinCode || '',
+      province: student.province || '',
+      country: student.country || 'Pakistan',
+      postalCode: student.postalCode || '',
       fatherName: student.father?.name || '',
       fatherOccupation: student.father?.occupation || '',
       fatherMobileNumber: student.father?.mobileNumber || '',
@@ -929,7 +930,7 @@ const AdminDashboard = () => {
       username: student.username || student.email || '',
       accountStatus: student.accountStatus || 'Active',
       docBirthCertificate: student.documents?.birthCertificate || '',
-      docAadhaarCard: student.documents?.aadhaarCard || '',
+      docCnicCopy: student.documents?.cnicCopy || '',
       docPreviousMarksheet: student.documents?.previousMarksheet || '',
       docTransferCertificate: student.documents?.transferCertificate || '',
       docLeavingCertificate: student.documents?.leavingCertificate || '',
@@ -937,7 +938,7 @@ const AdminDashboard = () => {
       docParentIdProof: student.documents?.parentIdProof || '',
       docAddressProof: student.documents?.addressProof || '',
       docIncomeCertificate: student.documents?.incomeCertificate || '',
-      docCasteCertificate: student.documents?.casteCertificate || '',
+      docDomicileCertificate: student.documents?.domicileCertificate || '',
     });
     setStudentModalTab('basic');
     setShowAddStudentModal(true);
@@ -973,8 +974,8 @@ const AdminDashboard = () => {
           ifscCode: teacherForm.ifscCode,
         },
         documents: {
-          aadhaarCard: teacherForm.docAadhaarCard,
-          panCard: teacherForm.docPanCard,
+          cnicCopy: teacherForm.docCnicCopy,
+          ntnCertificate: teacherForm.docNtnCertificate,
           degreeCertificates: teacherForm.docDegreeCertificates,
           resume: teacherForm.docResume,
         }
@@ -1033,7 +1034,7 @@ const AdminDashboard = () => {
         },
         documents: {
           birthCertificate: studentForm.docBirthCertificate,
-          aadhaarCard: studentForm.docAadhaarCard,
+          cnicCopy: studentForm.docCnicCopy,
           previousMarksheet: studentForm.docPreviousMarksheet,
           transferCertificate: studentForm.docTransferCertificate,
           leavingCertificate: studentForm.docLeavingCertificate,
@@ -1041,7 +1042,7 @@ const AdminDashboard = () => {
           parentIdProof: studentForm.docParentIdProof,
           addressProof: studentForm.docAddressProof,
           incomeCertificate: studentForm.docIncomeCertificate,
-          casteCertificate: studentForm.docCasteCertificate,
+          domicileCertificate: studentForm.docDomicileCertificate,
         }
       };
 
@@ -1057,10 +1058,10 @@ const AdminDashboard = () => {
       setStudentForm({
         name: '', email: '', password: '', phone: '', rollNumber: '', admissionNumber: '',
         firstName: '', middleName: '', lastName: '', fullName: '', gender: 'Male',
-        dateOfBirth: '', bloodGroup: '', photo: '', aadhaarNumber: '', nationality: 'Indian',
-        religion: '', casteCategory: '', mobileNumber: '', alternateMobileNumber: '',
-        emailAddress: '', currentAddress: '', permanentAddress: '', city: '', state: '',
-        country: 'India', pinCode: '', fatherName: '', fatherOccupation: '',
+        dateOfBirth: '', bloodGroup: '', photo: '', cnicNumber: '', nationality: 'Pakistani',
+        religion: '', motherTongue: '', mobileNumber: '', alternateMobileNumber: '',
+        emailAddress: '', currentAddress: '', permanentAddress: '', city: '', province: '',
+        country: 'Pakistan', postalCode: '', fatherName: '', fatherOccupation: '',
         fatherMobileNumber: '', fatherEmail: '', motherName: '', motherOccupation: '',
         motherMobileNumber: '', motherEmail: '', guardianName: '', guardianRelationship: '',
         guardianMobileNumber: '', guardianAddress: '', classStandard: '', classDivision: '',
@@ -1071,9 +1072,9 @@ const AdminDashboard = () => {
         medicalNotes: '', usesSchoolBus: 'No', busRoute: '', busStop: '', busNumber: '',
         driverName: '', driverContact: '', libraryCardNumber: '', booksIssued: 0,
         issueDate: '', returnDate: '', fine: 0, bookStatus: '', username: '', accountStatus: 'Active',
-        docBirthCertificate: '', docAadhaarCard: '', docPreviousMarksheet: '',
+        docBirthCertificate: '', docCnicCopy: '', docPreviousMarksheet: '',
         docTransferCertificate: '', docLeavingCertificate: '', docPassportPhoto: '',
-        docParentIdProof: '', docAddressProof: '', docIncomeCertificate: '', docCasteCertificate: '',
+        docParentIdProof: '', docAddressProof: '', docIncomeCertificate: '', docDomicileCertificate: '',
       });
       setStudentModalTab('basic');
       fetchData();
@@ -1412,21 +1413,21 @@ const AdminDashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#f4ecdf] text-[#3f2a1d] flex overflow-hidden">
+    <div className="min-h-screen bg-[#e9f2ed] text-[#0c2f25] flex overflow-hidden">
       <Toaster position="top-right" />
       
       {/* Collapsible Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#fffaf3] border-r border-[#d9c5b0] transform transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:-ml-64'} shrink-0`}>
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#fbfdfb] border-r border-[#cfe0d6] transform transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:-ml-64'} shrink-0`}>
         <div className="space-y-6 flex-1 overflow-y-auto pr-1">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between border-b border-[#d9c5b0]/30 pb-4">
+          <div className="flex items-center justify-between border-b border-[#cfe0d6]/30 pb-4">
             <div>
-              <h2 className="font-black text-[#7a4e2d] tracking-wide text-lg">SCHOOL PORTAL</h2>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase">Admin Console</p>
+              <h2 className="font-black text-[#0f6b4f] tracking-wide text-lg">SCHOOL PORTAL</h2>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase">Admin Console</p>
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
-              className="md:hidden rounded-full p-1.5 hover:bg-[#7a4e2d]/10 text-[#7a4e2d]"
+              className="md:hidden rounded-full p-1.5 hover:bg-[#0f6b4f]/10 text-[#0f6b4f]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -1435,7 +1436,7 @@ const AdminDashboard = () => {
           {/* Sidebar Navigation Options */}
           <div className="space-y-4">
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
               <div className="space-y-1">
                  {[
                   { id: 'overview', label: 'Overview', icon: BarChart3 },
@@ -1457,7 +1458,7 @@ const AdminDashboard = () => {
                         setSelectedManageClassStd(null);
                         setSelectedFeeStd(null);
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                     >
                       <Icon className="h-4 w-4" /> {item.label}
                     </button>
@@ -1467,7 +1468,7 @@ const AdminDashboard = () => {
             </div>
 
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Management</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Management</p>
               <div className="space-y-1">
                 {[
                   { id: 'classes', label: 'Manage Classes', icon: GraduationCap },
@@ -1497,7 +1498,7 @@ const AdminDashboard = () => {
                         setSelectedManageClassStd(null);
                         setSelectedFeeStd(null);
                       }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#6d4c35] hover:bg-[#7a4e2d]/10'}`}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#355e4d] hover:bg-[#0f6b4f]/10'}`}
                     >
                       <Icon className="h-4 w-4" />
                       <span className="flex-1 text-left">{item.label}</span>
@@ -1519,29 +1520,29 @@ const AdminDashboard = () => {
             </div>
 
             <div>
-              <p className="text-[10px] text-[#8a6a50] font-bold uppercase tracking-wider mb-2 px-2">Quick Creation</p>
+              <p className="text-[10px] text-[#4f7262] font-bold uppercase tracking-wider mb-2 px-2">Quick Creation</p>
               <div className="space-y-1.5">
                 <button 
                   onClick={handleOpenAddTeacher} 
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 text-[#7a4e2d] transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 text-[#0f6b4f] transition"
                 >
                   <Plus className="h-4 w-4" /> Add Teacher
                 </button>
                 <button 
                   onClick={handleOpenAddStudent} 
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 text-[#7a4e2d] transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 text-[#0f6b4f] transition"
                 >
                   <Plus className="h-4 w-4" /> Add Student
                 </button>
                 <button 
                   onClick={() => setShowAddExamModal(true)} 
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 text-[#7a4e2d] transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 text-[#0f6b4f] transition"
                 >
                   <Plus className="h-4 w-4" /> Add Exam
                 </button>
                 <button 
                   onClick={handleOpenClassSetupModal} 
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 text-[#7a4e2d] transition"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 text-[#0f6b4f] transition"
                 >
                   <Settings className="h-4 w-4" /> Class Setup
                 </button>
@@ -1566,19 +1567,19 @@ const AdminDashboard = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="rounded-xl border border-[#d9c5b0] bg-white p-2.5 text-[#7a4e2d] hover:bg-[#7a4e2d]/10 transition shadow-sm animate-pulse"
+              className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#0f6b4f]/10 transition shadow-sm animate-pulse"
               title="Toggle Sidebar"
             >
               <Menu className="h-5 w-5" />
             </button>
-            <div className="flex-1 rounded-2xl bg-gradient-hero p-3.5 text-[#3f2a1d] shadow-sm flex justify-between items-center flex-wrap gap-4">
+            <div className="flex-1 rounded-2xl bg-gradient-hero p-3.5 text-[#0c2f25] shadow-sm flex justify-between items-center flex-wrap gap-4">
               <h1 className="text-sm md:text-base font-black tracking-tight uppercase">WELCOME ADMIN of "{schoolName || 'Your School'}"</h1>
             </div>
           </div>
 
         {loading ? (
           <div className="flex h-64 items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#7a4e2d] border-t-transparent"></div>
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#0f6b4f] border-t-transparent"></div>
           </div>
         ) : (
           <>
@@ -1607,12 +1608,12 @@ const AdminDashboard = () => {
                   ].map((item) => {
                     const Icon = item.icon;
                     return (
-                      <div key={item.title} className="rounded-[1.75rem] border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm">
+                      <div key={item.title} className="rounded-[1.75rem] border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
                         <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.tone}`}>
                           <Icon className="h-5 w-5" />
                         </div>
-                        <p className="mt-4 text-sm font-medium text-[#7f634e]">{item.title}</p>
-                        <p className={`mt-1 font-black text-[#3f2a1d] truncate ${typeof item.value === 'string' && item.value.length > 10 ? 'text-xl sm:text-2xl' : 'text-3xl'}`}>
+                        <p className="mt-4 text-sm font-medium text-[#4d7262]">{item.title}</p>
+                        <p className={`mt-1 font-black text-[#0c2f25] truncate ${typeof item.value === 'string' && item.value.length > 10 ? 'text-xl sm:text-2xl' : 'text-3xl'}`}>
                           {item.value}
                         </p>
                       </div>
@@ -1649,20 +1650,20 @@ const AdminDashboard = () => {
                   if (feeStructures.length === 0) return null;
 
                   return (
-                    <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-                      <h2 className="text-xl font-bold text-[#3f2a1d] mb-1">Fee Collection</h2>
-                      <p className="text-sm text-[#7f634e] mb-5">Overall collection progress across all standards.</p>
+                    <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+                      <h2 className="text-xl font-bold text-[#0c2f25] mb-1">Fee Collection</h2>
+                      <p className="text-sm text-[#4d7262] mb-5">Overall collection progress across all standards.</p>
                       <div className="flex flex-col sm:flex-row items-center gap-8">
                         {/* Circular SVG */}
                         <div className="relative shrink-0">
                           <svg width="140" height="140" className="-rotate-90">
                             {/* Background track */}
-                            <circle cx="70" cy="70" r={radius} fill="none" stroke="#e8d9c8" strokeWidth="12" />
+                            <circle cx="70" cy="70" r={radius} fill="none" stroke="#d9e8df" strokeWidth="12" />
                             {/* Progress arc */}
                             <circle
                               cx="70" cy="70" r={radius}
                               fill="none"
-                              stroke="#7a4e2d"
+                              stroke="#0f6b4f"
                               strokeWidth="12"
                               strokeLinecap="round"
                               strokeDasharray={circumference}
@@ -1672,33 +1673,33 @@ const AdminDashboard = () => {
                           </svg>
                           {/* Centre text */}
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-3xl font-black text-[#7a4e2d]">{pct}%</span>
-                            <span className="text-[10px] text-[#8a6a50] font-bold uppercase">Collected</span>
+                            <span className="text-3xl font-black text-[#0f6b4f]">{pct}%</span>
+                            <span className="text-[10px] text-[#4f7262] font-bold uppercase">Collected</span>
                           </div>
                         </div>
 
                         {/* Stats */}
                         <div className="flex-1 space-y-3 w-full">
-                          <div className="flex justify-between items-center p-3 bg-white border border-[#d9c5b0]/50 rounded-xl">
+                          <div className="flex justify-between items-center p-3 bg-white border border-[#cfe0d6]/50 rounded-xl">
                             <div className="flex items-center gap-2">
-                              <span className="h-3 w-3 rounded-full bg-[#7a4e2d] inline-block"></span>
-                              <span className="text-xs font-bold text-[#6d4c35]">Collected</span>
+                              <span className="h-3 w-3 rounded-full bg-[#0f6b4f] inline-block"></span>
+                              <span className="text-xs font-bold text-[#355e4d]">Collected</span>
                             </div>
-                            <span className="font-extrabold text-[#3f2a1d] text-sm">Rs {totalCollected.toLocaleString()}</span>
+                            <span className="font-extrabold text-[#0c2f25] text-sm">Rs {totalCollected.toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-white border border-[#d9c5b0]/50 rounded-xl">
+                          <div className="flex justify-between items-center p-3 bg-white border border-[#cfe0d6]/50 rounded-xl">
                             <div className="flex items-center gap-2">
                               <span className="h-3 w-3 rounded-full bg-rose-400 inline-block"></span>
-                              <span className="text-xs font-bold text-[#6d4c35]">Pending</span>
+                              <span className="text-xs font-bold text-[#355e4d]">Pending</span>
                             </div>
                             <span className="font-extrabold text-rose-600 text-sm">Rs {totalPending.toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between items-center p-3 bg-[#7a4e2d]/5 border border-[#d9c5b0]/50 rounded-xl">
+                          <div className="flex justify-between items-center p-3 bg-[#0f6b4f]/5 border border-[#cfe0d6]/50 rounded-xl">
                             <div className="flex items-center gap-2">
-                              <span className="h-3 w-3 rounded-full bg-[#d9c5b0] inline-block"></span>
-                              <span className="text-xs font-bold text-[#6d4c35]">Total</span>
+                              <span className="h-3 w-3 rounded-full bg-[#cfe0d6] inline-block"></span>
+                              <span className="text-xs font-bold text-[#355e4d]">Total</span>
                             </div>
-                            <span className="font-extrabold text-[#3f2a1d] text-sm">
+                            <span className="font-extrabold text-[#0c2f25] text-sm">
                               Rs {totalCollected.toLocaleString()} / Rs {totalExpected.toLocaleString()}
                             </span>
                           </div>
@@ -1708,9 +1709,9 @@ const AdminDashboard = () => {
                   );
                 })()}
 
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Upcoming Exams</h2>
-                    <p className="text-sm text-[#7f634e]">Assessments grouped by exam name and date across all standards.</p>
+                <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Upcoming Exams</h2>
+                    <p className="text-sm text-[#4d7262]">Assessments grouped by exam name and date across all standards.</p>
                     
                     <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
                       {(() => {
@@ -1719,7 +1720,7 @@ const AdminDashboard = () => {
                           .sort((a, b) => new Date(a.date) - new Date(b.date));
 
                         if (upcoming.length === 0) {
-                          return <p className="text-xs text-[#8a6a50] italic">No upcoming exams scheduled.</p>;
+                          return <p className="text-xs text-[#4f7262] italic">No upcoming exams scheduled.</p>;
                         }
 
                         // Group exams by name + date
@@ -1742,10 +1743,10 @@ const AdminDashboard = () => {
                         }));
 
                         return sortedGroups.map((group, idx) => (
-                          <div key={idx} className="flex justify-between items-start p-3 bg-white border border-[#d9c5b0]/60 rounded-xl shadow-xs gap-3">
+                          <div key={idx} className="flex justify-between items-start p-3 bg-white border border-[#cfe0d6]/60 rounded-xl shadow-xs gap-3">
                             <div>
-                              <p className="font-bold text-[#3f2a1d]">{group.name}</p>
-                              <p className="text-[10px] text-[#8a6a50] mt-1">
+                              <p className="font-bold text-[#0c2f25]">{group.name}</p>
+                              <p className="text-[10px] text-[#4f7262] mt-1">
                                 Std: {group.standards.length > 0
                                   ? group.standards.map(s => s.match(/^\d+$/) ? s : s).join(', ')
                                   : 'N/A'}
@@ -1768,12 +1769,12 @@ const AdminDashboard = () => {
                 {/* Header row */}
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div>
-                    <h2 className="text-2xl font-black text-[#3f2a1d]">👩‍🏫 Teachers by Standard</h2>
-                    <p className="text-xs text-[#8a6a50] mt-1">Subjects assigned per standard, with teachers linked to each subject.</p>
+                    <h2 className="text-2xl font-black text-[#0c2f25]">👩‍🏫 Teachers by Standard</h2>
+                    <p className="text-xs text-[#4f7262] mt-1">Subjects assigned per standard, with teachers linked to each subject.</p>
                   </div>
                   <button
                     onClick={() => { setShowAddTeacherModal(true); resetTeacherForm(); }}
-                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#7a4e2d] text-[#f7efe4] text-xs font-bold hover:bg-[#624021] transition shadow-sm"
+                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0f6b4f] text-[#edf5f0] text-xs font-bold hover:bg-[#0b5340] transition shadow-sm"
                   >
                     <Plus className="h-4 w-4" /> Add Teacher
                   </button>
@@ -1788,7 +1789,7 @@ const AdminDashboard = () => {
 
                   if (allStds.length === 0) {
                     return (
-                      <div className="text-center py-20 text-[#8a6a50]">
+                      <div className="text-center py-20 text-[#4f7262]">
                         <Users className="h-14 w-14 mx-auto mb-4 opacity-25" />
                         <p className="font-bold text-base">No standards or subjects configured yet.</p>
                       </div>
@@ -1820,28 +1821,28 @@ const AdminDashboard = () => {
                           ).size;
 
                           return (
-                            <div key={std} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] shadow-sm overflow-hidden">
+                            <div key={std} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] shadow-sm overflow-hidden">
                               {/* Clickable Standard Header */}
                               <button
                                 type="button"
                                 onClick={toggleStd}
-                                className="w-full flex items-center gap-4 px-6 py-5 hover:bg-[#7a4e2d]/5 transition text-left"
+                                className="w-full flex items-center gap-4 px-6 py-5 hover:bg-[#0f6b4f]/5 transition text-left"
                               >
                                 {/* Badge */}
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#7a4e2d] text-white font-black text-base shrink-0">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0f6b4f] text-white font-black text-base shrink-0">
                                   {std.match(/^\d+$/) ? std : std.charAt(0).toUpperCase()}
                                 </div>
 
                                 {/* Title + subtitle */}
                                 <div className="flex-1 min-w-0">
-                                  <h3 className="text-base font-black text-[#3f2a1d]">
+                                  <h3 className="text-base font-black text-[#0c2f25]">
                                     {std.match(/^\d+$/) ? `Standard ${std}` : std}
                                   </h3>
                                   <div className="flex gap-3 mt-0.5 flex-wrap">
-                                    <span className="text-[10px] font-bold text-[#8a6a50]">
+                                    <span className="text-[10px] font-bold text-[#4f7262]">
                                       📚 {stdSubjects.length} subject{stdSubjects.length !== 1 ? 's' : ''}
                                     </span>
-                                    <span className="text-[10px] font-bold text-[#8a6a50]">
+                                    <span className="text-[10px] font-bold text-[#4f7262]">
                                       👩‍🏫 {totalTeachers} teacher{totalTeachers !== 1 ? 's' : ''}
                                     </span>
                                   </div>
@@ -1849,7 +1850,7 @@ const AdminDashboard = () => {
 
                                 {/* Chevron */}
                                 <svg
-                                  className={`h-5 w-5 text-[#8a6a50] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                                  className={`h-5 w-5 text-[#4f7262] shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                                   fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
                                 >
                                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -1858,9 +1859,9 @@ const AdminDashboard = () => {
 
                               {/* Expandable body */}
                               {isOpen && (
-                                <div className="border-t border-[#d9c5b0] p-5 space-y-4 bg-white/50">
+                                <div className="border-t border-[#cfe0d6] p-5 space-y-4 bg-white/50">
                                   {stdSubjects.length === 0 ? (
-                                    <p className="text-xs text-[#8a6a50] italic text-center py-4">No subjects assigned to this standard yet.</p>
+                                    <p className="text-xs text-[#4f7262] italic text-center py-4">No subjects assigned to this standard yet.</p>
                                   ) : (
                                     stdSubjects.map(sub => {
                                       const subTeachers = teachers.filter(t =>
@@ -1869,35 +1870,35 @@ const AdminDashboard = () => {
                                         )
                                       );
                                       return (
-                                        <div key={sub._id} className="rounded-2xl border border-[#d9c5b0]/70 bg-white p-4 space-y-3">
+                                        <div key={sub._id} className="rounded-2xl border border-[#cfe0d6]/70 bg-white p-4 space-y-3">
                                           {/* Subject row */}
                                           <div className="flex items-center gap-2">
-                                            <BookOpen className="h-4 w-4 text-[#7a4e2d] shrink-0" />
-                                            <span className="font-black text-[#3f2a1d] text-sm">{sub.name}</span>
+                                            <BookOpen className="h-4 w-4 text-[#0f6b4f] shrink-0" />
+                                            <span className="font-black text-[#0c2f25] text-sm">{sub.name}</span>
                                             {sub.code && (
-                                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7a4e2d]/10 text-[#7a4e2d]">{sub.code}</span>
+                                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0f6b4f]/10 text-[#0f6b4f]">{sub.code}</span>
                                             )}
-                                            <span className="ml-auto text-[10px] text-[#8a6a50]">{subTeachers.length} teacher{subTeachers.length !== 1 ? 's' : ''}</span>
+                                            <span className="ml-auto text-[10px] text-[#4f7262]">{subTeachers.length} teacher{subTeachers.length !== 1 ? 's' : ''}</span>
                                           </div>
                                           {/* Teachers */}
                                           {subTeachers.length === 0 ? (
-                                            <p className="text-[10px] text-[#8a6a50] italic pl-6">No teacher assigned to this subject yet.</p>
+                                            <p className="text-[10px] text-[#4f7262] italic pl-6">No teacher assigned to this subject yet.</p>
                                           ) : (
                                             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 pl-2">
                                               {subTeachers.map(teacher => (
-                                                <div key={teacher._id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[#d9c5b0]/50 bg-[#fffaf3] hover:border-[#7a4e2d]/40 transition">
+                                                <div key={teacher._id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[#cfe0d6]/50 bg-[#fbfdfb] hover:border-[#0f6b4f]/40 transition">
                                                   <div className="flex items-center gap-2.5 min-w-0">
-                                                    <div className="h-8 w-8 rounded-xl bg-[#7a4e2d]/15 flex items-center justify-center text-[#7a4e2d] font-black text-xs shrink-0">
+                                                    <div className="h-8 w-8 rounded-xl bg-[#0f6b4f]/15 flex items-center justify-center text-[#0f6b4f] font-black text-xs shrink-0">
                                                       {teacher.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                                                     </div>
                                                     <div className="min-w-0">
-                                                      <p className="font-bold text-[#3f2a1d] text-xs leading-tight truncate">{teacher.name}</p>
-                                                      <p className="text-[10px] text-[#8a6a50] truncate">{teacher.email}</p>
-                                                      {teacher.phone && <p className="text-[10px] text-[#8a6a50]">{teacher.phone}</p>}
+                                                      <p className="font-bold text-[#0c2f25] text-xs leading-tight truncate">{teacher.name}</p>
+                                                      <p className="text-[10px] text-[#4f7262] truncate">{teacher.email}</p>
+                                                      {teacher.phone && <p className="text-[10px] text-[#4f7262]">{teacher.phone}</p>}
                                                     </div>
                                                   </div>
                                                   <div className="flex gap-1 shrink-0">
-                                                    <button onClick={() => handleOpenEditTeacher(teacher)} className="p-1.5 text-[#7a4e2d] hover:bg-[#7a4e2d]/10 rounded-lg transition" title="Edit Teacher">
+                                                    <button onClick={() => handleOpenEditTeacher(teacher)} className="p-1.5 text-[#0f6b4f] hover:bg-[#0f6b4f]/10 rounded-lg transition" title="Edit Teacher">
                                                       <Edit className="h-3.5 w-3.5" />
                                                     </button>
                                                     <button onClick={() => handleDeleteTeacher(teacher._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Delete Teacher">
@@ -1928,22 +1929,22 @@ const AdminDashboard = () => {
                                     );
                                     if (unassigned.length === 0) return null;
                                     return (
-                                      <div className="rounded-2xl border border-dashed border-[#d9c5b0] bg-white/60 p-4 space-y-2">
-                                        <p className="text-[10px] font-bold text-[#8a6a50] uppercase">Teachers without subject assignment</p>
+                                      <div className="rounded-2xl border border-dashed border-[#cfe0d6] bg-white/60 p-4 space-y-2">
+                                        <p className="text-[10px] font-bold text-[#4f7262] uppercase">Teachers without subject assignment</p>
                                         <div className="grid gap-2 sm:grid-cols-2">
                                           {unassigned.map(teacher => (
-                                            <div key={teacher._id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[#d9c5b0]/40 bg-white">
+                                            <div key={teacher._id} className="flex items-center justify-between gap-3 p-3 rounded-xl border border-[#cfe0d6]/40 bg-white">
                                               <div className="flex items-center gap-2.5 min-w-0">
                                                 <div className="h-8 w-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700 font-black text-xs shrink-0">
                                                   {teacher.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                                                 </div>
                                                 <div className="min-w-0">
-                                                  <p className="font-bold text-[#3f2a1d] text-xs leading-tight truncate">{teacher.name}</p>
-                                                  <p className="text-[10px] text-[#8a6a50] truncate">{teacher.email}</p>
+                                                  <p className="font-bold text-[#0c2f25] text-xs leading-tight truncate">{teacher.name}</p>
+                                                  <p className="text-[10px] text-[#4f7262] truncate">{teacher.email}</p>
                                                 </div>
                                               </div>
                                               <div className="flex gap-1 shrink-0">
-                                                <button onClick={() => handleOpenEditTeacher(teacher)} className="p-1.5 text-[#7a4e2d] hover:bg-[#7a4e2d]/10 rounded-lg transition" title="Edit"><Edit className="h-3.5 w-3.5" /></button>
+                                                <button onClick={() => handleOpenEditTeacher(teacher)} className="p-1.5 text-[#0f6b4f] hover:bg-[#0f6b4f]/10 rounded-lg transition" title="Edit"><Edit className="h-3.5 w-3.5" /></button>
                                                 <button onClick={() => handleDeleteTeacher(teacher._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
                                               </div>
                                             </div>
@@ -1970,28 +1971,28 @@ const AdminDashboard = () => {
               <div className="space-y-4">
                 {!selectedStandard ? (
                   <div className="space-y-6">
-                    <div className="bg-[#fffaf3] border border-[#d9c5b0] rounded-3xl p-6 shadow-sm">
-                      <h3 className="text-lg font-bold text-[#3f2a1d] mb-1">Standard-Wise Student Records</h3>
-                      <p className="text-sm text-[#8a6a50]">Select a standard and division card below to view its enrolled students.</p>
+                    <div className="bg-[#fbfdfb] border border-[#cfe0d6] rounded-3xl p-6 shadow-sm">
+                      <h3 className="text-lg font-bold text-[#0c2f25] mb-1">Standard-Wise Student Records</h3>
+                      <p className="text-sm text-[#4f7262]">Select a standard and division card below to view its enrolled students.</p>
                     </div>
 
                     {classes.length === 0 ? (
-                      <div className="text-center py-12 rounded-3xl border border-dashed border-[#d9c5b0] bg-[#fffaf3]">
-                        <p className="text-[#8a6a50] font-semibold">No classes or standards configured yet.</p>
-                        <p className="text-xs text-[#b68c67] mt-1">Click the "Class Setup" button above to configure your school standards.</p>
+                      <div className="text-center py-12 rounded-3xl border border-dashed border-[#cfe0d6] bg-[#fbfdfb]">
+                        <p className="text-[#4f7262] font-semibold">No classes or standards configured yet.</p>
+                        <p className="text-xs text-[#2f8f6f] mt-1">Click the "Class Setup" button above to configure your school standards.</p>
                       </div>
                     ) : (
                       <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         {[...new Set(classes.map(c => c.standard))].sort(sortStandards).map((std) => {
                           const divisions = [...new Set(classes.filter(c => c.standard === std).map(c => c.division))].sort();
                           return (
-                            <div key={std} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
+                            <div key={std} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4">
                               <div>
-                                <h4 className="text-2xl font-black text-[#7a4e2d]">{std}</h4>
-                                <p className="text-xs text-[#8a6a50] mt-1 font-medium">{divisions.length} Division(s) available</p>
+                                <h4 className="text-2xl font-black text-[#0f6b4f]">{std}</h4>
+                                <p className="text-xs text-[#4f7262] mt-1 font-medium">{divisions.length} Division(s) available</p>
                               </div>
-                              <div className="pt-2 border-t border-[#f4ecdf]">
-                                <p className="text-[10px] uppercase tracking-[0.1em] font-semibold text-[#b68c67] mb-2">Divisions</p>
+                              <div className="pt-2 border-t border-[#e9f2ed]">
+                                <p className="text-[10px] uppercase tracking-[0.1em] font-semibold text-[#2f8f6f] mb-2">Divisions</p>
                                 <div className="flex flex-wrap gap-2">
                                   {divisions.map((div) => {
                                     const classObj = classes.find(c => c.standard === std && c.division === div);
@@ -2003,7 +2004,7 @@ const AdminDashboard = () => {
                                           setSelectedDivision(div);
                                           setSelectedClassId(classObj?._id);
                                         }}
-                                        className="px-3.5 py-1.5 text-xs font-extrabold rounded-xl bg-[#7a4e2d] text-[#f7efe4] hover:bg-[#624021] transition shadow-sm"
+                                        className="px-3.5 py-1.5 text-xs font-extrabold rounded-xl bg-[#0f6b4f] text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm"
                                       >
                                         {div}
                                       </button>
@@ -2020,7 +2021,7 @@ const AdminDashboard = () => {
                 ) : (
                   <div className="space-y-4">
                     {/* Header back button */}
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-[#fffaf3] border border-[#d9c5b0] rounded-3xl p-5 shadow-sm">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-[#fbfdfb] border border-[#cfe0d6] rounded-3xl p-5 shadow-sm">
                       <div className="flex items-center gap-3">
                         <button
                           onClick={() => {
@@ -2028,43 +2029,43 @@ const AdminDashboard = () => {
                             setSelectedDivision(null);
                             setSelectedClassId(null);
                           }}
-                          className="flex items-center gap-1 bg-[#7a4e2d] text-[#f7efe4] hover:bg-[#624021] text-xs font-bold px-3 py-1.5 rounded-xl transition"
+                          className="flex items-center gap-1 bg-[#0f6b4f] text-[#edf5f0] hover:bg-[#0b5340] text-xs font-bold px-3 py-1.5 rounded-xl transition"
                         >
                           ← Back
                         </button>
                         <div>
-                          <h3 className="text-lg font-bold text-[#3f2a1d]">
+                          <h3 className="text-lg font-bold text-[#0c2f25]">
                             Standard {selectedStandard} &mdash; Division {selectedDivision}
                           </h3>
-                          <p className="text-xs text-[#8a6a50]">Sorted by last name in ascending order</p>
+                          <p className="text-xs text-[#4f7262]">Sorted by last name in ascending order</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#7a4e2d]/10 text-[#7a4e2d]">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-[#0f6b4f]/10 text-[#0f6b4f]">
                         {sortedStudents.length} Student(s)
                       </span>
                     </div>
 
                     <div className="relative">
-                      <Search className="absolute left-4 top-3.5 h-5 w-5 text-[#b68c67]" />
+                      <Search className="absolute left-4 top-3.5 h-5 w-5 text-[#2f8f6f]" />
                       <input
                         type="text"
                         placeholder="Search students in this class by name, email, roll number..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full rounded-2xl border border-[#d9c5b0] bg-[#fffaf3] py-3 pl-12 pr-4 outline-none focus:border-[#7a4e2d]"
+                        className="w-full rounded-2xl border border-[#cfe0d6] bg-[#fbfdfb] py-3 pl-12 pr-4 outline-none focus:border-[#0f6b4f]"
                       />
                     </div>
 
                     <div className="grid gap-6 md:grid-cols-2">
                       {sortedStudents.length > 0 ? (
                         sortedStudents.map((student) => (
-                          <div key={student._id} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                          <div key={student._id} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4 hover:shadow-md transition">
                             <div className="flex items-start justify-between">
                               <div>
-                                <h3 className="text-xl font-bold text-[#3f2a1d]">
+                                <h3 className="text-xl font-bold text-[#0c2f25]">
                                   {student.name}
                                 </h3>
-                                <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#7a4e2d]/10 text-[#7a4e2d]">
+                                <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#0f6b4f]/10 text-[#0f6b4f]">
                                   Roll: {student.rollNumber || 'Not Assigned'}
                                 </span>
                               </div>
@@ -2072,7 +2073,7 @@ const AdminDashboard = () => {
                                 <button 
                                   type="button"
                                   onClick={() => handleOpenEditStudent(student)}
-                                  className="p-2 text-[#7a4e2d] hover:bg-[#7a4e2d]/10 rounded-xl transition"
+                                  className="p-2 text-[#0f6b4f] hover:bg-[#0f6b4f]/10 rounded-xl transition"
                                   title="Edit Student"
                                 >
                                   <Edit className="h-5 w-5" />
@@ -2087,13 +2088,13 @@ const AdminDashboard = () => {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 text-sm border-t border-[#f4ecdf] pt-4">
-                              <div className="flex items-center gap-2 text-[#6d4c35]">
-                                <Mail className="h-4 w-4 text-[#b68c67]" />
+                            <div className="grid grid-cols-2 gap-3 text-sm border-t border-[#e9f2ed] pt-4">
+                              <div className="flex items-center gap-2 text-[#355e4d]">
+                                <Mail className="h-4 w-4 text-[#2f8f6f]" />
                                 <span className="truncate">{student.email}</span>
                               </div>
-                              <div className="flex items-center gap-2 text-[#6d4c35]">
-                                <BookOpen className="h-4 w-4 text-[#b68c67]" />
+                              <div className="flex items-center gap-2 text-[#355e4d]">
+                                <BookOpen className="h-4 w-4 text-[#2f8f6f]" />
                                 <span>Class: {student.classId?.standard || 'N/A'} ({student.division || 'N/A'})</span>
                               </div>
                             </div>
@@ -2105,7 +2106,7 @@ const AdminDashboard = () => {
                                   setSelectedStudentForDetails(student);
                                   setShowStudentDetailsModal(true);
                                 }}
-                                className="text-xs font-bold text-[#7a4e2d] bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 px-3 py-1.5 rounded-xl transition"
+                                className="text-xs font-bold text-[#0f6b4f] bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 px-3 py-1.5 rounded-xl transition"
                               >
                                 View Full Details
                               </button>
@@ -2113,7 +2114,7 @@ const AdminDashboard = () => {
                           </div>
                         ))
                       ) : (
-                        <div className="col-span-2 text-center py-10 text-[#8a6a50]">
+                        <div className="col-span-2 text-center py-10 text-[#4f7262]">
                           No students found matching current criteria.
                         </div>
                       )}
@@ -2127,14 +2128,14 @@ const AdminDashboard = () => {
             {activeTab === 'classes' && (
               <div className="space-y-6">
                 {/* Header */}
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Classes & Divisions Directory</h2>
-                    <p className="text-sm text-[#7f634e]">View, add divisions, or delete classes. Deleting a division will automatically redistribute students.</p>
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Classes & Divisions Directory</h2>
+                    <p className="text-sm text-[#4d7262]">View, add divisions, or delete classes. Deleting a division will automatically redistribute students.</p>
                   </div>
                   <button
                     onClick={handleOpenClassSetupModal}
-                    className="flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm"
+                    className="flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm"
                   >
                     <Settings className="h-4 w-4" /> Class Setup Config
                   </button>
@@ -2162,19 +2163,19 @@ const AdminDashboard = () => {
                     const totalStudents = students.filter(s => sortedDivs.some(cls => s.classId?._id === cls._id || s.classId === cls._id)).length;
 
                     return (
-                      <div className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-md space-y-6">
+                      <div className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-md space-y-6">
                         {/* Detail View Header */}
-                        <div className="flex items-center justify-between border-b border-[#f4ecdf] pb-4 flex-wrap gap-4">
+                        <div className="flex items-center justify-between border-b border-[#e9f2ed] pb-4 flex-wrap gap-4">
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => setSelectedManageClassStd(null)}
-                              className="flex items-center gap-1 bg-[#7a4e2d] text-[#f7efe4] hover:bg-[#624021] text-xs font-bold px-3 py-1.5 rounded-xl transition"
+                              className="flex items-center gap-1 bg-[#0f6b4f] text-[#edf5f0] hover:bg-[#0b5340] text-xs font-bold px-3 py-1.5 rounded-xl transition"
                             >
                               ← Back
                             </button>
                             <div>
-                              <h3 className="text-xl font-black text-[#3f2a1d]">{stdLabel}</h3>
-                              <p className="text-xs text-[#8a6a50] font-medium mt-0.5">
+                              <h3 className="text-xl font-black text-[#0c2f25]">{stdLabel}</h3>
+                              <p className="text-xs text-[#4f7262] font-medium mt-0.5">
                                 Divisions: <span className="font-bold">{sortedDivs.length}</span> | Total Students: <span className="font-bold">{totalStudents}</span>
                               </p>
                             </div>
@@ -2190,13 +2191,13 @@ const AdminDashboard = () => {
 
                         {/* List of Divisions in Detail View */}
                         <div className="space-y-3">
-                          <h4 className="text-xs font-bold text-[#8a6a50] uppercase tracking-wider">Configured Divisions</h4>
+                          <h4 className="text-xs font-bold text-[#4f7262] uppercase tracking-wider">Configured Divisions</h4>
                           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                             {sortedDivs.map(cls => (
-                              <div key={cls._id} className="p-4 rounded-2xl border border-[#d9c5b0]/40 bg-[#fffaf3] flex items-center justify-between shadow-sm hover:shadow-md transition">
+                              <div key={cls._id} className="p-4 rounded-2xl border border-[#cfe0d6]/40 bg-[#fbfdfb] flex items-center justify-between shadow-sm hover:shadow-md transition">
                                 <div>
-                                  <span className="text-sm font-bold text-[#3f2a1d]">Division {cls.division}</span>
-                                  <p className="text-xs text-[#8a6a50] mt-0.5">Students: {students.filter(s => s.classId?._id === cls._id || s.classId === cls._id).length}</p>
+                                  <span className="text-sm font-bold text-[#0c2f25]">Division {cls.division}</span>
+                                  <p className="text-xs text-[#4f7262] mt-0.5">Students: {students.filter(s => s.classId?._id === cls._id || s.classId === cls._id).length}</p>
                                 </div>
                                 <button
                                   type="button"
@@ -2228,13 +2229,13 @@ const AdminDashboard = () => {
                           <div
                             key={std}
                             onClick={() => setSelectedManageClassStd(std)}
-                            className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group hover:border-[#7a4e2d]"
+                            className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group hover:border-[#0f6b4f]"
                           >
                             <div className="space-y-4">
                               {/* Header: Standard Name and Delete Class */}
                               <div className="flex justify-between items-start gap-3">
                                 <div>
-                                  <h3 className="text-base font-black text-[#3f2a1d] group-hover:text-[#7a4e2d] transition">{stdLabel}</h3>
+                                  <h3 className="text-base font-black text-[#0c2f25] group-hover:text-[#0f6b4f] transition">{stdLabel}</h3>
                                   <p className="text-[10px] text-gray-500 font-mono mt-0.5">
                                     Total Divisions: {divs.length}
                                   </p>
@@ -2255,14 +2256,14 @@ const AdminDashboard = () => {
                               </div>
 
                               {/* Division and Student counts */}
-                              <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
+                              <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fbfdfb] border border-[#cfe0d6]/30 p-2.5 rounded-xl">
                                 <div>
-                                  <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Divisions</span>
-                                  <p className="font-extrabold text-[#6d4c35] mt-0.5">{divs.length}</p>
+                                  <span className="text-[10px] text-[#4f7262] uppercase font-bold">Divisions</span>
+                                  <p className="font-extrabold text-[#355e4d] mt-0.5">{divs.length}</p>
                                 </div>
-                                <div className="border-l border-[#d9c5b0]/30">
-                                  <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Students</span>
-                                  <p className="font-extrabold text-[#6d4c35] mt-0.5">{totalStudents}</p>
+                                <div className="border-l border-[#cfe0d6]/30">
+                                  <span className="text-[10px] text-[#4f7262] uppercase font-bold">Students</span>
+                                  <p className="font-extrabold text-[#355e4d] mt-0.5">{totalStudents}</p>
                                 </div>
                               </div>
                             </div>
@@ -2272,7 +2273,7 @@ const AdminDashboard = () => {
                     </div>
                   );
                 })() : (
-                  <div className="col-span-4 text-center py-12 text-[#8a6a50] rounded-2xl border border-dashed border-[#d9c5b0] bg-[#fffaf3]">
+                  <div className="col-span-4 text-center py-12 text-[#4f7262] rounded-2xl border border-dashed border-[#cfe0d6] bg-[#fbfdfb]">
                     No classes configured yet. Click "Class Setup Config" to configure your standards.
                   </div>
                 )}
@@ -2283,14 +2284,14 @@ const AdminDashboard = () => {
             {/* SUBJECTS TAB */}
             {activeTab === 'subjects' && (
               <div className="space-y-6">
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Subject Directory</h2>
-                    <p className="text-sm text-[#7f634e]">Configure academic subjects, syllabus parameters, and map them standard-wise.</p>
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Subject Directory</h2>
+                    <p className="text-sm text-[#4d7262]">Configure academic subjects, syllabus parameters, and map them standard-wise.</p>
                   </div>
                   <button
                     onClick={() => setShowAddSubjectModal(true)}
-                    className="flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm"
+                    className="flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm"
                   >
                     <Plus className="h-4 w-4" /> Add Subject
                   </button>
@@ -2299,17 +2300,17 @@ const AdminDashboard = () => {
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {subjects && subjects.length > 0 ? (
                     subjects.map((sub) => (
-                      <div key={sub._id} className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between group hover:border-[#7a4e2d]">
+                      <div key={sub._id} className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between group hover:border-[#0f6b4f]">
                         <div className="space-y-4">
                           <div className="flex justify-between items-start gap-2">
                             <div>
-                              <h3 className="font-bold text-base text-[#3f2a1d] group-hover:text-[#7a4e2d] transition">{sub.name}</h3>
+                              <h3 className="font-bold text-base text-[#0c2f25] group-hover:text-[#0f6b4f] transition">{sub.name}</h3>
                               <p className="text-[10px] text-gray-500 font-mono mt-0.5">Code: {sub.code}</p>
                             </div>
                             <div className="flex gap-1">
                               <button
                                 onClick={() => handleEditSubject(sub)}
-                                className="text-[#7a4e2d] hover:bg-[#faf4ea] p-1.5 rounded-lg transition"
+                                className="text-[#0f6b4f] hover:bg-[#f4f8f5] p-1.5 rounded-lg transition"
                                 title="Edit Subject"
                               >
                                 <Edit className="h-4 w-4" />
@@ -2330,27 +2331,27 @@ const AdminDashboard = () => {
                               ? sub.standard.split(',').map(s => s.trim()).filter(Boolean).length
                               : 0;
                             return (
-                              <div className="grid grid-cols-3 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
+                              <div className="grid grid-cols-3 gap-2 text-center text-xs bg-[#fbfdfb] border border-[#cfe0d6]/30 p-2.5 rounded-xl">
                                 <div>
-                                  <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Max Marks</span>
-                                  <p className="font-extrabold text-[#6d4c35] mt-0.5">{sub.maxMarks || 100}</p>
+                                  <span className="text-[10px] text-[#4f7262] uppercase font-bold">Max Marks</span>
+                                  <p className="font-extrabold text-[#355e4d] mt-0.5">{sub.maxMarks || 100}</p>
                                 </div>
-                                <div className="border-l border-[#d9c5b0]/30">
-                                  <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Passing Marks</span>
-                                  <p className="font-extrabold text-[#6d4c35] mt-0.5">{sub.minMarks || 35}</p>
+                                <div className="border-l border-[#cfe0d6]/30">
+                                  <span className="text-[10px] text-[#4f7262] uppercase font-bold">Passing Marks</span>
+                                  <p className="font-extrabold text-[#355e4d] mt-0.5">{sub.minMarks || 35}</p>
                                 </div>
-                                <div className="border-l border-[#d9c5b0]/30">
-                                  <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Total Stds</span>
-                                  <p className="font-extrabold text-[#6d4c35] mt-0.5">{stdsCount}</p>
+                                <div className="border-l border-[#cfe0d6]/30">
+                                  <span className="text-[10px] text-[#4f7262] uppercase font-bold">Total Stds</span>
+                                  <p className="font-extrabold text-[#355e4d] mt-0.5">{stdsCount}</p>
                                 </div>
                               </div>
                             );
                           })()}
 
                           {/* Small Standards Text */}
-                          <div className="pt-2 border-t border-[#f4ecdf]">
-                            <span className="text-[9px] font-bold text-[#8a6a50] uppercase tracking-wider block">Assigned Standards</span>
-                            <p className="text-xs font-semibold text-[#7a4e2d] truncate mt-0.5">
+                          <div className="pt-2 border-t border-[#e9f2ed]">
+                            <span className="text-[9px] font-bold text-[#4f7262] uppercase tracking-wider block">Assigned Standards</span>
+                            <p className="text-xs font-semibold text-[#0f6b4f] truncate mt-0.5">
                               {sub.standard ? sub.standard.split(',').sort(sortStandards).map(s => s.match(/^\d+$/) ? `Std ${s}` : s).join(', ') : 'All Standards'}
                             </p>
                           </div>
@@ -2358,7 +2359,7 @@ const AdminDashboard = () => {
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-4 text-center py-10 text-[#8a6a50] rounded-2xl border border-dashed border-[#d9c5b0] bg-[#fffaf3]">
+                    <div className="col-span-4 text-center py-10 text-[#4f7262] rounded-2xl border border-dashed border-[#cfe0d6] bg-[#fbfdfb]">
                       No subjects configured yet. Click "Add Subject" to define your curriculum.
                     </div>
                   )}
@@ -2370,21 +2371,21 @@ const AdminDashboard = () => {
             {activeTab === 'exams' && (
               <div className="space-y-6">
                 {/* Header */}
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Exams & Assessments Directory</h2>
-                    <p className="text-sm text-[#7f634e]">Click a standard card to view and manage its exams.</p>
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Exams & Assessments Directory</h2>
+                    <p className="text-sm text-[#4d7262]">Click a standard card to view and manage its exams.</p>
                   </div>
                   <button
                     onClick={() => setShowAddExamModal(true)}
-                    className="flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm"
+                    className="flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm"
                   >
                     <Plus className="h-4 w-4" /> Add Exam
                   </button>
                 </div>
 
                 {!exams || exams.filter(ex => ex.classId?.standard).length === 0 ? (
-                  <div className="text-center py-12 text-[#8a6a50] rounded-2xl border border-dashed border-[#d9c5b0] bg-[#fffaf3]">
+                  <div className="text-center py-12 text-[#4f7262] rounded-2xl border border-dashed border-[#cfe0d6] bg-[#fbfdfb]">
                     No exams configured yet. Click "Add Exam" to get started.
                   </div>
                 ) : (() => {
@@ -2439,23 +2440,23 @@ const AdminDashboard = () => {
                     };
 
                     return (
-                      <div className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-md space-y-6">
+                      <div className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-md space-y-6">
                         {/* Header Row */}
-                        <div className="flex items-center justify-between border-b border-[#f4ecdf] pb-4 flex-wrap gap-4">
+                        <div className="flex items-center justify-between border-b border-[#e9f2ed] pb-4 flex-wrap gap-4">
                           <div className="flex items-center gap-3">
                             <button
                               onClick={() => { setSelectedExamName(null); setSelectedExamKeys([]); }}
-                              className="flex items-center gap-1 bg-[#7a4e2d] text-[#f7efe4] hover:bg-[#624021] text-xs font-bold px-3 py-1.5 rounded-xl transition"
+                              className="flex items-center gap-1 bg-[#0f6b4f] text-[#edf5f0] hover:bg-[#0b5340] text-xs font-bold px-3 py-1.5 rounded-xl transition"
                             >
                               ← Back
                             </button>
                             <div>
-                              <h3 className="text-xl font-black text-[#3f2a1d]">{examList[0]?.name}</h3>
+                              <h3 className="text-xl font-black text-[#0c2f25]">{examList[0]?.name}</h3>
                               <p className="text-xs text-gray-500 font-mono mt-0.5">
                                 📅 Date: {new Date(date).toLocaleDateString()} | Max: {maxMarks} | Pass: {passingMarks}
                               </p>
-                              <p className="text-[10px] text-[#8a6a50] font-semibold mt-1">
-                                Selected Students: <span className="font-bold text-[#7a4e2d]">{selectedStudentsCount}</span> (from {selectedForThisExam.length} selected classes)
+                              <p className="text-[10px] text-[#4f7262] font-semibold mt-1">
+                                Selected Students: <span className="font-bold text-[#0f6b4f]">{selectedStudentsCount}</span> (from {selectedForThisExam.length} selected classes)
                               </p>
                             </div>
                           </div>
@@ -2463,7 +2464,7 @@ const AdminDashboard = () => {
                             <button
                               type="button"
                               onClick={handleToggleSelectAll}
-                              className="text-xs font-bold text-[#7a4e2d] hover:underline"
+                              className="text-xs font-bold text-[#0f6b4f] hover:underline"
                             >
                               {allSelected ? 'Deselect All' : 'Select All'}
                             </button>
@@ -2481,7 +2482,7 @@ const AdminDashboard = () => {
 
                         {/* Inside checklist: Standards & Divisions */}
                         <div className="space-y-3">
-                          <h4 className="text-xs font-bold text-[#8a6a50] uppercase tracking-wider">Assigned Classes & Divisions Checklist</h4>
+                          <h4 className="text-xs font-bold text-[#4f7262] uppercase tracking-wider">Assigned Classes & Divisions Checklist</h4>
                           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
                             {(() => {
                               const stdGrouped = {};
@@ -2507,16 +2508,16 @@ const AdminDashboard = () => {
                                 };
 
                                 return (
-                                  <div key={std} className="p-4 rounded-2xl border border-[#d9c5b0]/40 bg-[#fffaf3] space-y-3 flex flex-col justify-between hover:shadow-sm transition">
-                                    <div className="flex items-center justify-between border-b border-[#f4ecdf] pb-2">
+                                  <div key={std} className="p-4 rounded-2xl border border-[#cfe0d6]/40 bg-[#fbfdfb] space-y-3 flex flex-col justify-between hover:shadow-sm transition">
+                                    <div className="flex items-center justify-between border-b border-[#e9f2ed] pb-2">
                                       <div className="flex items-center gap-2">
                                         <input
                                           type="checkbox"
                                           checked={allStdSelected}
                                           onChange={handleToggleStd}
-                                          className="h-4 w-4 rounded border-[#d9c5b0] text-rose-600 focus:ring-rose-400 cursor-pointer"
+                                          className="h-4 w-4 rounded border-[#cfe0d6] text-rose-600 focus:ring-rose-400 cursor-pointer"
                                         />
-                                        <span className="text-sm font-bold text-[#7a4e2d]">{stdLabel}</span>
+                                        <span className="text-sm font-bold text-[#0f6b4f]">{stdLabel}</span>
                                       </div>
                                       <button
                                         type="button"
@@ -2536,7 +2537,7 @@ const AdminDashboard = () => {
                                     </div>
                                     <div className="flex flex-wrap gap-1.5 pt-1">
                                       {stdExams.map(ex => (
-                                        <div key={ex._id} className="bg-white border border-[#d9c5b0]/40 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#3f2a1d]">
+                                        <div key={ex._id} className="bg-white border border-[#cfe0d6]/40 rounded-lg px-2.5 py-1 text-xs font-semibold text-[#0c2f25]">
                                           Div {ex.classId.division}
                                         </div>
                                       ))}
@@ -2569,13 +2570,13 @@ const AdminDashboard = () => {
                           <div
                             key={groupKey}
                             onClick={() => setSelectedExamName(groupKey)}
-                            className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group hover:border-[#7a4e2d]"
+                            className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-sm hover:shadow-md transition flex flex-col justify-between cursor-pointer group hover:border-[#0f6b4f]"
                           >
                             <div className="space-y-4">
                               {/* Header: Exam Name and Whole Exam Delete */}
                               <div className="flex justify-between items-start gap-3">
                                 <div>
-                                  <h3 className="text-lg font-black text-[#3f2a1d] group-hover:text-[#7a4e2d] transition">{examName}</h3>
+                                  <h3 className="text-lg font-black text-[#0c2f25] group-hover:text-[#0f6b4f] transition">{examName}</h3>
                                   <p className="text-[10px] text-gray-500 font-mono mt-0.5">
                                     📅 Date: {new Date(date).toLocaleDateString()}
                                   </p>
@@ -2602,27 +2603,27 @@ const AdminDashboard = () => {
                               {(() => {
                                 const stdsCount = [...new Set(examList.map(e => e.classId?.standard || (typeof e.classId === 'string' ? classes.find(c => c._id === e.classId)?.standard : '')))].filter(Boolean).length;
                                 return (
-                                  <div className="grid grid-cols-3 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
+                                  <div className="grid grid-cols-3 gap-2 text-center text-xs bg-[#fbfdfb] border border-[#cfe0d6]/30 p-2.5 rounded-xl">
                                     <div>
-                                      <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Max Marks</span>
-                                      <p className="font-extrabold text-[#6d4c35] mt-0.5">{maxMarks || 100}</p>
+                                      <span className="text-[10px] text-[#4f7262] uppercase font-bold">Max Marks</span>
+                                      <p className="font-extrabold text-[#355e4d] mt-0.5">{maxMarks || 100}</p>
                                     </div>
-                                    <div className="border-l border-[#d9c5b0]/30">
-                                      <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Passing</span>
-                                      <p className="font-extrabold text-[#6d4c35] mt-0.5">{passingMarks || 35}</p>
+                                    <div className="border-l border-[#cfe0d6]/30">
+                                      <span className="text-[10px] text-[#4f7262] uppercase font-bold">Passing</span>
+                                      <p className="font-extrabold text-[#355e4d] mt-0.5">{passingMarks || 35}</p>
                                     </div>
-                                    <div className="border-l border-[#d9c5b0]/30">
-                                      <span className="text-[10px] text-[#8a6a50] uppercase font-bold">Total Stds</span>
-                                      <p className="font-extrabold text-[#6d4c35] mt-0.5">{stdsCount}</p>
+                                    <div className="border-l border-[#cfe0d6]/30">
+                                      <span className="text-[10px] text-[#4f7262] uppercase font-bold">Total Stds</span>
+                                      <p className="font-extrabold text-[#355e4d] mt-0.5">{stdsCount}</p>
                                     </div>
                                   </div>
                                 );
                               })()}
 
                               {/* Small Standards Text */}
-                              <div className="pt-2 border-t border-[#f4ecdf]">
-                                <span className="text-[9px] font-bold text-[#8a6a50] uppercase tracking-wider block">Assigned Standards</span>
-                                <p className="text-xs font-semibold text-[#7a4e2d] truncate mt-0.5">{stdsLabel}</p>
+                              <div className="pt-2 border-t border-[#e9f2ed]">
+                                <span className="text-[9px] font-bold text-[#4f7262] uppercase tracking-wider block">Assigned Standards</span>
+                                <p className="text-xs font-semibold text-[#0f6b4f] truncate mt-0.5">{stdsLabel}</p>
                               </div>
                             </div>
                           </div>
@@ -2638,8 +2639,8 @@ const AdminDashboard = () => {
             {activeTab === 'setup' && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-black text-[#3f2a1d]">School Setup</h2>
-                  <p className="text-xs text-[#8a6a50] mt-1">Logo, name, contact details, payment details, your plan and offers, and the documents people have uploaded.</p>
+                  <h2 className="text-2xl font-black text-[#0c2f25]">School Setup</h2>
+                  <p className="text-xs text-[#4f7262] mt-1">Logo, name, contact details, payment details, your plan and offers, and the documents people have uploaded.</p>
                 </div>
                 <SchoolSetup />
               </div>
@@ -2648,8 +2649,8 @@ const AdminDashboard = () => {
             {activeTab === 'feesCenter' && (
               <div className="space-y-4">
                 <div>
-                  <h2 className="text-2xl font-black text-[#3f2a1d]">Payments & Other Fees</h2>
-                  <p className="text-xs text-[#8a6a50] mt-1">Check payment screenshots from students and parents, add uniform / book / exam fees, and manage transport.</p>
+                  <h2 className="text-2xl font-black text-[#0c2f25]">Payments & Other Fees</h2>
+                  <p className="text-xs text-[#4f7262] mt-1">Check payment screenshots from students and parents, add uniform / book / exam fees, and manage transport.</p>
                 </div>
                 <FeesCenter classes={classes} students={students} transportOn={has('transport')} />
               </div>
@@ -2660,10 +2661,10 @@ const AdminDashboard = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
-                    <h2 className="text-2xl font-black text-[#3f2a1d]">
+                    <h2 className="text-2xl font-black text-[#0c2f25]">
                       {selectedFeeStd ? `📋 ${selectedFeeStd === selectedFeeStd ? `Standard ${selectedFeeStd}` : selectedFeeStd} — Student Fees` : '💰 Manage Fees'}
                     </h2>
-                    <p className="text-xs text-[#8a6a50] mt-1">
+                    <p className="text-xs text-[#4f7262] mt-1">
                       {selectedFeeStd ? 'Click quarters to toggle payment status for each student.' : 'Configure standard-wise annual fees split into 4 equal quarters.'}
                     </p>
                   </div>
@@ -2671,7 +2672,7 @@ const AdminDashboard = () => {
                     {selectedFeeStd && (
                       <button
                         onClick={() => setSelectedFeeStd(null)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#d9c5b0] bg-white text-[#7a4e2d] text-xs font-bold hover:bg-[#7a4e2d]/10 transition"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[#cfe0d6] bg-white text-[#0f6b4f] text-xs font-bold hover:bg-[#0f6b4f]/10 transition"
                       >
                         ← Back
                       </button>
@@ -2679,7 +2680,7 @@ const AdminDashboard = () => {
                     {!selectedFeeStd && (
                       <button
                         onClick={() => { setFeeForm({ standard: '', totalAmount: '', totalMonths: 12, totalInstallments: 4, academicYear: `${new Date().getFullYear()}-${new Date().getFullYear() + 1}` }); setShowSetFeeModal(true); }}
-                        className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#7a4e2d] text-[#f7efe4] text-xs font-bold hover:bg-[#624021] transition shadow-sm"
+                        className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#0f6b4f] text-[#edf5f0] text-xs font-bold hover:bg-[#0b5340] transition shadow-sm"
                       >
                         <Plus className="h-4 w-4" /> Set Fees
                       </button>
@@ -2696,7 +2697,7 @@ const AdminDashboard = () => {
                       const instAmt = struct ? Math.round(struct.totalAmount / totalInst) : 0;
                       if (studentFees.length === 0) {
                         return (
-                          <div className="text-center py-16 text-[#8a6a50]">
+                          <div className="text-center py-16 text-[#4f7262]">
                             <DollarSign className="h-12 w-12 mx-auto mb-3 opacity-30" />
                             <p className="font-bold text-sm">No students found for this standard.</p>
                             <p className="text-xs mt-1">Add students to Standard {selectedFeeStd} to track fees.</p>
@@ -2716,15 +2717,15 @@ const AdminDashboard = () => {
                             const student = fee.studentId;
                             const cls = fee.classId;
                             return (
-                              <div key={fee._id} className="rounded-3xl border border-[#d9c5b0] bg-white p-5 shadow-sm hover:shadow-md transition space-y-4">
+                              <div key={fee._id} className="rounded-3xl border border-[#cfe0d6] bg-white p-5 shadow-sm hover:shadow-md transition space-y-4">
                                 {/* Student Header */}
                                 <div className="flex items-start justify-between gap-2">
                                   <div>
-                                    <h3 className="font-black text-[#3f2a1d] text-base leading-tight">{student?.name || 'Unknown'}</h3>
-                                    <p className="text-[10px] text-[#8a6a50] mt-0.5">
+                                    <h3 className="font-black text-[#0c2f25] text-base leading-tight">{student?.name || 'Unknown'}</h3>
+                                    <p className="text-[10px] text-[#4f7262] mt-0.5">
                                       Roll: {student?.rollNumber || '—'} &nbsp;|&nbsp; Div: {cls?.division || '—'}
                                     </p>
-                                    <p className="text-[10px] text-[#8a6a50]">{student?.email || ''}</p>
+                                    <p className="text-[10px] text-[#4f7262]">{student?.email || ''}</p>
                                   </div>
                                   <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${statusColor}`}>
                                     {overallStatus}
@@ -2732,13 +2733,13 @@ const AdminDashboard = () => {
                                 </div>
 
                                 {/* Fee Summary */}
-                                <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
+                                <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fbfdfb] border border-[#cfe0d6]/30 p-2.5 rounded-xl">
                                   <div>
-                                    <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Paid</span>
+                                    <span className="text-[10px] text-[#4f7262] font-bold uppercase block">Paid</span>
                                     <span className="font-extrabold text-emerald-600">Rs {totalPaid.toLocaleString()}</span>
                                   </div>
-                                  <div className="border-l border-[#d9c5b0]/30">
-                                    <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Pending</span>
+                                  <div className="border-l border-[#cfe0d6]/30">
+                                    <span className="text-[10px] text-[#4f7262] font-bold uppercase block">Pending</span>
                                     <span className="font-extrabold text-rose-600">Rs {totalPending.toLocaleString()}</span>
                                   </div>
                                 </div>
@@ -2757,7 +2758,7 @@ const AdminDashboard = () => {
                                         key={idx}
                                         onClick={() => handleToggleQuarterFee(fee._id, idx.toString())}
                                         title={isPaid && dateValue ? `Paid on ${new Date(dateValue).toLocaleDateString()}` : 'Click to mark as paid'}
-                                        className={`rounded-xl py-2 px-1 text-[10px] font-bold transition border ${isPaid ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600' : 'bg-white text-[#8a6a50] border-[#d9c5b0] hover:border-[#7a4e2d]'}`}
+                                        className={`rounded-xl py-2 px-1 text-[10px] font-bold transition border ${isPaid ? 'bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600' : 'bg-white text-[#4f7262] border-[#cfe0d6] hover:border-[#0f6b4f]'}`}
                                       >
                                         Term {idx}
                                         <br />
@@ -2766,7 +2767,7 @@ const AdminDashboard = () => {
                                     );
                                   })}
                                 </div>
-                                <p className="text-[10px] text-[#8a6a50] text-center">Rs {instAmt.toLocaleString()} per installment ({totalInst} terms)</p>
+                                <p className="text-[10px] text-[#4f7262] text-center">Rs {instAmt.toLocaleString()} per installment ({totalInst} terms)</p>
                               </div>
                             );
                           })}
@@ -2778,7 +2779,7 @@ const AdminDashboard = () => {
                   /* OUTSIDE VIEW: Standard fee structure cards */
                   <div className="space-y-4">
                     {feeStructures.length === 0 ? (
-                      <div className="text-center py-20 text-[#8a6a50]">
+                      <div className="text-center py-20 text-[#4f7262]">
                         <DollarSign className="h-14 w-14 mx-auto mb-4 opacity-25" />
                         <p className="font-bold text-base">No fee structures configured yet.</p>
                         <p className="text-xs mt-1">Click "Set Standard Fee" to configure fees for a standard.</p>
@@ -2796,15 +2797,15 @@ const AdminDashboard = () => {
                             <div
                               key={struct._id}
                               onClick={() => setSelectedFeeStd(struct.standard)}
-                              className="rounded-3xl border border-[#d9c5b0] bg-white p-6 shadow-sm hover:shadow-md cursor-pointer transition group hover:border-[#7a4e2d] space-y-4"
+                              className="rounded-3xl border border-[#cfe0d6] bg-white p-6 shadow-sm hover:shadow-md cursor-pointer transition group hover:border-[#0f6b4f] space-y-4"
                             >
                               {/* Card Header */}
                               <div className="flex items-start justify-between gap-2">
                                 <div>
-                                  <h3 className="text-xl font-black text-[#3f2a1d] group-hover:text-[#7a4e2d] transition">
+                                  <h3 className="text-xl font-black text-[#0c2f25] group-hover:text-[#0f6b4f] transition">
                                     {struct.standard.match(/^\d+$/) ? `Standard ${struct.standard}` : struct.standard}
                                   </h3>
-                                  <p className="text-[10px] text-[#8a6a50] mt-0.5">{struct.totalMonths} months · {struct.academicYear || ''} · {stdStudentCount} student{stdStudentCount !== 1 ? 's' : ''}</p>
+                                  <p className="text-[10px] text-[#4f7262] mt-0.5">{struct.totalMonths} months · {struct.academicYear || ''} · {stdStudentCount} student{stdStudentCount !== 1 ? 's' : ''}</p>
                                 </div>
                                 <div className="flex gap-1 shrink-0">
                                   <button
@@ -2814,7 +2815,7 @@ const AdminDashboard = () => {
                                       setFeeForm({ standard: struct.standard, totalAmount: struct.totalAmount, totalMonths: struct.totalMonths, totalInstallments: struct.totalInstallments || 4, academicYear: struct.academicYear || '' });
                                       setShowSetFeeModal(true);
                                     }}
-                                    className="text-[#7a4e2d] hover:bg-[#7a4e2d]/10 p-2 rounded-xl transition"
+                                    className="text-[#0f6b4f] hover:bg-[#0f6b4f]/10 p-2 rounded-xl transition"
                                     title="Edit Fee Structure"
                                   >
                                     <Pencil className="h-4 w-4" />
@@ -2830,32 +2831,32 @@ const AdminDashboard = () => {
                               </div>
 
                               {/* Amounts grid */}
-                              <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fffaf3] border border-[#d9c5b0]/30 p-2.5 rounded-xl">
+                              <div className="grid grid-cols-2 gap-2 text-center text-xs bg-[#fbfdfb] border border-[#cfe0d6]/30 p-2.5 rounded-xl">
                                 <div>
-                                  <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Annual Fee</span>
-                                  <span className="font-extrabold text-[#6d4c35] text-base">Rs {struct.totalAmount.toLocaleString()}</span>
+                                  <span className="text-[10px] text-[#4f7262] font-bold uppercase block">Annual Fee</span>
+                                  <span className="font-extrabold text-[#355e4d] text-base">Rs {struct.totalAmount.toLocaleString()}</span>
                                 </div>
-                                <div className="border-l border-[#d9c5b0]/30">
-                                  <span className="text-[10px] text-[#8a6a50] font-bold uppercase block">Per Term</span>
-                                  <span className="font-extrabold text-[#6d4c35] text-base">Rs {instAmt.toLocaleString()}</span>
+                                <div className="border-l border-[#cfe0d6]/30">
+                                  <span className="text-[10px] text-[#4f7262] font-bold uppercase block">Per Term</span>
+                                  <span className="font-extrabold text-[#355e4d] text-base">Rs {instAmt.toLocaleString()}</span>
                                 </div>
                               </div>
 
                               {/* Installment labels */}
                               <div className="grid grid-cols-4 gap-1.5">
                                 {Array.from({ length: Math.min(totalInst, 4) }, (_, i) => (
-                                  <div key={i} className="rounded-lg bg-[#7a4e2d]/10 text-[#7a4e2d] text-[10px] font-bold text-center py-1.5">
+                                  <div key={i} className="rounded-lg bg-[#0f6b4f]/10 text-[#0f6b4f] text-[10px] font-bold text-center py-1.5">
                                     Term {i+1}<br/><span className="text-[8px]">Rs {instAmt.toLocaleString()}</span>
                                   </div>
                                 ))}
                                 {totalInst > 4 && (
-                                  <div className="rounded-lg bg-[#8a6a50]/10 text-[#8a6a50] text-[9px] font-bold text-center py-1.5 flex items-center justify-center">
+                                  <div className="rounded-lg bg-[#4f7262]/10 text-[#4f7262] text-[9px] font-bold text-center py-1.5 flex items-center justify-center">
                                     + {totalInst - 4} more
                                   </div>
                                 )}
                               </div>
 
-                              <p className="text-[10px] text-[#8a6a50] text-center pt-1">Click to view student payment status →</p>
+                              <p className="text-[10px] text-[#4f7262] text-center pt-1">Click to view student payment status →</p>
                             </div>
                           );
                         })}
@@ -2869,10 +2870,10 @@ const AdminDashboard = () => {
             {/* ===================== SET FEE MODAL ===================== */}
             {showSetFeeModal && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-                <div className="w-full max-w-md rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#d9c5b0] pb-3">
-                    <h3 className="text-lg font-black text-[#3f2a1d]">{editingFeeId ? 'Edit Fee Structure' : 'Set Fees'}</h3>
-                    <button onClick={() => { setShowSetFeeModal(false); setEditingFeeId(null); }} className="rounded-full p-1.5 text-[#8a6a50] hover:bg-[#f4ecdf]">
+                <div className="w-full max-w-md rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#cfe0d6] pb-3">
+                    <h3 className="text-lg font-black text-[#0c2f25]">{editingFeeId ? 'Edit Fee Structure' : 'Set Fees'}</h3>
+                    <button onClick={() => { setShowSetFeeModal(false); setEditingFeeId(null); }} className="rounded-full p-1.5 text-[#4f7262] hover:bg-[#e9f2ed]">
                       <X className="h-5 w-5" />
                     </button>
                   </div>
@@ -2880,9 +2881,9 @@ const AdminDashboard = () => {
                   <form onSubmit={handleFeeSubmit} className="space-y-4">
                     {/* Standard selector */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Standard *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Standard *</label>
                       {editingFeeId ? (
-                        <div className="w-full rounded-xl border border-[#d9c5b0] bg-[#f4ecdf] px-3 py-2.5 text-sm text-[#6d4c35] font-bold flex items-center gap-2">
+                        <div className="w-full rounded-xl border border-[#cfe0d6] bg-[#e9f2ed] px-3 py-2.5 text-sm text-[#355e4d] font-bold flex items-center gap-2">
                           <span>🔒</span>
                           <span>{feeForm.standard.match(/^\d+$/) ? `Standard ${feeForm.standard}` : feeForm.standard}</span>
                         </div>
@@ -2891,7 +2892,7 @@ const AdminDashboard = () => {
                           value={feeForm.standard}
                           onChange={e => setFeeForm(prev => ({ ...prev, standard: e.target.value }))}
                           required
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                         >
                           <option value="">— Select Standard —</option>
                           {[...new Set(classes.map(c => c.standard))]
@@ -2907,7 +2908,7 @@ const AdminDashboard = () => {
 
                     {/* Total annual fee */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Annual Total Fee (Rs ) *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Annual Total Fee (Rs ) *</label>
                       <input
                         type="number"
                         min="1"
@@ -2915,26 +2916,26 @@ const AdminDashboard = () => {
                         onChange={e => setFeeForm(prev => ({ ...prev, totalAmount: e.target.value }))}
                         placeholder="e.g. 12000"
                         required
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                       />
                     </div>
 
                     {/* Total months */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Total Billing Months</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Total Billing Months</label>
                       <input
                         type="number"
                         min="1"
                         max="12"
                         value={feeForm.totalMonths}
                         onChange={e => setFeeForm(prev => ({ ...prev, totalMonths: e.target.value }))}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                       />
                     </div>
 
                     {/* Total Installments */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Total Fee Installments (Terms) *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Total Fee Installments (Terms) *</label>
                       <input
                         type="number"
                         min="1"
@@ -2942,43 +2943,43 @@ const AdminDashboard = () => {
                         value={feeForm.totalInstallments}
                         onChange={e => setFeeForm(prev => ({ ...prev, totalInstallments: Number(e.target.value) }))}
                         required
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                       />
                     </div>
 
                     {/* Academic Year */}
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Academic Year *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Academic Year *</label>
                       <input
                         type="text"
                         value={feeForm.academicYear}
                         onChange={e => setFeeForm(prev => ({ ...prev, academicYear: e.target.value }))}
                         placeholder="e.g. 2024-2025"
                         required
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#7a4e2d]"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]"
                       />
                     </div>
 
                     {/* Calculated installments preview */}
                     {feeForm.totalAmount > 0 && feeForm.totalInstallments > 0 && (
-                      <div className="bg-[#7a4e2d]/5 border border-[#d9c5b0] rounded-xl p-3 max-h-36 overflow-y-auto">
-                        <p className="text-[10px] font-bold text-[#8a6a50] uppercase mb-2">Installments Breakdown Preview</p>
+                      <div className="bg-[#0f6b4f]/5 border border-[#cfe0d6] rounded-xl p-3 max-h-36 overflow-y-auto">
+                        <p className="text-[10px] font-bold text-[#4f7262] uppercase mb-2">Installments Breakdown Preview</p>
                         <div className="grid grid-cols-3 gap-1.5 text-center">
                           {Array.from({ length: feeForm.totalInstallments || 4 }, (_, idx) => (
-                            <div key={idx} className="bg-white rounded-lg py-2 border border-[#d9c5b0]/50">
-                              <p className="text-[10px] font-bold text-[#7a4e2d]">Term {idx + 1}</p>
-                              <p className="text-xs font-extrabold text-[#3f2a1d]">Rs {Math.round(Number(feeForm.totalAmount) / (feeForm.totalInstallments || 4)).toLocaleString()}</p>
+                            <div key={idx} className="bg-white rounded-lg py-2 border border-[#cfe0d6]/50">
+                              <p className="text-[10px] font-bold text-[#0f6b4f]">Term {idx + 1}</p>
+                              <p className="text-xs font-extrabold text-[#0c2f25]">Rs {Math.round(Number(feeForm.totalAmount) / (feeForm.totalInstallments || 4)).toLocaleString()}</p>
                             </div>
                           ))}
                         </div>
                       </div>
                     )}
 
-                    <div className="flex justify-end gap-3 border-t border-[#d9c5b0]/50 pt-3">
-                      <button type="button" onClick={() => { setShowSetFeeModal(false); setEditingFeeId(null); }} className="rounded-xl border border-[#d9c5b0] bg-white px-5 py-2 text-sm font-bold text-[#7a4e2d] hover:bg-[#7a4e2d]/10 transition">
+                    <div className="flex justify-end gap-3 border-t border-[#cfe0d6]/50 pt-3">
+                      <button type="button" onClick={() => { setShowSetFeeModal(false); setEditingFeeId(null); }} className="rounded-xl border border-[#cfe0d6] bg-white px-5 py-2 text-sm font-bold text-[#0f6b4f] hover:bg-[#0f6b4f]/10 transition">
                         Cancel
                       </button>
-                      <button type="submit" disabled={creatingFee} className="rounded-xl bg-[#7a4e2d] px-6 py-2 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition disabled:opacity-50">
+                      <button type="submit" disabled={creatingFee} className="rounded-xl bg-[#0f6b4f] px-6 py-2 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition disabled:opacity-50">
                         {creatingFee ? (editingFeeId ? 'Saving...' : 'Setting...') : (editingFeeId ? 'Save Changes' : 'Set Fees')}
                       </button>
                     </div>
@@ -2990,9 +2991,9 @@ const AdminDashboard = () => {
             {/* ADD SUBJECT MODAL */}
             {showAddSubjectModal && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-                <div className="w-full max-w-4xl rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                  <div className="flex items-center justify-between border-b border-[#d9c5b0] pb-3">
-                    <h3 className="text-lg font-black text-[#3f2a1d]">
+                <div className="w-full max-w-4xl rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+                  <div className="flex items-center justify-between border-b border-[#cfe0d6] pb-3">
+                    <h3 className="text-lg font-black text-[#0c2f25]">
                       {editingSubjectId ? 'Edit Subject Credentials' : 'Add New Subject'}
                     </h3>
                     <button 
@@ -3001,7 +3002,7 @@ const AdminDashboard = () => {
                         setEditingSubjectId(null);
                         setSubjectForm({ name: '', code: '', maxMarks: 100, minMarks: 35, standards: [] });
                       }}
-                      className="rounded-full p-1.5 text-[#8a6a50] hover:bg-[#f4ecdf]"
+                      className="rounded-full p-1.5 text-[#4f7262] hover:bg-[#e9f2ed]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -3009,59 +3010,59 @@ const AdminDashboard = () => {
 
                   <form onSubmit={handleSubjectSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Subject Name *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Subject Name *</label>
                       <input
                         type="text"
                         required
                         placeholder="E.g., Mathematics"
                         value={subjectForm.name}
                         onChange={(e) => setSubjectForm({ ...subjectForm, name: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Subject Code *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Subject Code *</label>
                         <input
                           type="text"
                           required
                           placeholder="E.g., MATH101"
                           value={subjectForm.code}
                           onChange={(e) => setSubjectForm({ ...subjectForm, code: e.target.value.toUpperCase() })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none font-mono"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none font-mono"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Max Marks *</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Max Marks *</label>
                           <input
                             type="number"
                             required
                             min="1"
                             value={subjectForm.maxMarks}
                             onChange={(e) => setSubjectForm({ ...subjectForm, maxMarks: Number(e.target.value) })}
-                            className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Passing *</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Passing *</label>
                           <input
                             type="number"
                             required
                             min="0"
                             value={subjectForm.minMarks}
                             onChange={(e) => setSubjectForm({ ...subjectForm, minMarks: Number(e.target.value) })}
-                            className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                           />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">
                         Assign to Standards *
-                        <span className="text-[10px] text-[#7a4e2d] ml-1 font-extrabold font-mono">
+                        <span className="text-[10px] text-[#0f6b4f] ml-1 font-extrabold font-mono">
                           (Selected: {subjectForm.standards?.length || 0})
                         </span>
                       </label>
@@ -3073,7 +3074,7 @@ const AdminDashboard = () => {
                               <button
                                 type="button"
                                 onClick={() => setSubjectForm(prev => ({ ...prev, standards: createdStds }))}
-                                className="text-[10px] font-bold text-[#7a4e2d] hover:underline"
+                                className="text-[10px] font-bold text-[#0f6b4f] hover:underline"
                               >
                                 Select All
                               </button>
@@ -3081,7 +3082,7 @@ const AdminDashboard = () => {
                               <button
                                 type="button"
                                 onClick={() => setSubjectForm(prev => ({ ...prev, standards: [] }))}
-                                className="text-[10px] font-bold text-[#7a4e2d] hover:underline"
+                                className="text-[10px] font-bold text-[#0f6b4f] hover:underline"
                               >
                                 Deselect All
                               </button>
@@ -3089,11 +3090,11 @@ const AdminDashboard = () => {
                             {createdStds.length === 0 ? (
                               <p className="text-xs text-rose-500 italic">No classes configured yet. Please set up classes first.</p>
                             ) : (
-                              <div className="grid grid-cols-3 gap-2 max-h-36 overflow-y-auto p-3 border border-[#d9c5b0] bg-[#faf4ea] rounded-xl font-medium">
+                              <div className="grid grid-cols-3 gap-2 max-h-36 overflow-y-auto p-3 border border-[#cfe0d6] bg-[#f4f8f5] rounded-xl font-medium">
                                 {createdStds.map(std => {
                                   const isChecked = subjectForm.standards?.includes(std);
                                   return (
-                                    <label key={std} className="flex items-center gap-1.5 text-xs text-[#6d4c35] cursor-pointer select-none">
+                                    <label key={std} className="flex items-center gap-1.5 text-xs text-[#355e4d] cursor-pointer select-none">
                                       <input
                                         type="checkbox"
                                         checked={isChecked}
@@ -3103,7 +3104,7 @@ const AdminDashboard = () => {
                                             : (subjectForm.standards || []).filter(s => s !== std);
                                           setSubjectForm(prev => ({ ...prev, standards: nextStds }));
                                         }}
-                                        className="rounded border-[#d9c5b0] text-[#7a4e2d] focus:ring-[#7a4e2d] h-3.5 w-3.5 cursor-pointer"
+                                        className="rounded border-[#cfe0d6] text-[#0f6b4f] focus:ring-[#0f6b4f] h-3.5 w-3.5 cursor-pointer"
                                       />
                                       {std.match(/^\d+$/) ? `Std ${std}` : std}
                                     </label>
@@ -3113,8 +3114,8 @@ const AdminDashboard = () => {
                             )}
 
                             {subjectForm.standards && subjectForm.standards.length > 0 && (
-                              <div className="space-y-3 mt-3 p-3 border border-[#d9c5b0]/55 bg-[#fffaf3] rounded-xl">
-                                <label className="block text-xs font-bold text-[#6d4c35]">Standard-wise Yearly Lectures & Duration Config</label>
+                              <div className="space-y-3 mt-3 p-3 border border-[#cfe0d6]/55 bg-[#fbfdfb] rounded-xl">
+                                <label className="block text-xs font-bold text-[#355e4d]">Standard-wise Yearly Lectures & Duration Config</label>
                                 <div className="grid grid-cols-3 gap-4 max-h-[25rem] overflow-y-auto pr-1">
                                   {subjectForm.standards.map(std => {
                                     const matched = subjectForm.lecturesPerStandard?.find(l => l.standard === std);
@@ -3139,9 +3140,9 @@ const AdminDashboard = () => {
                                     };
 
                                     return (
-                                      <div key={std} className="p-3 border border-[#d9c5b0] bg-white rounded-2xl space-y-3 text-xs shadow-xs hover:border-[#7a4e2d]/40 transition">
-                                        <div className="flex justify-between items-center bg-[#7a4e2d]/5 px-2.5 py-1 rounded-lg">
-                                          <span className="font-bold text-[#7a4e2d]">
+                                      <div key={std} className="p-3 border border-[#cfe0d6] bg-white rounded-2xl space-y-3 text-xs shadow-xs hover:border-[#0f6b4f]/40 transition">
+                                        <div className="flex justify-between items-center bg-[#0f6b4f]/5 px-2.5 py-1 rounded-lg">
+                                          <span className="font-bold text-[#0f6b4f]">
                                             {std.match(/^\d+$/) ? `Std ${std}` : std}
                                           </span>
                                         </div>
@@ -3157,7 +3158,7 @@ const AdminDashboard = () => {
                                               placeholder="E.g., 80"
                                               value={currentTotal}
                                               onChange={(e) => updateField('totalPortionLectures', e.target.value === '' ? '' : Number(e.target.value))}
-                                              className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 font-bold outline-none text-center"
+                                              className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 font-bold outline-none text-center"
                                             />
                                           </div>
 
@@ -3166,7 +3167,7 @@ const AdminDashboard = () => {
                                             <select
                                               value={currentDuration}
                                               onChange={(e) => updateField('lectureDuration', e.target.value)}
-                                              className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 font-bold outline-none text-[11px]"
+                                              className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 font-bold outline-none text-[11px]"
                                             >
                                               <option value="30">30m</option>
                                               <option value="45">45m</option>
@@ -3185,7 +3186,7 @@ const AdminDashboard = () => {
                       })()}
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-3">
+                    <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -3193,14 +3194,14 @@ const AdminDashboard = () => {
                           setEditingSubjectId(null);
                           setSubjectForm({ name: '', code: '', maxMarks: 100, minMarks: 35, standards: [] });
                         }}
-                        className="rounded-xl border border-[#d9c5b0] bg-white px-4 py-2 text-xs font-semibold text-[#8a6a50]"
+                        className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2 text-xs font-semibold text-[#4f7262]"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={creatingSubject}
-                        className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-xs font-semibold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm disabled:opacity-50"
+                        className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-xs font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm disabled:opacity-50"
                       >
                         {creatingSubject ? 'Saving...' : editingSubjectId ? 'Save Changes' : 'Add Subject'}
                       </button>
@@ -3213,9 +3214,9 @@ const AdminDashboard = () => {
             {/* ADD EXAM MODAL */}
             {showAddExamModal && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-                <div className="w-full max-w-md rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-2xl space-y-4 font-medium">
-                  <div className="flex items-center justify-between border-b border-[#d9c5b0] pb-3">
-                    <h3 className="text-lg font-black text-[#3f2a1d]">
+                <div className="w-full max-w-md rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-2xl space-y-4 font-medium">
+                  <div className="flex items-center justify-between border-b border-[#cfe0d6] pb-3">
+                    <h3 className="text-lg font-black text-[#0c2f25]">
                       {editingExamId ? 'Edit Exam Credentials' : 'Create New Exam / Assessment'}
                     </h3>
                     <button 
@@ -3224,7 +3225,7 @@ const AdminDashboard = () => {
                         setEditingExamId(null);
                         setExamForm({ name: '', standards: [], subjectId: '', date: '', maxMarks: 100, passingMarks: 35 });
                       }}
-                      className="rounded-full p-1.5 text-[#8a6a50] hover:bg-[#f4ecdf]"
+                      className="rounded-full p-1.5 text-[#4f7262] hover:bg-[#e9f2ed]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -3232,22 +3233,22 @@ const AdminDashboard = () => {
 
                   <form onSubmit={handleExamSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Assessment / Exam Name *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Assessment / Exam Name *</label>
                       <input
                         type="text"
                         required
                         placeholder="E.g., Term 1 Examination"
                         value={examForm.name}
                         onChange={(e) => setExamForm({ ...examForm, name: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                       />
                     </div>
 
                     {!editingExamId ? (
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">
                           Assign to Standards *
-                          <span className="text-[10px] text-[#7a4e2d] ml-1 font-extrabold font-mono">
+                          <span className="text-[10px] text-[#0f6b4f] ml-1 font-extrabold font-mono">
                             (Selected: {examForm.standards?.length || 0})
                           </span>
                         </label>
@@ -3259,7 +3260,7 @@ const AdminDashboard = () => {
                                 <button
                                   type="button"
                                   onClick={() => setExamForm(prev => ({ ...prev, standards: availableStds }))}
-                                  className="text-[10px] font-bold text-[#7a4e2d] hover:underline"
+                                  className="text-[10px] font-bold text-[#0f6b4f] hover:underline"
                                 >
                                   Select All
                                 </button>
@@ -3267,7 +3268,7 @@ const AdminDashboard = () => {
                                 <button
                                   type="button"
                                   onClick={() => setExamForm(prev => ({ ...prev, standards: [] }))}
-                                  className="text-[10px] font-bold text-[#7a4e2d] hover:underline"
+                                  className="text-[10px] font-bold text-[#0f6b4f] hover:underline"
                                 >
                                   Deselect All
                                 </button>
@@ -3275,11 +3276,11 @@ const AdminDashboard = () => {
                               {availableStds.length === 0 ? (
                                 <p className="text-xs text-rose-500 italic">No classes configured yet. Please set up classes first.</p>
                               ) : (
-                                <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto p-3 border border-[#d9c5b0] bg-[#faf4ea] rounded-xl font-medium">
+                                <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto p-3 border border-[#cfe0d6] bg-[#f4f8f5] rounded-xl font-medium">
                                   {availableStds.map(std => {
                                     const isChecked = examForm.standards?.includes(std);
                                     return (
-                                      <label key={std} className="flex items-center gap-1.5 text-xs text-[#6d4c35] cursor-pointer select-none">
+                                      <label key={std} className="flex items-center gap-1.5 text-xs text-[#355e4d] cursor-pointer select-none">
                                         <input
                                           type="checkbox"
                                           checked={isChecked}
@@ -3289,7 +3290,7 @@ const AdminDashboard = () => {
                                               : (examForm.standards || []).filter(s => s !== std);
                                             setExamForm(prev => ({ ...prev, standards: nextStds }));
                                           }}
-                                          className="rounded border-[#d9c5b0] text-[#7a4e2d] focus:ring-[#7a4e2d] h-3.5 w-3.5 cursor-pointer"
+                                          className="rounded border-[#cfe0d6] text-[#0f6b4f] focus:ring-[#0f6b4f] h-3.5 w-3.5 cursor-pointer"
                                         />
                                         {std.match(/^\d+$/) ? `Std ${std}` : std}
                                       </label>
@@ -3303,12 +3304,12 @@ const AdminDashboard = () => {
                       </div>
                     ) : (
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Standard (Read-only during edit)</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Standard (Read-only during edit)</label>
                         <input
                           type="text"
                           disabled
                           value={examForm.standards?.[0] ? `Standard ${examForm.standards[0]}` : 'N/A'}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-gray-100 px-3 py-2 text-sm outline-none cursor-not-allowed"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-gray-100 px-3 py-2 text-sm outline-none cursor-not-allowed"
                         />
                       </div>
                     )}
@@ -3316,42 +3317,42 @@ const AdminDashboard = () => {
 
 
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Exam Date *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Exam Date *</label>
                       <input
                         type="date"
                         required
                         value={examForm.date}
                         onChange={(e) => setExamForm({ ...examForm, date: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Maximum Marks *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Maximum Marks *</label>
                         <input
                           type="number"
                           required
                           min="1"
                           value={examForm.maxMarks}
                           onChange={(e) => setExamForm({ ...examForm, maxMarks: Number(e.target.value) })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Passing Marks *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Passing Marks *</label>
                         <input
                           type="number"
                           required
                           min="0"
                           value={examForm.passingMarks}
                           onChange={(e) => setExamForm({ ...examForm, passingMarks: Number(e.target.value) })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         />
                       </div>
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-3">
+                    <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-3">
                       <button
                         type="button"
                         onClick={() => {
@@ -3359,14 +3360,14 @@ const AdminDashboard = () => {
                           setEditingExamId(null);
                           setExamForm({ name: '', standards: [], subjectId: '', date: '', maxMarks: 100, passingMarks: 35 });
                         }}
-                        className="rounded-xl border border-[#d9c5b0] bg-white px-4 py-2 text-xs font-semibold text-[#8a6a50]"
+                        className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2 text-xs font-semibold text-[#4f7262]"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={creatingExam}
-                        className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-xs font-semibold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm disabled:opacity-50"
+                        className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-xs font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm disabled:opacity-50"
                       >
                         {creatingExam ? 'Saving...' : editingExamId ? 'Save Changes' : 'Create Exam'}
                       </button>
@@ -3394,16 +3395,16 @@ const AdminDashboard = () => {
 
               return (
                 <div className="space-y-6">
-                  <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm">
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Grievances & Complaints</h2>
-                    <p className="mt-1 text-sm text-[#7f634e]">Review and resolve complaints raised by students and teachers.</p>
+                  <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm">
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Grievances & Complaints</h2>
+                    <p className="mt-1 text-sm text-[#4d7262]">Review and resolve complaints raised by students and teachers.</p>
                   </div>
 
                   {/* Grievance Sub-Tabs */}
-                  <div className="flex border-b border-[#d9c5b0] gap-4 pb-2">
+                  <div className="flex border-b border-[#cfe0d6] gap-4 pb-2">
                     <button
                       onClick={() => setGrievanceSubTab('teacher')}
-                      className={`relative px-4 py-2 text-sm font-bold transition flex items-center gap-1.5 ${grievanceSubTab === 'teacher' ? 'text-[#7a4e2d] border-b-2 border-[#7a4e2d]' : 'text-[#8a6a50] hover:text-[#7a4e2d]'}`}
+                      className={`relative px-4 py-2 text-sm font-bold transition flex items-center gap-1.5 ${grievanceSubTab === 'teacher' ? 'text-[#0f6b4f] border-b-2 border-[#0f6b4f]' : 'text-[#4f7262] hover:text-[#0f6b4f]'}`}
                     >
                       Teacher Grievances
                       {teacherPendingCount > 0 && (
@@ -3414,7 +3415,7 @@ const AdminDashboard = () => {
                     </button>
                     <button
                       onClick={() => setGrievanceSubTab('student')}
-                      className={`relative px-4 py-2 text-sm font-bold transition flex items-center gap-1.5 ${grievanceSubTab === 'student' ? 'text-[#7a4e2d] border-b-2 border-[#7a4e2d]' : 'text-[#8a6a50] hover:text-[#7a4e2d]'}`}
+                      className={`relative px-4 py-2 text-sm font-bold transition flex items-center gap-1.5 ${grievanceSubTab === 'student' ? 'text-[#0f6b4f] border-b-2 border-[#0f6b4f]' : 'text-[#4f7262] hover:text-[#0f6b4f]'}`}
                     >
                       Student Grievances
                       {studentPendingCount > 0 && (
@@ -3428,7 +3429,7 @@ const AdminDashboard = () => {
                   <div className="grid gap-6 md:grid-cols-2">
                     {displayGrievances.length > 0 ? (
                       displayGrievances.map((grievance) => (
-                        <div key={grievance._id} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4 hover:shadow-md transition">
+                        <div key={grievance._id} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4 hover:shadow-md transition">
                           <div className="flex items-start justify-between">
                             <div>
                               <div className="flex items-center gap-2">
@@ -3441,7 +3442,7 @@ const AdminDashboard = () => {
                                   <span className="flex h-2 w-2 rounded-full bg-red-600 animate-pulse" title="New Grievance" />
                                 )}
                               </div>
-                              <h3 className="text-lg font-bold text-[#3f2a1d] mt-2">{grievance.title}</h3>
+                              <h3 className="text-lg font-bold text-[#0c2f25] mt-2">{grievance.title}</h3>
                             </div>
                             <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase ${
                               grievance.status === 'Resolved' 
@@ -3454,13 +3455,13 @@ const AdminDashboard = () => {
                             </span>
                           </div>
 
-                          <p className="text-sm text-[#6d4c35] leading-relaxed bg-[#f4ecdf] p-3 rounded-2xl">
+                          <p className="text-sm text-[#355e4d] leading-relaxed bg-[#e9f2ed] p-3 rounded-2xl">
                             {grievance.description}
                           </p>
 
                           {grievance.attachments && grievance.attachments.length > 0 && (
-                            <div className="border border-[#d9c5b0] p-2 rounded-2xl bg-white max-w-[200px]">
-                              <p className="text-xs font-bold text-[#8a6a50] mb-1">Attached image/photo:</p>
+                            <div className="border border-[#cfe0d6] p-2 rounded-2xl bg-white max-w-[200px]">
+                              <p className="text-xs font-bold text-[#4f7262] mb-1">Attached image/photo:</p>
                               <a href={grievance.attachments[0]} target="_blank" rel="noopener noreferrer">
                                 <img src={grievance.attachments[0]} alt="Grievance Attach" className="h-24 w-full object-cover rounded-xl hover:opacity-80 transition" />
                               </a>
@@ -3468,18 +3469,18 @@ const AdminDashboard = () => {
                           )}
 
                           {grievance.resolution && (
-                            <div className="border-t border-[#f4ecdf] pt-3 mt-2">
+                            <div className="border-t border-[#e9f2ed] pt-3 mt-2">
                               <p className="text-xs font-bold text-emerald-700">Revert Message:</p>
-                              <p className="text-xs text-[#6d4c35] italic mt-0.5">{grievance.resolution}</p>
+                              <p className="text-xs text-[#355e4d] italic mt-0.5">{grievance.resolution}</p>
                             </div>
                           )}
 
                           {grievance.status !== 'Resolved' && (
-                            <div className="flex gap-2 border-t border-[#f4ecdf] pt-4">
+                            <div className="flex gap-2 border-t border-[#e9f2ed] pt-4">
                               {grievance.status === 'Pending' && (
                                 <button
                                   onClick={() => handleUpdateGrievanceStatus(grievance._id, 'In Progress')}
-                                  className="text-xs font-bold text-[#7a4e2d] bg-[#7a4e2d]/10 hover:bg-[#7a4e2d]/20 px-3 py-1.5 rounded-xl transition"
+                                  className="text-xs font-bold text-[#0f6b4f] bg-[#0f6b4f]/10 hover:bg-[#0f6b4f]/20 px-3 py-1.5 rounded-xl transition"
                                 >
                                   Mark Under Process
                                 </button>
@@ -3489,7 +3490,7 @@ const AdminDashboard = () => {
                                   setSelectedGrievance(grievance);
                                   setRevertMessage('');
                                 }}
-                                className="text-xs font-bold text-[#f7efe4] bg-[#7a4e2d] hover:bg-[#624021] px-3 py-1.5 rounded-xl transition"
+                                className="text-xs font-bold text-[#edf5f0] bg-[#0f6b4f] hover:bg-[#0b5340] px-3 py-1.5 rounded-xl transition"
                               >
                                 Resolve / Complete
                               </button>
@@ -3498,7 +3499,7 @@ const AdminDashboard = () => {
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-2 text-center py-10 text-[#8a6a50]">
+                      <div className="col-span-2 text-center py-10 text-[#4f7262]">
                         No grievances found.
                       </div>
                     )}
@@ -3507,32 +3508,32 @@ const AdminDashboard = () => {
                   {/* RESOLUTION MODAL */}
                   {selectedGrievance && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-                      <div className="w-full max-w-md bg-[#fffaf3] rounded-[2rem] border border-[#d9c5b0] p-6 shadow-2xl space-y-4">
-                        <div className="flex justify-between items-center border-b border-[#d9c5b0] pb-2">
-                          <h3 className="text-lg font-black text-[#3f2a1d]">Resolve Grievance</h3>
-                          <button onClick={() => setSelectedGrievance(null)} className="p-1 text-[#8a6a50] hover:bg-[#f4ecdf] rounded-full">
+                      <div className="w-full max-w-md bg-[#fbfdfb] rounded-[2rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-[#cfe0d6] pb-2">
+                          <h3 className="text-lg font-black text-[#0c2f25]">Resolve Grievance</h3>
+                          <button onClick={() => setSelectedGrievance(null)} className="p-1 text-[#4f7262] hover:bg-[#e9f2ed] rounded-full">
                             <X className="h-5 w-5" />
                           </button>
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-[#6d4c35]">Title: {selectedGrievance.title}</p>
-                          <p className="text-xs text-[#7f634e] mt-1">{selectedGrievance.description}</p>
+                          <p className="text-sm font-bold text-[#355e4d]">Title: {selectedGrievance.title}</p>
+                          <p className="text-xs text-[#4d7262] mt-1">{selectedGrievance.description}</p>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Revert Message / Resolution Details *</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Revert Message / Resolution Details *</label>
                           <textarea
                             required
                             value={revertMessage}
                             onChange={(e) => setRevertMessage(e.target.value)}
                             placeholder="Type details of the action taken..."
-                            className="w-full h-24 rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:border-[#7a4e2d]"
+                            className="w-full h-24 rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:border-[#0f6b4f]"
                           />
                         </div>
-                        <div className="flex justify-end gap-2 pt-2 border-t border-[#d9c5b0]">
+                        <div className="flex justify-end gap-2 pt-2 border-t border-[#cfe0d6]">
                           <button
                             type="button"
                             onClick={() => setSelectedGrievance(null)}
-                            className="rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-4 py-2 text-xs font-semibold text-[#8a6a50]"
+                            className="rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-4 py-2 text-xs font-semibold text-[#4f7262]"
                           >
                             Cancel
                           </button>
@@ -3540,7 +3541,7 @@ const AdminDashboard = () => {
                             type="button"
                             disabled={!revertMessage.trim()}
                             onClick={() => handleUpdateGrievanceStatus(selectedGrievance._id, 'Resolved')}
-                            className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-xs font-semibold text-[#f7efe4] hover:bg-[#624021] transition disabled:opacity-50"
+                            className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-xs font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition disabled:opacity-50"
                           >
                             Mark Completed
                           </button>
@@ -3555,14 +3556,14 @@ const AdminDashboard = () => {
             {/* NOTICES TAB */}
             {activeTab === 'notices' && (
               <div className="space-y-6">
-                <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                   <div>
-                    <h2 className="text-xl font-bold text-[#3f2a1d]">Notice Board Management</h2>
-                    <p className="text-sm text-[#7f634e]">Publish official updates, achievements, events, and results announcements.</p>
+                    <h2 className="text-xl font-bold text-[#0c2f25]">Notice Board Management</h2>
+                    <p className="text-sm text-[#4d7262]">Publish official updates, achievements, events, and results announcements.</p>
                   </div>
                   <button
                     onClick={() => setShowAddNoticeModal(true)}
-                    className="flex items-center gap-2 rounded-xl bg-[#7a4e2d] px-4 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm"
+                    className="flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm"
                   >
                     <Plus className="h-4 w-4" /> Publish Notice
                   </button>
@@ -3571,7 +3572,7 @@ const AdminDashboard = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   {notices && notices.length > 0 ? (
                     notices.map((notice) => (
-                      <div key={notice._id} className="rounded-2xl border border-[#d9c5b0] bg-white p-5 shadow-sm space-y-3 relative hover:shadow-md transition">
+                      <div key={notice._id} className="rounded-2xl border border-[#cfe0d6] bg-white p-5 shadow-sm space-y-3 relative hover:shadow-md transition">
                         <div className="flex justify-between items-start gap-4">
                           <div>
                             <div className="flex gap-2 flex-wrap items-center">
@@ -3594,8 +3595,8 @@ const AdminDashboard = () => {
                                 </span>
                               )}
                             </div>
-                            <h3 className="font-bold text-base text-[#3f2a1d] mt-1.5">{notice.title}</h3>
-                            <p className="text-[10px] text-[#8a6a50] mt-0.5">By: {notice.createdBy?.name || 'Admin'} | To: {notice.targetAudience} | {new Date(notice.createdAt).toLocaleDateString()}</p>
+                            <h3 className="font-bold text-base text-[#0c2f25] mt-1.5">{notice.title}</h3>
+                            <p className="text-[10px] text-[#4f7262] mt-0.5">By: {notice.createdBy?.name || 'Admin'} | To: {notice.targetAudience} | {new Date(notice.createdAt).toLocaleDateString()}</p>
                           </div>
                           <button
                             onClick={() => handleDeleteNotice(notice._id)}
@@ -3604,11 +3605,11 @@ const AdminDashboard = () => {
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
-                        <p className="text-xs text-[#6d4c35] bg-[#fffaf3] p-3 rounded-xl whitespace-pre-line">{notice.content}</p>
+                        <p className="text-xs text-[#355e4d] bg-[#fbfdfb] p-3 rounded-xl whitespace-pre-line">{notice.content}</p>
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-2 text-center py-10 text-[#8a6a50]">
+                    <div className="col-span-2 text-center py-10 text-[#4f7262]">
                       No notices found. Get started by publishing your first notice!
                     </div>
                   )}
@@ -3619,12 +3620,12 @@ const AdminDashboard = () => {
             {/* ADD NOTICE MODAL */}
             {showAddNoticeModal && (
               <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4">
-                <div className="w-full max-w-lg rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-2xl space-y-4">
-                  <div className="flex items-center justify-between border-b border-[#d9c5b0] pb-3">
-                    <h3 className="text-lg font-black text-[#3f2a1d]">Publish New Notice</h3>
+                <div className="w-full max-w-lg rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-[#cfe0d6] pb-3">
+                    <h3 className="text-lg font-black text-[#0c2f25]">Publish New Notice</h3>
                     <button 
                       onClick={() => setShowAddNoticeModal(false)}
-                      className="rounded-full p-1.5 text-[#8a6a50] hover:bg-[#f4ecdf]"
+                      className="rounded-full p-1.5 text-[#4f7262] hover:bg-[#e9f2ed]"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -3632,24 +3633,24 @@ const AdminDashboard = () => {
 
                   <form onSubmit={handleNoticeSubmit} className="space-y-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Notice Title *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Notice Title *</label>
                       <input
                         type="text"
                         required
                         placeholder="E.g., Sports Day Schedule Announcement"
                         value={noticeForm.title}
                         onChange={(e) => setNoticeForm({ ...noticeForm, title: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Notice Category *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Notice Category *</label>
                         <select
                           value={noticeForm.category}
                           onChange={(e) => setNoticeForm({ ...noticeForm, category: e.target.value })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         >
                           <option value="General">General</option>
                           <option value="Event">Event</option>
@@ -3659,11 +3660,11 @@ const AdminDashboard = () => {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Target Audience *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Target Audience *</label>
                         <select
                           value={noticeForm.targetAudience}
                           onChange={(e) => setNoticeForm({ ...noticeForm, targetAudience: e.target.value })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         >
                           <option value="All">All Users</option>
                           <option value="Students">Students Only</option>
@@ -3674,11 +3675,11 @@ const AdminDashboard = () => {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Priority *</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Priority *</label>
                         <select
                           value={noticeForm.priority}
                           onChange={(e) => setNoticeForm({ ...noticeForm, priority: e.target.value })}
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         >
                           <option value="Low">Low</option>
                           <option value="Medium">Medium</option>
@@ -3691,18 +3692,18 @@ const AdminDashboard = () => {
                           id="isPinned"
                           checked={noticeForm.isPinned}
                           onChange={(e) => setNoticeForm({ ...noticeForm, isPinned: e.target.checked })}
-                          className="h-4 w-4 rounded border-[#d9c5b0] text-[#7a4e2d] focus:ring-[#7a4e2d]"
+                          className="h-4 w-4 rounded border-[#cfe0d6] text-[#0f6b4f] focus:ring-[#0f6b4f]"
                         />
-                        <label htmlFor="isPinned" className="text-xs font-bold text-[#6d4c35] select-none cursor-pointer">Pin to top</label>
+                        <label htmlFor="isPinned" className="text-xs font-bold text-[#355e4d] select-none cursor-pointer">Pin to top</label>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Attach PDF or Document</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Attach PDF or Document</label>
                         <input
                           type="file"
                           onChange={handleNoticeFileUpload}
-                          className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021] cursor-pointer"
+                          className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340] cursor-pointer"
                         />
                         {uploadingNoticeFile && <p className="text-xs text-amber-600 mt-1">Uploading file...</p>}
                         {noticeForm.attachments?.[0] && (
@@ -3712,43 +3713,43 @@ const AdminDashboard = () => {
                         )}
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Visibility Duration (Days)</label>
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Visibility Duration (Days)</label>
                         <input
                           type="number"
                           min="0"
                           value={noticeForm.visibleDays}
                           onChange={(e) => setNoticeForm({ ...noticeForm, visibleDays: Number(e.target.value) })}
                           placeholder="0 = Persistent notice"
-                          className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                          className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                         />
-                        <p className="text-[10px] text-[#8a6a50] mt-0.5">Notice & files auto-delete after these days.</p>
+                        <p className="text-[10px] text-[#4f7262] mt-0.5">Notice & files auto-delete after these days.</p>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Notice Content *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Notice Content *</label>
                       <textarea
                         required
                         rows={4}
                         placeholder="Write the details here..."
                         value={noticeForm.content}
                         onChange={(e) => setNoticeForm({ ...noticeForm, content: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"
                       />
                     </div>
 
-                    <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-3">
+                    <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-3">
                       <button
                         type="button"
                         onClick={() => setShowAddNoticeModal(false)}
-                        className="rounded-xl border border-[#d9c5b0] bg-white px-4 py-2 text-xs font-semibold text-[#8a6a50]"
+                        className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2 text-xs font-semibold text-[#4f7262]"
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
                         disabled={creatingNotice}
-                        className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-xs font-semibold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm disabled:opacity-50"
+                        className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-xs font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm disabled:opacity-50"
                       >
                         {creatingNotice ? 'Publishing...' : 'Publish Update'}
                       </button>
@@ -3781,60 +3782,60 @@ const AdminDashboard = () => {
               return (
                 <div className="space-y-6">
                   {/* Header Card */}
-                  <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                  <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                     <div>
-                      <h2 className="text-xl font-bold text-[#3f2a1d]">Teacher Assignments</h2>
-                      <p className="text-sm text-[#7f634e]">Manage teacher subject and standard assignments. Divisions are automatically balanced based on workload.</p>
+                      <h2 className="text-xl font-bold text-[#0c2f25]">Teacher Assignments</h2>
+                      <p className="text-sm text-[#4d7262]">Manage teacher subject and standard assignments. Divisions are automatically balanced based on workload.</p>
                     </div>
                   </div>
 
                   {/* Search Bar */}
-                  <div className="flex gap-4 items-center bg-[#fffaf3] border border-[#d9c5b0] px-4 py-3 rounded-2xl max-w-md shadow-sm">
-                    <Search className="h-5 w-5 text-[#8a6a50]" />
+                  <div className="flex gap-4 items-center bg-[#fbfdfb] border border-[#cfe0d6] px-4 py-3 rounded-2xl max-w-md shadow-sm">
+                    <Search className="h-5 w-5 text-[#4f7262]" />
                     <input
                       type="text"
                       placeholder="Search teachers by name, employee ID, or department..."
                       value={assignSearchQuery}
                       onChange={(e) => setAssignSearchQuery(e.target.value)}
-                      className="w-full bg-transparent text-sm text-[#3f2a1d] outline-none placeholder-[#8a6a50]/60"
+                      className="w-full bg-transparent text-sm text-[#0c2f25] outline-none placeholder-[#4f7262]/60"
                     />
                   </div>
 
                   {/* Teachers Grid */}
                   <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {filteredTeachers.map(teacher => (
-                      <div key={teacher._id} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4 hover:shadow-md transition flex flex-col justify-between">
+                      <div key={teacher._id} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4 hover:shadow-md transition flex flex-col justify-between">
                         <div className="space-y-3">
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-xl bg-[#7a4e2d] text-white flex items-center justify-center font-black text-sm shrink-0">
+                            <div className="h-10 w-10 rounded-xl bg-[#0f6b4f] text-white flex items-center justify-center font-black text-sm shrink-0">
                               {teacher.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase() || '?'}
                             </div>
                             <div className="min-w-0">
-                              <h3 className="text-base font-bold text-[#3f2a1d] truncate">{teacher.name}</h3>
-                              <p className="text-xs text-[#8a6a50]">ID: {teacher.employeeId || 'N/A'} • {teacher.department || 'General'}</p>
+                              <h3 className="text-base font-bold text-[#0c2f25] truncate">{teacher.name}</h3>
+                              <p className="text-xs text-[#4f7262]">ID: {teacher.employeeId || 'N/A'} • {teacher.department || 'General'}</p>
                             </div>
                           </div>
 
                           {/* Active Assignments list */}
-                          <div className="border-t border-[#d9c5b0]/40 pt-3 space-y-2">
-                            <p className="text-[10px] font-bold text-[#8a6a50] uppercase tracking-wider">Assigned Subjects & Standards</p>
+                          <div className="border-t border-[#cfe0d6]/40 pt-3 space-y-2">
+                            <p className="text-[10px] font-bold text-[#4f7262] uppercase tracking-wider">Assigned Subjects & Standards</p>
                             {teacher.assignedSubjectStandards && teacher.assignedSubjectStandards.length > 0 ? (
                               <div className="flex flex-wrap gap-1.5">
                                 {teacher.assignedSubjectStandards.map(ass => {
                                   const sub = subjects.find(s => s._id === (ass.subjectId?._id || ass.subjectId));
                                   return (
-                                    <span key={ass._id || ass.subjectId} className="text-[10px] font-bold bg-[#7a4e2d]/10 text-[#7a4e2d] px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <span key={ass._id || ass.subjectId} className="text-[10px] font-bold bg-[#0f6b4f]/10 text-[#0f6b4f] px-2 py-0.5 rounded-full flex items-center gap-1">
                                       {sub?.name || 'Subject'}: {ass.standards?.join(', ')}
                                     </span>
                                   );
                                 })}
                               </div>
                             ) : (
-                              <p className="text-xs text-[#8a6a50] italic">No active assignments</p>
+                              <p className="text-xs text-[#4f7262] italic">No active assignments</p>
                             )}
 
                             {/* Dynamically Allocated Divisions list */}
-                            <p className="text-[10px] font-bold text-[#8a6a50] uppercase tracking-wider pt-1">Allocated Divisions (Auto-Balanced)</p>
+                            <p className="text-[10px] font-bold text-[#4f7262] uppercase tracking-wider pt-1">Allocated Divisions (Auto-Balanced)</p>
                             {teacher.subjectClassAssignments && teacher.subjectClassAssignments.length > 0 ? (
                               <div className="flex flex-wrap gap-1">
                                 {teacher.subjectClassAssignments.map(ass => {
@@ -3848,14 +3849,14 @@ const AdminDashboard = () => {
                                 })}
                               </div>
                             ) : (
-                              <p className="text-xs text-[#8a6a50] italic">No allocated divisions</p>
+                              <p className="text-xs text-[#4f7262] italic">No allocated divisions</p>
                             )}
                           </div>
                         </div>
 
                         <button
                           onClick={() => handleOpenAssignModal(teacher)}
-                          className="w-full mt-4 rounded-xl border border-[#7a4e2d] px-4 py-2 text-xs font-bold text-[#7a4e2d] hover:bg-[#7a4e2d] hover:text-[#f7efe4] transition duration-200"
+                          className="w-full mt-4 rounded-xl border border-[#0f6b4f] px-4 py-2 text-xs font-bold text-[#0f6b4f] hover:bg-[#0f6b4f] hover:text-[#edf5f0] transition duration-200"
                         >
                           Assign Subjects & Standards
                         </button>
@@ -3874,44 +3875,44 @@ const AdminDashboard = () => {
               return (
                 <div className="space-y-6 font-medium">
                   {/* Header Card */}
-                  <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
+                  <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm flex justify-between items-center flex-wrap gap-4">
                     <div>
-                      <h2 className="text-xl font-bold text-[#3f2a1d]">Timetable Manager</h2>
-                      <p className="text-sm text-[#7f634e]">Configure school timings, breaks, and auto-generate class timetables with a single click.</p>
+                      <h2 className="text-xl font-bold text-[#0c2f25]">Timetable Manager</h2>
+                      <p className="text-sm text-[#4d7262]">Configure school timings, breaks, and auto-generate class timetables with a single click.</p>
                     </div>
                   </div>
 
                   <div className="grid gap-6 lg:grid-cols-2">
                     {/* TIMING CONFIGURATION CARD */}
-                    <div className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-                      <h3 className="text-lg font-bold text-[#3f2a1d]">1. School Timings & Breaks</h3>
+                    <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+                      <h3 className="text-lg font-bold text-[#0c2f25]">1. School Timings & Breaks</h3>
                       <form onSubmit={handleSaveTimetableConfig} className="space-y-4 font-semibold">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-[#6d4c35] mb-1">School Start Time</label>
+                            <label className="block text-xs font-bold text-[#355e4d] mb-1">School Start Time</label>
                             <input
                               type="time"
                               required
                               value={timetableConfig.schoolStartTime}
                               onChange={(e) => setTimetableConfig({ ...timetableConfig, schoolStartTime: e.target.value })}
-                              className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none font-bold text-[#3f2a1d]"
+                              className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none font-bold text-[#0c2f25]"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-[#6d4c35] mb-1">School End Time</label>
+                            <label className="block text-xs font-bold text-[#355e4d] mb-1">School End Time</label>
                             <input
                               type="time"
                               required
                               value={timetableConfig.schoolEndTime}
                               onChange={(e) => setTimetableConfig({ ...timetableConfig, schoolEndTime: e.target.value })}
-                              className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none font-bold text-[#3f2a1d]"
+                              className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none font-bold text-[#0c2f25]"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-xs font-bold text-[#6d4c35] mb-1">Lecture Duration (mins)</label>
+                            <label className="block text-xs font-bold text-[#355e4d] mb-1">Lecture Duration (mins)</label>
                             <input
                               type="number"
                               required
@@ -3919,29 +3920,29 @@ const AdminDashboard = () => {
                               max="180"
                               value={timetableConfig.lectureDurationMinutes}
                               onChange={(e) => setTimetableConfig({ ...timetableConfig, lectureDurationMinutes: Number(e.target.value) })}
-                              className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none font-bold text-[#3f2a1d]"
+                              className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none font-bold text-[#0c2f25]"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-bold text-[#6d4c35] mb-1">Academic Year</label>
+                            <label className="block text-xs font-bold text-[#355e4d] mb-1">Academic Year</label>
                             <input
                               type="text"
                               required
                               value={timetableConfig.academicYear}
                               onChange={(e) => setTimetableConfig({ ...timetableConfig, academicYear: e.target.value })}
-                              className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none font-bold text-[#3f2a1d]"
+                              className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none font-bold text-[#0c2f25]"
                             />
                           </div>
                         </div>
 
                         {/* Working Days */}
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Working Days</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Working Days</label>
                           <div className="flex flex-wrap gap-3">
                             {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map(day => {
                               const isChecked = timetableConfig.workingDays?.includes(day);
                               return (
-                                <label key={day} className="flex items-center gap-1.5 text-xs text-[#6d4c35] cursor-pointer">
+                                <label key={day} className="flex items-center gap-1.5 text-xs text-[#355e4d] cursor-pointer">
                                   <input
                                     type="checkbox"
                                     checked={isChecked}
@@ -3951,7 +3952,7 @@ const AdminDashboard = () => {
                                         : (timetableConfig.workingDays || []).filter(d => d !== day);
                                       setTimetableConfig({ ...timetableConfig, workingDays: nextDays });
                                     }}
-                                    className="rounded border-[#d9c5b0] text-[#7a4e2d] focus:ring-[#7a4e2d]"
+                                    className="rounded border-[#cfe0d6] text-[#0f6b4f] focus:ring-[#0f6b4f]"
                                   />
                                   {day}
                                 </label>
@@ -3961,17 +3962,17 @@ const AdminDashboard = () => {
                         </div>
 
                         {/* Breaks list */}
-                        <div className="border-t border-[#d9c5b0]/50 pt-4 space-y-3">
-                          <h4 className="text-xs font-bold text-[#6d4c35] uppercase tracking-wider">Breaks Configuration</h4>
+                        <div className="border-t border-[#cfe0d6]/50 pt-4 space-y-3">
+                          <h4 className="text-xs font-bold text-[#355e4d] uppercase tracking-wider">Breaks Configuration</h4>
                           
                           {/* List of existing breaks */}
                           {timetableConfig.breaks && timetableConfig.breaks.length > 0 ? (
                             <div className="space-y-2">
                               {timetableConfig.breaks.map((br, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-white border border-[#d9c5b0]/60 p-2.5 rounded-xl text-xs">
+                                <div key={idx} className="flex items-center justify-between bg-white border border-[#cfe0d6]/60 p-2.5 rounded-xl text-xs">
                                   <div>
-                                    <span className="font-bold text-[#3f2a1d]">{br.name}</span>
-                                    <span className="text-[#8a6a50] ml-2">({br.startTime} - {br.endTime})</span>
+                                    <span className="font-bold text-[#0c2f25]">{br.name}</span>
+                                    <span className="text-[#4f7262] ml-2">({br.startTime} - {br.endTime})</span>
                                   </div>
                                   <button
                                     type="button"
@@ -3987,31 +3988,31 @@ const AdminDashboard = () => {
                               ))}
                             </div>
                           ) : (
-                            <p className="text-xs text-[#8a6a50] italic">No breaks configured yet. Specify breaks below.</p>
+                            <p className="text-xs text-[#4f7262] italic">No breaks configured yet. Specify breaks below.</p>
                           )}
 
                           {/* Add New Break Fields */}
-                          <div className="bg-[#faf4ea] p-3 rounded-xl border border-[#d9c5b0] space-y-2">
-                            <p className="text-xs font-bold text-[#7a4e2d]">Add Custom Break Slot</p>
+                          <div className="bg-[#f4f8f5] p-3 rounded-xl border border-[#cfe0d6] space-y-2">
+                            <p className="text-xs font-bold text-[#0f6b4f]">Add Custom Break Slot</p>
                             <div className="grid grid-cols-3 gap-2">
                               <input
                                 type="text"
                                 placeholder="Break Name (e.g. Lunch)"
                                 value={newBreak.name}
                                 onChange={(e) => setNewBreak({ ...newBreak, name: e.target.value })}
-                                className="col-span-1 rounded-lg border border-[#d9c5b0] bg-white px-2 py-1.5 text-xs outline-none"
+                                className="col-span-1 rounded-lg border border-[#cfe0d6] bg-white px-2 py-1.5 text-xs outline-none"
                               />
                               <input
                                 type="time"
                                 value={newBreak.startTime}
                                 onChange={(e) => setNewBreak({ ...newBreak, startTime: e.target.value })}
-                                className="col-span-1 rounded-lg border border-[#d9c5b0] bg-white px-2 py-1.5 text-xs outline-none"
+                                className="col-span-1 rounded-lg border border-[#cfe0d6] bg-white px-2 py-1.5 text-xs outline-none"
                               />
                               <input
                                 type="time"
                                 value={newBreak.endTime}
                                 onChange={(e) => setNewBreak({ ...newBreak, endTime: e.target.value })}
-                                className="col-span-1 rounded-lg border border-[#d9c5b0] bg-white px-2 py-1.5 text-xs outline-none"
+                                className="col-span-1 rounded-lg border border-[#cfe0d6] bg-white px-2 py-1.5 text-xs outline-none"
                               />
                             </div>
                             <button
@@ -4025,7 +4026,7 @@ const AdminDashboard = () => {
                                 setTimetableConfig({ ...timetableConfig, breaks: updatedBreaks });
                                 setNewBreak({ name: 'Short Break', startTime: '', endTime: '' });
                               }}
-                              className="w-full text-center text-xs font-bold bg-[#7a4e2d]/10 text-[#7a4e2d] py-1.5 rounded-lg border border-[#7a4e2d]/20 hover:bg-[#7a4e2d]/20 transition animate-pulse"
+                              className="w-full text-center text-xs font-bold bg-[#0f6b4f]/10 text-[#0f6b4f] py-1.5 rounded-lg border border-[#0f6b4f]/20 hover:bg-[#0f6b4f]/20 transition animate-pulse"
                             >
                               + Add to Breaks
                             </button>
@@ -4035,7 +4036,7 @@ const AdminDashboard = () => {
                         <button
                           type="submit"
                           disabled={isSavingConfig}
-                          className="w-full py-2.5 rounded-xl bg-[#7a4e2d] text-white text-xs font-bold hover:bg-[#624021] transition duration-200 disabled:opacity-50"
+                          className="w-full py-2.5 rounded-xl bg-[#0f6b4f] text-white text-xs font-bold hover:bg-[#0b5340] transition duration-200 disabled:opacity-50"
                         >
                           {isSavingConfig ? 'Saving Settings...' : 'Save Timing Configuration'}
                         </button>
@@ -4043,26 +4044,26 @@ const AdminDashboard = () => {
                     </div>
 
                     {/* TIMETABLE GENERATION & GENERATOR CARD */}
-                    <div className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-6 shadow-sm space-y-4">
-                      <h3 className="text-lg font-bold text-[#3f2a1d]">2. Auto-Generate Timetable</h3>
-                      <p className="text-xs text-[#6d4c35] leading-relaxed">
+                    <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-6 shadow-sm space-y-4">
+                      <h3 className="text-lg font-bold text-[#0c2f25]">2. Auto-Generate Timetable</h3>
+                      <p className="text-xs text-[#355e4d] leading-relaxed">
                         Our algorithm automatically constructs a clash-free schedule. It respects subject weightages, assigned teachers' schedules, break times, and total standard lectures configured under Manage Subjects.
                       </p>
                       
-                      <div className="bg-[#faf4ea] p-4 rounded-xl border border-[#d9c5b0] space-y-3">
+                      <div className="bg-[#f4f8f5] p-4 rounded-xl border border-[#cfe0d6] space-y-3">
                         <button
                           type="button"
                           onClick={handleGenerateTimetable}
                           disabled={isGeneratingTimetable}
-                          className="w-full py-3 rounded-xl bg-[#7a4e2d] text-white text-sm font-black tracking-wide shadow-md hover:bg-[#624021] transition duration-200 disabled:opacity-50"
+                          className="w-full py-3 rounded-xl bg-[#0f6b4f] text-white text-sm font-black tracking-wide shadow-md hover:bg-[#0b5340] transition duration-200 disabled:opacity-50"
                         >
                           {isGeneratingTimetable ? 'Generating Clash-Free Schedule...' : '⚡ One-Click Generate All Timetables'}
                         </button>
                       </div>
 
                       {/* View generated timetable info placeholder */}
-                      <div className="border-t border-[#d9c5b0]/50 pt-3 space-y-1 no-print">
-                        <p className="text-[11px] text-[#8a6a50] italic font-semibold">
+                      <div className="border-t border-[#cfe0d6]/50 pt-3 space-y-1 no-print">
+                        <p className="text-[11px] text-[#4f7262] italic font-semibold">
                           * Both Student and Teacher View timetables are generated instantly in one single click and displayed below.
                         </p>
                       </div>
@@ -4071,7 +4072,7 @@ const AdminDashboard = () => {
 
                   {/* DISPLAY TIMETABLES (STUDENT & TEACHER VIEWS) */}
                   {allTimetables.length === 0 ? (
-                    <div className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-8 text-center text-[#8a6a50] italic text-sm shadow-sm">
+                    <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-8 text-center text-[#4f7262] italic text-sm shadow-sm">
                       No timetables have been auto-generated yet. Please configure school timings, breaks, and click "⚡ One-Click Generate All Timetables" above to schedule classes conflict-free.
                     </div>
                   ) : (
@@ -4081,14 +4082,14 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => setTimetableTabMode('student')}
-                          className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-8 text-left shadow-sm hover:shadow-md hover:scale-[1.01] transition duration-200 group flex items-start gap-5"
+                          className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-8 text-left shadow-sm hover:shadow-md hover:scale-[1.01] transition duration-200 group flex items-start gap-5"
                         >
-                          <div className="p-4 bg-[#7a4e2d]/10 text-[#7a4e2d] rounded-2xl group-hover:bg-[#7a4e2d] group-hover:text-white transition duration-200">
+                          <div className="p-4 bg-[#0f6b4f]/10 text-[#0f6b4f] rounded-2xl group-hover:bg-[#0f6b4f] group-hover:text-white transition duration-200">
                             <GraduationCap className="h-8 w-8" />
                           </div>
                           <div className="space-y-1.5">
-                            <h4 className="text-lg font-bold text-[#3f2a1d]">Student View (All Timetables)</h4>
-                            <p className="text-xs text-[#8a6a50] leading-relaxed">
+                            <h4 className="text-lg font-bold text-[#0c2f25]">Student View (All Timetables)</h4>
+                            <p className="text-xs text-[#4f7262] leading-relaxed">
                               View and print complete weekly timetable schedules for all standard-wise class division groups.
                             </p>
                           </div>
@@ -4098,14 +4099,14 @@ const AdminDashboard = () => {
                         <button
                           type="button"
                           onClick={() => setTimetableTabMode('teacher')}
-                          className="rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-8 text-left shadow-sm hover:shadow-md hover:scale-[1.01] transition duration-200 group flex items-start gap-5"
+                          className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-8 text-left shadow-sm hover:shadow-md hover:scale-[1.01] transition duration-200 group flex items-start gap-5"
                         >
-                          <div className="p-4 bg-[#7a4e2d]/10 text-[#7a4e2d] rounded-2xl group-hover:bg-[#7a4e2d] group-hover:text-white transition duration-200">
+                          <div className="p-4 bg-[#0f6b4f]/10 text-[#0f6b4f] rounded-2xl group-hover:bg-[#0f6b4f] group-hover:text-white transition duration-200">
                             <Users className="h-8 w-8" />
                           </div>
                           <div className="space-y-1.5">
-                            <h4 className="text-lg font-bold text-[#3f2a1d]">Teacher View (All Schedules)</h4>
-                            <p className="text-xs text-[#8a6a50] leading-relaxed">
+                            <h4 className="text-lg font-bold text-[#0c2f25]">Teacher View (All Schedules)</h4>
+                            <p className="text-xs text-[#4f7262] leading-relaxed">
                               Inspect weekly teaching rosters, periods, and class division schedules for all teaching staff.
                             </p>
                           </div>
@@ -4123,7 +4124,7 @@ const AdminDashboard = () => {
                             <button
                               type="button"
                               onClick={() => setTimetableTabMode(null)}
-                              className="px-3.5 py-2 bg-white border border-[#d9c5b0] text-[#7a4e2d] rounded-xl text-xs font-bold shadow-xs hover:bg-[#faf4ea] transition flex items-center gap-1.5"
+                              className="px-3.5 py-2 bg-white border border-[#cfe0d6] text-[#0f6b4f] rounded-xl text-xs font-bold shadow-xs hover:bg-[#f4f8f5] transition flex items-center gap-1.5"
                             >
                               ⬅️ Back
                             </button>
@@ -4132,9 +4133,9 @@ const AdminDashboard = () => {
                           {timetableTabMode === 'student' ? (
                             /* 1. STUDENT VIEW (CLASS DIVISION WISE GRIDS) */
                             <div className="space-y-4">
-                              <div className="border-b border-[#d9c5b0] pb-2 no-print">
-                                <h3 className="text-lg font-bold text-[#3f2a1d]">Class Division Timetables (Student View)</h3>
-                                <p className="text-xs text-[#8a6a50]">Weekly class division grids (Days vs Time Slots)</p>
+                              <div className="border-b border-[#cfe0d6] pb-2 no-print">
+                                <h3 className="text-lg font-bold text-[#0c2f25]">Class Division Timetables (Student View)</h3>
+                                <p className="text-xs text-[#4f7262]">Weekly class division grids (Days vs Time Slots)</p>
                               </div>
 
                               <div className="grid gap-6 md:grid-cols-2">
@@ -4153,15 +4154,15 @@ const AdminDashboard = () => {
                                     if (!match) return null;
                                     if (match.isBreak) {
                                       return (
-                                        <div className="p-1.5 bg-[#ecd9c5]/40 border border-dashed border-[#b68c67]/40 rounded-xl text-center text-[9px] text-[#8a6a50] font-extrabold select-none">
+                                        <div className="p-1.5 bg-[#e3efe8]/40 border border-dashed border-[#2f8f6f]/40 rounded-xl text-center text-[9px] text-[#4f7262] font-extrabold select-none">
                                           ☕ {match.breakName || 'Break'}
                                         </div>
                                       );
                                     }
                                     return (
-                                      <div className="p-1.5 bg-[#faf4ea] border border-[#e1d0be] rounded-xl text-center shadow-xs">
-                                        <p className="font-bold text-[#3f2a1d] text-[11px] leading-tight">{match.subjectId?.name || 'Subject'}</p>
-                                        <p className="text-[9px] text-[#8a6a50] mt-0.5 font-semibold">{match.teacherId?.name || 'Teacher'}</p>
+                                      <div className="p-1.5 bg-[#f4f8f5] border border-[#dbe9e1] rounded-xl text-center shadow-xs">
+                                        <p className="font-bold text-[#0c2f25] text-[11px] leading-tight">{match.subjectId?.name || 'Subject'}</p>
+                                        <p className="text-[9px] text-[#4f7262] mt-0.5 font-semibold">{match.teacherId?.name || 'Teacher'}</p>
                                       </div>
                                     );
                                   };
@@ -4169,33 +4170,33 @@ const AdminDashboard = () => {
                                   const cardId = `print-student-class-${cls._id}`;
 
                                   return (
-                                    <div key={cls._id} id={cardId} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-xs space-y-3 overflow-x-auto print-card">
-                                      <div className="flex justify-between items-center border-b border-[#d9c5b0]/35 pb-1.5 no-print">
-                                        <span className="text-xs font-bold text-[#7a4e2d]">Std {cls.standard} ({cls.division})</span>
+                                    <div key={cls._id} id={cardId} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-xs space-y-3 overflow-x-auto print-card">
+                                      <div className="flex justify-between items-center border-b border-[#cfe0d6]/35 pb-1.5 no-print">
+                                        <span className="text-xs font-bold text-[#0f6b4f]">Std {cls.standard} ({cls.division})</span>
                                         <button
                                           type="button"
                                           onClick={() => printSpecificTimetable(cardId)}
-                                          className="px-2.5 py-1 bg-[#7a4e2d] text-white rounded-lg text-[9px] font-bold shadow-xs hover:bg-[#624021] transition flex items-center gap-1 no-print"
+                                          className="px-2.5 py-1 bg-[#0f6b4f] text-white rounded-lg text-[9px] font-bold shadow-xs hover:bg-[#0b5340] transition flex items-center gap-1 no-print"
                                         >
                                           📥 Print / PDF
                                         </button>
                                       </div>
 
                                       <div className="hidden print:block mb-4 text-center">
-                                        <h1 className="text-xl font-black text-[#3f2a1d]">{schoolName || 'School Hub'}</h1>
-                                        <h2 className="text-md font-bold text-[#7a4e2d]">Class Timetable — Std {cls.standard} ({cls.division})</h2>
+                                        <h1 className="text-xl font-black text-[#0c2f25]">{schoolName || 'School Hub'}</h1>
+                                        <h2 className="text-md font-bold text-[#0f6b4f]">Class Timetable — Std {cls.standard} ({cls.division})</h2>
                                         <p className="text-[10px] text-gray-500">Academic Year: 2026-2027</p>
                                       </div>
 
-                                      <div className="min-w-full overflow-x-auto border border-[#d9c5b0] rounded-xl bg-white shadow-2xs">
+                                      <div className="min-w-full overflow-x-auto border border-[#cfe0d6] rounded-xl bg-white shadow-2xs">
                                         <table className="w-full text-left border-collapse text-xs min-w-[500px]">
                                           <thead>
-                                            <tr className="bg-[#faf4ea] border-b border-[#d9c5b0]">
-                                              <th className="p-2.5 font-bold text-[#6d4c35] border-r border-[#d9c5b0] w-24 bg-[#faf4ea]">
+                                            <tr className="bg-[#f4f8f5] border-b border-[#cfe0d6]">
+                                              <th className="p-2.5 font-bold text-[#355e4d] border-r border-[#cfe0d6] w-24 bg-[#f4f8f5]">
                                                 Day / Time
                                               </th>
                                               {classTimeSlots.map(slot => (
-                                                <th key={slot} className="p-2.5 font-bold text-[#6d4c35] text-center border-r border-[#d9c5b0]/40 last:border-r-0">
+                                                <th key={slot} className="p-2.5 font-bold text-[#355e4d] text-center border-r border-[#cfe0d6]/40 last:border-r-0">
                                                   {slot}
                                                 </th>
                                               ))}
@@ -4203,8 +4204,8 @@ const AdminDashboard = () => {
                                           </thead>
                                           <tbody>
                                             {daysOrder.map((day, dayIdx) => (
-                                              <tr key={day} className="border-b border-[#d9c5b0]/45 last:border-b-0 hover:bg-[#fffaf3]/45 transition">
-                                                <td className="p-2.5 font-bold text-[#7a4e2d] border-r border-[#d9c5b0] bg-[#faf4ea]">
+                                              <tr key={day} className="border-b border-[#cfe0d6]/45 last:border-b-0 hover:bg-[#fbfdfb]/45 transition">
+                                                <td className="p-2.5 font-bold text-[#0f6b4f] border-r border-[#cfe0d6] bg-[#f4f8f5]">
                                                   {day}
                                                 </td>
                                                 {classTimeSlots.map(slot => {
@@ -4219,7 +4220,7 @@ const AdminDashboard = () => {
                                                   if (breakMatch) {
                                                     if (dayIdx !== 0) return null;
                                                     return (
-                                                      <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[70px] bg-[#ecd9c5]/30 text-center font-extrabold text-[#8a6a50] align-middle select-none">
+                                                      <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[70px] bg-[#e3efe8]/30 text-center font-extrabold text-[#4f7262] align-middle select-none">
                                                         <div className="flex flex-col items-center justify-center space-y-1 py-4">
                                                           <span>☕</span>
                                                           <span className="uppercase tracking-widest text-[9px] font-black" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>
@@ -4232,7 +4233,7 @@ const AdminDashboard = () => {
 
                                                   const cell = cellContent(day, slot);
                                                   return (
-                                                    <td key={slot} className="p-1 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[100px]">
+                                                    <td key={slot} className="p-1 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[100px]">
                                                       {cell || (
                                                         <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
                                                           Free
@@ -4254,9 +4255,9 @@ const AdminDashboard = () => {
                           ) : (
                             /* 2. TEACHER VIEW (TEACHER SCHEDULE GRIDS) */
                             <div className="space-y-4">
-                              <div className="border-b border-[#d9c5b0] pb-2 no-print">
-                                <h3 className="text-lg font-bold text-[#3f2a1d]">Teacher Schedules (Teacher View)</h3>
-                                <p className="text-xs text-[#8a6a50]">Weekly schedules for all teachers (Days vs Time Slots)</p>
+                              <div className="border-b border-[#cfe0d6] pb-2 no-print">
+                                <h3 className="text-lg font-bold text-[#0c2f25]">Teacher Schedules (Teacher View)</h3>
+                                <p className="text-xs text-[#4f7262]">Weekly schedules for all teachers (Days vs Time Slots)</p>
                               </div>
 
                               <div className="grid gap-6 md:grid-cols-2">
@@ -4280,7 +4281,7 @@ const AdminDashboard = () => {
                                         const foundBreak = t.slots?.find(s => `${s.startTime} - ${s.endTime}` === slot && s.isBreak);
                                         if (foundBreak) {
                                           return (
-                                            <div className="p-1.5 bg-[#ecd9c5]/40 border border-dashed border-[#b68c67]/40 rounded-xl text-center text-[9px] text-[#8a6a50] font-extrabold select-none">
+                                            <div className="p-1.5 bg-[#e3efe8]/40 border border-dashed border-[#2f8f6f]/40 rounded-xl text-center text-[9px] text-[#4f7262] font-extrabold select-none">
                                               ☕ {foundBreak.breakName || 'Break'}
                                             </div>
                                           );
@@ -4305,9 +4306,9 @@ const AdminDashboard = () => {
                                     }
                                     if (!match) return null;
                                     return (
-                                      <div className="p-1.5 bg-[#7a4e2d]/5 border border-[#7a4e2d]/10 rounded-xl text-center shadow-xs">
-                                        <p className="font-bold text-[#7a4e2d] text-[11px] leading-tight">{match.subjectId?.name || 'Subject'}</p>
-                                        <p className="text-[9px] text-[#8a6a50] mt-0.5 font-bold">{className}</p>
+                                      <div className="p-1.5 bg-[#0f6b4f]/5 border border-[#0f6b4f]/10 rounded-xl text-center shadow-xs">
+                                        <p className="font-bold text-[#0f6b4f] text-[11px] leading-tight">{match.subjectId?.name || 'Subject'}</p>
+                                        <p className="text-[9px] text-[#4f7262] mt-0.5 font-bold">{className}</p>
                                       </div>
                                     );
                                   };
@@ -4315,33 +4316,33 @@ const AdminDashboard = () => {
                                   const cardId = `print-teacher-${teacher._id}`;
 
                                   return (
-                                    <div key={teacher._id} id={cardId} className="rounded-3xl border border-[#d9c5b0] bg-[#fffaf3] p-5 shadow-xs space-y-3 overflow-x-auto print-card">
-                                      <div className="flex justify-between items-center border-b border-[#d9c5b0]/35 pb-1.5 no-print">
-                                        <span className="text-xs font-bold text-[#7a4e2d]">{teacher.name}</span>
+                                    <div key={teacher._id} id={cardId} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-xs space-y-3 overflow-x-auto print-card">
+                                      <div className="flex justify-between items-center border-b border-[#cfe0d6]/35 pb-1.5 no-print">
+                                        <span className="text-xs font-bold text-[#0f6b4f]">{teacher.name}</span>
                                         <button
                                           type="button"
                                           onClick={() => printSpecificTimetable(cardId)}
-                                          className="px-2.5 py-1 bg-[#7a4e2d] text-white rounded-lg text-[9px] font-bold shadow-xs hover:bg-[#624021] transition flex items-center gap-1 no-print"
+                                          className="px-2.5 py-1 bg-[#0f6b4f] text-white rounded-lg text-[9px] font-bold shadow-xs hover:bg-[#0b5340] transition flex items-center gap-1 no-print"
                                         >
                                           📥 Print / PDF
                                         </button>
                                       </div>
 
                                       <div className="hidden print:block mb-4 text-center">
-                                        <h1 className="text-xl font-black text-[#3f2a1d]">{schoolName || 'School Hub'}</h1>
-                                        <h2 className="text-md font-bold text-[#7a4e2d]">Teacher Schedule — {teacher.name}</h2>
+                                        <h1 className="text-xl font-black text-[#0c2f25]">{schoolName || 'School Hub'}</h1>
+                                        <h2 className="text-md font-bold text-[#0f6b4f]">Teacher Schedule — {teacher.name}</h2>
                                         <p className="text-[10px] text-gray-500">Employee ID: {teacher.employeeId || ''} | Dept: {teacher.department || ''}</p>
                                       </div>
 
-                                      <div className="min-w-full overflow-x-auto border border-[#d9c5b0] rounded-xl bg-white shadow-2xs">
+                                      <div className="min-w-full overflow-x-auto border border-[#cfe0d6] rounded-xl bg-white shadow-2xs">
                                         <table className="w-full text-left border-collapse text-xs min-w-[500px]">
                                           <thead>
-                                            <tr className="bg-[#faf4ea] border-b border-[#d9c5b0]">
-                                              <th className="p-2.5 font-bold text-[#6d4c35] border-r border-[#d9c5b0] w-24 bg-[#faf4ea]">
+                                            <tr className="bg-[#f4f8f5] border-b border-[#cfe0d6]">
+                                              <th className="p-2.5 font-bold text-[#355e4d] border-r border-[#cfe0d6] w-24 bg-[#f4f8f5]">
                                                 Day / Time
                                               </th>
                                               {teacherTimeSlots.map(slot => (
-                                                <th key={slot} className="p-2.5 font-bold text-[#6d4c35] text-center border-r border-[#d9c5b0]/40 last:border-r-0">
+                                                <th key={slot} className="p-2.5 font-bold text-[#355e4d] text-center border-r border-[#cfe0d6]/40 last:border-r-0">
                                                   {slot}
                                                 </th>
                                               ))}
@@ -4349,8 +4350,8 @@ const AdminDashboard = () => {
                                           </thead>
                                           <tbody>
                                             {daysOrder.map((day, dayIdx) => (
-                                              <tr key={day} className="border-b border-[#d9c5b0]/45 last:border-b-0 hover:bg-[#fffaf3]/45 transition">
-                                                <td className="p-2.5 font-bold text-[#7a4e2d] border-r border-[#d9c5b0] bg-[#faf4ea]">
+                                              <tr key={day} className="border-b border-[#cfe0d6]/45 last:border-b-0 hover:bg-[#fbfdfb]/45 transition">
+                                                <td className="p-2.5 font-bold text-[#0f6b4f] border-r border-[#cfe0d6] bg-[#f4f8f5]">
                                                   {day}
                                                 </td>
                                                 {teacherTimeSlots.map(slot => {
@@ -4365,7 +4366,7 @@ const AdminDashboard = () => {
                                                   if (breakMatch) {
                                                     if (dayIdx !== 0) return null;
                                                     return (
-                                                      <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[70px] bg-[#ecd9c5]/30 text-center font-extrabold text-[#8a6a50] align-middle select-none">
+                                                      <td key={slot} rowSpan={daysOrder.length} className="p-2 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[70px] bg-[#e3efe8]/30 text-center font-extrabold text-[#4f7262] align-middle select-none">
                                                         <div className="flex flex-col items-center justify-center space-y-1 py-4">
                                                           <span>☕</span>
                                                           <span className="uppercase tracking-widest text-[9px] font-black" style={{ writingMode: 'vertical-rl', textOrientation: 'upright' }}>
@@ -4378,7 +4379,7 @@ const AdminDashboard = () => {
 
                                                   const cell = cellContent(day, slot);
                                                   return (
-                                                    <td key={slot} className="p-1 border-r border-[#d9c5b0]/40 last:border-r-0 min-w-[100px]">
+                                                    <td key={slot} className="p-1 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[100px]">
                                                       {cell || (
                                                         <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
                                                           Free Period
@@ -4411,19 +4412,19 @@ const AdminDashboard = () => {
         {/* --- ADD TEACHER MODAL --- */}
         {showAddTeacherModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
-            <div className="w-full max-w-4xl bg-[#fffaf3] rounded-[2rem] border border-[#d9c5b0] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center border-b border-[#d9c5b0] pb-4">
+            <div className="w-full max-w-4xl bg-[#fbfdfb] rounded-[2rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center border-b border-[#cfe0d6] pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-[#3f2a1d]">{editingTeacherId ? 'Edit Teacher Details' : 'Add New Teacher'}</h2>
-                  <p className="text-sm text-[#7f634e]">Provide detailed professional, contact, payroll and qualification data.</p>
+                  <h2 className="text-2xl font-black text-[#0c2f25]">{editingTeacherId ? 'Edit Teacher Details' : 'Add New Teacher'}</h2>
+                  <p className="text-sm text-[#4d7262]">Provide detailed professional, contact, payroll and qualification data.</p>
                 </div>
-                <button onClick={() => setShowAddTeacherModal(false)} className="p-2 text-[#8a6a50] hover:bg-[#f4ecdf] rounded-full transition">
+                <button onClick={() => setShowAddTeacherModal(false)} className="p-2 text-[#4f7262] hover:bg-[#e9f2ed] rounded-full transition">
                   <X className="h-6 w-6" />
                 </button>
               </div>
 
               {/* Form Tabs */}
-              <div className="flex border-b border-[#d9c5b0] gap-4 overflow-x-auto pb-2">
+              <div className="flex border-b border-[#cfe0d6] gap-4 overflow-x-auto pb-2">
                 {[
                   ['basic', 'Basic Info'],
                   ['contact', 'Contact'],
@@ -4436,7 +4437,7 @@ const AdminDashboard = () => {
                     key={tab}
                     type="button"
                     onClick={() => setTeacherModalTab(tab)}
-                    className={`px-3 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition ${teacherModalTab === tab ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#8a6a50] hover:bg-[#f4ecdf]'}`}
+                    className={`px-3 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition ${teacherModalTab === tab ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#4f7262] hover:bg-[#e9f2ed]'}`}
                   >
                     {label}
                   </button>
@@ -4449,74 +4450,74 @@ const AdminDashboard = () => {
                 {teacherModalTab === 'basic' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Full Name (Display Name) *</label>
-                      <input type="text" required value={teacherForm.name} onChange={(e) => setTeacherForm({...teacherForm, name: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Full Name (Display Name) *</label>
+                      <input type="text" required value={teacherForm.name} onChange={(e) => setTeacherForm({...teacherForm, name: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Employee ID / Staff Code</label>
-                      <input type="text" value={teacherForm.employeeId} onChange={(e) => setTeacherForm({...teacherForm, employeeId: e.target.value, staffCode: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Employee ID / Staff Code</label>
+                      <input type="text" value={teacherForm.employeeId} onChange={(e) => setTeacherForm({...teacherForm, employeeId: e.target.value, staffCode: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">First Name</label>
-                      <input type="text" value={teacherForm.firstName} onChange={(e) => setTeacherForm({...teacherForm, firstName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">First Name</label>
+                      <input type="text" value={teacherForm.firstName} onChange={(e) => setTeacherForm({...teacherForm, firstName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Middle Name</label>
-                      <input type="text" value={teacherForm.middleName} onChange={(e) => setTeacherForm({...teacherForm, middleName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Middle Name</label>
+                      <input type="text" value={teacherForm.middleName} onChange={(e) => setTeacherForm({...teacherForm, middleName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Last Name</label>
-                      <input type="text" value={teacherForm.lastName} onChange={(e) => setTeacherForm({...teacherForm, lastName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Last Name</label>
+                      <input type="text" value={teacherForm.lastName} onChange={(e) => setTeacherForm({...teacherForm, lastName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Gender</label>
-                      <select value={teacherForm.gender} onChange={(e) => setTeacherForm({...teacherForm, gender: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Gender</label>
+                      <select value={teacherForm.gender} onChange={(e) => setTeacherForm({...teacherForm, gender: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Male</option>
                         <option>Female</option>
                         <option>Other</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Date of Birth</label>
-                      <input type="date" value={teacherForm.dateOfBirth} onChange={(e) => setTeacherForm({...teacherForm, dateOfBirth: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Date of Birth</label>
+                      <input type="date" value={teacherForm.dateOfBirth} onChange={(e) => setTeacherForm({...teacherForm, dateOfBirth: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Blood Group</label>
-                      <input type="text" placeholder="e.g. O+" value={teacherForm.bloodGroup} onChange={(e) => setTeacherForm({...teacherForm, bloodGroup: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Blood Group</label>
+                      <input type="text" placeholder="e.g. O+" value={teacherForm.bloodGroup} onChange={(e) => setTeacherForm({...teacherForm, bloodGroup: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Aadhaar Number (Optional)</label>
-                      <input type="text" value={teacherForm.aadhaarNumber} onChange={(e) => setTeacherForm({...teacherForm, aadhaarNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">B-Form / CNIC No. (Optional)</label>
+                      <input type="text" value={teacherForm.cnicNumber} onChange={(e) => setTeacherForm({...teacherForm, cnicNumber: e.target.value})} placeholder="35202-1234567-1" maxLength={15} inputMode="numeric" className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">PAN Number (Optional)</label>
-                      <input type="text" value={teacherForm.panNumber} onChange={(e) => setTeacherForm({...teacherForm, panNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">NTN (Optional)</label>
+                      <input type="text" value={teacherForm.ntnNumber} onChange={(e) => setTeacherForm({...teacherForm, ntnNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Nationality</label>
-                      <input type="text" value={teacherForm.nationality} onChange={(e) => setTeacherForm({...teacherForm, nationality: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Nationality</label>
+                      <input type="text" value={teacherForm.nationality} onChange={(e) => setTeacherForm({...teacherForm, nationality: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Marital Status</label>
-                      <select value={teacherForm.maritalStatus} onChange={(e) => setTeacherForm({...teacherForm, maritalStatus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Marital Status</label>
+                      <select value={teacherForm.maritalStatus} onChange={(e) => setTeacherForm({...teacherForm, maritalStatus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Single</option>
                         <option>Married</option>
                         <option>Divorced</option>
                         <option>Widowed</option>
                       </select>
                     </div>
-                    <div className="border-t border-[#d9c5b0] col-span-2 pt-4">
-                      <h4 className="text-sm font-bold text-[#3f2a1d] mb-3">Login Credentials</h4>
+                    <div className="border-t border-[#cfe0d6] col-span-2 pt-4">
+                      <h4 className="text-sm font-bold text-[#0c2f25] mb-3">Login Credentials</h4>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Email / Username *</label>
-                      <input type="email" required value={teacherForm.email} onChange={(e) => setTeacherForm({...teacherForm, email: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Email / Username *</label>
+                      <input type="email" required value={teacherForm.email} onChange={(e) => setTeacherForm({...teacherForm, email: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Password *</label>
-                      <input type="password" required={!editingTeacherId} placeholder={editingTeacherId ? "Leave blank to keep current" : "At least 6 characters"} value={teacherForm.password} onChange={(e) => setTeacherForm({...teacherForm, password: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Password *</label>
+                      <input type="password" required={!editingTeacherId} placeholder={editingTeacherId ? "Leave blank to keep current" : "At least 6 characters"} value={teacherForm.password} onChange={(e) => setTeacherForm({...teacherForm, password: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       <div className="mt-1.5 space-y-1 text-[10px]">
-                        <p className="font-semibold text-[#6d4c35]">Password requirements:</p>
+                        <p className="font-semibold text-[#355e4d]">Password requirements:</p>
                         <div className="grid grid-cols-2 gap-1 mt-0.5">
                           <div className="flex items-center gap-1">
                             <span className={`inline-block h-1.5 w-1.5 rounded-full ${(teacherForm.password || '').length >= 6 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -4544,36 +4545,36 @@ const AdminDashboard = () => {
                 {teacherModalTab === 'contact' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mobile Number *</label>
-                      <input type="tel" required value={teacherForm.phone} onChange={(e) => setTeacherForm({...teacherForm, phone: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Mobile Number *</label>
+                      <input type="tel" required value={teacherForm.phone} onChange={(e) => setTeacherForm({...teacherForm, phone: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Alternate Mobile Number</label>
-                      <input type="tel" value={teacherForm.alternateMobileNumber} onChange={(e) => setTeacherForm({...teacherForm, alternateMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Alternate Mobile Number</label>
+                      <input type="tel" value={teacherForm.alternateMobileNumber} onChange={(e) => setTeacherForm({...teacherForm, alternateMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Emergency Contact Number</label>
-                      <input type="tel" value={teacherForm.emergencyContactNumber} onChange={(e) => setTeacherForm({...teacherForm, emergencyContactNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Emergency Contact Number</label>
+                      <input type="tel" value={teacherForm.emergencyContactNumber} onChange={(e) => setTeacherForm({...teacherForm, emergencyContactNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">PIN Code</label>
-                      <input type="text" value={teacherForm.pinCode} onChange={(e) => setTeacherForm({...teacherForm, pinCode: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Postal Code</label>
+                      <input type="text" value={teacherForm.postalCode} onChange={(e) => setTeacherForm({...teacherForm, postalCode: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Current Address</label>
-                      <textarea value={teacherForm.currentAddress} onChange={(e) => setTeacherForm({...teacherForm, currentAddress: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none h-16" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Current Address</label>
+                      <textarea value={teacherForm.currentAddress} onChange={(e) => setTeacherForm({...teacherForm, currentAddress: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none h-16" />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Permanent Address</label>
-                      <textarea value={teacherForm.permanentAddress} onChange={(e) => setTeacherForm({...teacherForm, permanentAddress: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none h-16" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Permanent Address</label>
+                      <textarea value={teacherForm.permanentAddress} onChange={(e) => setTeacherForm({...teacherForm, permanentAddress: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none h-16" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">City</label>
-                      <input type="text" value={teacherForm.city} onChange={(e) => setTeacherForm({...teacherForm, city: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">City</label>
+                      <input type="text" value={teacherForm.city} onChange={(e) => setTeacherForm({...teacherForm, city: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">State</label>
-                      <input type="text" value={teacherForm.state} onChange={(e) => setTeacherForm({...teacherForm, state: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Province</label>
+                      <select value={teacherForm.province || ''} onChange={(e) => setTeacherForm({...teacherForm, province: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"><option value="">Select province</option>{PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}</select>
                     </div>
                   </div>
                 )}
@@ -4582,36 +4583,36 @@ const AdminDashboard = () => {
                 {teacherModalTab === 'professional' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Designation</label>
-                      <input type="text" placeholder="e.g. Senior Lecturer" value={teacherForm.designation} onChange={(e) => setTeacherForm({...teacherForm, designation: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Designation</label>
+                      <input type="text" placeholder="e.g. Senior Lecturer" value={teacherForm.designation} onChange={(e) => setTeacherForm({...teacherForm, designation: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Department</label>
-                      <input type="text" placeholder="e.g. Mathematics" value={teacherForm.department} onChange={(e) => setTeacherForm({...teacherForm, department: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Department</label>
+                      <input type="text" placeholder="e.g. Mathematics" value={teacherForm.department} onChange={(e) => setTeacherForm({...teacherForm, department: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Joining Date</label>
-                      <input type="date" value={teacherForm.joiningDate} onChange={(e) => setTeacherForm({...teacherForm, joiningDate: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Joining Date</label>
+                      <input type="date" value={teacherForm.joiningDate} onChange={(e) => setTeacherForm({...teacherForm, joiningDate: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Employment Type</label>
-                      <select value={teacherForm.employmentType} onChange={(e) => setTeacherForm({...teacherForm, employmentType: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Employment Type</label>
+                      <select value={teacherForm.employmentType} onChange={(e) => setTeacherForm({...teacherForm, employmentType: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Full-Time</option>
                         <option>Part-Time</option>
                         <option>Contract</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Experience (Years)</label>
-                      <input type="number" value={teacherForm.experience} onChange={(e) => setTeacherForm({...teacherForm, experience: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Experience (Years)</label>
+                      <input type="number" value={teacherForm.experience} onChange={(e) => setTeacherForm({...teacherForm, experience: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Previous School</label>
-                      <input type="text" value={teacherForm.previousSchool} onChange={(e) => setTeacherForm({...teacherForm, previousSchool: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Previous School</label>
+                      <input type="text" value={teacherForm.previousSchool} onChange={(e) => setTeacherForm({...teacherForm, previousSchool: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Employee Status</label>
-                      <select value={teacherForm.employeeStatus} onChange={(e) => setTeacherForm({...teacherForm, employeeStatus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Employee Status</label>
+                      <select value={teacherForm.employeeStatus} onChange={(e) => setTeacherForm({...teacherForm, employeeStatus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Active</option>
                         <option>On Leave</option>
                         <option>Resigned</option>
@@ -4619,23 +4620,23 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Reporting To</label>
-                      <input type="text" placeholder="e.g. Principal" value={teacherForm.reportingTo} onChange={(e) => setTeacherForm({...teacherForm, reportingTo: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Reporting To</label>
+                      <input type="text" placeholder="e.g. Principal" value={teacherForm.reportingTo} onChange={(e) => setTeacherForm({...teacherForm, reportingTo: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
-                    <div className="border-t border-[#d9c5b0] col-span-2 pt-4">
-                      <h4 className="text-sm font-bold text-[#3f2a1d] mb-3">Class Teacher Assignment</h4>
+                    <div className="border-t border-[#cfe0d6] col-span-2 pt-4">
+                      <h4 className="text-sm font-bold text-[#0c2f25] mb-3">Class Teacher Assignment</h4>
                     </div>
                     <div className="flex items-center gap-2">
-                      <input type="checkbox" id="isClassTeacher" checked={teacherForm.isClassTeacher} onChange={(e) => setTeacherForm({...teacherForm, isClassTeacher: e.target.checked})} className="rounded border-[#d9c5b0]" />
-                      <label htmlFor="isClassTeacher" className="text-xs font-bold text-[#6d4c35]">Is Class Teacher?</label>
+                      <input type="checkbox" id="isClassTeacher" checked={teacherForm.isClassTeacher} onChange={(e) => setTeacherForm({...teacherForm, isClassTeacher: e.target.checked})} className="rounded border-[#cfe0d6]" />
+                      <label htmlFor="isClassTeacher" className="text-xs font-bold text-[#355e4d]">Is Class Teacher?</label>
                     </div>
                     {teacherForm.isClassTeacher && (
-                      <div className="col-span-2 grid grid-cols-2 gap-4 bg-[#faf4ea]/50 p-4 rounded-2xl border border-[#d9c5b0]">
+                      <div className="col-span-2 grid grid-cols-2 gap-4 bg-[#f4f8f5]/50 p-4 rounded-2xl border border-[#cfe0d6]">
                         <div className="col-span-2">
-                          <h5 className="text-xs font-bold text-[#7a4e2d]">Assign Class by Std & Division</h5>
+                          <h5 className="text-xs font-bold text-[#0f6b4f]">Assign Class by Std & Division</h5>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Standard *</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Standard *</label>
                           <select
                             required
                             value={teacherForm.classTeacherStandard || ''}
@@ -4648,7 +4649,7 @@ const AdminDashboard = () => {
                                 classTeacherOf: ''
                               });
                             }}
-                            className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:bg-white"
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:bg-white"
                           >
                             <option value="">-- Select Standard --</option>
                             {[...new Set(classes.map(c => c.standard))].sort(sortStandards).map(std => (
@@ -4657,7 +4658,7 @@ const AdminDashboard = () => {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-[#6d4c35] mb-1">Division *</label>
+                          <label className="block text-xs font-bold text-[#355e4d] mb-1">Division *</label>
                           <select
                             required
                             disabled={!teacherForm.classTeacherStandard}
@@ -4670,7 +4671,7 @@ const AdminDashboard = () => {
                               });
                               handleStdDivChange(teacherForm.classTeacherStandard, div);
                             }}
-                            className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:bg-white disabled:opacity-50"
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:bg-white disabled:opacity-50"
                           >
                             <option value="">-- Select Division --</option>
                             {teacherForm.classTeacherStandard && classes
@@ -4683,7 +4684,7 @@ const AdminDashboard = () => {
                             }
                           </select>
                         </div>
-                        <p className="col-span-2 text-xs text-[#8a6a50] italic">
+                        <p className="col-span-2 text-xs text-[#4f7262] italic">
                           Type any Standard and Division. The system will automatically link or create this Class.
                         </p>
                       </div>
@@ -4695,10 +4696,10 @@ const AdminDashboard = () => {
                 {/* TAB 4: ACADEMIC QUALIFICATIONS */}
                 {teacherModalTab === 'qualifications' && (
                   <div className="space-y-4">
-                    <p className="text-xs text-[#7f634e]">Provide university, graduation year, and GPA/percentage for each applicable degree.</p>
-                    <div className="overflow-x-auto rounded-2xl border border-[#d9c5b0]">
-                      <table className="w-full text-left text-sm text-[#6d4c35]">
-                        <thead className="bg-[#f4ecdf] text-xs font-bold uppercase text-[#3f2a1d]">
+                    <p className="text-xs text-[#4d7262]">Provide university, graduation year, and GPA/percentage for each applicable degree.</p>
+                    <div className="overflow-x-auto rounded-2xl border border-[#cfe0d6]">
+                      <table className="w-full text-left text-sm text-[#355e4d]">
+                        <thead className="bg-[#e9f2ed] text-xs font-bold uppercase text-[#0c2f25]">
                           <tr>
                             <th className="px-4 py-3">Degree</th>
                             <th className="px-4 py-3">University</th>
@@ -4706,7 +4707,7 @@ const AdminDashboard = () => {
                             <th className="px-4 py-3">Percentage/CGPA</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#d9c5b0]">
+                        <tbody className="divide-y divide-[#cfe0d6]">
                           {teacherForm.qualifications.map((q, idx) => (
                             <tr key={q.degree}>
                               <td className="px-4 py-2 font-semibold">{q.degree}</td>
@@ -4720,7 +4721,7 @@ const AdminDashboard = () => {
                                     newQuals[idx].university = e.target.value;
                                     setTeacherForm({...teacherForm, qualifications: newQuals});
                                   }}
-                                  className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none"
+                                  className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none"
                                 />
                               </td>
                               <td className="px-4 py-2">
@@ -4733,7 +4734,7 @@ const AdminDashboard = () => {
                                     newQuals[idx].year = e.target.value;
                                     setTeacherForm({...teacherForm, qualifications: newQuals});
                                   }}
-                                  className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none"
+                                  className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none"
                                 />
                               </td>
                               <td className="px-4 py-2">
@@ -4746,7 +4747,7 @@ const AdminDashboard = () => {
                                     newQuals[idx].percentageCGPA = e.target.value;
                                     setTeacherForm({...teacherForm, qualifications: newQuals});
                                   }}
-                                  className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none"
+                                  className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none"
                                 />
                               </td>
                             </tr>
@@ -4761,44 +4762,44 @@ const AdminDashboard = () => {
                 {teacherModalTab === 'payroll' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Basic Salary</label>
-                      <input type="number" value={teacherForm.basicSalary} onChange={(e) => setTeacherForm({...teacherForm, basicSalary: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Basic Salary</label>
+                      <input type="number" value={teacherForm.basicSalary} onChange={(e) => setTeacherForm({...teacherForm, basicSalary: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">HRA</label>
-                      <input type="number" value={teacherForm.hra} onChange={(e) => setTeacherForm({...teacherForm, hra: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">HRA</label>
+                      <input type="number" value={teacherForm.hra} onChange={(e) => setTeacherForm({...teacherForm, hra: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">DA</label>
-                      <input type="number" value={teacherForm.da} onChange={(e) => setTeacherForm({...teacherForm, da: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">DA</label>
+                      <input type="number" value={teacherForm.da} onChange={(e) => setTeacherForm({...teacherForm, da: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Other Allowances</label>
-                      <input type="number" value={teacherForm.otherAllowances} onChange={(e) => setTeacherForm({...teacherForm, otherAllowances: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Other Allowances</label>
+                      <input type="number" value={teacherForm.otherAllowances} onChange={(e) => setTeacherForm({...teacherForm, otherAllowances: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Deductions</label>
-                      <input type="number" value={teacherForm.deductions} onChange={(e) => setTeacherForm({...teacherForm, deductions: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Deductions</label>
+                      <input type="number" value={teacherForm.deductions} onChange={(e) => setTeacherForm({...teacherForm, deductions: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">PF</label>
-                      <input type="number" value={teacherForm.pf} onChange={(e) => setTeacherForm({...teacherForm, pf: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">PF</label>
+                      <input type="number" value={teacherForm.pf} onChange={(e) => setTeacherForm({...teacherForm, pf: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Tax</label>
-                      <input type="number" value={teacherForm.tax} onChange={(e) => setTeacherForm({...teacherForm, tax: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Tax</label>
+                      <input type="number" value={teacherForm.tax} onChange={(e) => setTeacherForm({...teacherForm, tax: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Bank Name</label>
-                      <input type="text" value={teacherForm.bankName} onChange={(e) => setTeacherForm({...teacherForm, bankName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Bank Name</label>
+                      <input type="text" value={teacherForm.bankName} onChange={(e) => setTeacherForm({...teacherForm, bankName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Account Number</label>
-                      <input type="text" value={teacherForm.accountNumber} onChange={(e) => setTeacherForm({...teacherForm, accountNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Account Number</label>
+                      <input type="text" value={teacherForm.accountNumber} onChange={(e) => setTeacherForm({...teacherForm, accountNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">IFSC Code</label>
-                      <input type="text" value={teacherForm.ifscCode} onChange={(e) => setTeacherForm({...teacherForm, ifscCode: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">IFSC Code</label>
+                      <input type="text" value={teacherForm.ifscCode} onChange={(e) => setTeacherForm({...teacherForm, ifscCode: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                   </div>
                 )}
@@ -4807,39 +4808,39 @@ const AdminDashboard = () => {
                 {teacherModalTab === 'documents' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Aadhaar Card (PDF / Image)</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">CNIC Copy (PDF / Image)</label>
                       <input 
                         type="file" 
-                        onChange={(e) => handleFileUpload(e, 'docAadhaarCard')} 
-                        className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021]" 
+                        onChange={(e) => handleFileUpload(e, 'docCnicCopy')} 
+                        className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340]" 
                       />
-                      {uploadingField === 'docAadhaarCard' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
-                      {teacherForm.docAadhaarCard && (
+                      {uploadingField === 'docCnicCopy' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
+                      {teacherForm.docCnicCopy && (
                         <p className="text-xs text-green-600 mt-1">
-                          ✓ File uploaded: <a href={teacherForm.docAadhaarCard} target="_blank" rel="noopener noreferrer" className="underline font-semibold">View document</a>
+                          ✓ File uploaded: <a href={teacherForm.docCnicCopy} target="_blank" rel="noopener noreferrer" className="underline font-semibold">View document</a>
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">PAN Card (PDF / Image)</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">NTN Certificate (PDF / Image)</label>
                       <input 
                         type="file" 
-                        onChange={(e) => handleFileUpload(e, 'docPanCard')} 
-                        className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021]" 
+                        onChange={(e) => handleFileUpload(e, 'docNtnCertificate')} 
+                        className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340]" 
                       />
-                      {uploadingField === 'docPanCard' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
-                      {teacherForm.docPanCard && (
+                      {uploadingField === 'docNtnCertificate' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
+                      {teacherForm.docNtnCertificate && (
                         <p className="text-xs text-green-600 mt-1">
-                          ✓ File uploaded: <a href={teacherForm.docPanCard} target="_blank" rel="noopener noreferrer" className="underline font-semibold">View document</a>
+                          ✓ File uploaded: <a href={teacherForm.docNtnCertificate} target="_blank" rel="noopener noreferrer" className="underline font-semibold">View document</a>
                         </p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Degree Certificates (PDF / Image)</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Degree Certificates (PDF / Image)</label>
                       <input 
                         type="file" 
                         onChange={(e) => handleFileUpload(e, 'docDegreeCertificates')} 
-                        className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021]" 
+                        className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340]" 
                       />
                       {uploadingField === 'docDegreeCertificates' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
                       {teacherForm.docDegreeCertificates && (
@@ -4849,11 +4850,11 @@ const AdminDashboard = () => {
                       )}
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Resume (PDF / DOC)</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Resume (PDF / DOC)</label>
                       <input 
                         type="file" 
                         onChange={(e) => handleFileUpload(e, 'docResume')} 
-                        className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021]" 
+                        className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340]" 
                       />
                       {uploadingField === 'docResume' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
                       {teacherForm.docResume && (
@@ -4879,22 +4880,22 @@ const AdminDashboard = () => {
                   return (
                     <div className="space-y-5">
                       {/* Teacher summary card */}
-                      <div className="flex items-center gap-4 p-4 bg-white border border-[#d9c5b0] rounded-2xl">
-                        <div className="h-12 w-12 rounded-2xl bg-[#7a4e2d] flex items-center justify-center text-white font-black text-lg shrink-0">
+                      <div className="flex items-center gap-4 p-4 bg-white border border-[#cfe0d6] rounded-2xl">
+                        <div className="h-12 w-12 rounded-2xl bg-[#0f6b4f] flex items-center justify-center text-white font-black text-lg shrink-0">
                           {teacherForm.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase() || '?'}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-black text-[#3f2a1d] text-base truncate">{teacherForm.name || 'Teacher Name'}</p>
+                          <p className="font-black text-[#0c2f25] text-base truncate">{teacherForm.name || 'Teacher Name'}</p>
                           <div className="flex gap-3 flex-wrap mt-0.5">
-                            <span className="text-[10px] font-bold text-[#8a6a50] bg-[#7a4e2d]/10 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-[#4f7262] bg-[#0f6b4f]/10 px-2 py-0.5 rounded-full">
                               {teacherForm.gender || 'Gender N/A'}
                             </span>
                             {age !== null && (
-                              <span className="text-[10px] font-bold text-[#8a6a50] bg-[#7a4e2d]/10 px-2 py-0.5 rounded-full">
+                              <span className="text-[10px] font-bold text-[#4f7262] bg-[#0f6b4f]/10 px-2 py-0.5 rounded-full">
                                 Age: {age} yrs
                               </span>
                             )}
-                            <span className="text-[10px] font-bold text-[#8a6a50] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                            <span className="text-[10px] font-bold text-[#4f7262] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
                               {teacherForm.subjectIds?.length || 0} subject{teacherForm.subjectIds?.length !== 1 ? 's' : ''} assigned
                             </span>
                           </div>
@@ -4903,7 +4904,7 @@ const AdminDashboard = () => {
 
                       {/* Subjects grouped by standard */}
                       {stdList.length === 0 ? (
-                        <p className="text-xs text-[#8a6a50] italic text-center py-8">No subjects configured yet. Add subjects in the Manage Subjects section first.</p>
+                        <p className="text-xs text-[#4f7262] italic text-center py-8">No subjects configured yet. Add subjects in the Manage Subjects section first.</p>
                       ) : (
                         <div className="space-y-4">
                           {stdList.map(std => {
@@ -4914,9 +4915,9 @@ const AdminDashboard = () => {
                             const someChecked = stdSubjects.some(s => teacherForm.subjectIds?.includes(s._id));
 
                             return (
-                              <div key={std} className="rounded-2xl border border-[#d9c5b0] bg-white overflow-hidden">
+                              <div key={std} className="rounded-2xl border border-[#cfe0d6] bg-white overflow-hidden">
                                 {/* Standard header with select-all */}
-                                <div className="flex items-center gap-3 px-4 py-3 bg-[#7a4e2d]/5 border-b border-[#d9c5b0]">
+                                <div className="flex items-center gap-3 px-4 py-3 bg-[#0f6b4f]/5 border-b border-[#cfe0d6]">
                                   <input
                                     type="checkbox"
                                     id={`std-all-${std}`}
@@ -4930,12 +4931,12 @@ const AdminDashboard = () => {
                                         setTeacherForm(prev => ({ ...prev, subjectIds: (prev.subjectIds || []).filter(id => !ids.includes(id)) }));
                                       }
                                     }}
-                                    className="h-4 w-4 accent-[#7a4e2d] cursor-pointer"
+                                    className="h-4 w-4 accent-[#0f6b4f] cursor-pointer"
                                   />
-                                  <label htmlFor={`std-all-${std}`} className="font-black text-[#3f2a1d] text-sm cursor-pointer">
+                                  <label htmlFor={`std-all-${std}`} className="font-black text-[#0c2f25] text-sm cursor-pointer">
                                     {std.match(/^\d+$/) ? `Standard ${std}` : std}
                                   </label>
-                                  <span className="ml-auto text-[10px] text-[#8a6a50]">{stdSubjects.length} subject{stdSubjects.length !== 1 ? 's' : ''}</span>
+                                  <span className="ml-auto text-[10px] text-[#4f7262]">{stdSubjects.length} subject{stdSubjects.length !== 1 ? 's' : ''}</span>
                                 </div>
 
                                 {/* Subject checkboxes */}
@@ -4946,7 +4947,7 @@ const AdminDashboard = () => {
                                       <label
                                         key={sub._id}
                                         htmlFor={`sub-${sub._id}`}
-                                        className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition ${checked ? 'border-[#7a4e2d] bg-[#7a4e2d]/5' : 'border-[#d9c5b0]/60 hover:border-[#7a4e2d]/40'}`}
+                                        className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition ${checked ? 'border-[#0f6b4f] bg-[#0f6b4f]/5' : 'border-[#cfe0d6]/60 hover:border-[#0f6b4f]/40'}`}
                                       >
                                         <input
                                           type="checkbox"
@@ -4959,11 +4960,11 @@ const AdminDashboard = () => {
                                               setTeacherForm(prev => ({ ...prev, subjectIds: (prev.subjectIds || []).filter(id => id !== sub._id) }));
                                             }
                                           }}
-                                          className="h-4 w-4 accent-[#7a4e2d] shrink-0"
+                                          className="h-4 w-4 accent-[#0f6b4f] shrink-0"
                                         />
                                         <div className="min-w-0">
-                                          <p className="text-xs font-bold text-[#3f2a1d] truncate">{sub.name}</p>
-                                          {sub.code && <p className="text-[10px] text-[#8a6a50]">{sub.code}</p>}
+                                          <p className="text-xs font-bold text-[#0c2f25] truncate">{sub.name}</p>
+                                          {sub.code && <p className="text-[10px] text-[#4f7262]">{sub.code}</p>}
                                         </div>
                                         {checked && <span className="ml-auto text-emerald-600 text-[10px] font-bold shrink-0">✓</span>}
                                       </label>
@@ -4997,11 +4998,11 @@ const AdminDashboard = () => {
                 })()}
 
 
-                <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-4">
-                  <button type="button" onClick={() => setShowAddTeacherModal(false)} className="rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-4 py-2 text-sm font-semibold text-[#8a6a50] hover:bg-[#f4ecdf] transition">
+                <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-4">
+                  <button type="button" onClick={() => setShowAddTeacherModal(false)} className="rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-4 py-2 text-sm font-semibold text-[#4f7262] hover:bg-[#e9f2ed] transition">
                     Cancel
                   </button>
-                  <button type="submit" className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-sm font-semibold text-[#f7efe4] hover:bg-[#624021] transition">
+                  <button type="submit" className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-sm font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition">
                     {editingTeacherId ? 'Update Teacher' : 'Save Teacher'}
                   </button>
                 </div>
@@ -5036,29 +5037,29 @@ const AdminDashboard = () => {
 
           return (
             <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-              <div className="w-full max-w-lg rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] shadow-2xl flex flex-col max-h-[90vh]">
+              <div className="w-full max-w-lg rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] shadow-2xl flex flex-col max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-[#d9c5b0] px-6 py-4 shrink-0">
-                  <h3 className="text-lg font-black text-[#3f2a1d]">📚 Assign Subjects</h3>
-                  <button onClick={() => { setShowAssignSubjectsModal(false); setAssignSubjectsTeacher(null); }} className="rounded-full p-1.5 text-[#8a6a50] hover:bg-[#f4ecdf]">
+                <div className="flex items-center justify-between border-b border-[#cfe0d6] px-6 py-4 shrink-0">
+                  <h3 className="text-lg font-black text-[#0c2f25]">📚 Assign Subjects</h3>
+                  <button onClick={() => { setShowAssignSubjectsModal(false); setAssignSubjectsTeacher(null); }} className="rounded-full p-1.5 text-[#4f7262] hover:bg-[#e9f2ed]">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
 
                 {/* Teacher info card */}
                 <div className="px-6 pt-5 shrink-0">
-                  <div className="flex items-center gap-4 p-4 bg-white border border-[#d9c5b0] rounded-2xl">
-                    <div className="h-12 w-12 rounded-2xl bg-[#7a4e2d] flex items-center justify-center text-white font-black text-lg shrink-0">
+                  <div className="flex items-center gap-4 p-4 bg-white border border-[#cfe0d6] rounded-2xl">
+                    <div className="h-12 w-12 rounded-2xl bg-[#0f6b4f] flex items-center justify-center text-white font-black text-lg shrink-0">
                       {t.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-black text-[#3f2a1d] text-base truncate">{t.name}</p>
+                      <p className="font-black text-[#0c2f25] text-base truncate">{t.name}</p>
                       <div className="flex gap-2 flex-wrap mt-1">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7a4e2d]/10 text-[#7a4e2d]">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0f6b4f]/10 text-[#0f6b4f]">
                           {t.gender || 'Gender N/A'}
                         </span>
                         {age !== null && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#7a4e2d]/10 text-[#7a4e2d]">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#0f6b4f]/10 text-[#0f6b4f]">
                             Age {age} yrs
                           </span>
                         )}
@@ -5073,7 +5074,7 @@ const AdminDashboard = () => {
                 {/* Subject list scrollable */}
                 <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
                   {stdList.length === 0 ? (
-                    <p className="text-xs text-[#8a6a50] italic text-center py-8">No subjects configured. Add subjects in Manage Subjects first.</p>
+                    <p className="text-xs text-[#4f7262] italic text-center py-8">No subjects configured. Add subjects in Manage Subjects first.</p>
                   ) : stdList.map(std => {
                     const stdSubjects = subjects.filter(s =>
                       s.standard && s.standard.split(',').map(x => x.trim()).includes(std)
@@ -5082,9 +5083,9 @@ const AdminDashboard = () => {
                     const someChecked = stdSubjects.some(s => assignSubjectsIds.includes(s._id));
 
                     return (
-                      <div key={std} className="rounded-2xl border border-[#d9c5b0] bg-white overflow-hidden">
+                      <div key={std} className="rounded-2xl border border-[#cfe0d6] bg-white overflow-hidden">
                         {/* Standard row with select all */}
-                        <div className="flex items-center gap-3 px-4 py-3 bg-[#7a4e2d]/5 border-b border-[#d9c5b0]">
+                        <div className="flex items-center gap-3 px-4 py-3 bg-[#0f6b4f]/5 border-b border-[#cfe0d6]">
                           <input
                             type="checkbox"
                             id={`asgn-std-${std}`}
@@ -5098,12 +5099,12 @@ const AdminDashboard = () => {
                                 setAssignSubjectsIds(prev => prev.filter(id => !ids.includes(id)));
                               }
                             }}
-                            className="h-4 w-4 accent-[#7a4e2d] cursor-pointer"
+                            className="h-4 w-4 accent-[#0f6b4f] cursor-pointer"
                           />
-                          <label htmlFor={`asgn-std-${std}`} className="font-black text-[#3f2a1d] text-sm cursor-pointer flex-1">
+                          <label htmlFor={`asgn-std-${std}`} className="font-black text-[#0c2f25] text-sm cursor-pointer flex-1">
                             {std.match(/^\d+$/) ? `Standard ${std}` : std}
                           </label>
-                          <span className="text-[10px] text-[#8a6a50]">{stdSubjects.length} subject{stdSubjects.length !== 1 ? 's' : ''}</span>
+                          <span className="text-[10px] text-[#4f7262]">{stdSubjects.length} subject{stdSubjects.length !== 1 ? 's' : ''}</span>
                         </div>
 
                         {/* Subjects */}
@@ -5114,7 +5115,7 @@ const AdminDashboard = () => {
                               <label
                                 key={sub._id}
                                 htmlFor={`asgn-sub-${sub._id}`}
-                                className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition ${checked ? 'border-[#7a4e2d] bg-[#7a4e2d]/5' : 'border-[#d9c5b0]/60 hover:border-[#7a4e2d]/40'}`}
+                                className={`flex items-center gap-3 p-2.5 rounded-xl border cursor-pointer transition ${checked ? 'border-[#0f6b4f] bg-[#0f6b4f]/5' : 'border-[#cfe0d6]/60 hover:border-[#0f6b4f]/40'}`}
                               >
                                 <input
                                   type="checkbox"
@@ -5127,11 +5128,11 @@ const AdminDashboard = () => {
                                       setAssignSubjectsIds(prev => prev.filter(id => id !== sub._id));
                                     }
                                   }}
-                                  className="h-4 w-4 accent-[#7a4e2d] shrink-0"
+                                  className="h-4 w-4 accent-[#0f6b4f] shrink-0"
                                 />
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-xs font-bold text-[#3f2a1d] truncate">{sub.name}</p>
-                                  {sub.code && <p className="text-[10px] text-[#8a6a50]">{sub.code}</p>}
+                                  <p className="text-xs font-bold text-[#0c2f25] truncate">{sub.name}</p>
+                                  {sub.code && <p className="text-[10px] text-[#4f7262]">{sub.code}</p>}
                                 </div>
                                 {checked && <span className="text-emerald-600 text-[10px] font-bold shrink-0">✓</span>}
                               </label>
@@ -5161,18 +5162,18 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-3 border-t border-[#d9c5b0] px-6 py-4 shrink-0">
+                <div className="flex justify-end gap-3 border-t border-[#cfe0d6] px-6 py-4 shrink-0">
                   <button
                     type="button"
                     onClick={() => { setShowAssignSubjectsModal(false); setAssignSubjectsTeacher(null); }}
-                    className="rounded-xl border border-[#d9c5b0] bg-white px-5 py-2 text-sm font-bold text-[#7a4e2d] hover:bg-[#7a4e2d]/10 transition"
+                    className="rounded-xl border border-[#cfe0d6] bg-white px-5 py-2 text-sm font-bold text-[#0f6b4f] hover:bg-[#0f6b4f]/10 transition"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSave}
                     disabled={savingSubjects}
-                    className="rounded-xl bg-[#7a4e2d] px-6 py-2 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition disabled:opacity-50"
+                    className="rounded-xl bg-[#0f6b4f] px-6 py-2 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition disabled:opacity-50"
                   >
                     {savingSubjects ? 'Saving...' : 'Save Assignment'}
                   </button>
@@ -5185,19 +5186,19 @@ const AdminDashboard = () => {
         {/* --- ADD STUDENT MODAL --- */}
         {showAddStudentModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
-            <div className="w-full max-w-4xl bg-[#fffaf3] rounded-[2rem] border border-[#d9c5b0] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center border-b border-[#d9c5b0] pb-4">
+            <div className="w-full max-w-4xl bg-[#fbfdfb] rounded-[2rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center border-b border-[#cfe0d6] pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-[#3f2a1d]">{editingStudentId ? 'Edit Student Details' : 'Add New Student'}</h2>
-                  <p className="text-sm text-[#7f634e]">Register student details, login info, and upload supporting documents.</p>
+                  <h2 className="text-2xl font-black text-[#0c2f25]">{editingStudentId ? 'Edit Student Details' : 'Add New Student'}</h2>
+                  <p className="text-sm text-[#4d7262]">Register student details, login info, and upload supporting documents.</p>
                 </div>
-                <button onClick={() => setShowAddStudentModal(false)} className="p-2 text-[#8a6a50] hover:bg-[#f4ecdf] rounded-full transition">
+                <button onClick={() => setShowAddStudentModal(false)} className="p-2 text-[#4f7262] hover:bg-[#e9f2ed] rounded-full transition">
                   <X className="h-6 w-6" />
                 </button>
               </div>
 
               {/* Form Tabs */}
-              <div className="flex border-b border-[#d9c5b0] gap-4 overflow-x-auto pb-2">
+              <div className="flex border-b border-[#cfe0d6] gap-4 overflow-x-auto pb-2">
                 {[
                   ['basic', 'Basic Info'],
                   ['contact', 'Contact'],
@@ -5211,7 +5212,7 @@ const AdminDashboard = () => {
                     key={tab}
                     type="button"
                     onClick={() => setStudentModalTab(tab)}
-                    className={`px-3 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition ${studentModalTab === tab ? 'bg-[#7a4e2d] text-[#f7efe4]' : 'text-[#8a6a50] hover:bg-[#f4ecdf]'}`}
+                    className={`px-3 py-1.5 text-xs font-bold whitespace-nowrap rounded-xl transition ${studentModalTab === tab ? 'bg-[#0f6b4f] text-[#edf5f0]' : 'text-[#4f7262] hover:bg-[#e9f2ed]'}`}
                   >
                     {label}
                   </button>
@@ -5224,67 +5225,67 @@ const AdminDashboard = () => {
                 {studentModalTab === 'basic' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Full Display Name *</label>
-                      <input type="text" required value={studentForm.name} onChange={(e) => setStudentForm({...studentForm, name: e.target.value, fullName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Full Display Name *</label>
+                      <input type="text" required value={studentForm.name} onChange={(e) => setStudentForm({...studentForm, name: e.target.value, fullName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Admission Number</label>
-                      <input type="text" value={studentForm.admissionNumber || ''} onChange={(e) => setStudentForm({...studentForm, admissionNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Admission Number</label>
+                      <input type="text" value={studentForm.admissionNumber || ''} onChange={(e) => setStudentForm({...studentForm, admissionNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Roll Number</label>
-                      <input type="text" value={studentForm.rollNumber} onChange={(e) => setStudentForm({...studentForm, rollNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Roll Number</label>
+                      <input type="text" value={studentForm.rollNumber} onChange={(e) => setStudentForm({...studentForm, rollNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">First Name</label>
-                      <input type="text" value={studentForm.firstName || ''} onChange={(e) => setStudentForm({...studentForm, firstName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">First Name</label>
+                      <input type="text" value={studentForm.firstName || ''} onChange={(e) => setStudentForm({...studentForm, firstName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Middle Name</label>
-                      <input type="text" value={studentForm.middleName || ''} onChange={(e) => setStudentForm({...studentForm, middleName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Middle Name</label>
+                      <input type="text" value={studentForm.middleName || ''} onChange={(e) => setStudentForm({...studentForm, middleName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Last Name</label>
-                      <input type="text" value={studentForm.lastName || ''} onChange={(e) => setStudentForm({...studentForm, lastName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Last Name</label>
+                      <input type="text" value={studentForm.lastName || ''} onChange={(e) => setStudentForm({...studentForm, lastName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Gender</label>
-                      <select value={studentForm.gender} onChange={(e) => setStudentForm({...studentForm, gender: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Gender</label>
+                      <select value={studentForm.gender} onChange={(e) => setStudentForm({...studentForm, gender: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Male</option>
                         <option>Female</option>
                         <option>Other</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Date of Birth</label>
-                      <input type="date" value={studentForm.dateOfBirth || ''} onChange={(e) => setStudentForm({...studentForm, dateOfBirth: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Date of Birth</label>
+                      <input type="date" value={studentForm.dateOfBirth || ''} onChange={(e) => setStudentForm({...studentForm, dateOfBirth: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Blood Group</label>
-                      <input type="text" value={studentForm.bloodGroup || ''} onChange={(e) => setStudentForm({...studentForm, bloodGroup: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" placeholder="e.g. O+" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Blood Group</label>
+                      <input type="text" value={studentForm.bloodGroup || ''} onChange={(e) => setStudentForm({...studentForm, bloodGroup: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" placeholder="e.g. O+" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Aadhaar Number (Optional)</label>
-                      <input type="text" value={studentForm.aadhaarNumber || ''} onChange={(e) => setStudentForm({...studentForm, aadhaarNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">B-Form / CNIC No. (Optional)</label>
+                      <input type="text" value={studentForm.cnicNumber || ''} onChange={(e) => setStudentForm({...studentForm, cnicNumber: e.target.value})} placeholder="35202-1234567-1" maxLength={15} inputMode="numeric" className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Nationality</label>
-                      <input type="text" value={studentForm.nationality || ''} onChange={(e) => setStudentForm({...studentForm, nationality: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Nationality</label>
+                      <input type="text" value={studentForm.nationality || ''} onChange={(e) => setStudentForm({...studentForm, nationality: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Religion (Optional)</label>
-                      <input type="text" value={studentForm.religion || ''} onChange={(e) => setStudentForm({...studentForm, religion: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Religion (Optional)</label>
+                      <input type="text" value={studentForm.religion || ''} onChange={(e) => setStudentForm({...studentForm, religion: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Caste/Category (Optional)</label>
-                      <input type="text" value={studentForm.casteCategory || ''} onChange={(e) => setStudentForm({...studentForm, casteCategory: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Mother Tongue (Optional)</label>
+                      <input type="text" value={studentForm.motherTongue || ''} onChange={(e) => setStudentForm({...studentForm, motherTongue: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Student Photo (PDF / Image)</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Student Photo (PDF / Image)</label>
                       <input 
                         type="file" 
                         onChange={(e) => handleFileUpload(e, 'photo', 'student')} 
-                        className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021]" 
+                        className="w-full text-xs text-[#355e4d] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340]" 
                       />
                       {uploadingField === 'photo' && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
                       {studentForm.photo && (
@@ -5300,40 +5301,40 @@ const AdminDashboard = () => {
                 {studentModalTab === 'contact' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mobile Number</label>
-                      <input type="tel" value={studentForm.mobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, mobileNumber: e.target.value, phone: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Mobile Number</label>
+                      <input type="tel" value={studentForm.mobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, mobileNumber: e.target.value, phone: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Alternate Mobile Number</label>
-                      <input type="tel" value={studentForm.alternateMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, alternateMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Alternate Mobile Number</label>
+                      <input type="tel" value={studentForm.alternateMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, alternateMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Email Address</label>
-                      <input type="email" value={studentForm.emailAddress || ''} onChange={(e) => setStudentForm({...studentForm, emailAddress: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Email Address</label>
+                      <input type="email" value={studentForm.emailAddress || ''} onChange={(e) => setStudentForm({...studentForm, emailAddress: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">City</label>
-                      <input type="text" value={studentForm.city || ''} onChange={(e) => setStudentForm({...studentForm, city: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">City</label>
+                      <input type="text" value={studentForm.city || ''} onChange={(e) => setStudentForm({...studentForm, city: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">State</label>
-                      <input type="text" value={studentForm.state || ''} onChange={(e) => setStudentForm({...studentForm, state: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Province</label>
+                      <select value={studentForm.province || ''} onChange={(e) => setStudentForm({...studentForm, province: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none"><option value="">Select province</option>{PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}</select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Country</label>
-                      <input type="text" value={studentForm.country || ''} onChange={(e) => setStudentForm({...studentForm, country: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Country</label>
+                      <input type="text" value={studentForm.country || ''} onChange={(e) => setStudentForm({...studentForm, country: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">PIN Code</label>
-                      <input type="text" value={studentForm.pinCode || ''} onChange={(e) => setStudentForm({...studentForm, pinCode: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Postal Code</label>
+                      <input type="text" value={studentForm.postalCode || ''} onChange={(e) => setStudentForm({...studentForm, postalCode: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Current Address</label>
-                      <textarea value={studentForm.currentAddress || ''} onChange={(e) => setStudentForm({...studentForm, currentAddress: e.target.value})} rows={2} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Current Address</label>
+                      <textarea value={studentForm.currentAddress || ''} onChange={(e) => setStudentForm({...studentForm, currentAddress: e.target.value})} rows={2} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div className="col-span-2">
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Permanent Address</label>
-                      <textarea value={studentForm.permanentAddress || ''} onChange={(e) => setStudentForm({...studentForm, permanentAddress: e.target.value})} rows={2} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Permanent Address</label>
+                      <textarea value={studentForm.permanentAddress || ''} onChange={(e) => setStudentForm({...studentForm, permanentAddress: e.target.value})} rows={2} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                   </div>
                 )}
@@ -5341,63 +5342,63 @@ const AdminDashboard = () => {
                 {/* TAB 3: PARENT/GUARDIAN DETAILS */}
                 {studentModalTab === 'parent' && (
                   <div className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#d9c5b0]/50 pb-4">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Father Details</h4>
+                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#cfe0d6]/50 pb-4">
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Father Details</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Father Name</label>
-                        <input type="text" value={studentForm.fatherName || ''} onChange={(e) => setStudentForm({...studentForm, fatherName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Father Name</label>
+                        <input type="text" value={studentForm.fatherName || ''} onChange={(e) => setStudentForm({...studentForm, fatherName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Occupation</label>
-                        <input type="text" value={studentForm.fatherOccupation || ''} onChange={(e) => setStudentForm({...studentForm, fatherOccupation: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Occupation</label>
+                        <input type="text" value={studentForm.fatherOccupation || ''} onChange={(e) => setStudentForm({...studentForm, fatherOccupation: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mobile Number</label>
-                        <input type="tel" value={studentForm.fatherMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, fatherMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Mobile Number</label>
+                        <input type="tel" value={studentForm.fatherMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, fatherMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Email</label>
-                        <input type="email" value={studentForm.fatherEmail || ''} onChange={(e) => setStudentForm({...studentForm, fatherEmail: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Email</label>
+                        <input type="email" value={studentForm.fatherEmail || ''} onChange={(e) => setStudentForm({...studentForm, fatherEmail: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                     </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#d9c5b0]/50 pb-4">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Mother Details</h4>
+                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#cfe0d6]/50 pb-4">
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Mother Details</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mother Name</label>
-                        <input type="text" value={studentForm.motherName || ''} onChange={(e) => setStudentForm({...studentForm, motherName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Mother Name</label>
+                        <input type="text" value={studentForm.motherName || ''} onChange={(e) => setStudentForm({...studentForm, motherName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Occupation</label>
-                        <input type="text" value={studentForm.motherOccupation || ''} onChange={(e) => setStudentForm({...studentForm, motherOccupation: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Occupation</label>
+                        <input type="text" value={studentForm.motherOccupation || ''} onChange={(e) => setStudentForm({...studentForm, motherOccupation: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mobile Number</label>
-                        <input type="tel" value={studentForm.motherMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, motherMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Mobile Number</label>
+                        <input type="tel" value={studentForm.motherMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, motherMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Email</label>
-                        <input type="email" value={studentForm.motherEmail || ''} onChange={(e) => setStudentForm({...studentForm, motherEmail: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Email</label>
+                        <input type="email" value={studentForm.motherEmail || ''} onChange={(e) => setStudentForm({...studentForm, motherEmail: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Guardian Details (If different)</h4>
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Guardian Details (If different)</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Guardian Name</label>
-                        <input type="text" value={studentForm.guardianName || ''} onChange={(e) => setStudentForm({...studentForm, guardianName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Guardian Name</label>
+                        <input type="text" value={studentForm.guardianName || ''} onChange={(e) => setStudentForm({...studentForm, guardianName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Relationship</label>
-                        <input type="text" value={studentForm.guardianRelationship || ''} onChange={(e) => setStudentForm({...studentForm, guardianRelationship: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Relationship</label>
+                        <input type="text" value={studentForm.guardianRelationship || ''} onChange={(e) => setStudentForm({...studentForm, guardianRelationship: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Mobile Number</label>
-                        <input type="tel" value={studentForm.guardianMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, guardianMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Mobile Number</label>
+                        <input type="tel" value={studentForm.guardianMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, guardianMobileNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Address</label>
-                        <input type="text" value={studentForm.guardianAddress || ''} onChange={(e) => setStudentForm({...studentForm, guardianAddress: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Address</label>
+                        <input type="text" value={studentForm.guardianAddress || ''} onChange={(e) => setStudentForm({...studentForm, guardianAddress: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                     </div>
                   </div>
@@ -5407,12 +5408,12 @@ const AdminDashboard = () => {
                 {studentModalTab === 'academic' && (
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Standard / Class *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Standard / Class *</label>
                       <select
                         required
                         value={studentForm.classStandard || ''}
                         onChange={(e) => setStudentForm({ ...studentForm, classStandard: e.target.value, classDivision: '' })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:bg-white"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:bg-white"
                       >
                         <option value="">-- Select Standard --</option>
                         {[...new Set(classes.map(c => c.standard))].sort(sortStandards).map(std => (
@@ -5421,13 +5422,13 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Division / Section *</label>
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Division / Section *</label>
                       <select
                         required
                         disabled={!studentForm.classStandard}
                         value={studentForm.classDivision || ''}
                         onChange={(e) => setStudentForm({ ...studentForm, classDivision: e.target.value })}
-                        className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none focus:bg-white disabled:opacity-50"
+                        className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none focus:bg-white disabled:opacity-50"
                       >
                         <option value="">-- Select Division --</option>
                         {studentForm.classStandard && classes
@@ -5441,24 +5442,24 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">House (e.g. Red / Blue)</label>
-                      <input type="text" value={studentForm.house || ''} onChange={(e) => setStudentForm({...studentForm, house: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">House (e.g. Red / Blue)</label>
+                      <input type="text" value={studentForm.house || ''} onChange={(e) => setStudentForm({...studentForm, house: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Academic Year</label>
-                      <input type="text" value={studentForm.academicYear || ''} onChange={(e) => setStudentForm({...studentForm, academicYear: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" placeholder="e.g. 2026-2027" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Academic Year</label>
+                      <input type="text" value={studentForm.academicYear || ''} onChange={(e) => setStudentForm({...studentForm, academicYear: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" placeholder="e.g. 2026-2027" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Admission Date</label>
-                      <input type="date" value={studentForm.admissionDate || ''} onChange={(e) => setStudentForm({...studentForm, admissionDate: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Admission Date</label>
+                      <input type="date" value={studentForm.admissionDate || ''} onChange={(e) => setStudentForm({...studentForm, admissionDate: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Previous School (Type prev name or Fresh)</label>
-                      <input type="text" value={studentForm.previousSchool || ''} onChange={(e) => setStudentForm({...studentForm, previousSchool: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Previous School (Type prev name or Fresh)</label>
+                      <input type="text" value={studentForm.previousSchool || ''} onChange={(e) => setStudentForm({...studentForm, previousSchool: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Student Status</label>
-                      <select value={studentForm.studentStatus} onChange={(e) => setStudentForm({...studentForm, studentStatus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Student Status</label>
+                      <select value={studentForm.studentStatus} onChange={(e) => setStudentForm({...studentForm, studentStatus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                         <option>Active</option>
                         <option>Graduated</option>
                         <option>Transferred</option>
@@ -5466,18 +5467,18 @@ const AdminDashboard = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-1">Medium</label>
-                      <input type="text" value={studentForm.medium || ''} onChange={(e) => setStudentForm({...studentForm, medium: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                      <label className="block text-xs font-bold text-[#355e4d] mb-1">Medium</label>
+                      <input type="text" value={studentForm.medium || ''} onChange={(e) => setStudentForm({...studentForm, medium: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                     </div>
 
                     <div className="col-span-2">
-                      <label className="block text-xs font-bold text-[#6d4c35] mb-2">Subjects Enrolled</label>
-                      <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 border border-[#d9c5b0] bg-[#faf4ea] rounded-xl">
+                      <label className="block text-xs font-bold text-[#355e4d] mb-2">Subjects Enrolled</label>
+                      <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto p-3 border border-[#cfe0d6] bg-[#f4f8f5] rounded-xl">
                         {subjects.length > 0 ? (
                           subjects
                             .filter(sub => !sub.standard || sub.standard === 'All' || !studentForm.classStandard || sub.standard.toLowerCase() === studentForm.classStandard.toLowerCase())
                             .map(sub => (
-                            <label key={sub._id} className="flex items-center gap-2 text-xs text-[#6d4c35] cursor-pointer">
+                            <label key={sub._id} className="flex items-center gap-2 text-xs text-[#355e4d] cursor-pointer">
                               <input 
                                 type="checkbox" 
                                 checked={studentForm.subjectsEnrolled.includes(sub._id)} 
@@ -5489,13 +5490,13 @@ const AdminDashboard = () => {
                                     : current.filter(x => x !== val);
                                   setStudentForm({...studentForm, subjectsEnrolled: nextVal});
                                 }}
-                                className="rounded border-[#d9c5b0]"
+                                className="rounded border-[#cfe0d6]"
                               />
                               {sub.name} ({sub.code})
                             </label>
                           ))
                         ) : (
-                          <p className="text-xs text-[#8a6a50] italic col-span-2">No subjects configured. Add subjects first.</p>
+                          <p className="text-xs text-[#4f7262] italic col-span-2">No subjects configured. Add subjects first.</p>
                         )}
                       </div>
                     </div>
@@ -5505,73 +5506,73 @@ const AdminDashboard = () => {
                 {/* TAB 5: HEALTH & BUS INFORMATION */}
                 {studentModalTab === 'health' && (
                   <div className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#d9c5b0]/50 pb-4">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Health Information</h4>
+                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#cfe0d6]/50 pb-4">
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Health Information</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Allergies</label>
-                        <input type="text" value={studentForm.allergies || ''} onChange={(e) => setStudentForm({...studentForm, allergies: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Allergies</label>
+                        <input type="text" value={studentForm.allergies || ''} onChange={(e) => setStudentForm({...studentForm, allergies: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Medical Conditions</label>
-                        <input type="text" value={studentForm.medicalConditions || ''} onChange={(e) => setStudentForm({...studentForm, medicalConditions: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Medical Conditions</label>
+                        <input type="text" value={studentForm.medicalConditions || ''} onChange={(e) => setStudentForm({...studentForm, medicalConditions: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Disability</label>
-                        <input type="text" value={studentForm.disability || ''} onChange={(e) => setStudentForm({...studentForm, disability: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Disability</label>
+                        <input type="text" value={studentForm.disability || ''} onChange={(e) => setStudentForm({...studentForm, disability: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Doctor Name</label>
-                        <input type="text" value={studentForm.doctorName || ''} onChange={(e) => setStudentForm({...studentForm, doctorName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Doctor Name</label>
+                        <input type="text" value={studentForm.doctorName || ''} onChange={(e) => setStudentForm({...studentForm, doctorName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div className="col-span-2">
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Medical Notes</label>
-                        <input type="text" value={studentForm.medicalNotes || ''} onChange={(e) => setStudentForm({...studentForm, medicalNotes: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Medical Notes</label>
+                        <input type="text" value={studentForm.medicalNotes || ''} onChange={(e) => setStudentForm({...studentForm, medicalNotes: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
-                      <div className="col-span-2 grid gap-3 sm:grid-cols-3 bg-[#faf4ea]/50 p-3 rounded-xl border border-[#d9c5b0]/60">
-                        <h5 className="col-span-3 text-xs font-bold text-[#7a4e2d]">Emergency Contact Details</h5>
+                      <div className="col-span-2 grid gap-3 sm:grid-cols-3 bg-[#f4f8f5]/50 p-3 rounded-xl border border-[#cfe0d6]/60">
+                        <h5 className="col-span-3 text-xs font-bold text-[#0f6b4f]">Emergency Contact Details</h5>
                         <div>
-                          <label className="block text-xs text-[#6d4c35] mb-1">Contact Name</label>
-                          <input type="text" value={studentForm.emergencyContactName || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactName: e.target.value})} className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none" />
+                          <label className="block text-xs text-[#355e4d] mb-1">Contact Name</label>
+                          <input type="text" value={studentForm.emergencyContactName || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactName: e.target.value})} className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none" />
                         </div>
                         <div>
-                          <label className="block text-xs text-[#6d4c35] mb-1">Relationship</label>
-                          <input type="text" value={studentForm.emergencyContactRelationship || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactRelationship: e.target.value})} className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none" />
+                          <label className="block text-xs text-[#355e4d] mb-1">Relationship</label>
+                          <input type="text" value={studentForm.emergencyContactRelationship || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactRelationship: e.target.value})} className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none" />
                         </div>
                         <div>
-                          <label className="block text-xs text-[#6d4c35] mb-1">Mobile Number</label>
-                          <input type="tel" value={studentForm.emergencyContactMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactMobileNumber: e.target.value})} className="w-full rounded-lg border border-[#d9c5b0] bg-[#faf4ea] px-2 py-1 text-xs outline-none" />
+                          <label className="block text-xs text-[#355e4d] mb-1">Mobile Number</label>
+                          <input type="tel" value={studentForm.emergencyContactMobileNumber || ''} onChange={(e) => setStudentForm({...studentForm, emergencyContactMobileNumber: e.target.value})} className="w-full rounded-lg border border-[#cfe0d6] bg-[#f4f8f5] px-2 py-1 text-xs outline-none" />
                         </div>
                       </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Transport / School Bus</h4>
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Transport / School Bus</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Uses School Bus?</label>
-                        <select value={studentForm.usesSchoolBus} onChange={(e) => setStudentForm({...studentForm, usesSchoolBus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Uses School Bus?</label>
+                        <select value={studentForm.usesSchoolBus} onChange={(e) => setStudentForm({...studentForm, usesSchoolBus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                           <option>No</option>
                           <option>Yes</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Bus Route</label>
-                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busRoute || ''} onChange={(e) => setStudentForm({...studentForm, busRoute: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none disabled:opacity-50" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Bus Route</label>
+                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busRoute || ''} onChange={(e) => setStudentForm({...studentForm, busRoute: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none disabled:opacity-50" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Bus Stop</label>
-                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busStop || ''} onChange={(e) => setStudentForm({...studentForm, busStop: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none disabled:opacity-50" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Bus Stop</label>
+                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busStop || ''} onChange={(e) => setStudentForm({...studentForm, busStop: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none disabled:opacity-50" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Bus Number</label>
-                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busNumber || ''} onChange={(e) => setStudentForm({...studentForm, busNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none disabled:opacity-50" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Bus Number</label>
+                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.busNumber || ''} onChange={(e) => setStudentForm({...studentForm, busNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none disabled:opacity-50" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Driver Name</label>
-                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.driverName || ''} onChange={(e) => setStudentForm({...studentForm, driverName: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none disabled:opacity-50" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Driver Name</label>
+                        <input type="text" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.driverName || ''} onChange={(e) => setStudentForm({...studentForm, driverName: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none disabled:opacity-50" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Driver Contact</label>
-                        <input type="tel" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.driverContact || ''} onChange={(e) => setStudentForm({...studentForm, driverContact: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none disabled:opacity-50" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Driver Contact</label>
+                        <input type="tel" disabled={studentForm.usesSchoolBus==='No'} value={studentForm.driverContact || ''} onChange={(e) => setStudentForm({...studentForm, driverContact: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none disabled:opacity-50" />
                       </div>
                     </div>
                   </div>
@@ -5580,45 +5581,45 @@ const AdminDashboard = () => {
                 {/* TAB 6: LIBRARY & LOGIN DETAILS */}
                 {studentModalTab === 'library' && (
                   <div className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#d9c5b0]/50 pb-4">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Library Information</h4>
+                    <div className="grid gap-4 sm:grid-cols-2 border-b border-[#cfe0d6]/50 pb-4">
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Library Information</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Library Card Number</label>
-                        <input type="text" value={studentForm.libraryCardNumber || ''} onChange={(e) => setStudentForm({...studentForm, libraryCardNumber: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Library Card Number</label>
+                        <input type="text" value={studentForm.libraryCardNumber || ''} onChange={(e) => setStudentForm({...studentForm, libraryCardNumber: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Books Issued</label>
-                        <input type="number" value={studentForm.booksIssued || 0} onChange={(e) => setStudentForm({...studentForm, booksIssued: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Books Issued</label>
+                        <input type="number" value={studentForm.booksIssued || 0} onChange={(e) => setStudentForm({...studentForm, booksIssued: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Issue Date</label>
-                        <input type="date" value={studentForm.issueDate || ''} onChange={(e) => setStudentForm({...studentForm, issueDate: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Issue Date</label>
+                        <input type="date" value={studentForm.issueDate || ''} onChange={(e) => setStudentForm({...studentForm, issueDate: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Return Date</label>
-                        <input type="date" value={studentForm.returnDate || ''} onChange={(e) => setStudentForm({...studentForm, returnDate: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Return Date</label>
+                        <input type="date" value={studentForm.returnDate || ''} onChange={(e) => setStudentForm({...studentForm, returnDate: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Fine Outstanding</label>
-                        <input type="number" value={studentForm.fine || 0} onChange={(e) => setStudentForm({...studentForm, fine: Number(e.target.value)})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Fine Outstanding</label>
+                        <input type="number" value={studentForm.fine || 0} onChange={(e) => setStudentForm({...studentForm, fine: Number(e.target.value)})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Book Status</label>
-                        <input type="text" value={studentForm.bookStatus || ''} onChange={(e) => setStudentForm({...studentForm, bookStatus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" placeholder="e.g. Issued / Returned" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Book Status</label>
+                        <input type="text" value={studentForm.bookStatus || ''} onChange={(e) => setStudentForm({...studentForm, bookStatus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" placeholder="e.g. Issued / Returned" />
                       </div>
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <h4 className="col-span-2 font-bold text-[#7a4e2d] text-sm">Login & Account Details</h4>
+                      <h4 className="col-span-2 font-bold text-[#0f6b4f] text-sm">Login & Account Details</h4>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Login Email / Username *</label>
-                        <input type="email" required value={studentForm.email} onChange={(e) => setStudentForm({...studentForm, email: e.target.value, username: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Login Email / Username *</label>
+                        <input type="email" required value={studentForm.email} onChange={(e) => setStudentForm({...studentForm, email: e.target.value, username: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Login Password *</label>
-                        <input type="password" required={!editingStudentId} placeholder={editingStudentId ? "Leave blank to keep current" : "At least 6 characters"} value={studentForm.password} onChange={(e) => setStudentForm({...studentForm, password: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none" />
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Login Password *</label>
+                        <input type="password" required={!editingStudentId} placeholder={editingStudentId ? "Leave blank to keep current" : "At least 6 characters"} value={studentForm.password} onChange={(e) => setStudentForm({...studentForm, password: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none" />
                         <div className="mt-1.5 space-y-1 text-[10px]">
-                          <p className="font-semibold text-[#6d4c35]">Password requirements:</p>
+                          <p className="font-semibold text-[#355e4d]">Password requirements:</p>
                           <div className="grid grid-cols-2 gap-1 mt-0.5">
                             <div className="flex items-center gap-1">
                               <span className={`inline-block h-1.5 w-1.5 rounded-full ${(studentForm.password || '').length >= 6 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -5640,8 +5641,8 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">Account Status</label>
-                        <select value={studentForm.accountStatus} onChange={(e) => setStudentForm({...studentForm, accountStatus: e.target.value})} className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-3 py-2 text-sm outline-none">
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">Account Status</label>
+                        <select value={studentForm.accountStatus} onChange={(e) => setStudentForm({...studentForm, accountStatus: e.target.value})} className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-3 py-2 text-sm outline-none">
                           <option>Active</option>
                           <option>Suspended</option>
                           <option>Inactive</option>
@@ -5656,22 +5657,22 @@ const AdminDashboard = () => {
                   <div className="grid gap-4 sm:grid-cols-2">
                     {[
                       ['docBirthCertificate', 'Birth Certificate'],
-                      ['docAadhaarCard', 'Aadhaar Card'],
+                      ['docCnicCopy', 'B-Form / CNIC Copy'],
                       ['docPreviousMarksheet', 'Previous Marksheet'],
                       ['docTransferCertificate', 'Transfer Certificate'],
                       ['docLeavingCertificate', 'Leaving Certificate (Optional)'],
                       ['docPassportPhoto', 'Passport Photo'],
-                      ['docParentIdProof', 'Parent ID Proof'],
+                      ['docParentIdProof', 'Parent CNIC Copy'],
                       ['docAddressProof', 'Address Proof'],
                       ['docIncomeCertificate', 'Income Certificate (Optional)'],
-                      ['docCasteCertificate', 'Caste Certificate (Optional)'],
+                      ['docDomicileCertificate', 'Domicile Certificate (Optional)'],
                     ].map(([fieldName, label]) => (
-                      <div key={fieldName} className="p-3 border border-[#d9c5b0]/60 rounded-xl bg-[#faf4ea]/40">
-                        <label className="block text-xs font-bold text-[#6d4c35] mb-1">{label}</label>
+                      <div key={fieldName} className="p-3 border border-[#cfe0d6]/60 rounded-xl bg-[#f4f8f5]/40">
+                        <label className="block text-xs font-bold text-[#355e4d] mb-1">{label}</label>
                         <input 
                           type="file" 
                           onChange={(e) => handleFileUpload(e, fieldName, 'student')} 
-                          className="w-full text-xs text-[#6d4c35] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#7a4e2d] file:text-[#f7efe4] hover:file:bg-[#624021] cursor-pointer" 
+                          className="w-full text-xs text-[#355e4d] file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#0f6b4f] file:text-[#edf5f0] hover:file:bg-[#0b5340] cursor-pointer" 
                         />
                         {uploadingField === fieldName && <p className="text-xs text-amber-600 mt-1">Uploading...</p>}
                         {studentForm[fieldName] && (
@@ -5684,11 +5685,11 @@ const AdminDashboard = () => {
                   </div>
                 )}
 
-                <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-4">
-                  <button type="button" onClick={() => setShowAddStudentModal(false)} className="rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-4 py-2 text-sm font-semibold text-[#8a6a50] hover:bg-[#f4ecdf] transition">
+                <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-4">
+                  <button type="button" onClick={() => setShowAddStudentModal(false)} className="rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-4 py-2 text-sm font-semibold text-[#4f7262] hover:bg-[#e9f2ed] transition">
                     Cancel
                   </button>
-                  <button type="submit" className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-sm font-semibold text-[#f7efe4] hover:bg-[#624021] transition">
+                  <button type="submit" className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-sm font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition">
                     {editingStudentId ? 'Update Student' : 'Save Student'}
                   </button>
                 </div>
@@ -5700,28 +5701,28 @@ const AdminDashboard = () => {
         {/* --- VIEW STUDENT DETAILS MODAL --- */}
         {showStudentDetailsModal && selectedStudentForDetails && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
-            <div className="w-full max-w-4xl bg-[#fffaf3] rounded-[2rem] border border-[#d9c5b0] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center border-b border-[#d9c5b0] pb-4">
+            <div className="w-full max-w-4xl bg-[#fbfdfb] rounded-[2rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center border-b border-[#cfe0d6] pb-4">
                 <div className="flex items-center gap-4">
                   {selectedStudentForDetails.photo ? (
-                    <img src={selectedStudentForDetails.photo} alt={selectedStudentForDetails.name} className="h-14 w-14 rounded-2xl object-cover border border-[#d9c5b0]" />
+                    <img src={selectedStudentForDetails.photo} alt={selectedStudentForDetails.name} className="h-14 w-14 rounded-2xl object-cover border border-[#cfe0d6]" />
                   ) : (
-                    <div className="h-14 w-14 rounded-2xl bg-[#7a4e2d]/10 text-[#7a4e2d] flex items-center justify-center font-bold text-xl">
+                    <div className="h-14 w-14 rounded-2xl bg-[#0f6b4f]/10 text-[#0f6b4f] flex items-center justify-center font-bold text-xl">
                       {selectedStudentForDetails.name?.charAt(0)}
                     </div>
                   )}
                   <div>
-                    <h2 className="text-2xl font-black text-[#3f2a1d]">{selectedStudentForDetails.name}</h2>
-                    <p className="text-sm text-[#7f634e]">Student ID: <span className="font-semibold">{selectedStudentForDetails.studentId || 'N/A'}</span> | Class: <span className="font-semibold">{selectedStudentForDetails.classId?.standard || 'N/A'} ({selectedStudentForDetails.division || 'N/A'})</span></p>
+                    <h2 className="text-2xl font-black text-[#0c2f25]">{selectedStudentForDetails.name}</h2>
+                    <p className="text-sm text-[#4d7262]">Student ID: <span className="font-semibold">{selectedStudentForDetails.studentId || 'N/A'}</span> | Class: <span className="font-semibold">{selectedStudentForDetails.classId?.standard || 'N/A'} ({selectedStudentForDetails.division || 'N/A'})</span></p>
                   </div>
                 </div>
-                <button onClick={() => { setShowStudentDetailsModal(false); setSelectedStudentForDetails(null); }} className="p-2 text-[#8a6a50] hover:bg-[#f4ecdf] rounded-full transition">
+                <button onClick={() => { setShowStudentDetailsModal(false); setSelectedStudentForDetails(null); }} className="p-2 text-[#4f7262] hover:bg-[#e9f2ed] rounded-full transition">
                   <X className="h-6 w-6" />
                 </button>
               </div>
 
               {/* Tab Selector */}
-              <div className="flex border-b border-[#d9c5b0] gap-4 pb-2">
+              <div className="flex border-b border-[#cfe0d6] gap-4 pb-2">
                 {[
                   ['info', 'Basic Info & Parent Details'],
                   ['attendance', 'Attendance & Overrides'],
@@ -5736,8 +5737,8 @@ const AdminDashboard = () => {
                     }}
                     className={`px-4 py-2 text-xs font-black tracking-wide transition-all border-b-2 ${
                       adminStudentModalTab === tabId
-                        ? 'text-[#7a4e2d] border-[#7a4e2d]'
-                        : 'text-[#8a6a50] border-transparent hover:text-[#7a4e2d]'
+                        ? 'text-[#0f6b4f] border-[#0f6b4f]'
+                        : 'text-[#4f7262] border-transparent hover:text-[#0f6b4f]'
                     }`}
                   >
                     {label}
@@ -5747,17 +5748,17 @@ const AdminDashboard = () => {
 
               {adminLoadingDetails ? (
                 <div className="text-center py-20">
-                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-[#7a4e2d]"></div>
-                  <p className="text-xs text-[#8a6a50] mt-2">Loading details...</p>
+                  <div className="inline-block h-8 w-8 animate-spin rounded-full border-b-2 border-[#0f6b4f]"></div>
+                  <p className="text-xs text-[#4f7262] mt-2">Loading details...</p>
                 </div>
               ) : (
                 <>
                   {/* TAB 1: BASIC INFORMATION */}
                   {adminStudentModalTab === 'info' && (
-                    <div className="grid gap-6 md:grid-cols-2 text-[#6d4c35]">
+                    <div className="grid gap-6 md:grid-cols-2 text-[#355e4d]">
                       {/* Basic Info */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Basic Student Information</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Basic Student Information</h3>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs">
                           <p className="font-bold">Admission Number:</p><p>{selectedStudentForDetails.admissionNumber || 'N/A'}</p>
                           <p className="font-bold">Roll Number:</p><p>{selectedStudentForDetails.rollNumber || 'N/A'}</p>
@@ -5767,34 +5768,34 @@ const AdminDashboard = () => {
                           <p className="font-bold">Gender:</p><p>{selectedStudentForDetails.gender || 'N/A'}</p>
                           <p className="font-bold">Date of Birth:</p><p>{selectedStudentForDetails.dateOfBirth ? new Date(selectedStudentForDetails.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
                           <p className="font-bold">Blood Group:</p><p>{selectedStudentForDetails.bloodGroup || 'N/A'}</p>
-                          <p className="font-bold">Aadhaar Number:</p><p>{selectedStudentForDetails.aadhaarNumber || 'N/A'}</p>
-                          <p className="font-bold">Nationality:</p><p>{selectedStudentForDetails.nationality || 'Indian'}</p>
+                          <p className="font-bold">B-Form / CNIC No.:</p><p>{selectedStudentForDetails.cnicNumber || 'N/A'}</p>
+                          <p className="font-bold">Nationality:</p><p>{selectedStudentForDetails.nationality || 'Pakistani'}</p>
                           <p className="font-bold">Religion:</p><p>{selectedStudentForDetails.religion || 'N/A'}</p>
-                          <p className="font-bold">Caste/Category:</p><p>{selectedStudentForDetails.casteCategory || 'N/A'}</p>
+                          <p className="font-bold">Mother Tongue:</p><p>{selectedStudentForDetails.motherTongue || 'N/A'}</p>
                         </div>
                       </div>
 
                       {/* Contact Info */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Contact Information</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Contact Information</h3>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs">
                           <p className="font-bold">Mobile Number:</p><p>{selectedStudentForDetails.mobileNumber || 'N/A'}</p>
                           <p className="font-bold">Alternate Mobile:</p><p>{selectedStudentForDetails.alternateMobileNumber || 'N/A'}</p>
                           <p className="font-bold">Email Address:</p><p>{selectedStudentForDetails.emailAddress || selectedStudentForDetails.email || 'N/A'}</p>
                           <p className="font-bold">City:</p><p>{selectedStudentForDetails.city || 'N/A'}</p>
-                          <p className="font-bold">State:</p><p>{selectedStudentForDetails.state || 'N/A'}</p>
-                          <p className="font-bold">Country:</p><p>{selectedStudentForDetails.country || 'India'}</p>
-                          <p className="font-bold">PIN Code:</p><p>{selectedStudentForDetails.pinCode || 'N/A'}</p>
+                          <p className="font-bold">Province:</p><p>{selectedStudentForDetails.province || 'N/A'}</p>
+                          <p className="font-bold">Country:</p><p>{selectedStudentForDetails.country || 'Pakistan'}</p>
+                          <p className="font-bold">Postal Code:</p><p>{selectedStudentForDetails.postalCode || 'N/A'}</p>
                           <p className="col-span-2 font-bold mt-1">Current Address:</p>
-                          <p className="col-span-2 bg-[#fffaf3] p-2 rounded-lg border border-[#d9c5b0]/40">{selectedStudentForDetails.currentAddress || 'N/A'}</p>
+                          <p className="col-span-2 bg-[#fbfdfb] p-2 rounded-lg border border-[#cfe0d6]/40">{selectedStudentForDetails.currentAddress || 'N/A'}</p>
                           <p className="col-span-2 font-bold mt-1">Permanent Address:</p>
-                          <p className="col-span-2 bg-[#fffaf3] p-2 rounded-lg border border-[#d9c5b0]/40">{selectedStudentForDetails.permanentAddress || 'N/A'}</p>
+                          <p className="col-span-2 bg-[#fbfdfb] p-2 rounded-lg border border-[#cfe0d6]/40">{selectedStudentForDetails.permanentAddress || 'N/A'}</p>
                         </div>
                       </div>
 
                       {/* Academic & Transport Details */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Academic & Transport</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Academic & Transport</h3>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs">
                           <p className="font-bold">House Color:</p><p>{selectedStudentForDetails.house || 'N/A'}</p>
                           <p className="font-bold">Academic Year:</p><p>{selectedStudentForDetails.academicYear || 'N/A'}</p>
@@ -5813,27 +5814,27 @@ const AdminDashboard = () => {
                       </div>
 
                       {/* Parent Details */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Parent & Guardian Details</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Parent & Guardian Details</h3>
                         <div className="space-y-2 text-xs">
                           <div>
-                            <p className="font-bold text-[#7a4e2d]/90">Father:</p>
+                            <p className="font-bold text-[#0f6b4f]/90">Father:</p>
                             <p className="pl-2">{selectedStudentForDetails.father?.name || 'N/A'} ({selectedStudentForDetails.father?.occupation || 'N/A'}) | {selectedStudentForDetails.father?.mobileNumber || 'N/A'}</p>
                           </div>
                           <div>
-                            <p className="font-bold text-[#7a4e2d]/90">Mother:</p>
+                            <p className="font-bold text-[#0f6b4f]/90">Mother:</p>
                             <p className="pl-2">{selectedStudentForDetails.mother?.name || 'N/A'} ({selectedStudentForDetails.mother?.occupation || 'N/A'}) | {selectedStudentForDetails.mother?.mobileNumber || 'N/A'}</p>
                           </div>
                           <div>
-                            <p className="font-bold text-[#7a4e2d]/90">Guardian:</p>
+                            <p className="font-bold text-[#0f6b4f]/90">Guardian:</p>
                             <p className="pl-2">{selectedStudentForDetails.guardian?.name || 'N/A'} ({selectedStudentForDetails.guardian?.relationship || 'N/A'}) | {selectedStudentForDetails.guardian?.mobileNumber || 'N/A'}</p>
                           </div>
                         </div>
                       </div>
 
                       {/* Library details */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Library Information</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Library Information</h3>
                         <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 text-xs">
                           <p className="font-bold">Library Card Number:</p><p>{selectedStudentForDetails.libraryCardNumber || 'N/A'}</p>
                           <p className="font-bold">Books Issued:</p><p>{selectedStudentForDetails.booksIssued || 0}</p>
@@ -5844,15 +5845,15 @@ const AdminDashboard = () => {
                       </div>
 
                       {/* Documents list */}
-                      <div className="p-5 bg-[#faf4ea]/50 border border-[#d9c5b0] rounded-2xl space-y-3 md:col-span-2">
-                        <h3 className="font-bold text-[#7a4e2d] border-b border-[#d9c5b0]/50 pb-1">Uploaded Documents</h3>
+                      <div className="p-5 bg-[#f4f8f5]/50 border border-[#cfe0d6] rounded-2xl space-y-3 md:col-span-2">
+                        <h3 className="font-bold text-[#0f6b4f] border-b border-[#cfe0d6]/50 pb-1">Uploaded Documents</h3>
                         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 text-xs">
                           {selectedStudentForDetails.documents ? (
                             Object.entries(selectedStudentForDetails.documents).map(([key, value]) => {
                               const niceLabel = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
                               return (
-                                <div key={key} className="p-2 border border-[#d9c5b0]/40 rounded-lg bg-[#fffaf3]">
-                                  <p className="font-bold text-[#7a4e2d]">{niceLabel}</p>
+                                <div key={key} className="p-2 border border-[#cfe0d6]/40 rounded-lg bg-[#fbfdfb]">
+                                  <p className="font-bold text-[#0f6b4f]">{niceLabel}</p>
                                   {value ? (
                                     <a href={value} target="_blank" rel="noopener noreferrer" className="inline-block mt-1 font-bold text-green-700 underline hover:text-green-800">
                                       Download File
@@ -5888,7 +5889,7 @@ const AdminDashboard = () => {
 
                     if (!struct) {
                       return (
-                        <p className="text-center py-10 text-[#8a6a50] italic border border-dashed border-[#d9c5b0] rounded-2xl">
+                        <p className="text-center py-10 text-[#4f7262] italic border border-dashed border-[#cfe0d6] rounded-2xl">
                           No annual fees configured for Standard {selectedStudentForDetails.classId?.standard || 'N/A'} yet.
                         </p>
                       );
@@ -5904,28 +5905,28 @@ const AdminDashboard = () => {
                     const pendingAmount = Math.max(0, totalAmount - totalPaid);
 
                     return (
-                      <div className="space-y-6 text-[#6d4c35]">
+                      <div className="space-y-6 text-[#355e4d]">
                         <div className="grid gap-4 sm:grid-cols-3">
-                          <div className="p-5 border border-[#d9c5b0] bg-white rounded-2xl space-y-1 text-center">
-                            <p className="text-[10px] uppercase font-bold text-[#8a6a50]">Total Annual Fee</p>
-                            <p className="text-2xl font-black text-[#7a4e2d]">${totalAmount}</p>
+                          <div className="p-5 border border-[#cfe0d6] bg-white rounded-2xl space-y-1 text-center">
+                            <p className="text-[10px] uppercase font-bold text-[#4f7262]">Total Annual Fee</p>
+                            <p className="text-2xl font-black text-[#0f6b4f]">${totalAmount}</p>
                             <p className="text-xs text-gray-400">Standard {struct.standard}</p>
                           </div>
-                          <div className="p-5 border border-[#d9c5b0] bg-white rounded-2xl space-y-1 text-center">
-                            <p className="text-[10px] uppercase font-bold text-[#8a6a50]">Total Paid</p>
+                          <div className="p-5 border border-[#cfe0d6] bg-white rounded-2xl space-y-1 text-center">
+                            <p className="text-[10px] uppercase font-bold text-[#4f7262]">Total Paid</p>
                             <p className="text-2xl font-black text-emerald-700">${totalPaid}</p>
                             <p className="text-xs text-gray-400">{paidCount} of {installmentsCount} installments</p>
                           </div>
-                          <div className="p-5 border border-[#d9c5b0] bg-white rounded-2xl space-y-1 text-center">
-                            <p className="text-[10px] uppercase font-bold text-[#8a6a50]">Pending Balance</p>
+                          <div className="p-5 border border-[#cfe0d6] bg-white rounded-2xl space-y-1 text-center">
+                            <p className="text-[10px] uppercase font-bold text-[#4f7262]">Pending Balance</p>
                             <p className="text-2xl font-black text-rose-700">${pendingAmount}</p>
                             <p className="text-xs text-gray-400">{installmentsCount - paidCount} installments pending</p>
                           </div>
                         </div>
 
                         {/* Installment Cards */}
-                        <div className="bg-white border border-[#d9c5b0] rounded-2xl p-5 space-y-4">
-                          <h3 className="font-bold text-base text-[#3f2a1d]">Fee Installment Status Overview</h3>
+                        <div className="bg-white border border-[#cfe0d6] rounded-2xl p-5 space-y-4">
+                          <h3 className="font-bold text-base text-[#0c2f25]">Fee Installment Status Overview</h3>
                           <div className="grid gap-4 sm:grid-cols-4">
                             {Array.from({ length: installmentsCount }).map((_, idx) => {
                               const label = `Q${idx + 1}`;
@@ -5935,7 +5936,7 @@ const AdminDashboard = () => {
                                 <div key={label} className={`p-4 rounded-xl border text-center space-y-2 ${
                                   isPaid ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-200'
                                 }`}>
-                                  <span className="text-xs font-extrabold text-[#3f2a1d]">{label} Installment</span>
+                                  <span className="text-xs font-extrabold text-[#0c2f25]">{label} Installment</span>
                                   <p className="font-black text-sm">${costPerInstallment}</p>
                                   <span className={`inline-block text-[9px] font-black uppercase px-2 py-0.5 rounded ${
                                     isPaid ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
@@ -5953,36 +5954,36 @@ const AdminDashboard = () => {
 
                   {/* TAB 4: EXAM SCORES */}
                   {adminStudentModalTab === 'marks' && (
-                    <div className="space-y-4 text-[#6d4c35]">
-                      <div className="overflow-x-auto rounded-2xl border border-[#d9c5b0]">
+                    <div className="space-y-4 text-[#355e4d]">
+                      <div className="overflow-x-auto rounded-2xl border border-[#cfe0d6]">
                         <table className="w-full text-left border-collapse bg-white">
                           <thead>
-                            <tr className="bg-[#f4ecdf] text-xs font-bold text-[#6d4c35] uppercase">
+                            <tr className="bg-[#e9f2ed] text-xs font-bold text-[#355e4d] uppercase">
                               <th className="p-3">Exam / Assessment</th>
                               <th className="p-3">Subject</th>
                               <th className="p-3">Marks Obtained</th>
                               <th className="p-3 text-center">Passing Status</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[#f4ecdf] text-xs text-[#6d4c35]">
+                          <tbody className="divide-y divide-[#e9f2ed] text-xs text-[#355e4d]">
                             {adminStudentProfile?.marks?.length > 0 ? (
                               adminStudentProfile.marks.map((record) => {
                                 const isPass = record.passStatus === 'Pass';
                                 return (
-                                  <tr key={record._id} className="hover:bg-[#fffaf3]/50">
+                                  <tr key={record._id} className="hover:bg-[#fbfdfb]/50">
                                     <td className="p-3">
-                                      <div className="font-bold text-[#3f2a1d]">
+                                      <div className="font-bold text-[#0c2f25]">
                                         {record.examId?.name || 'Assessment'}
                                       </div>
-                                      <div className="text-[10px] text-[#8a6a50]">
+                                      <div className="text-[10px] text-[#4f7262]">
                                         {record.examId?.date ? new Date(record.examId.date).toLocaleDateString() : 'N/A'}
                                       </div>
                                     </td>
                                     <td className="p-3 font-semibold">
                                       {record.subjectId?.name || 'N/A'}
                                     </td>
-                                    <td className="p-3 font-black text-[#7a4e2d] text-sm">
-                                      {record.marks} <span className="text-[10px] font-bold text-[#8a6a50] font-normal">/ {record.outOfMarks || 100}</span>
+                                    <td className="p-3 font-black text-[#0f6b4f] text-sm">
+                                      {record.marks} <span className="text-[10px] font-bold text-[#4f7262] font-normal">/ {record.outOfMarks || 100}</span>
                                     </td>
                                     <td className="p-3 text-center">
                                       <span className={`inline-block px-2.5 py-0.5 rounded-full font-black uppercase text-[9px] ${
@@ -5996,7 +5997,7 @@ const AdminDashboard = () => {
                               })
                             ) : (
                               <tr>
-                                <td colSpan="4" className="p-6 text-center italic text-[#8a6a50]">
+                                <td colSpan="4" className="p-6 text-center italic text-[#4f7262]">
                                   No exam marks recorded for this student yet.
                                 </td>
                               </tr>
@@ -6009,8 +6010,8 @@ const AdminDashboard = () => {
                 </>
               )}
 
-              <div className="flex justify-end border-t border-[#d9c5b0] pt-4">
-                <button onClick={() => { setShowStudentDetailsModal(false); setSelectedStudentForDetails(null); setAdminStudentProfile(null); }} className="rounded-xl bg-[#7a4e2d] px-6 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition">
+              <div className="flex justify-end border-t border-[#cfe0d6] pt-4">
+                <button onClick={() => { setShowStudentDetailsModal(false); setSelectedStudentForDetails(null); setAdminStudentProfile(null); }} className="rounded-xl bg-[#0f6b4f] px-6 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition">
                   Close Window
                 </button>
               </div>
@@ -6021,15 +6022,15 @@ const AdminDashboard = () => {
         {/* Class Setup Modal */}
         {showClassSetupModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-            <div className="w-full max-w-2xl rounded-[2rem] border border-[#d9c5b0] bg-[#fffaf3] p-6 text-[#3f2a1d] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between border-b border-[#d9c5b0]/50 pb-4">
+            <div className="w-full max-w-2xl rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 text-[#0c2f25] shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b border-[#cfe0d6]/50 pb-4">
                 <div>
-                  <h2 className="text-2xl font-black text-[#7a4e2d]">School Class Setup</h2>
-                  <p className="text-xs text-[#8a6a50]">Configure standards, pre-primary stages, and their divisions count.</p>
+                  <h2 className="text-2xl font-black text-[#0f6b4f]">School Class Setup</h2>
+                  <p className="text-xs text-[#4f7262]">Configure standards, pre-primary stages, and their divisions count.</p>
                 </div>
                 <button
                   onClick={() => setShowClassSetupModal(false)}
-                  className="rounded-full p-1.5 hover:bg-[#7a4e2d]/10 text-[#7a4e2d] transition"
+                  className="rounded-full p-1.5 hover:bg-[#0f6b4f]/10 text-[#0f6b4f] transition"
                 >
                   <X className="h-6 w-6" />
                 </button>
@@ -6038,23 +6039,23 @@ const AdminDashboard = () => {
               <form onSubmit={handleSaveClassSetup} className="space-y-6">
                 <div className="grid gap-6 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-bold text-[#6d4c35] mb-2">Total Numeric Standards</label>
+                    <label className="block text-xs font-bold text-[#355e4d] mb-2">Total Numeric Standards</label>
                     <input
                       type="number"
                       min={0}
                       max={12}
                       value={totalNumericStandards}
                       onChange={(e) => setTotalNumericStandards(parseInt(e.target.value || 0, 10))}
-                      className="w-full rounded-xl border border-[#d9c5b0] bg-[#faf4ea] px-4 py-2.5 text-sm outline-none focus:border-[#7a4e2d] focus:bg-white transition"
+                      className="w-full rounded-xl border border-[#cfe0d6] bg-[#f4f8f5] px-4 py-2.5 text-sm outline-none focus:border-[#0f6b4f] focus:bg-white transition"
                     />
-                    <p className="text-[10px] text-[#8a6a50] mt-1">E.g., 10 creates Std 1 to 10 automatically.</p>
+                    <p className="text-[10px] text-[#4f7262] mt-1">E.g., 10 creates Std 1 to 10 automatically.</p>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#6d4c35] mb-2">Pre-Primary Checklist</label>
+                    <label className="block text-xs font-bold text-[#355e4d] mb-2">Pre-Primary Checklist</label>
                     <div className="grid grid-cols-2 gap-2">
                       {['Playgroup', 'Nursery', 'Junior KG', 'Senior KG'].map((stage) => (
-                        <label key={stage} className="flex items-center gap-2 cursor-pointer text-sm text-[#6d4c35] font-medium">
+                        <label key={stage} className="flex items-center gap-2 cursor-pointer text-sm text-[#355e4d] font-medium">
                           <input
                             type="checkbox"
                             checked={!!prePrimaryChecklist[stage]}
@@ -6064,7 +6065,7 @@ const AdminDashboard = () => {
                                 [stage]: e.target.checked
                               }));
                             }}
-                            className="h-4 w-4 rounded border-[#d9c5b0] text-[#7a4e2d] focus:ring-[#7a4e2d]"
+                            className="h-4 w-4 rounded border-[#cfe0d6] text-[#0f6b4f] focus:ring-[#0f6b4f]"
                           />
                           {stage}
                         </label>
@@ -6073,21 +6074,21 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                <div className="border-t border-[#d9c5b0]/50 pt-4">
+                <div className="border-t border-[#cfe0d6]/50 pt-4">
                   <div className="flex justify-between items-center flex-wrap gap-2 mb-3">
                     <div>
-                      <h4 className="text-sm font-bold text-[#3f2a1d]">Divisions Configuration (Per Standard)</h4>
-                      <p className="text-xs text-[#8a6a50]">Set standard-specific division count (e.g., 4 creates divisions A-D).</p>
+                      <h4 className="text-sm font-bold text-[#0c2f25]">Divisions Configuration (Per Standard)</h4>
+                      <p className="text-xs text-[#4f7262]">Set standard-specific division count (e.g., 4 creates divisions A-D).</p>
                     </div>
-                    <div className="flex items-center gap-2 bg-white border border-[#d9c5b0]/50 p-2 rounded-xl">
-                      <span className="text-xs font-bold text-[#6d4c35]">Apply to all:</span>
+                    <div className="flex items-center gap-2 bg-white border border-[#cfe0d6]/50 p-2 rounded-xl">
+                      <span className="text-xs font-bold text-[#355e4d]">Apply to all:</span>
                       <input
                         type="number"
                         id="bulkDivisionsInput"
                         min={1}
                         max={10}
                         defaultValue={1}
-                        className="w-12 text-center rounded-lg border border-[#d9c5b0] px-1 py-0.5 text-xs outline-none focus:border-[#7a4e2d]"
+                        className="w-12 text-center rounded-lg border border-[#cfe0d6] px-1 py-0.5 text-xs outline-none focus:border-[#0f6b4f]"
                       />
                       <button
                         type="button"
@@ -6100,19 +6101,19 @@ const AdminDashboard = () => {
                           setDivisionsCountMap(nextMap);
                           toast.success(`Applied ${val} divisions to all active standards!`);
                         }}
-                        className="bg-[#7a4e2d] hover:bg-[#624021] text-[#f7efe4] text-xs font-bold px-3 py-1 rounded-lg transition"
+                        className="bg-[#0f6b4f] hover:bg-[#0b5340] text-[#edf5f0] text-xs font-bold px-3 py-1 rounded-lg transition"
                       >
                         Apply
                       </button>
                     </div>
                   </div>
                   
-                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 max-h-48 overflow-y-auto p-3 bg-[#faf4ea] border border-[#d9c5b0]/50 rounded-2xl">
+                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 max-h-48 overflow-y-auto p-3 bg-[#f4f8f5] border border-[#cfe0d6]/50 rounded-2xl">
                     {getActiveStandards().map((std) => (
-                      <div key={std} className="flex items-center justify-between p-3 rounded-xl border border-[#d9c5b0]/30 bg-white shadow-sm">
-                        <span className="text-xs font-bold text-[#7a4e2d]">{std}</span>
+                      <div key={std} className="flex items-center justify-between p-3 rounded-xl border border-[#cfe0d6]/30 bg-white shadow-sm">
+                        <span className="text-xs font-bold text-[#0f6b4f]">{std}</span>
                         <div className="flex items-center gap-1.5">
-                          <label className="text-[9px] text-[#8a6a50] font-semibold uppercase">Divs:</label>
+                          <label className="text-[9px] text-[#4f7262] font-semibold uppercase">Divs:</label>
                           <input
                             type="number"
                             min={1}
@@ -6125,7 +6126,7 @@ const AdminDashboard = () => {
                                 [std]: val
                               }));
                             }}
-                            className="w-12 text-center rounded-lg border border-[#d9c5b0] px-1 py-0.5 text-xs outline-none focus:border-[#7a4e2d]"
+                            className="w-12 text-center rounded-lg border border-[#cfe0d6] px-1 py-0.5 text-xs outline-none focus:border-[#0f6b4f]"
                           />
                         </div>
                       </div>
@@ -6135,18 +6136,18 @@ const AdminDashboard = () => {
 
 
 
-                <div className="flex justify-end gap-3 border-t border-[#d9c5b0]/50 pt-4">
+                <div className="flex justify-end gap-3 border-t border-[#cfe0d6]/50 pt-4">
                   <button
                     type="button"
                     onClick={() => setShowClassSetupModal(false)}
-                    className="rounded-xl border border-[#d9c5b0] bg-white px-5 py-2.5 text-sm font-bold text-[#7a4e2d] hover:bg-[#7a4e2d]/10 transition"
+                    className="rounded-xl border border-[#cfe0d6] bg-white px-5 py-2.5 text-sm font-bold text-[#0f6b4f] hover:bg-[#0f6b4f]/10 transition"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="rounded-xl bg-[#7a4e2d] px-6 py-2.5 text-sm font-bold text-[#f7efe4] hover:bg-[#624021] transition disabled:opacity-50"
+                    className="rounded-xl bg-[#0f6b4f] px-6 py-2.5 text-sm font-bold text-[#edf5f0] hover:bg-[#0b5340] transition disabled:opacity-50"
                   >
                     {loading ? 'Setting up...' : 'Save Configuration'}
                   </button>
@@ -6185,20 +6186,20 @@ const AdminDashboard = () => {
 
           return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm overflow-y-auto">
-              <div className="w-full max-w-3xl bg-[#fffaf3] rounded-[2rem] border border-[#d9c5b0] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center border-b border-[#d9c5b0] pb-4">
+              <div className="w-full max-w-3xl bg-[#fbfdfb] rounded-[2rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center border-b border-[#cfe0d6] pb-4">
                   <div>
-                    <h2 className="text-xl font-black text-[#3f2a1d]">📚 Assign Subjects & Standards</h2>
-                    <p className="text-sm text-[#7f634e]">Assign subjects and classes for {t.name}. Divisions will be auto-allocated.</p>
+                    <h2 className="text-xl font-black text-[#0c2f25]">📚 Assign Subjects & Standards</h2>
+                    <p className="text-sm text-[#4d7262]">Assign subjects and classes for {t.name}. Divisions will be auto-allocated.</p>
                   </div>
-                  <button onClick={() => { setShowAssignModal(false); setAssigningTeacher(null); }} className="p-2 text-[#8a6a50] hover:bg-[#f4ecdf] rounded-full transition">
+                  <button onClick={() => { setShowAssignModal(false); setAssigningTeacher(null); }} className="p-2 text-[#4f7262] hover:bg-[#e9f2ed] rounded-full transition">
                     <X className="h-6 w-6" />
                   </button>
                 </div>
 
                 <div className="space-y-4 max-h-[55vh] overflow-y-auto pr-2">
                   {subjects.length === 0 ? (
-                    <p className="text-sm text-[#8a6a50] italic text-center py-6">No subjects configured. Add subjects first.</p>
+                    <p className="text-sm text-[#4f7262] italic text-center py-6">No subjects configured. Add subjects first.</p>
                   ) : (
                     subjects.map(sub => {
                       const isSubjectChecked = !!tempAssignments[sub._id];
@@ -6212,7 +6213,7 @@ const AdminDashboard = () => {
                         : uniqueStandards;
 
                       return (
-                        <div key={sub._id} className={`p-4 rounded-2xl border transition ${isSubjectChecked ? 'border-[#7a4e2d] bg-[#7a4e2d]/5' : 'border-[#d9c5b0]/60 bg-white'}`}>
+                        <div key={sub._id} className={`p-4 rounded-2xl border transition ${isSubjectChecked ? 'border-[#0f6b4f] bg-[#0f6b4f]/5' : 'border-[#cfe0d6]/60 bg-white'}`}>
                           <div className="flex items-center gap-3">
                             <input
                               type="checkbox"
@@ -6227,23 +6228,23 @@ const AdminDashboard = () => {
                                   setTempAssignments(updated);
                                 }
                               }}
-                              className="h-4 w-4 accent-[#7a4e2d] cursor-pointer rounded border-[#d9c5b0]"
+                              className="h-4 w-4 accent-[#0f6b4f] cursor-pointer rounded border-[#cfe0d6]"
                             />
-                            <label htmlFor={`assign-sub-${sub._id}`} className="font-bold text-[#3f2a1d] text-sm cursor-pointer">
-                              {sub.name} <span className="text-xs font-normal text-[#8a6a50]">({sub.code})</span>
+                            <label htmlFor={`assign-sub-${sub._id}`} className="font-bold text-[#0c2f25] text-sm cursor-pointer">
+                              {sub.name} <span className="text-xs font-normal text-[#4f7262]">({sub.code})</span>
                             </label>
                           </div>
 
                           {isSubjectChecked && (
-                            <div className="mt-3 pl-7 border-t border-[#d9c5b0]/30 pt-3 space-y-2">
-                              <p className="text-[10px] font-bold text-[#8a6a50] uppercase tracking-wider">Select Standards</p>
+                            <div className="mt-3 pl-7 border-t border-[#cfe0d6]/30 pt-3 space-y-2">
+                              <p className="text-[10px] font-bold text-[#4f7262] uppercase tracking-wider">Select Standards</p>
                               <div className="flex flex-wrap gap-2">
                                 {subjectStandards.map(std => {
                                   const isStdChecked = activeStds.includes(std);
                                   return (
                                     <label
                                       key={std}
-                                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition select-none ${isStdChecked ? 'border-[#7a4e2d] bg-[#7a4e2d] text-white' : 'border-[#d9c5b0] bg-white text-[#6d4c35] hover:bg-[#faf4ea]'}`}
+                                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition select-none ${isStdChecked ? 'border-[#0f6b4f] bg-[#0f6b4f] text-white' : 'border-[#cfe0d6] bg-white text-[#355e4d] hover:bg-[#f4f8f5]'}`}
                                     >
                                       <input
                                         type="checkbox"
@@ -6276,17 +6277,17 @@ const AdminDashboard = () => {
                   )}
                 </div>
 
-                <div className="flex justify-end gap-2 border-t border-[#d9c5b0] pt-4">
+                <div className="flex justify-end gap-2 border-t border-[#cfe0d6] pt-4">
                   <button
                     onClick={() => { setShowAssignModal(false); setAssigningTeacher(null); }}
-                    className="rounded-xl border border-[#d9c5b0] bg-white px-4 py-2 text-xs font-semibold text-[#8a6a50]"
+                    className="rounded-xl border border-[#cfe0d6] bg-white px-4 py-2 text-xs font-semibold text-[#4f7262]"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSaveAssignments}
                     disabled={savingAssignments}
-                    className="rounded-xl bg-[#7a4e2d] px-4 py-2 text-xs font-semibold text-[#f7efe4] hover:bg-[#624021] transition shadow-sm disabled:opacity-50"
+                    className="rounded-xl bg-[#0f6b4f] px-4 py-2 text-xs font-semibold text-[#edf5f0] hover:bg-[#0b5340] transition shadow-sm disabled:opacity-50"
                   >
                     {savingAssignments ? 'Saving...' : 'Save Assignments'}
                   </button>
