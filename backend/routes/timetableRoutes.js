@@ -12,6 +12,9 @@ router.post('/config', authenticate, authorize('admin'), timetableController.sav
 // Generate Timetable (One-Click)
 router.post('/generate', authenticate, authorize('admin'), timetableController.generateTimetable);
 
+// Edit one period of a class timetable
+router.put('/class/:classId/slot', authenticate, authorize('admin'), timetableController.updateSlot);
+
 // Get All Timetables
 router.get('/', authenticate, timetableController.getAllTimetables);
 

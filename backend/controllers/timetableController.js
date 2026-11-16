@@ -175,6 +175,95 @@ exports.getAllTimetables = async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 };
 
+// ─── Edit a single period (admin) ─────────────────────────────────────────────
+// Body: { dayOfWeek, startTime, endTime, subjectId, teacherId, room?, force? }
+//       or { dayOfWeek, startTime, endTime, clear: true } to make the period free.
+// A teacher who is already teaching another class at an overlapping time is
+// reported with 409 + clash details; send force:true to save anyway.
+
+const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+exports.updateSlot = async (req, res) => {
+  try {
+    const schoolId = req.user.schoolId;
+    const { classId } = req.params;
+    const { dayOfWeek, startTime, endTime, subjectId, teacherId, room, clear, force } = req.body || {};
+
+    if (!DAYS.includes(dayOfWeek)) return res.status(400).json({ message: 'Invalid day.' });
+    if (!HHMM.test(startTime || '') || !HHMM.test(endTime || '') || toMin(endTime) <= toMin(startTime)) {
+      return res.status(400).json({ message: 'Invalid start or end time.' });
+    }
+
+    const cls = await Class.findOne({ _id: classId, schoolId });
+    if (!cls) return res.status(404).json({ message: 'Class not found.' });
+
+    let timetable = await Timetable.findOne({ schoolId, classId, dayOfWeek });
+    const slots = timetable ? timetable.slots.map(s => (s.toObject ? s.toObject() : { ...s })) : [];
+    const idx = slots.findIndex(s => s.startTime === startTime && s.endTime === endTime);
+    if (idx >= 0 && slots[idx].isBreak) {
+      return res.status(400).json({ message: 'Breaks are changed in the school timing settings, not here.' });
+    }
+
+    if (clear) {
+      if (idx >= 0) slots.splice(idx, 1);
+    } else {
+      if (!subjectId || !teacherId) return res.status(400).json({ message: 'Choose both a subject and a teacher.' });
+      const [subject, teacher] = await Promise.all([
+        Subject.findOne({ _id: subjectId, schoolId }),
+        Teacher.findOne({ _id: teacherId, schoolId }),
+      ]);
+      if (!subject) return res.status(400).json({ message: 'Subject not found.' });
+      if (!teacher) return res.status(400).json({ message: 'Teacher not found.' });
+
+      // Teacher clash: same day, different class, overlapping time
+      if (!force) {
+        const others = await Timetable.find({ schoolId, dayOfWeek })
+          .populate('classId', 'standard division');
+        const s0 = toMin(startTime), e0 = toMin(endTime);
+        for (const t of others) {
+          const otherClassId = (t.classId?._id || t.classId || '').toString();
+          if (otherClassId === classId.toString()) continue;
+          for (const sl of t.slots || []) {
+            if (sl.isBreak || !sl.teacherId) continue;
+            if (sl.teacherId.toString() !== teacherId.toString()) continue;
+            if (s0 < toMin(sl.endTime) && e0 > toMin(sl.startTime)) {
+              const c = t.classId;
+              const label = c && c.standard ? `Std ${c.standard} (${c.division})` : 'another class';
+              return res.status(409).json({
+                clash: true,
+                message: `${teacher.name} is already teaching ${label} at ${sl.startTime} - ${sl.endTime} on ${dayOfWeek}.`,
+              });
+            }
+          }
+        }
+      }
+
+      const entry = { startTime, endTime, subjectId, teacherId, isBreak: false, breakName: '', room: room || '' };
+      if (idx >= 0) slots[idx] = entry; else slots.push(entry);
+    }
+
+    slots.sort((a, b) => toMin(a.startTime) - toMin(b.startTime));
+
+    if (timetable) {
+      await Timetable.findOneAndUpdate({ schoolId, classId, dayOfWeek }, { slots }, { new: true });
+    } else {
+      if (clear) return res.json({ message: 'Period is already free.' });
+      const config = await TimetableConfig.findOne({ schoolId });
+      await Timetable.create({ schoolId, classId, dayOfWeek, slots, academicYear: config?.academicYear, isActive: true });
+    }
+
+    const updated = await Timetable.findOne({ schoolId, classId, dayOfWeek })
+      .populate('classId', 'standard division')
+      .populate('slots.subjectId', 'name code')
+      .populate('slots.teacherId', 'name');
+    res.json({ message: clear ? 'Period cleared.' : 'Period updated.', timetable: updated });
+  } catch (e) {
+    console.error('Timetable slot update error:', e);
+    res.status(500).json({ message: e.message });
+  }
+};
+
 // ─── Auto-Generate Timetable ──────────────────────────────────────────────────
 
 exports.generateTimetable = async (req, res) => {

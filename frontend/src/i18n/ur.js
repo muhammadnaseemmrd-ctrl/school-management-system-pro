@@ -687,6 +687,21 @@ const ur = {
   "IBAN": "IBAN",
   "JazzCash": "جیز کیش",
   "Easypaisa": "ایزی پیسہ",
+  "Edit timetable": "ٹائم ٹیبل میں ترمیم",
+  "Done editing": "ترمیم مکمل",
+  "Click any period to change its subject or teacher, or to make it free.": "مضمون یا استاد بدلنے یا پیریڈ فارغ کرنے کے لیے کسی بھی پیریڈ پر کلک کریں۔",
+  "Edit period": "پیریڈ میں ترمیم",
+  "Select subject": "مضمون منتخب کریں",
+  "Select teacher": "استاد منتخب کریں",
+  "Room (optional)": "کمرہ (اختیاری)",
+  "e.g. Room 5": "مثلاً کمرہ 5",
+  "Save anyway": "پھر بھی محفوظ کریں",
+  "Make free": "فارغ کریں",
+  "Save period": "پیریڈ محفوظ کریں",
+  "Period updated.": "پیریڈ اپ ڈیٹ ہو گیا۔",
+  "Period cleared.": "پیریڈ فارغ کر دیا گیا۔",
+  "Choose both a subject and a teacher.": "مضمون اور استاد دونوں منتخب کریں۔",
+  "Failed to update the period": "پیریڈ اپ ڈیٹ نہیں ہو سکا",
 };
 
 export default { ...landingUr, ...ur };

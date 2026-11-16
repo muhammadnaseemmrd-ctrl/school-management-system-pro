@@ -223,6 +223,32 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await expect('timetable config', call('POST', '/timetables/config', A, { periodsPerDay: 6, periodDuration: 40, startTime: '08:00', breakAfterPeriod: 3, breakDuration: 20 }), [200, 201, 400]);
   await expect('timetable generate', call('POST', '/timetables/generate', A, { standards: ['8'] }), [200, 201, 400]);
   await expect('timetable for class', call('GET', `/timetables/class/${classId}`, A), [200, 404]);
+  // ---- edit a single timetable period (admin) incl. teacher-clash protection
+  {
+    const tl = (await call('GET', '/teachers', A)).data; const tlist = tl.teachers || tl;
+    const cls = (await call('GET', '/classes', A)).data; const clist = cls.classes || cls;
+    const subj = sl3[0] && sl3[0]._id; const tch0 = tlist[0] && tlist[0]._id;
+    const slot = { dayOfWeek: 'Monday', startTime: '15:00', endTime: '15:40' };
+    await expect('edit slot: bad day rejected', call('PUT', `/timetables/class/${classId}/slot`, A, { ...slot, dayOfWeek: 'Funday', subjectId: subj, teacherId: tch0 }), [400]);
+    await expect('edit slot: teacher role forbidden', call('PUT', `/timetables/class/${classId}/slot`, tokens.teacher, { ...slot, subjectId: subj, teacherId: tch0 }), [403]);
+    await expect('edit slot: needs subject+teacher', call('PUT', `/timetables/class/${classId}/slot`, A, { ...slot }), [400]);
+    const set1 = await expect('edit slot: set period', call('PUT', `/timetables/class/${classId}/slot`, A, { ...slot, subjectId: subj, teacherId: tch0 }));
+    const tt1 = set1.data.timetable; const got = tt1 && (tt1.slots || []).find(x => x.startTime === '15:00');
+    log(!!got && (got.subjectId._id || got.subjectId) === subj, 'edit slot: period saved with subject');
+    const other = clist.find(c => c._id !== classId);
+    if (other) {
+      await expect('edit slot: same teacher, other class -> clash', call('PUT', `/timetables/class/${other._id}/slot`, A, { ...slot, startTime: '15:20', endTime: '16:00', subjectId: subj, teacherId: tch0 }), [409]);
+      await expect('edit slot: clash overridden with force', call('PUT', `/timetables/class/${other._id}/slot`, A, { ...slot, startTime: '15:20', endTime: '16:00', subjectId: subj, teacherId: tch0, force: true }));
+      await expect('edit slot: clear other class period', call('PUT', `/timetables/class/${other._id}/slot`, A, { ...slot, startTime: '15:20', endTime: '16:00', clear: true }));
+    }
+    const upd = await expect('edit slot: change period again', call('PUT', `/timetables/class/${classId}/slot`, A, { ...slot, subjectId: subj, teacherId: tch0, room: 'Room 5' }));
+    log(((upd.data.timetable.slots || []).filter(x => x.startTime === '15:00').length) === 1, 'edit slot: editing replaces, never duplicates');
+    const clr = await expect('edit slot: clear period', call('PUT', `/timetables/class/${classId}/slot`, A, { ...slot, clear: true }));
+    log(!(clr.data.timetable.slots || []).some(x => x.startTime === '15:00'), 'edit slot: period removed after clear');
+    const brk = (await call('GET', `/timetables/class/${classId}`, A)).data.timetables || [];
+    const bslot = brk.flatMap(t => (t.slots || []).map(x => ({ ...x, day: t.dayOfWeek }))).find(x => x.isBreak);
+    if (bslot) await expect('edit slot: break cannot be edited', call('PUT', `/timetables/class/${classId}/slot`, A, { dayOfWeek: bslot.day, startTime: bslot.startTime, endTime: bslot.endTime, subjectId: subj, teacherId: tch0 }), [400]);
+  }
   const cmp = (await call('GET', '/complaints', A)).data; const cmpl = cmp.complaints || cmp;
   if (Array.isArray(cmpl) && cmpl[0]) { await expect('complaint comment', call('POST', `/complaints/${cmpl[0]._id}/comment`, A, { text: 'checking', message: 'checking', comment: 'checking' }), [200, 201, 400]); await expect('complaint resolve', call('POST', `/complaints/${cmpl[0]._id}/resolve`, A, { resolution: 'done', note: 'done' }), [200, 201, 400]); }
   // ---- super admin

@@ -126,6 +126,9 @@ const AdminDashboard = () => {
   const [timetableTabMode, setTimetableTabMode] = useState(null);
   const [selectedViewTeacherId, setSelectedViewTeacherId] = useState('');
   const [allTimetables, setAllTimetables] = useState([]);
+  const [ttEditClassId, setTtEditClassId] = useState(null); // class whose grid is in edit mode
+  const [ttEditCell, setTtEditCell] = useState(null);       // period being edited in the modal
+  const [ttSaving, setTtSaving] = useState(false);
 
   useEffect(() => {
     const fetchStudentFees = async () => {
@@ -670,6 +673,61 @@ const AdminDashboard = () => {
       toast.error(err.response?.data?.message || 'Failed to auto-generate timetable');
     } finally {
       setIsGeneratingTimetable(false);
+    }
+  };
+
+  const openTimetableCell = (cls, day, slot, match) => {
+    setTtEditCell({
+      classId: cls._id,
+      className: `Std ${cls.standard} (${cls.division})`,
+      day,
+      slot,
+      subjectId: match?.subjectId?._id || match?.subjectId || '',
+      teacherId: match?.teacherId?._id || match?.teacherId || '',
+      room: match?.room || '',
+      hasLesson: !!match && !match.isBreak,
+      clash: null,
+    });
+  };
+
+  // Picking a subject pre-selects the teacher already assigned to that subject for this class
+  const pickTimetableSubject = (subjectId) => {
+    setTtEditCell((cell) => {
+      if (!cell) return cell;
+      const assigned = teachers.find(t => (t.subjectClassAssignments || []).some(a =>
+        (a.classId?._id || a.classId)?.toString() === cell.classId.toString() &&
+        (a.subjectId?._id || a.subjectId)?.toString() === subjectId));
+      return { ...cell, subjectId, teacherId: assigned ? assigned._id : cell.teacherId, clash: null };
+    });
+  };
+
+  const saveTimetableCell = async ({ clear = false, force = false } = {}) => {
+    const cell = ttEditCell;
+    if (!cell) return;
+    if (!clear && (!cell.subjectId || !cell.teacherId)) {
+      toast.error('Choose both a subject and a teacher.');
+      return;
+    }
+    const [startTime, endTime] = cell.slot.split(' - ');
+    try {
+      setTtSaving(true);
+      await apiClient.put(`/timetables/class/${cell.classId}/slot`, {
+        dayOfWeek: cell.day, startTime, endTime,
+        subjectId: cell.subjectId, teacherId: cell.teacherId, room: cell.room,
+        clear, force,
+      });
+      toast.success(clear ? 'Period cleared.' : 'Period updated.');
+      setTtEditCell(null);
+      await fetchAllTimetables();
+      if (selectedViewClassId) fetchClassTimetable(selectedViewClassId);
+    } catch (err) {
+      if (err.response?.status === 409 && err.response?.data?.clash) {
+        setTtEditCell((c) => c && { ...c, clash: err.response.data.message });
+      } else {
+        toast.error(err.response?.data?.message || 'Failed to update the period');
+      }
+    } finally {
+      setTtSaving(false);
     }
   };
 
@@ -4175,6 +4233,14 @@ const AdminDashboard = () => {
                                         <span className="text-xs font-bold text-[#0f6b4f]">Std {cls.standard} ({cls.division})</span>
                                         <button
                                           type="button"
+                                          onClick={() => setTtEditClassId(ttEditClassId === cls._id ? null : cls._id)}
+                                          className={`px-2.5 py-1 rounded-lg text-[9px] font-bold shadow-xs transition flex items-center gap-1 no-print ${ttEditClassId === cls._id ? 'bg-[#e0a526] text-[#2b2000] hover:bg-[#c99220]' : 'bg-white border border-[#0f6b4f] text-[#0f6b4f] hover:bg-[#f4f8f5]'}`}
+                                        >
+                                          <span>{ttEditClassId === cls._id ? '✅' : '✏️'}</span>
+                                          <span>{ttEditClassId === cls._id ? 'Done editing' : 'Edit timetable'}</span>
+                                        </button>
+                                        <button
+                                          type="button"
                                           onClick={() => printSpecificTimetable(cardId)}
                                           className="px-2.5 py-1 bg-[#0f6b4f] text-white rounded-lg text-[9px] font-bold shadow-xs hover:bg-[#0b5340] transition flex items-center gap-1 no-print"
                                         >
@@ -4188,6 +4254,11 @@ const AdminDashboard = () => {
                                         <p className="text-[10px] text-gray-500">Academic Year: 2026-2027</p>
                                       </div>
 
+                                      {ttEditClassId === cls._id && (
+                                        <p className="text-[11px] font-semibold text-[#8a5d00] bg-[#fff6dc] border border-[#ecce80] rounded-lg px-3 py-1.5 no-print">
+                                          Click any period to change its subject or teacher, or to make it free.
+                                        </p>
+                                      )}
                                       <div className="min-w-full overflow-x-auto border border-[#cfe0d6] rounded-xl bg-white shadow-2xs">
                                         <table className="w-full text-left border-collapse text-xs min-w-[500px]">
                                           <thead>
@@ -4232,13 +4303,26 @@ const AdminDashboard = () => {
                                                   }
 
                                                   const cell = cellContent(day, slot);
+                                                  const isEditing = ttEditClassId === cls._id;
+                                                  const tdayForCell = classTTs.find(t => t.dayOfWeek?.toLowerCase() === day.toLowerCase());
+                                                  const slotMatch = tdayForCell?.slots?.find(sl => `${sl.startTime} - ${sl.endTime}` === slot);
+                                                  const cellBody = cell || (
+                                                    <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
+                                                      Free Period
+                                                    </div>
+                                                  );
                                                   return (
                                                     <td key={slot} className="p-1 border-r border-[#cfe0d6]/40 last:border-r-0 min-w-[100px]">
-                                                      {cell || (
-                                                        <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
-                                                          Free
-                                                        </div>
-                                                      )}
+                                                      {isEditing ? (
+                                                        <button
+                                                          type="button"
+                                                          onClick={() => openTimetableCell(cls, day, slot, slotMatch)}
+                                                          className="w-full rounded-xl ring-1 ring-transparent hover:ring-2 hover:ring-[#e0a526] focus:ring-2 focus:ring-[#e0a526] outline-none cursor-pointer transition"
+                                                          title="Edit this period"
+                                                        >
+                                                          {cellBody}
+                                                        </button>
+                                                      ) : cellBody}
                                                     </td>
                                                   );
                                                 })}
@@ -4402,6 +4486,96 @@ const AdminDashboard = () => {
                         </div>
                       );
                     })()
+                  )}
+                  {/* EDIT ONE PERIOD */}
+                  {ttEditCell && (
+                    <div className="!m-0 fixed inset-0 z-[100] flex items-center justify-center bg-black/45 backdrop-blur-sm p-4 no-print">
+                      <div className="w-full max-w-md bg-[#fbfdfb] rounded-[1.5rem] border border-[#cfe0d6] p-6 shadow-2xl space-y-4">
+                        <div>
+                          <h3 className="text-lg font-black text-[#0c2f25]">Edit period</h3>
+                          <p className="text-xs text-[#4d7262] font-semibold">{ttEditCell.className} · {ttEditCell.day} · {ttEditCell.slot}</p>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#355e4d]">Subject</label>
+                          <select
+                            value={ttEditCell.subjectId}
+                            onChange={(e) => pickTimetableSubject(e.target.value)}
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm font-semibold text-[#0c2f25] outline-none focus:border-[#0f6b4f]"
+                          >
+                            <option value="">Select subject</option>
+                            {subjects.map(sub => <option key={sub._id} value={sub._id}>{sub.name}</option>)}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#355e4d]">Teacher</label>
+                          <select
+                            value={ttEditCell.teacherId}
+                            onChange={(e) => setTtEditCell({ ...ttEditCell, teacherId: e.target.value, clash: null })}
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm font-semibold text-[#0c2f25] outline-none focus:border-[#0f6b4f]"
+                          >
+                            <option value="">Select teacher</option>
+                            {teachers.map(t => <option key={t._id} value={t._id}>{t.name}</option>)}
+                          </select>
+                        </div>
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-bold text-[#355e4d]">Room (optional)</label>
+                          <input
+                            type="text"
+                            value={ttEditCell.room}
+                            onChange={(e) => setTtEditCell({ ...ttEditCell, room: e.target.value })}
+                            placeholder="e.g. Room 5"
+                            className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm font-semibold text-[#0c2f25] outline-none focus:border-[#0f6b4f]"
+                          />
+                        </div>
+
+                        {ttEditCell.clash && (
+                          <div className="rounded-xl border border-[#ecce80] bg-[#fff6dc] p-3 space-y-2">
+                            <p className="text-xs font-bold text-[#8a5d00]"><span>⚠️</span> {ttEditCell.clash}</p>
+                            <button
+                              type="button"
+                              disabled={ttSaving}
+                              onClick={() => saveTimetableCell({ force: true })}
+                              className="px-3 py-1.5 rounded-lg bg-[#e0a526] text-[#2b2000] text-xs font-bold hover:bg-[#c99220] transition disabled:opacity-60"
+                            >
+                              Save anyway
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="flex flex-wrap gap-2 justify-between pt-1">
+                          {ttEditCell.hasLesson ? (
+                            <button
+                              type="button"
+                              disabled={ttSaving}
+                              onClick={() => saveTimetableCell({ clear: true })}
+                              className="px-4 py-2 rounded-xl border border-[#e3b4ac] text-[#a3382a] text-sm font-bold hover:bg-[#fbe9e6] transition disabled:opacity-60"
+                            >
+                              Make free
+                            </button>
+                          ) : <span />}
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setTtEditCell(null)}
+                              className="px-4 py-2 rounded-xl border border-[#cfe0d6] text-[#355e4d] text-sm font-bold hover:bg-[#f4f8f5] transition"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              disabled={ttSaving}
+                              onClick={() => saveTimetableCell()}
+                              className="px-4 py-2 rounded-xl bg-[#0f6b4f] text-white text-sm font-bold hover:bg-[#0b5340] transition disabled:opacity-60"
+                            >
+                              {ttSaving ? 'Saving...' : 'Save period'}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               );
