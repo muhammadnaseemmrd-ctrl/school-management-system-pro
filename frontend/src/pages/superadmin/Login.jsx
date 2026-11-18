@@ -35,36 +35,36 @@ const SuperAdminLogin = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#081f18] px-4">
+    <div className="flex min-h-screen items-center justify-center bg-[#111b27] px-4">
       <Toaster position="top-right" />
       <div className="fixed end-4 top-4 z-50"><LanguageToggle /></div>
-      <div className="w-full max-w-md rounded-[2rem] border border-[#1d4a39] bg-[#0b2a21] p-8 shadow-2xl">
+      <div className="w-full max-w-md rounded-2xl border border-[#2b3a4d] bg-[#16202d] p-8 shadow-2xl">
         <div className="mb-6 flex items-center gap-3">
           <LogoMark className="h-12 w-12" />
           <div>
-            <h1 className="text-xl font-black text-[#edf5f0]">Platform Console</h1>
-            <p className="text-xs text-[#a9d6c0]">Darsgah · Super Admin sign-in</p>
+            <h1 className="text-xl font-black text-white">Platform Console</h1>
+            <p className="text-xs text-[#c9d6ea]">Aulensia · Super Admin sign-in</p>
           </div>
         </div>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-bold text-[#a9d6c0]">Email</label>
+            <label className="mb-1 block text-xs font-bold text-[#c9d6ea]">Email</label>
             <input type="email" required autoFocus value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="w-full rounded-xl border border-[#1d4a39] bg-[#081f18] px-4 py-3 text-sm text-[#edf5f0] outline-none focus:border-[#d99a1b]" />
+              className="w-full rounded-xl border border-[#2b3a4d] bg-[#111b27] px-4 py-3 text-sm text-white outline-none focus:border-[#b86650]" />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-bold text-[#a9d6c0]">Password</label>
+            <label className="mb-1 block text-xs font-bold text-[#c9d6ea]">Password</label>
             <div className="relative">
               <input type={show ? 'text' : 'password'} required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full rounded-xl border border-[#1d4a39] bg-[#081f18] px-4 py-3 pr-11 text-sm text-[#edf5f0] outline-none focus:border-[#d99a1b]" />
-              <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a9d6c0]">{show ? <EyeOff size={18} /> : <Eye size={18} />}</button>
+                className="w-full rounded-xl border border-[#2b3a4d] bg-[#111b27] px-4 py-3 pr-11 text-sm text-white outline-none focus:border-[#b86650]" />
+              <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#c9d6ea]">{show ? <EyeOff size={18} /> : <Eye size={18} />}</button>
             </div>
           </div>
-          <button disabled={loading} className="w-full rounded-xl bg-[#d99a1b] py-3 text-sm font-black text-[#081f18] transition hover:bg-[#e0a526] disabled:opacity-60">
+          <button disabled={loading} className="w-full rounded-xl bg-[#b86650] py-3 text-sm font-black text-[#111b27] transition hover:bg-[#d9826a] disabled:opacity-60">
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-        <p className="mt-6 text-center text-xs text-[#7fa090]">Restricted area for the platform owner. <Link to="/login" className="font-bold text-[#a9d6c0] underline">School login</Link></p>
+        <p className="mt-6 text-center text-xs text-[#8a97a5]">Restricted area for the platform owner. <Link to="/login" className="font-bold text-[#c9d6ea] underline">School login</Link></p>
       </div>
     </div>
   );

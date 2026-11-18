@@ -62,4 +62,8 @@ const homeworkSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+homeworkSchema.index({ schoolId: 1, classId: 1, dueDate: -1 });
+homeworkSchema.index({ schoolId: 1, teacherId: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Homework', homeworkSchema);

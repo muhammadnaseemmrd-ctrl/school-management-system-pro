@@ -1,4 +1,4 @@
-# 🏫 Darsgah (درسگاہ) – School Management System for Pakistan
+# 🏫 Aulensia (اولینسیا) – School Management System for Pakistan
 
 > **SaaS edition:** this copy adds a Super Admin console, a Parent dashboard, plan limits, school time zones and a free-hosting blueprint. See [SAAS_GUIDE.md](SAAS_GUIDE.md).
 

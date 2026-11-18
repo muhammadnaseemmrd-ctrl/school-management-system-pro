@@ -1,4 +1,4 @@
-# API Documentation - Darsgah School Management System
+# API Documentation - Aulensia School Management System
 
 ## Base URL
 ```
@@ -1082,3 +1082,9 @@ Response includes:
 
 **Last Updated**: 2024  
 **API Version**: 1.0.0
+
+## Partner agent and platform billing API
+
+Agent (token role `agent`): `POST /api/agent/login`, `GET/PUT /api/agent/me`, `PUT /api/agent/password`, `GET /api/agent/summary|schools|payments|commissions|payouts|policy`. Public: `GET /api/public/referral/:code`.
+
+Owner (superadmin): `GET/POST /api/superadmin/agents`, `GET/PUT /agents/:id`, `POST /agents/:id/reset-password`, `POST /agents/:id/payouts`, `PUT /schools/:id/agent`, `GET/POST /payments` (send `Idempotency-Key`), `POST /payments/:id/refund`, `GET /commissions`, `POST /commissions/approve`, `POST /commissions/:id/void`, `GET /payouts`, `GET/PUT /commission-policy`, `GET /ledger`, `POST /ledger/reconcile`, `GET /audit`.

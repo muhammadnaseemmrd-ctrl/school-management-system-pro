@@ -40,4 +40,8 @@ const examSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+examSchema.index({ schoolId: 1, classId: 1, date: 1 });
+examSchema.index({ schoolId: 1, date: -1 });
+
 module.exports = mongoose.model('Exam', examSchema);

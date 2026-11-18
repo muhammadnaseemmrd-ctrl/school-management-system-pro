@@ -33,4 +33,7 @@ const paymentProofSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+paymentProofSchema.index({ schoolId: 1, status: 1, createdAt: -1 });
+
 module.exports = mongoose.model('PaymentProof', paymentProofSchema);

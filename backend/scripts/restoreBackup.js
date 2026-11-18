@@ -28,7 +28,7 @@ const q = (id) => `"${String(id).replace(/"/g, '""')}"`;
     if (!b) throw new Error('Backup not found');
     payload = JSON.parse(zlib.gunzipSync(b.data).toString());
   } else { console.error('Usage: node scripts/restoreBackup.js --backup <id> | --file backup.json [--replace] [--dry-run]'); process.exit(1); }
-  if (payload.format !== 'darsgah-backup') throw new Error('This is not a Darsgah backup file');
+  if (!['aulensia-backup', 'darsgah-backup'].includes(payload.format)) throw new Error('This is not an Aulensia backup file');
 
   const schoolId = String(payload.school._id);
   const dry = !!arg('dry-run'); const replace = !!arg('replace');

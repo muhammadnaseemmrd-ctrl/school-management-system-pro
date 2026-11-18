@@ -21,15 +21,15 @@ const AttendanceReportView = ({ report, today, threshold = 75, loading }) => {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-5 rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
+      <div className="flex flex-wrap items-center gap-5 rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm">
         <Ring value={stats.percentage} total={stats.total} />
         <div className="min-w-[10rem] flex-1">
-          <p className="text-sm font-semibold text-[#355e4d]">{t('Out of {n} school days', { n: stats.total })}</p>
+          <p className="text-sm font-semibold text-[#3b4a5c]">{t('Out of {n} school days', { n: stats.total })}</p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {tiles.map(([k, v]) => (
               <div key={k} className={`rounded-2xl border px-3 py-2 ${STATUS[k].soft}`}>
-                <p className="text-xl font-black text-[#0c2f25]">{v}</p>
-                <p className="text-[11px] font-bold text-[#355e4d]">{k === 'Present' ? t('Days present') : t(STATUS[k].label)}</p>
+                <p className="text-xl font-black text-[#1b2837]">{v}</p>
+                <p className="text-[11px] font-bold text-[#3b4a5c]">{k === 'Present' ? t('Days present') : t(STATUS[k].label)}</p>
               </div>
             ))}
           </div>
@@ -43,30 +43,30 @@ const AttendanceReportView = ({ report, today, threshold = 75, loading }) => {
         </div>
       )}
 
-      <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
+      <div className="rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm">
         <MonthCalendar month={month} onMonthChange={(m) => { setMonth(m); setSelected(null); }} byDate={byDate} today={today} selected={selected} onSelect={setSelected} loading={loading} />
         <div className="mt-4"><Legend /></div>
         {sel && (
           <div className={`mt-4 rounded-2xl border px-4 py-3 ${STATUS[sel.status].soft}`}>
-            <p className="text-sm font-black text-[#0c2f25]">{fmtDate(selected, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+            <p className="text-sm font-black text-[#1b2837]">{fmtDate(selected, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
             <div className="mt-1"><StatusChip status={sel.status} leftAt={sel.leftAt} /></div>
-            {sel.remarks && <p className="mt-2 text-sm text-[#355e4d]">{sel.remarks}</p>}
+            {sel.remarks && <p className="mt-2 text-sm text-[#3b4a5c]">{sel.remarks}</p>}
           </div>
         )}
       </div>
 
-      <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
-        <h3 className="mb-3 text-base font-black text-[#0c2f25]">{t('Recent days')}</h3>
+      <div className="rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm">
+        <h3 className="mb-3 text-base font-black text-[#1b2837]">{t('Recent days')}</h3>
         {recent.length ? (
-          <ul className="divide-y divide-[#e1eee6]">
+          <ul className="divide-y divide-[#eef2f8]">
             {recent.map((d) => (
               <li key={d.date} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
-                <span className="text-sm font-bold text-[#0c2f25]">{fmtDate(d.date)}</span>
+                <span className="text-sm font-bold text-[#1b2837]">{fmtDate(d.date)}</span>
                 <StatusChip status={d.status} leftAt={d.leftAt} />
               </li>
             ))}
           </ul>
-        ) : <p className="py-4 text-center text-sm text-[#4f7262]">{t('No attendance has been recorded yet.')}</p>}
+        ) : <p className="py-4 text-center text-sm text-[#5b6b7b]">{t('No attendance has been recorded yet.')}</p>}
       </div>
     </div>
   );

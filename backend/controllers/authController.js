@@ -25,6 +25,7 @@ const getUserModelByRole = (role) => {
   if (role === 'student') return Student;
   if (role === 'parent') return Parent;
   if (role === 'superadmin') return SuperAdmin;
+  if (role === 'agent') return require('../models/Agent');
   return User;
 };
 
@@ -40,6 +41,7 @@ const findUserByIdAndRole = async (id, role) => {
   if (!user) user = await Student.findById(id);
   if (!user) user = await Parent.findById(id);
   if (!user) user = await SuperAdmin.findById(id);
+  if (!user) user = await require('../models/Agent').findById(id);
   return user;
 };
 
@@ -321,7 +323,7 @@ exports.getProfile = async (req, res) => {
   try {
     const Model = getUserModelByRole(req.user.role);
     let query = Model.findById(req.user.userId);
-    if (req.user.role !== 'superadmin') query = query.populate('schoolId');
+    if (req.user.role !== 'superadmin' && req.user.role !== 'agent') query = query.populate('schoolId');
 
     if (req.user.role === 'parent') {
       query = query.populate({

@@ -1,4 +1,4 @@
-# Darsgah: SaaS, Super Admin and Parent Dashboard
+# Aulensia: SaaS, Super Admin and Parent Dashboard
 
 This guide covers what was added on top of the original project so it can be sold as a multi-school SaaS.
 
@@ -132,3 +132,23 @@ Rough capacity (estimates, not guarantees). A 500-student school stores about 40
 | Neon Free with files on Cloudinary (set `CLOUDINARY_*`) | about 15-20 schools, ~10,000 students, ~100-300 people online at once |
 | Neon Launch / Scale (paid, 10 GB+, autoscaling) + Cloudinary | about 200-300 school-years, 100,000+ students, ~1,000+ concurrent users |
 | Larger Postgres with read replicas / partitioning by `schoolId` | hundreds of thousands to millions of students |
+
+## Partner agents, payments and commission (built)
+
+**Roles:** the platform has six sign-ins: school admin, teacher, student, parent, platform owner (`/superadmin/login`) and partner agent (`/agent/login`).
+
+**Owner console tabs:** Agents, Payments, Commissions, Ledger & activity (plus a Record payment button and an Agent button on each school row).
+
+**Flow**
+1. Owner adds an agent (name, email, commission %). A referral code (`AG-XXXX`) and a temporary password are created; the password is shown once.
+2. A school signs up at `/register?ref=AG-XXXX` (or types the code). The agent's percent is frozen on the school at that moment. A wrong code never blocks sign-up. An agent cannot refer a school that uses their own email.
+3. When the school pays by bank / JazzCash / Easypaisa / cash, the owner records the payment. The plan is extended, a double-entry journal is posted and, if the school has an agent and a paid plan, a commission row is created.
+4. Commission = round(amount × percent). It earns for `recurringMonths` (default 12) after the school joined, waits `holdDays` (default 7) as Pending, then the owner approves it (or approves early).
+5. Refunds void an unpaid commission, or add a negative adjustment if it was already paid out.
+6. Payout pays all Approved rows for an agent together; the amount must match exactly.
+
+**Safety:** payments are idempotent (`Idempotency-Key`), one commission per payment, agent tokens can only reach `/api/agent/*`, notifications and a read-only profile, agent responses never include student, fee or admin-email data, and every money action is written to an append-only activity log. The Ledger tab runs reconciliation checks (debits = credits, revenue = payments, bank = payments − payouts, payable = unpaid commission) and can repair interrupted posts.
+
+**Database indexes:** every collection declares its indexes in the model (`schoolId` is always indexed, plus the compound indexes used by list screens). They are created automatically and checked by the test suite.
+
+**Still future (from the Aulensia V6 PRD):** granular permission grants, guardian-rights model, restore drills, and the remaining epics. See the product handover document.

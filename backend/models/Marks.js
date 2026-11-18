@@ -53,4 +53,7 @@ const marksSchema = new mongoose.Schema(
 
 marksSchema.index({ schoolId: 1, examId: 1, studentId: 1, subjectId: 1 }, { unique: true });
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+marksSchema.index({ schoolId: 1, studentId: 1 });
+
 module.exports = mongoose.model('Marks', marksSchema);

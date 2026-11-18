@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Offer = require('../models/Offer');
 const { FEATURES, getPlansMap } = require('../utils/plans');
+const Agent = require('../models/Agent');
+const { lookupLimiter } = require('../middleware/rateLimit');
 
 // Public, read-only data for the marketing page: active plans and running offers.
 // No school data and no offer codes are exposed here.
@@ -27,6 +29,17 @@ router.get('/plans', async (req, res) => {
     res.set('Cache-Control', 'public, max-age=60, s-maxage=300');
     res.json({ plans, offers });
   } catch (e) { res.status(500).json({ message: 'Could not load plans' }); }
+});
+
+// Is this referral code real? Used by the sign-up form so a typo is caught before sending. Only the first name is shown.
+router.get('/referral/:code', lookupLimiter, async (req, res) => {
+  try {
+    const code = String(req.params.code || '').trim().toUpperCase().slice(0, 20);
+    const agent = /^AG-[A-Z0-9]{4,8}$/.test(code) ? await Agent.findOne({ referralCode: code, isActive: true }).select('name') : null;
+    res.set('Cache-Control', 'no-store');
+    if (!agent) return res.json({ valid: false });
+    res.json({ valid: true, agentFirstName: String(agent.name).trim().split(/\s+/)[0] });
+  } catch (e) { res.status(500).json({ message: 'Could not check the code' }); }
 });
 
 module.exports = router;

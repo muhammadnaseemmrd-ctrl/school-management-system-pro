@@ -12,13 +12,13 @@ import ProfileEditor from '../../components/ProfileEditor';
 import { openProxiedFile } from '../../utils/fileProxy';
 
 const Card = ({ className = '', children }) => (
-  <div className={`rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm ${className}`}>{children}</div>
+  <div className={`rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm ${className}`}>{children}</div>
 );
 
 const addDays = (key, n) => { const d = new Date(`${key}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().split('T')[0]; };
 const classLabel = (c) => (c ? `${c.standard}-${c.division}` : '—');
 const BANNER = {
-  Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#0ea5e9]', None: 'bg-stone-400',
+  Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#5b87c9]', None: 'bg-stone-400',
 };
 
 const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['account', 'My account', Lock]];
@@ -82,7 +82,7 @@ const ParentDashboard = () => {
   const Switcher = () => data?.children.length > 1 && (
     <div className="flex flex-wrap gap-2">
       {data.children.map((c) => (
-        <button key={c._id} onClick={() => setChildId(c._id)} className={`rounded-full border px-5 py-3 text-sm font-black transition ${c._id === childId ? 'border-[#0f6b4f] bg-[#0f6b4f] text-white' : 'border-[#cfe0d6] bg-white text-[#355e4d] hover:bg-[#e9f2ed]'}`}>
+        <button key={c._id} onClick={() => setChildId(c._id)} className={`rounded-full border px-5 py-3 text-sm font-black transition ${c._id === childId ? 'border-[#2a5cac] bg-[#2a5cac] text-white' : 'border-[#e3e7e7] bg-white text-[#3b4a5c] hover:bg-[#f7f6f2]'}`}>
           {c.name}
         </button>
       ))}
@@ -91,37 +91,37 @@ const ParentDashboard = () => {
   const Arrow = isRtl ? ChevronLeft : ChevronRight;
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-[#e9f2ed] pb-24 text-[#0c2f25] md:pb-10">
+    <div className="min-h-[calc(100vh-4rem)] bg-[#f7f6f2] pb-24 text-[#1b2837] md:pb-10">
       <Toaster position="top-center" />
       <div className="mx-auto w-full max-w-3xl space-y-5 px-4 py-5 sm:px-6">
         <div>
-          <p className="text-sm font-semibold text-[#4f7262]">{t('Welcome')}</p>
+          <p className="text-sm font-semibold text-[#5b6b7b]">{t('Welcome')}</p>
           <h1 className="text-3xl font-black">{data?.parent?.name || t('Parent')}</h1>
         </div>
 
         {/* big, simple tab buttons (bottom bar on phones) */}
-        <nav className={`fixed inset-x-0 bottom-0 z-30 grid ${TABS.length === 5 ? 'grid-cols-5' : TABS.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} border-t border-[#cfe0d6] bg-[#fbfdfb] md:static md:z-auto md:rounded-2xl md:border md:shadow-sm`}>
+        <nav className={`fixed inset-x-0 bottom-0 z-30 grid ${TABS.length === 5 ? 'grid-cols-5' : TABS.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} border-t border-[#e3e7e7] bg-[#ffffff] md:static md:z-auto md:rounded-2xl md:border md:shadow-sm`}>
           {TABS.map(([id, label, Icon]) => (
-            <button key={id} onClick={() => setTab(id)} className={`flex flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:flex-row md:justify-center md:gap-2 md:text-sm ${tab === id ? 'bg-[#0f6b4f] text-white md:rounded-2xl' : 'text-[#355e4d] hover:bg-[#e9f2ed] md:rounded-2xl'}`}>
+            <button key={id} onClick={() => setTab(id)} className={`flex flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:flex-row md:justify-center md:gap-2 md:text-sm ${tab === id ? 'bg-[#2a5cac] text-white md:rounded-2xl' : 'text-[#3b4a5c] hover:bg-[#f7f6f2] md:rounded-2xl'}`}>
               <Icon className="h-6 w-6 md:h-5 md:w-5" /> {t(label)}
             </button>
           ))}
         </nav>
 
         {loading ? (
-          <div className="flex h-56 items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-[#0f6b4f] border-t-transparent" /></div>
+          <div className="flex h-56 items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2a5cac] border-t-transparent" /></div>
         ) : (
           <>
             {tab === 'home' && (
               <div className="space-y-5">
-                {data?.children.length === 0 && <Card><p className="text-base text-[#355e4d]">{t("No child is linked to your account yet. Please ask the school office to link your child's record.")}</p></Card>}
+                {data?.children.length === 0 && <Card><p className="text-base text-[#3b4a5c]">{t("No child is linked to your account yet. Please ask the school office to link your child's record.")}</p></Card>}
                 {data?.children.map((c) => (
-                  <div key={c._id} className="overflow-hidden rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] shadow-sm">
+                  <div key={c._id} className="overflow-hidden rounded-3xl border border-[#e3e7e7] bg-[#ffffff] shadow-sm">
                     <div className="flex items-center gap-4 px-5 pt-5">
-                      {c.photo ? <img src={c.photo} alt="" className="h-16 w-16 rounded-full object-cover" /> : <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#0f6b4f] text-2xl font-black text-white">{c.name.charAt(0)}</div>}
+                      {c.photo ? <img src={c.photo} alt="" className="h-16 w-16 rounded-full object-cover" /> : <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#2a5cac] text-2xl font-black text-white">{c.name.charAt(0)}</div>}
                       <div>
                         <h2 className="text-2xl font-black">{c.name}</h2>
-                        <p className="text-sm font-semibold text-[#355e4d]">{t('Class')} {classLabel(c.class)}{c.rollNumber ? ` · ${t('Roll')} ${c.rollNumber}` : ''}</p>
+                        <p className="text-sm font-semibold text-[#3b4a5c]">{t('Class')} {classLabel(c.class)}{c.rollNumber ? ` · ${t('Roll')} ${c.rollNumber}` : ''}</p>
                       </div>
                     </div>
 
@@ -134,12 +134,12 @@ const ParentDashboard = () => {
 
                     {/* last 7 days */}
                     <div className="px-5 pt-4">
-                      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#4f7262]">{t('Last 7 days')}</p>
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#5b6b7b]">{t('Last 7 days')}</p>
                       <div className="grid grid-cols-7 gap-1.5 text-center">
                         {c.strip.map((d) => (
                           <div key={d.date}>
                             <div className={`flex h-10 items-center justify-center rounded-xl text-sm font-black ${STATUS[d.status]?.cell || STATUS.None.cell}`}>{new Date(`${d.date}T00:00:00Z`).getUTCDate()}</div>
-                            <p className="mt-1 text-[10px] font-bold text-[#4f7262]">{fmtDate(d.date, { weekday: 'short' })}</p>
+                            <p className="mt-1 text-[10px] font-bold text-[#5b6b7b]">{fmtDate(d.date, { weekday: 'short' })}</p>
                           </div>
                         ))}
                       </div>
@@ -147,7 +147,7 @@ const ParentDashboard = () => {
 
                     <div className="flex flex-wrap items-center gap-5 px-5 py-5">
                       <Ring value={c.overall.percentage} total={c.overall.total} />
-                      <div className="min-w-[10rem] flex-1 text-sm font-semibold text-[#355e4d]">
+                      <div className="min-w-[10rem] flex-1 text-sm font-semibold text-[#3b4a5c]">
                         <p>{t('Present {a} of {b} school days', { a: c.overall.attendedDays, b: c.overall.total })}</p>
                         <p className="mt-1">{t('Absent')}: <b>{c.overall.absent}</b> · {t('Half day')}: <b>{c.overall.halfDay}</b> · {t('On leave')}: <b>{c.overall.leave}</b></p>
                       </div>
@@ -159,7 +159,7 @@ const ParentDashboard = () => {
                         <span>{t("{name}'s attendance is {pct}%, below {min}%. Please speak with the class head master.", { name: c.name.split(' ')[0], pct: c.overall.percentage, min: data.threshold })}</span>
                       </div>
                     )}
-                    <button onClick={() => { setChildId(c._id); setTab('attendance'); }} className="flex w-full items-center justify-between border-t border-[#e1eee6] bg-[#edf5f0] px-5 py-4 text-base font-black text-[#0f6b4f] hover:bg-[#e3efe8]">
+                    <button onClick={() => { setChildId(c._id); setTab('attendance'); }} className="flex w-full items-center justify-between border-t border-[#eef2f8] bg-[#f7f6f2] px-5 py-4 text-base font-black text-[#2a5cac] hover:bg-[#eef2f8]">
                       {t('See full attendance')} <Arrow className="h-5 w-5" />
                     </button>
                   </div>
@@ -172,7 +172,7 @@ const ParentDashboard = () => {
                 <Switcher />
                 {child ? (
                   <>
-                    <Card><h2 className="text-2xl font-black">{child.name}</h2><p className="text-sm font-semibold text-[#355e4d]">{t('Attendance')} · {t('Class')} {classLabel(child.class)}</p><div className="mt-2"><StatusChip status={child.today.status} leftAt={child.today.leftAt} /></div></Card>
+                    <Card><h2 className="text-2xl font-black">{child.name}</h2><p className="text-sm font-semibold text-[#3b4a5c]">{t('Attendance')} · {t('Class')} {classLabel(child.class)}</p><div className="mt-2"><StatusChip status={child.today.status} leftAt={child.today.leftAt} /></div></Card>
                     <AttendanceReportView report={report} today={today} threshold={data.threshold} loading={reportLoading} />
                   </>
                 ) : <Card><p>{t('No child selected.')}</p></Card>}
@@ -186,7 +186,7 @@ const ParentDashboard = () => {
                   <>
                     <Card>
                       <h2 className="text-2xl font-black">{t('Fees')} · {child.name}</h2>
-                      <p className="mt-1 text-sm font-semibold text-[#355e4d]">{t('Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot. The school checks it and marks the fee as paid.')}</p>
+                      <p className="mt-1 text-sm font-semibold text-[#3b4a5c]">{t('Pay through your bank, JazzCash or Easypaisa, then upload the payment screenshot. The school checks it and marks the fee as paid.')}</p>
                     </Card>
                     <FeesPanel key={child._id} studentId={child._id} studentName={child.name} />
                   </>
@@ -196,29 +196,29 @@ const ParentDashboard = () => {
 
             {tab === 'notices' && (
               <div className="space-y-3">
-                {notices.length === 0 && <Card><p className="py-4 text-center text-base text-[#4f7262]">{t('No notices right now.')}</p></Card>}
+                {notices.length === 0 && <Card><p className="py-4 text-center text-base text-[#5b6b7b]">{t('No notices right now.')}</p></Card>}
                 {notices.map((n) => {
                   const links = extractLinks(n.content);
                   return (
                     <div key={n._id} className="flex items-start gap-3">
-                      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0f6b4f] text-white"><Bell className="h-5 w-5" /></div>
+                      <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#2a5cac] text-white"><Bell className="h-5 w-5" /></div>
                       {/* message-style bubble */}
-                      <div className="min-w-0 flex-1 rounded-3xl rounded-tl-md border border-[#cfe0d6] bg-[#fbfdfb] px-5 py-4 shadow-sm">
+                      <div className="min-w-0 flex-1 rounded-3xl rounded-tl-md border border-[#e3e7e7] bg-[#ffffff] px-5 py-4 shadow-sm">
                         <div className="flex flex-wrap items-center gap-2 text-xs">
-                          <span className="font-black text-[#0f6b4f]">{t('School')}</span>
+                          <span className="font-black text-[#2a5cac]">{t('School')}</span>
                           {n.isPinned && <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-800"><Pin className="h-3 w-3" />{t('Pinned')}</span>}
-                          <span className="rounded-full bg-[#0f6b4f]/10 px-2 py-0.5 font-bold text-[#0f6b4f]">{n.category}</span>
-                          <span className="ml-auto text-[#4f7262]">{new Date(n.createdAt).toLocaleDateString()}</span>
+                          <span className="rounded-full bg-[#2a5cac]/10 px-2 py-0.5 font-bold text-[#2a5cac]">{n.category}</span>
+                          <span className="ml-auto text-[#5b6b7b]">{new Date(n.createdAt).toLocaleDateString()}</span>
                         </div>
                         <h3 className="mt-2 text-base font-black leading-snug">{n.title}</h3>
-                        <RichText text={n.content} className="mt-1 text-base leading-7 text-[#17402f]" />
+                        <RichText text={n.content} className="mt-1 text-base leading-7 text-[#1b2837]" />
                         {(links.length > 0 || (n.attachments || []).length > 0) && (
                           <div className="mt-3 flex flex-wrap gap-2">
                             {links.slice(0, 4).map((u) => (
-                              <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-[#bae6fd] bg-[#f0f9ff] px-3 py-1.5 text-xs font-black text-[#0369a1] hover:bg-[#e0f2fe]"><ExternalLink className="h-3.5 w-3.5" />{t('Open link')}</a>
+                              <a key={u} href={u} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 rounded-full border border-[#c9d6ea] bg-[#eef2f8] px-3 py-1.5 text-xs font-black text-[#2a5cac] hover:bg-[#dde7f5]"><ExternalLink className="h-3.5 w-3.5" />{t('Open link')}</a>
                             ))}
                             {(n.attachments || []).map((u) => (
-                              <button key={u} onClick={() => openProxiedFile(u)} className="inline-flex items-center gap-1.5 rounded-full border border-[#cfe0d6] bg-white px-3 py-1.5 text-xs font-black text-[#0f6b4f] hover:bg-[#e9f2ed]"><Paperclip className="h-3.5 w-3.5" />{fileName(u)}</button>
+                              <button key={u} onClick={() => openProxiedFile(u)} className="inline-flex items-center gap-1.5 rounded-full border border-[#e3e7e7] bg-white px-3 py-1.5 text-xs font-black text-[#2a5cac] hover:bg-[#f7f6f2]"><Paperclip className="h-3.5 w-3.5" />{fileName(u)}</button>
                             ))}
                           </div>
                         )}
@@ -234,16 +234,16 @@ const ParentDashboard = () => {
               <ProfileEditor />
               <Card>
                 <h2 className="text-2xl font-black">{t('My account')}</h2>
-                <p className="mt-1 text-sm text-[#355e4d]">{data?.parent?.email} · {data?.parent?.relationship}</p>
+                <p className="mt-1 text-sm text-[#3b4a5c]">{data?.parent?.email} · {data?.parent?.relationship}</p>
                 <form onSubmit={changePassword} className="mt-5 space-y-3">
                   {[['old', 'Current password'], ['next', 'New password'], ['confirm', 'Confirm new password']].map(([k, l]) => (
                     <div key={k}>
-                      <label className="mb-1 block text-sm font-bold text-[#355e4d]">{t(l)}</label>
-                      <input type="password" required value={pwd[k]} onChange={(e) => setPwd({ ...pwd, [k]: e.target.value })} className="w-full rounded-xl border border-[#cfe0d6] bg-white px-4 py-3 text-base outline-none focus:border-[#0f6b4f]" />
+                      <label className="mb-1 block text-sm font-bold text-[#3b4a5c]">{t(l)}</label>
+                      <input type="password" required value={pwd[k]} onChange={(e) => setPwd({ ...pwd, [k]: e.target.value })} className="w-full rounded-xl border border-[#e3e7e7] bg-white px-4 py-3 text-base outline-none focus:border-[#2a5cac]" />
                     </div>
                   ))}
-                  <p className="text-xs text-[#4f7262]">{t('Minimum 6 characters with one capital letter, one number and one special character.')}</p>
-                  <button className="rounded-xl bg-[#0f6b4f] px-6 py-3 text-base font-black text-white hover:bg-[#0b5340]">{t('Update password')}</button>
+                  <p className="text-xs text-[#5b6b7b]">{t('Minimum 6 characters with one capital letter, one number and one special character.')}</p>
+                  <button className="rounded-xl bg-[#2a5cac] px-6 py-3 text-base font-black text-white hover:bg-[#234c91]">{t('Update password')}</button>
                 </form>
               </Card>
               </div>

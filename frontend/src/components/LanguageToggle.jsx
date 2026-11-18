@@ -11,7 +11,7 @@ const LanguageToggle = ({ className = '' }) => {
       type="button"
       onClick={() => setLang(next)}
       title={lang === 'ur' ? 'Switch to English' : 'اردو میں تبدیل کریں'}
-      className={`inline-flex items-center gap-2 rounded-full border border-[#2f8f6f] bg-[#fbfdfb] px-3 py-2 text-sm font-bold text-[#0f6b4f] transition hover:bg-[#e3efe8] ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border border-[#2a5cac] bg-[#ffffff] px-2.5 py-2 text-sm sm:gap-2 sm:px-3 font-bold text-[#2a5cac] transition hover:bg-[#eef2f8] ${className}`}
     >
       <Languages size={16} />
       {lang === 'ur' ? 'English' : 'اردو'}

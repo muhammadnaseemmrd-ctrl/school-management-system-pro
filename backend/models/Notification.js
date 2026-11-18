@@ -4,7 +4,7 @@ const notificationSchema = new mongoose.Schema(
   {
     schoolId: { type: mongoose.Schema.Types.ObjectId, ref: 'School', index: true },
     userId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    userRole: { type: String, enum: ['admin', 'teacher', 'student', 'parent'], required: true },
+    userRole: { type: String, enum: ['admin', 'teacher', 'student', 'parent', 'agent', 'superadmin'], required: true },
     type: { type: String, default: 'general' }, // notice, fee, homework, attendance, message, complaint, offer
     title: { type: String, required: true },
     body: { type: String, default: '' },

@@ -42,7 +42,15 @@ const authenticate = async (req, res, next) => {
 
   req.user = decoded;
 
-  if (decoded.role !== 'superadmin' && decoded.schoolId) {
+  // A partner agent has no school. Their token only works on their own portal and notifications, so it can
+  // never read school data even by accident (school-less tokens would otherwise get empty 200s).
+  if (decoded.role === 'agent') {
+    const path = String(req.originalUrl || '').split('?')[0].replace(/^\/api(?=\/)/, '');
+    const ok = /^\/(agent|notifications)(\/|$)/.test(path) || (req.method === 'GET' && path === '/auth/profile');
+    if (!ok) return res.status(403).json({ message: 'Access denied' });
+  }
+
+  if (decoded.role !== 'superadmin' && decoded.role !== 'agent' && decoded.schoolId) {
     try {
       const block = await getSchoolBlock(decoded.schoolId);
       if (block.blocked) {

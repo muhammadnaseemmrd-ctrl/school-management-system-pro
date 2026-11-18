@@ -9,6 +9,14 @@ const apiClient = axios.create({
   },
 });
 
+// Each kind of user signs back in on their own page
+const signInPath = () => {
+  const p = window.location.pathname;
+  if (p.startsWith('/agent')) return '/agent/login';
+  if (p.startsWith('/superadmin')) return '/superadmin/login';
+  return '/login';
+};
+
 // Add token to requests
 apiClient.interceptors.request.use(
   (config) => {
@@ -34,7 +42,7 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('refreshToken');
       sessionStorage.setItem('loggedOut', '1');
       sessionStorage.setItem('blockedMessage', msg);
-      window.location.href = '/login';
+      window.location.href = signInPath();
       return Promise.reject(error);
     }
 
@@ -56,7 +64,7 @@ apiClient.interceptors.response.use(
       } catch (err) {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        window.location.href = signInPath();
       }
     }
 

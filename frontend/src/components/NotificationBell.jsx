@@ -69,34 +69,34 @@ const NotificationBell = () => {
 
   return (
     <div className="relative" ref={box}>
-      <button onClick={() => { setOpen(!open); if (!open) poll(); }} className="relative rounded-full border border-[#cfe0d6] bg-[#fbfdfb] p-2.5 text-[#0f6b4f] hover:bg-[#e3efe8]" aria-label={t('Notifications')}>
+      <button onClick={() => { setOpen(!open); if (!open) poll(); }} className="relative rounded-full border border-[#e3e7e7] bg-[#ffffff] p-2.5 text-[#2a5cac] hover:bg-[#eef2f8]" aria-label={t('Notifications')}>
         {unread > 0 ? <BellRing size={18} /> : <Bell size={18} />}
         {unread > 0 && <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white">{unread > 99 ? '99+' : unread}</span>}
       </button>
       {open && (
-        <div className="absolute end-0 z-50 mt-2 w-[22rem] max-w-[92vw] overflow-hidden rounded-2xl border border-[#cfe0d6] bg-[#fbfdfb] shadow-2xl">
-          <div className="flex items-center justify-between border-b border-[#e1eee6] px-4 py-3">
-            <p className="text-sm font-black text-[#0c2f25]">{t('Notifications')}</p>
-            {unread > 0 && <button onClick={readAll} className="inline-flex items-center gap-1 text-xs font-bold text-[#0f6b4f] hover:underline"><CheckCheck className="h-4 w-4" />{t('Mark all read')}</button>}
+        <div className="absolute end-0 z-50 mt-2 w-[22rem] max-w-[92vw] overflow-hidden rounded-2xl border border-[#e3e7e7] bg-[#ffffff] shadow-2xl">
+          <div className="flex items-center justify-between border-b border-[#eef2f8] px-4 py-3">
+            <p className="text-sm font-black text-[#1b2837]">{t('Notifications')}</p>
+            {unread > 0 && <button onClick={readAll} className="inline-flex items-center gap-1 text-xs font-bold text-[#2a5cac] hover:underline"><CheckCheck className="h-4 w-4" />{t('Mark all read')}</button>}
           </div>
           <div className="max-h-96 overflow-y-auto">
-            {items.length === 0 && <p className="px-4 py-8 text-center text-sm text-[#4f7262]">{t('Nothing new yet.')}</p>}
+            {items.length === 0 && <p className="px-4 py-8 text-center text-sm text-[#5b6b7b]">{t('Nothing new yet.')}</p>}
             {items.map((n) => (
-              <button key={n._id} onClick={() => go(n)} className={`flex w-full items-start gap-3 border-b border-[#e8f2ec] px-4 py-3 text-start hover:bg-[#edf5f0] ${n.readAt ? '' : 'bg-[#fff6df]'}`}>
+              <button key={n._id} onClick={() => go(n)} className={`flex w-full items-start gap-3 border-b border-[#f7f6f2] px-4 py-3 text-start hover:bg-[#f7f6f2] ${n.readAt ? '' : 'bg-[#fbf0ec]'}`}>
                 <span className="mt-0.5 text-lg">{ICON[n.type] || '🔔'}</span>
                 <span className="min-w-0 flex-1">
-                  <span className={`block text-sm leading-snug text-[#0c2f25] ${n.readAt ? 'font-semibold' : 'font-black'}`}>{n.title}</span>
-                  {n.body && <span className="mt-0.5 block truncate text-xs text-[#4d7262]">{n.body}</span>}
+                  <span className={`block text-sm leading-snug text-[#1b2837] ${n.readAt ? 'font-semibold' : 'font-black'}`}>{n.title}</span>
+                  {n.body && <span className="mt-0.5 block truncate text-xs text-[#5b6b7b]">{n.body}</span>}
                 </span>
-                <span className="text-[10px] font-bold text-[#86a596]">{ago(n.createdAt)}</span>
+                <span className="text-[10px] font-bold text-[#8a97a5]">{ago(n.createdAt)}</span>
               </button>
             ))}
           </div>
           {push !== 'unsupported' && (
-            <div className="border-t border-[#e1eee6] bg-[#edf5f0] px-4 py-2.5">
+            <div className="border-t border-[#eef2f8] bg-[#f7f6f2] px-4 py-2.5">
               {push === 'blocked'
-                ? <p className="text-xs text-[#4f7262]">{t('Alerts are blocked in your browser settings.')}</p>
-                : <button onClick={togglePush} className="text-xs font-black text-[#0f6b4f] hover:underline">{push === 'on' ? t('Turn off phone / browser alerts') : t('Get alerts on this phone / browser, even when the app is closed')}</button>}
+                ? <p className="text-xs text-[#5b6b7b]">{t('Alerts are blocked in your browser settings.')}</p>
+                : <button onClick={togglePush} className="text-xs font-black text-[#2a5cac] hover:underline">{push === 'on' ? t('Turn off phone / browser alerts') : t('Get alerts on this phone / browser, even when the app is closed')}</button>}
             </div>
           )}
         </div>

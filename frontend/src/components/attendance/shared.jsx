@@ -8,7 +8,7 @@ export const STATUS = {
   Late: { label: 'Late', chip: 'bg-orange-50 text-orange-800 border-orange-200', cell: 'bg-orange-400 text-white', soft: 'bg-orange-50 border-orange-200', dot: 'bg-orange-400', icon: Clock },
   HalfDay: { label: 'Half day', chip: 'bg-amber-50 text-amber-800 border-amber-200', cell: 'bg-amber-400 text-white', soft: 'bg-amber-50 border-amber-200', dot: 'bg-amber-400', icon: LogOut },
   Absent: { label: 'Absent', chip: 'bg-[#fff1f2] text-[#9f1239] border-[#fecdd3]', cell: 'bg-[#f43f5e] text-white', soft: 'bg-[#fff1f2] border-[#fecdd3]', dot: 'bg-[#f43f5e]', icon: XCircle },
-  Leave: { label: 'On leave', chip: 'bg-[#f0f9ff] text-[#075985] border-[#bae6fd]', cell: 'bg-[#0ea5e9] text-white', soft: 'bg-[#f0f9ff] border-[#bae6fd]', dot: 'bg-[#0ea5e9]', icon: Palmtree },
+  Leave: { label: 'On leave', chip: 'bg-[#eef2f8] text-[#234c91] border-[#c9d6ea]', cell: 'bg-[#5b87c9] text-white', soft: 'bg-[#eef2f8] border-[#c9d6ea]', dot: 'bg-[#5b87c9]', icon: Palmtree },
   None: { label: 'Not marked yet', chip: 'bg-stone-100 text-stone-600 border-stone-200', cell: 'bg-stone-100 text-stone-400', soft: 'bg-stone-50 border-stone-200', dot: 'bg-stone-300', icon: CircleSlash },
 };
 
@@ -28,7 +28,7 @@ export const StatusChip = ({ status, leftAt, className = '' }) => {
 export const Legend = () => {
   const { t } = useLang();
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-[#355e4d]">
+    <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs font-semibold text-[#3b4a5c]">
       {['Present', 'Late', 'HalfDay', 'Absent', 'Leave'].map((k) => (
         <span key={k} className="inline-flex items-center gap-1.5"><span className={`h-3 w-3 rounded ${STATUS[k].dot}`} /> {t(STATUS[k].label)}</span>
       ))}
@@ -51,12 +51,12 @@ export const MonthCalendar = ({ month, onMonthChange, byDate, today, selected, o
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m - 1, 1)))} className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#e9f2ed]" aria-label={t('Previous month')}><Prev className="h-5 w-5" /></button>
-        <span className="text-base font-black text-[#0c2f25]">{month.toLocaleDateString(locale, { timeZone: 'UTC', month: 'long', year: 'numeric' })}</span>
-        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m + 1, 1)))} className="rounded-xl border border-[#cfe0d6] bg-white p-2.5 text-[#0f6b4f] hover:bg-[#e9f2ed]" aria-label={t('Next month')}><Next className="h-5 w-5" /></button>
+        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m - 1, 1)))} className="rounded-xl border border-[#e3e7e7] bg-white p-2.5 text-[#2a5cac] hover:bg-[#f7f6f2]" aria-label={t('Previous month')}><Prev className="h-5 w-5" /></button>
+        <span className="text-base font-black text-[#1b2837]">{month.toLocaleDateString(locale, { timeZone: 'UTC', month: 'long', year: 'numeric' })}</span>
+        <button type="button" onClick={() => onMonthChange(new Date(Date.UTC(y, m + 1, 1)))} className="rounded-xl border border-[#e3e7e7] bg-white p-2.5 text-[#2a5cac] hover:bg-[#f7f6f2]" aria-label={t('Next month')}><Next className="h-5 w-5" /></button>
       </div>
       <div className={`grid grid-cols-7 gap-1.5 text-center transition-opacity ${loading ? 'opacity-50' : ''}`}>
-        {weekdays.map((d) => <div key={d} className="pb-1 text-[11px] font-bold uppercase tracking-wide text-[#4f7262]">{t(d)}</div>)}
+        {weekdays.map((d) => <div key={d} className="pb-1 text-[11px] font-bold uppercase tracking-wide text-[#5b6b7b]">{t(d)}</div>)}
         {cells.map((day, i) => {
           if (!day) return <div key={`b${i}`} />;
           const key = `${y}-${String(m + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -67,7 +67,7 @@ export const MonthCalendar = ({ month, onMonthChange, byDate, today, selected, o
             <button
               key={key} type="button" disabled={!rec}
               onClick={() => onSelect && onSelect(selected === key ? null : key)}
-              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#e9f2ed]/60 text-[#a9c2b5]' : 'bg-stone-50 text-stone-300'} ${key === today ? 'ring-2 ring-[#0f6b4f] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#0c2f25]' : ''}`}
+              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#f7f6f2]/60 text-[#a9b4bf]' : 'bg-stone-50 text-stone-300'} ${key === today ? 'ring-2 ring-[#2a5cac] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#1b2837]' : ''}`}
             >
               {day}
             </button>
@@ -84,16 +84,16 @@ export const Ring = ({ value, total, size = 112 }) => {
   const r = (size - 14) / 2;
   const c = 2 * Math.PI * r;
   const pct = total ? Math.min(100, value) : 0;
-  const color = !total ? '#d6d3d1' : pct >= 90 ? '#10b981' : pct >= 75 ? '#f59e0b' : '#f43f5e';
+  const color = !total ? '#d6d3d1' : pct >= 90 ? '#2c776c' : pct >= 75 ? '#b86650' : '#f43f5e';
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#e1eee6" strokeWidth="12" fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#eef2f8" strokeWidth="12" fill="none" />
         <circle cx={size / 2} cy={size / 2} r={r} stroke={color} strokeWidth="12" fill="none" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c - (c * pct) / 100} style={{ transition: 'stroke-dashoffset .8s ease' }} />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-xl font-black text-[#0c2f25]">{total ? `${value}%` : "—"}</span>
-        <span className="text-[10px] font-bold uppercase tracking-wide text-[#4f7262]">{t('attendance')}</span>
+        <span className="text-xl font-black text-[#1b2837]">{total ? `${value}%` : "—"}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wide text-[#5b6b7b]">{t('attendance')}</span>
       </div>
     </div>
   );

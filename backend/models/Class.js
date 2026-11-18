@@ -35,4 +35,7 @@ const classSchema = new mongoose.Schema(
 
 classSchema.index({ schoolId: 1, standard: 1, division: 1 }, { unique: true });
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+classSchema.index({ schoolId: 1, classTeacherId: 1 });
+
 module.exports = mongoose.model('Class', classSchema);

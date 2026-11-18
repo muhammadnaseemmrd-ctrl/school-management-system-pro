@@ -284,7 +284,7 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   const zz = await JSZip.loadAsync(z1.buf);
   log(!!zz.file('backup.json') && !!zz.file('school-data.xlsx') && !!zz.file('README.txt'), 'zip contains backup.json, school-data.xlsx, README.txt');
   const bj = await zz.file('backup.json').async('string'); const bobj = JSON.parse(bj);
-  log(bobj.format === 'darsgah-backup' && bobj.tables.Student.length > 0 && bobj.tables.Teacher.length > 0, 'backup.json has students and teachers');
+  log(bobj.format === 'aulensia-backup' && bobj.tables.Student.length > 0 && bobj.tables.Teacher.length > 0, 'backup.json has students and teachers');
   log(!/"password"/.test(bj) && !/\$2[aby]\$/.test(bj), 'downloaded backup contains no password hashes');
   const ExcelJS = require('exceljs'); const wbk = new ExcelJS.Workbook(); await wbk.xlsx.load(await zz.file('school-data.xlsx').async('nodebuffer'));
   log(wbk.getWorksheet('Student') && wbk.getWorksheet('Student').rowCount > 1, 'xlsx has a Student sheet with rows');
@@ -310,6 +310,8 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   const bl3 = (await call('GET', '/backup', A)).data; log(bl3.backups.filter((b) => b.kind === 'manual').length === 3, 'only the 3 newest manual backups are kept');
   await expect('delete a backup', call('DELETE', `/backup/${bl3.backups[0]._id}`, A));
   await expect('delete unknown backup', call('DELETE', '/backup/000000000000000000000000', A), [404]);
+
+  await require('./billingChecks')({ call, expect, log, tokens, base });
 
   console.log(`\n${checks - failures}/${checks} checks passed`);
   server.close(); process.exit(failures ? 1 : 0);

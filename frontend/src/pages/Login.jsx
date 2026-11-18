@@ -260,24 +260,22 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#e9f2ed] px-4 py-10 text-[#0c2f25] sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#f7f6f2] px-4 py-10 text-[#1b2837] sm:px-6 lg:px-8">
       <Toaster position="top-right" />
       <div className="fixed end-4 top-4 z-50"><LanguageToggle /></div>
 
       <div className="mx-auto grid min-h-[calc(100vh-2.5rem)] max-w-7xl gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         {/* Left Info Panel */}
-        <div className="relative overflow-hidden rounded-[2rem] border border-[#cfe0d6] bg-gradient-hero p-8 shadow-lg shadow-[#2f8f6f]/15 lg:p-10">
-          <div className="absolute left-0 top-0 h-40 w-40 rounded-full bg-[#d9e8df] blur-3xl" />
-          <div className="absolute bottom-0 right-0 h-40 w-40 rounded-full bg-[#aec7ba] blur-3xl" />
+        <div className="relative overflow-hidden rounded-2xl border border-[#e3e7e7] bg-paper p-8 lg:p-10">
           <div className="relative">
             <div className="mb-6">
               <Logo size="lg" subtitle="Login portal" />
             </div>
 
-            <h1 className="max-w-xl text-5xl font-black leading-tight tracking-tight text-[#0c2f25] lg:text-6xl">
+            <h1 className="max-w-xl text-5xl font-black leading-tight tracking-tight text-[#1b2837] lg:text-6xl">
               Login is the gate for the school system.
             </h1>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-[#355e4d]">
+            <p className="mt-5 max-w-xl text-lg leading-8 text-[#3b4a5c]">
               Enter your school credentials to open the dashboard. The system will identify your role automatically.
             </p>
 
@@ -288,10 +286,10 @@ export default function Login() {
                 ['School code', 'Keeps each school separate', Building2],
                 ['Reports', 'PDF and Excel exports later', GraduationCap],
               ].map(([title, description, Icon]) => (
-                <div key={title} className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-4 backdrop-blur">
-                  <Icon className="h-5 w-5 text-[#0f6b4f]" />
-                  <p className="mt-3 font-semibold text-[#0c2f25]">{title}</p>
-                  <p className="mt-1 text-sm text-[#355e4d]">{description}</p>
+                <div key={title} className="rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-4">
+                  <Icon className="h-5 w-5 text-[#2a5cac]" />
+                  <p className="mt-3 font-semibold text-[#1b2837]">{title}</p>
+                  <p className="mt-1 text-sm text-[#3b4a5c]">{description}</p>
                 </div>
               ))}
             </div>
@@ -299,70 +297,70 @@ export default function Login() {
         </div>
 
         {/* Right Form Panel */}
-        <div className="rounded-[2rem] border border-[#cfe0d6] bg-[#fbfdfb] p-6 text-[#0c2f25] shadow-lg shadow-[#2f8f6f]/15 sm:p-8">
+        <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-6 text-[#1b2837] sm:p-8">
           
           {/* VIEW: LOGIN */}
           {view === 'login' && (
             <>
               <div className="mb-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#4f7262]">Welcome back</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0c2f25]">Login to your dashboard</h2>
-                <p className="mt-2 text-[#355e4d]">Use the school code you got during registration.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#5b6b7b]">Welcome back</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1b2837]">Login to your dashboard</h2>
+                <p className="mt-2 text-[#3b4a5c]">Use the school code you got during registration.</p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">School Code *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">School Code *</label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type="text"
                       name="schoolCode"
                       value={formData.schoolCode}
                       onChange={handleChange}
                       placeholder="e.g. SCHOOL001"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white uppercase"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white uppercase"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">Email Address *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">Email Address *</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="admin@school.com"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-semibold text-[#355e4d]">Password *</label>
+                    <label className="block text-sm font-semibold text-[#3b4a5c]">Password *</label>
                     <button
                       type="button"
                       onClick={() => setView('forgot')}
-                      className="text-xs font-semibold text-[#0f6b4f] hover:text-[#0b5340] transition"
+                      className="text-xs font-semibold text-[#2a5cac] hover:text-[#234c91] transition"
                     >
                       Forgot password?
                     </button>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type={showPassword ? 'text' : 'password'}
                       name="password"
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Enter your password"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
                     />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-[#2f8f6f] transition hover:text-[#0f6b4f]">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
@@ -371,7 +369,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f6b4f] px-5 py-3.5 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2a5cac] px-5 py-3.5 font-semibold text-white transition hover:bg-[#234c91] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -393,22 +391,22 @@ export default function Login() {
           {view === 'forgot' && (
             <>
               <div className="mb-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#4f7262]">Security Access</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0c2f25]">Forgot Password</h2>
-                <p className="mt-2 text-[#355e4d]">Enter your registered email address to receive a verification code.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#5b6b7b]">Security Access</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1b2837]">Forgot Password</h2>
+                <p className="mt-2 text-[#3b4a5c]">Enter your registered email address to receive a verification code.</p>
               </div>
 
               <form onSubmit={handleForgotPasswordSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">Email Address *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">Email Address *</label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Mail className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type="email"
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="e.g. user@school.com"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
                   </div>
@@ -417,7 +415,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f6b4f] px-5 py-3.5 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2a5cac] px-5 py-3.5 font-semibold text-white transition hover:bg-[#234c91] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -436,7 +434,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setView('login')}
-                className="mt-4 w-full text-center text-sm font-semibold text-[#0f6b4f] hover:text-[#0b5340] transition"
+                className="mt-4 w-full text-center text-sm font-semibold text-[#2a5cac] hover:text-[#234c91] transition"
               >
                 Back to Login
               </button>
@@ -447,32 +445,32 @@ export default function Login() {
           {view === 'verify' && (
             <>
               <div className="mb-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#4f7262]">Code Sent</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0c2f25]">Enter Reset Code</h2>
-                <p className="mt-2 text-[#355e4d]">
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#5b6b7b]">Code Sent</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1b2837]">Enter Reset Code</h2>
+                <p className="mt-2 text-[#3b4a5c]">
                   We sent a 5-character verification code to <strong>{forgotEmail}</strong>. Code is valid for exactly 1 minute.
                 </p>
               </div>
 
               <form onSubmit={handleVerifyCodeSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">5-Character Code *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">5-Character Code *</label>
                   <div className="relative">
-                    <ShieldCheck className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <ShieldCheck className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type="text"
                       maxLength={5}
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
                       placeholder="e.g. A1#B2"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white tracking-widest text-center font-bold"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white tracking-widest text-center font-bold"
                       required
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-between border border-[#cfe0d6] bg-[#f4f8f5] rounded-2xl p-4 my-2">
-                  <span className="text-sm font-semibold text-[#355e4d]">
+                <div className="flex flex-col items-center justify-between border border-[#e3e7e7] bg-[#f7f6f2] rounded-2xl p-4 my-2">
+                  <span className="text-sm font-semibold text-[#3b4a5c]">
                     {timer > 0 ? (
                       <span className="flex items-center gap-1.5 text-amber-700 font-bold">
                         Time remaining: 00:{timer < 10 ? '0' + timer : timer}
@@ -488,8 +486,8 @@ export default function Login() {
                     disabled={!canResend || loading}
                     className={`mt-2 text-xs font-bold underline transition ${
                       canResend
-                        ? 'text-[#0f6b4f] hover:text-[#0b5340] cursor-pointer'
-                        : 'text-[#2f8f6f] cursor-not-allowed opacity-50'
+                        ? 'text-[#2a5cac] hover:text-[#234c91] cursor-pointer'
+                        : 'text-[#2a5cac] cursor-not-allowed opacity-50'
                     }`}
                   >
                     Resend Code
@@ -499,7 +497,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f6b4f] px-5 py-3.5 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2a5cac] px-5 py-3.5 font-semibold text-white transition hover:bg-[#234c91] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -518,7 +516,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setView('login')}
-                className="mt-4 w-full text-center text-sm font-semibold text-[#0f6b4f] hover:text-[#0b5340] transition"
+                className="mt-4 w-full text-center text-sm font-semibold text-[#2a5cac] hover:text-[#234c91] transition"
               >
                 Back to Login
               </button>
@@ -529,32 +527,32 @@ export default function Login() {
           {view === 'reset' && (
             <>
               <div className="mb-6">
-                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#4f7262]">Reset Security</p>
-                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#0c2f25]">Create New Password</h2>
-                <p className="mt-2 text-[#355e4d]">Choose a secure password meeting all guidelines below.</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#5b6b7b]">Reset Security</p>
+                <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1b2837]">Create New Password</h2>
+                <p className="mt-2 text-[#3b4a5c]">Choose a secure password meeting all guidelines below.</p>
               </div>
 
               <form onSubmit={handleResetPasswordSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">New Password *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">New Password *</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type={showNewPassword ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 6 characters"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
-                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-3.5 text-[#2f8f6f] transition hover:text-[#0f6b4f]">
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
 
                   {/* Password requirement visual check indicators */}
                   <div className="mt-2 space-y-1 text-xs">
-                    <p className="font-semibold text-[#355e4d]">Password requirements:</p>
+                    <p className="font-semibold text-[#3b4a5c]">Password requirements:</p>
                     <div className="grid grid-cols-2 gap-2 mt-1">
                       <div className="flex items-center gap-1.5">
                         <span className={`inline-block h-2 w-2 rounded-full ${(newPassword || '').length >= 6 ? 'bg-green-500' : 'bg-red-500'}`} />
@@ -577,18 +575,18 @@ export default function Login() {
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#355e4d]">Confirm Password *</label>
+                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">Confirm Password *</label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2f8f6f]" />
+                    <Lock className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
                     <input
                       type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your password"
-                      className="w-full rounded-2xl border border-[#cfe0d6] bg-[#f4f8f5] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#7fa090] focus:border-[#0f6b4f] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-[#2f8f6f] transition hover:text-[#0f6b4f]">
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
@@ -597,7 +595,7 @@ export default function Login() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f6b4f] px-5 py-3.5 font-semibold text-[#edf5f0] transition hover:bg-[#0b5340] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2a5cac] px-5 py-3.5 font-semibold text-white transition hover:bg-[#234c91] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -616,7 +614,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => setView('login')}
-                className="mt-4 w-full text-center text-sm font-semibold text-[#0f6b4f] hover:text-[#0b5340] transition"
+                className="mt-4 w-full text-center text-sm font-semibold text-[#2a5cac] hover:text-[#234c91] transition"
               >
                 Back to Login
               </button>
@@ -625,15 +623,15 @@ export default function Login() {
 
           {/* Bottom links (Register & Home) */}
           {view === 'login' && (
-            <div className="mt-6 space-y-3 border-t border-[#cfe0d6] pt-5 text-sm text-[#355e4d]">
+            <div className="mt-6 space-y-3 border-t border-[#e3e7e7] pt-5 text-sm text-[#3b4a5c]">
               <p className="text-center">
                 Don&apos;t have a school account?{' '}
-                <Link to="/register" className="font-semibold text-[#0f6b4f] hover:text-[#0b5340]">
+                <Link to="/register" className="font-semibold text-[#2a5cac] hover:text-[#234c91]">
                   Register here
                 </Link>
               </p>
               <p className="text-center">
-                <Link to="/" className="font-semibold text-[#0f6b4f] hover:text-[#0b5340]">
+                <Link to="/" className="font-semibold text-[#2a5cac] hover:text-[#234c91]">
                   Back to home
                 </Link>
               </p>

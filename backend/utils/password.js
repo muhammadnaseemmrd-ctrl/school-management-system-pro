@@ -18,7 +18,12 @@ const validatePasswordStrength = (password) => {
   return minLength && hasCapital && hasNumber && hasSpecial;
 };
 
+const crypto = require('crypto');
+// Random temporary password that always satisfies validatePasswordStrength
+const strongTempPassword = () => `${crypto.randomBytes(6).toString('base64').replace(/[^A-Za-z0-9]/g, 'x')}A9!`;
+
 module.exports = {
+  strongTempPassword,
   hashPassword,
   comparePassword,
   validatePasswordStrength,

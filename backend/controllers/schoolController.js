@@ -1,6 +1,7 @@
 const School = require('../models/School');
 const User = require('../models/User');
 const mongoose = require('../lib/pgdoc');
+const Agent = require('../models/Agent');
 const { hashPassword, validatePasswordStrength } = require('../utils/password');
 
 // Public self-service school sign-up (always starts on the Free plan).
@@ -26,6 +27,19 @@ exports.createSchool = async (req, res) => {
       return res.status(400).json({ message: 'A school with this email already exists' });
     }
 
+    // Optional partner referral (?ref=AG-XXXX). It never blocks sign-up: a bad or own-email code is simply not linked.
+    let agentFields = {}; let referral = { linked: false };
+    const refCode = String(req.body.referralCode || '').trim().toUpperCase();
+    if (refCode) {
+      const agent = await Agent.findOne({ referralCode: refCode, isActive: true });
+      if (!agent) referral = { linked: false, reason: 'unknown-code' };
+      else if ([email, principalEmail, adminEmail].some((m) => String(m || '').toLowerCase() === agent.email)) referral = { linked: false, reason: 'same-email' };
+      else {
+        agentFields = { agentId: agent._id, agentCommissionPercent: agent.commissionPercent, referredAt: new Date(), referralSource: req.body.referralSource === 'code' ? 'code' : 'link' };
+        referral = { linked: true };
+      }
+    }
+
     const adminId = new mongoose.Types.ObjectId();
     const schoolId = new mongoose.Types.ObjectId();
     const hashedPassword = await hashPassword(adminPassword);
@@ -45,6 +59,7 @@ exports.createSchool = async (req, res) => {
       studentLimit: 100,
       teacherLimit: 10,
       createdVia: 'self-signup',
+      ...agentFields,
     });
 
     const admin = await User.create({
@@ -59,7 +74,8 @@ exports.createSchool = async (req, res) => {
 
     res.status(201).json({
       message: 'School created successfully',
-      school,
+      referral,
+      school: { ...school.toObject(), agentId: undefined, agentCommissionPercent: undefined, referredAt: undefined, referralSource: undefined },
       admin: {
         id: admin._id,
         email: admin.email,

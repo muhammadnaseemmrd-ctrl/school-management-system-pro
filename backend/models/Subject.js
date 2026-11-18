@@ -59,4 +59,7 @@ const subjectSchema = new mongoose.Schema(
 
 subjectSchema.index({ schoolId: 1, code: 1 }, { unique: true });
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+subjectSchema.index({ schoolId: 1, standard: 1 });
+
 module.exports = mongoose.model('Subject', subjectSchema);

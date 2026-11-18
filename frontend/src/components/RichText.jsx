@@ -12,7 +12,7 @@ export const linkify = (text = '') => {
     if (m.index > last) out.push(text.slice(last, m.index));
     const href = m[0].startsWith('http') ? m[0] : `https://${m[0]}`;
     out.push(
-      <a key={`l${i++}`} href={href} target="_blank" rel="noopener noreferrer" className="break-all font-bold text-[#0369a1] underline decoration-dotted underline-offset-2">
+      <a key={`l${i++}`} href={href} target="_blank" rel="noopener noreferrer" className="break-all font-bold text-[#2a5cac] underline decoration-dotted underline-offset-2">
         {m[0]}<ExternalLink className="ml-1 inline h-3.5 w-3.5 align-[-2px]" />
       </a>
     );

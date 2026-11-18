@@ -57,47 +57,47 @@ const BackupPanel = ({ base, title = 'Backup & export' }) => {
   const last = data?.backups?.[0];
   return (
     <div className="space-y-4">
-      <div className="rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
+      <div className="rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm">
         <div className="flex items-start gap-3">
-          <span className="rounded-2xl bg-[#0f6b4f]/10 p-3 text-[#0f6b4f]"><ShieldCheck className="h-6 w-6" /></span>
+          <span className="rounded-2xl bg-[#2a5cac]/10 p-3 text-[#2a5cac]"><ShieldCheck className="h-6 w-6" /></span>
           <div>
-            <h2 className="text-xl font-black text-[#0c2f25]">{title}</h2>
-            <p className="mt-1 text-sm text-[#355e4d]">A copy of all school data is saved automatically every week (the latest 4 are kept). You can also download everything to keep on your own computer.</p>
+            <h2 className="text-xl font-black text-[#1b2837]">{title}</h2>
+            <p className="mt-1 text-sm text-[#3b4a5c]">A copy of all school data is saved automatically every week (the latest 4 are kept). You can also download everything to keep on your own computer.</p>
           </div>
         </div>
 
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#e1eee6] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#4f7262]">Last backup</p><p className="mt-1 text-sm font-black text-[#0c2f25]">{last ? fmtDate(last.createdAt) : 'None yet'}</p></div>
-          <div className="rounded-2xl border border-[#e1eee6] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#4f7262]">Automatic schedule</p><p className="mt-1 flex items-center gap-1.5 text-sm font-black text-[#0c2f25]"><CalendarClock className="h-4 w-4 text-[#0f6b4f]" />Every week</p></div>
-          <div className="rounded-2xl border border-[#e1eee6] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#4f7262]">Saved copies</p><p className="mt-1 text-sm font-black text-[#0c2f25]">{data ? data.backups.length : '…'}</p></div>
+          <div className="rounded-2xl border border-[#eef2f8] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#5b6b7b]">Last backup</p><p className="mt-1 text-sm font-black text-[#1b2837]">{last ? fmtDate(last.createdAt) : 'None yet'}</p></div>
+          <div className="rounded-2xl border border-[#eef2f8] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#5b6b7b]">Automatic schedule</p><p className="mt-1 flex items-center gap-1.5 text-sm font-black text-[#1b2837]"><CalendarClock className="h-4 w-4 text-[#2a5cac]" />Every week</p></div>
+          <div className="rounded-2xl border border-[#eef2f8] bg-white p-3"><p className="text-[11px] font-bold uppercase text-[#5b6b7b]">Saved copies</p><p className="mt-1 text-sm font-black text-[#1b2837]">{data ? data.backups.length : '…'}</p></div>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <button disabled={!!busy} onClick={() => download(`${base}/download`, 'full', 'backup.zip', withFiles ? { includeFiles: 1 } : undefined)} className="inline-flex items-center gap-2 rounded-xl bg-[#0f6b4f] px-5 py-2.5 text-xs font-bold text-[#edf5f0] hover:bg-[#0b5340] disabled:opacity-50">
+          <button disabled={!!busy} onClick={() => download(`${base}/download`, 'full', 'backup.zip', withFiles ? { includeFiles: 1 } : undefined)} className="inline-flex items-center gap-2 rounded-xl bg-[#2a5cac] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#234c91] disabled:opacity-50">
             {busy === 'full' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} Download full backup (.zip)
           </button>
-          <button disabled={!!busy} onClick={makeNow} className="inline-flex items-center gap-2 rounded-xl border border-[#0f6b4f] bg-white px-5 py-2.5 text-xs font-bold text-[#0f6b4f] hover:bg-[#e9f2ed] disabled:opacity-50">
+          <button disabled={!!busy} onClick={makeNow} className="inline-flex items-center gap-2 rounded-xl border border-[#2a5cac] bg-white px-5 py-2.5 text-xs font-bold text-[#2a5cac] hover:bg-[#f7f6f2] disabled:opacity-50">
             {busy === 'make' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Archive className="h-4 w-4" />} Save a backup now
           </button>
-          <label className="flex items-center gap-2 text-xs font-semibold text-[#355e4d]"><input type="checkbox" checked={withFiles} onChange={(e) => setWithFiles(e.target.checked)} />Also include uploaded documents &amp; payment screenshots</label>
+          <label className="flex items-center gap-2 text-xs font-semibold text-[#3b4a5c]"><input type="checkbox" checked={withFiles} onChange={(e) => setWithFiles(e.target.checked)} />Also include uploaded documents &amp; payment screenshots</label>
         </div>
-        <p className="mt-3 text-[11px] leading-relaxed text-[#4f7262]">The ZIP has an Excel workbook (one sheet per table) and the full data file. Passwords are never included. It contains personal data of students and staff (CNIC / B-Form numbers, phone numbers), so keep it private.</p>
+        <p className="mt-3 text-[11px] leading-relaxed text-[#5b6b7b]">The ZIP has an Excel workbook (one sheet per table) and the full data file. Passwords are never included. It contains personal data of students and staff (CNIC / B-Form numbers, phone numbers), so keep it private.</p>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] shadow-sm">
-        <div className="border-b border-[#e1eee6] px-5 py-3"><h3 className="text-sm font-black uppercase tracking-wide text-[#4f7262]">Saved backups</h3></div>
-        {!data && <p className="p-5 text-sm text-[#4f7262]">Loading…</p>}
-        {data && data.backups.length === 0 && <p className="p-5 text-sm italic text-[#4f7262]">No saved backups yet. The first automatic one is made within a week, or press “Save a backup now”.</p>}
-        <ul className="divide-y divide-[#e1eee6]">
+      <div className="overflow-hidden rounded-3xl border border-[#e3e7e7] bg-[#ffffff] shadow-sm">
+        <div className="border-b border-[#eef2f8] px-5 py-3"><h3 className="text-sm font-black uppercase tracking-wide text-[#5b6b7b]">Saved backups</h3></div>
+        {!data && <p className="p-5 text-sm text-[#5b6b7b]">Loading…</p>}
+        {data && data.backups.length === 0 && <p className="p-5 text-sm italic text-[#5b6b7b]">No saved backups yet. The first automatic one is made within a week, or press “Save a backup now”.</p>}
+        <ul className="divide-y divide-[#eef2f8]">
           {data?.backups.map((b) => (
             <li key={b._id} className="flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
               <div className="min-w-0 flex-1">
-                <p className="font-bold text-[#0c2f25]">{fmtDate(b.createdAt)}</p>
-                <p className="text-[11px] text-[#4f7262]">{b.counts?.Student ?? 0} students · {b.counts?.Teacher ?? 0} teachers · {fmtSize(b.size)}{b.createdByName ? ` · ${b.createdByName}` : ''}</p>
+                <p className="font-bold text-[#1b2837]">{fmtDate(b.createdAt)}</p>
+                <p className="text-[11px] text-[#5b6b7b]">{b.counts?.Student ?? 0} students · {b.counts?.Teacher ?? 0} teachers · {fmtSize(b.size)}{b.createdByName ? ` · ${b.createdByName}` : ''}</p>
               </div>
-              <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${b.kind === 'auto' ? 'bg-emerald-50 text-emerald-800' : 'bg-[#0f6b4f]/10 text-[#0f6b4f]'}`}>{b.kind === 'auto' ? 'Weekly' : 'Manual'}</span>
-              <button disabled={!!busy} onClick={() => download(`${base}/${b._id}/download`, b._id, 'backup.zip')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#cfe0d6] bg-white px-3 py-1.5 text-xs font-bold text-[#0f6b4f] hover:bg-[#e9f2ed] disabled:opacity-50">{busy === b._id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}Download</button>
-              <button title="Delete" onClick={() => remove(b)} className="rounded-lg border border-[#cfe0d6] bg-white p-1.5 text-[#be123c] hover:bg-[#fff1f2]"><Trash2 className="h-4 w-4" /></button>
+              <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${b.kind === 'auto' ? 'bg-emerald-50 text-emerald-800' : 'bg-[#2a5cac]/10 text-[#2a5cac]'}`}>{b.kind === 'auto' ? 'Weekly' : 'Manual'}</span>
+              <button disabled={!!busy} onClick={() => download(`${base}/${b._id}/download`, b._id, 'backup.zip')} className="inline-flex items-center gap-1.5 rounded-lg border border-[#e3e7e7] bg-white px-3 py-1.5 text-xs font-bold text-[#2a5cac] hover:bg-[#f7f6f2] disabled:opacity-50">{busy === b._id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}Download</button>
+              <button title="Delete" onClick={() => remove(b)} className="rounded-lg border border-[#e3e7e7] bg-white p-1.5 text-[#be123c] hover:bg-[#fff1f2]"><Trash2 className="h-4 w-4" /></button>
             </li>
           ))}
         </ul>

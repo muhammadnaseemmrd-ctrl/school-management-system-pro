@@ -41,4 +41,7 @@ const eventSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+eventSchema.index({ schoolId: 1, startDate: 1 });
+
 module.exports = mongoose.model('Event', eventSchema);

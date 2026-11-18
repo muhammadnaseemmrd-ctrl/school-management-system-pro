@@ -16,4 +16,7 @@ const offerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+offerSchema.index({ isActive: 1, validUntil: 1 });
+
 module.exports = mongoose.model('Offer', offerSchema);

@@ -32,7 +32,7 @@ const sendResetEmail = async (email, code) => {
     });
 
     const mailOptions = {
-      from: `"Darsgah Support" <${user}>`,
+      from: `"Aulensia Support" <${user}>`,
       to: email,
       subject: 'Password Reset Verification Code',
       text: `Your password reset code is: ${code}. This code is valid for 1 minute only.`,

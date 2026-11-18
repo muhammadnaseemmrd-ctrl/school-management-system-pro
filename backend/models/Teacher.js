@@ -321,4 +321,8 @@ teacherSchema.add({
 });
 
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+teacherSchema.index({ schoolId: 1, createdAt: -1 });
+teacherSchema.index({ schoolId: 1, isActive: 1 });
+
 module.exports = mongoose.model('Teacher', teacherSchema);

@@ -66,4 +66,8 @@ const noticeSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+noticeSchema.index({ schoolId: 1, isPinned: -1, createdAt: -1 });
+noticeSchema.index({ expiresAt: 1 });
+
 module.exports = mongoose.model('Notice', noticeSchema);

@@ -72,4 +72,9 @@ const complaintSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+complaintSchema.index({ schoolId: 1, status: 1, createdAt: -1 });
+complaintSchema.index({ schoolId: 1, raisedBy: 1 });
+complaintSchema.index({ schoolId: 1, assignedTo: 1 });
+
 module.exports = mongoose.model('Complaint', complaintSchema);

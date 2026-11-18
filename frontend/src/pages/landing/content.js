@@ -1,7 +1,7 @@
 import {
   Banknote, BellRing, BookOpen, Bus, CalendarDays, ClipboardList, Database, Download,
   GraduationCap, Home, Languages, LayoutDashboard, Lock, Megaphone, MessageSquare, Receipt, School, Settings,
-  Shield, Smartphone, Upload, UserCheck, Wallet, Clock, Building2, Layers, Eye,
+  Shield, Smartphone, Upload, UserCheck, Wallet, Clock, Building2, Layers, Eye, Briefcase,
   FileText, MessageCircle, UserPlus, Calculator, MapPin, Fingerprint, Video, QrCode, ScanLine, Brain, GitBranch, Printer, CreditCard,
 } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export const NAV = [
 export const HERO_CHIPS = ['Fees in PKR', 'JazzCash / Easypaisa', 'English + اردو', 'CNIC / B-Form'];
 
 export const STATS = [
-  { value: '4', label: 'Logins in one system', note: 'Admin, teacher, student, parent' },
+  { value: '6', label: 'Logins in one system', note: 'Admin, teacher, student, parent, owner, agent' },
   { value: '12+', label: 'School modules', note: 'Attendance to fees to backups' },
   { value: '2', label: 'Languages', note: 'English and Urdu, one tap' },
   { value: '100%', label: 'Separate school data', note: 'Every school sees only its own' },
@@ -48,8 +48,8 @@ export const MODULES = [
   { icon: CalendarDays, title: 'Timetable', text: 'Build class timetables and teacher timetables with your own period timings.' },
   { icon: Wallet, title: 'Fees and payments', text: 'Tuition plans, other fees and monthly transport fee. Parents upload a payment screenshot; the office approves it.' },
   { icon: Bus, title: 'Transport', text: 'Add routes and assign students. Transport fee is added to the monthly dues automatically.' },
-  { icon: Megaphone, title: 'Notices and events', text: 'Rich-text notices with attachments and a school events calendar, for the whole school or one class.' },
-  { icon: MessageSquare, title: 'Messages and grievances', text: 'Messages between users and a grievance desk so complaints get a reply, not silence.' },
+  { icon: Megaphone, title: 'Notices', text: 'Rich-text notices with attachments, pinned and read-tracked, for the whole school or one class.' },
+  { icon: MessageSquare, title: 'Grievances', text: 'A grievance desk where anyone can raise a concern and the school replies, so complaints get an answer, not silence.' },
   { icon: BellRing, title: 'Notifications', text: 'In-app bell and phone push notifications for notices, fees and replies, even on the free plan.' },
   { icon: Upload, title: 'Files and documents', text: 'Upload CNIC / B-Form copies, certificates, photos and homework files. Stored safely, shown only to the right people.' },
   { icon: Settings, title: 'School setup', text: 'Your logo, name, province, timings and time zone. The school looks like your school.' },
@@ -112,15 +112,29 @@ export const ROLES = [
   },
   {
     id: 'owner', tab: 'Platform owner', icon: Building2,
-    headline: 'Run Darsgah as a business',
+    headline: 'Run Aulensia as a business',
     text: 'For the company that offers the system to many schools.',
     points: [
-      'See all schools, signups and monthly revenue',
+      'See all schools, signups and the payments actually received',
       'Create, edit and delete subscription plans in PKR',
       'Switch features on or off for each plan',
       'Create offers and discounts',
       'Suspend or activate a school',
       'Back up and export any school’s data',
+      'Add agents and set each agent’s commission',
+    ],
+  },
+  {
+    id: 'agent', tab: 'Partner agent', icon: Briefcase,
+    headline: 'Earn by bringing schools to Aulensia',
+    text: 'Agents introduce schools and follow their own earnings. They never see any school’s students, fees or marks.',
+    points: [
+      'Your own referral code and sign-up link',
+      'See the schools you brought and which plan each is on',
+      'See the payments those schools made',
+      'Commission percentage is set by the platform owner',
+      'Track pending, approved and paid commission',
+      'Works in English and Urdu',
     ],
   },
 ];
@@ -151,7 +165,7 @@ export const TRUST = [
 ];
 
 export const FAQ = [
-  { q: 'Do we need to install anything?', a: 'No. Darsgah runs in the browser on a phone, tablet or computer. Open the link and log in.' },
+  { q: 'Do we need to install anything?', a: 'No. Aulensia runs in the browser on a phone, tablet or computer. Open the link and log in.' },
   { q: 'Can parents and students use their own phones?', a: 'Yes. Each has their own login. The parent portal is designed for mobile, and push notifications can reach the phone.' },
   { q: 'Is our school data kept separate from other schools?', a: 'Yes. Each school has its own school code and its own data. Users can only see the school they belong to.' },
   { q: 'Can we get a copy of our data?', a: 'Yes. The school admin can download a ZIP backup at any time from School Setup. It contains an Excel workbook and the full data file. A backup is also saved automatically every week.' },
@@ -188,7 +202,8 @@ export const ROADMAP = [
     items: [
       { icon: UserCheck, t: 'Attendance, marks, homework, timetable' },
       { icon: Wallet, t: 'Fees in PKR with payment proof approval' },
-      { icon: Megaphone, t: 'Notices, events, messages, grievances' },
+      { icon: Megaphone, t: 'Notices and grievances' },
+      { icon: Briefcase, t: 'Platform payments ledger and partner agents with commission' },
       { icon: Database, t: 'Weekly backup and downloadable data' },
     ],
   },
@@ -205,12 +220,13 @@ export const ROADMAP = [
       { icon: Smartphone, t: 'Installable mobile app with attendance that works offline' },
       { icon: Calculator, t: 'Teacher attendance, payroll, salary slips and expenses' },
       { icon: CalendarDays, t: 'Leave requests and substitute teacher cover' },
+      { icon: MessageSquare, t: 'School events calendar and in-app messages between staff and parents' },
     ],
   },
   {
     phase: 'Phase 3', status: 'Planned · later', tone: 'later',
     title: 'Payments, AI and connected devices',
-    text: 'Bigger features that need partners or more build time, and that set Darsgah apart.',
+    text: 'Bigger features that need partners or more build time, and that set Aulensia apart.',
     items: [
       { icon: QrCode, t: 'Bank and wallet payment with QR (1BILL, RAAST) and automatic reconciliation' },
       { icon: MapPin, t: 'Live school bus tracking with a driver app' },

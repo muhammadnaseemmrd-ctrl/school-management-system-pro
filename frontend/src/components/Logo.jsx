@@ -1,26 +1,25 @@
 import React from 'react';
 
-// Darsgah mark: an open book under a pointed (Mughal-style) arch, in Pakistan green and gold.
+// Aulensia mark: a bold "A" whose crossbar is an open page, on an ink-blue tile.
 export const LogoMark = ({ className = 'h-10 w-10' }) => (
-  <svg viewBox="0 0 64 64" className={className} role="img" aria-label="Darsgah" xmlns="http://www.w3.org/2000/svg">
-    <rect width="64" height="64" rx="16" fill="#0f6b4f" />
-    <path d="M18 27V21c0-7 6-12 14-17 8 5 14 10 14 17v6" fill="none" stroke="#e0a526" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
-    <path d="M32 50c-5-3.6-12-4.6-18-3V30.5c6-1.6 13-.6 18 3z" fill="#ffffff" />
-    <path d="M32 50c5-3.6 12-4.6 18-3V30.5c-6-1.6-13-.6-18 3z" fill="#cfe6da" />
+  <svg viewBox="0 0 64 64" className={className} role="img" aria-label="Aulensia" xmlns="http://www.w3.org/2000/svg">
+    <rect width="64" height="64" rx="14" fill="#2a5cac" />
+    <path d="M32 11 49 53h-7.6L32 28.6 22.6 53H15z" fill="#ffffff" />
+    <path d="M23.4 41.5c3.2-2 6.1-2 8.6 0 2.5-2 5.4-2 8.6 0v5.2c-3.2-2-6.1-2-8.6 0-2.5-2-5.4-2-8.6 0z" fill="#b86650" />
   </svg>
 );
 
 // Mark + name. `tone="light"` is for dark backgrounds.
-const Logo = ({ size = 'md', subtitle, tone = 'dark', name = 'Darsgah' }) => {
+const Logo = ({ size = 'md', subtitle, tone = 'dark', name = 'Aulensia' }) => {
   const box = size === 'lg' ? 'h-12 w-12' : size === 'sm' ? 'h-9 w-9' : 'h-11 w-11';
   return (
     <div className="flex items-center gap-3">
-      <LogoMark className={`${box} shrink-0 drop-shadow-sm`} />
+      <LogoMark className={`${box} shrink-0`} />
       <div className="min-w-0">
-        <p className={`flex items-baseline gap-2 text-lg font-extrabold leading-tight tracking-tight ${tone === 'light' ? 'text-[#edf5f0]' : 'text-[#0c2f25]'}`}>
-          {name}<span lang="ur" dir="rtl" className={`text-sm font-bold ${tone === 'light' ? 'text-[#e0a526]' : 'text-[#b27d0e]'}`}>درسگاہ</span>
+        <p className={`flex items-baseline gap-2 font-display text-xl font-bold leading-tight tracking-tight ${tone === 'light' ? 'text-white' : 'text-[#1b2837]'}`}>
+          {name}<span lang="ur" dir="rtl" className={`font-urdu text-sm font-bold ${tone === 'light' ? 'text-[#d9826a]' : 'text-[#b86650]'}`}>اولینسیا</span>
         </p>
-        {subtitle && <p className={`text-xs ${tone === 'light' ? 'text-[#a9d6c0]' : 'text-[#4f7262]'}`}>{subtitle}</p>}
+        {subtitle && <p className={`text-xs ${tone === 'light' ? 'text-[#c9d6ea]' : 'text-[#5b6b7b]'}`}>{subtitle}</p>}
       </div>
     </div>
   );

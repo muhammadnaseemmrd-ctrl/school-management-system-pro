@@ -17,4 +17,7 @@ const planSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+planSchema.index({ isActive: 1, sortOrder: 1 });
+
 module.exports = mongoose.model('Plan', planSchema);

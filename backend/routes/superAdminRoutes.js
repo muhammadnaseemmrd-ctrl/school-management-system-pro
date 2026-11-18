@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const c = require('../controllers/superAdminController');
 const bk = require('../controllers/backupController');
+const pb = require('../controllers/platformBillingController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { loginLimiter } = require('../middleware/rateLimit');
 
@@ -27,6 +28,27 @@ router.put('/schools/:id', c.updateSchool);
 router.patch('/schools/:id/status', c.setSchoolStatus);
 router.post('/schools/:id/reset-admin-password', c.resetAdminPassword);
 router.delete('/schools/:id', c.deleteSchool);
+
+// Partner agents (E24), what schools paid (E02), commissions and payouts
+router.get('/agents', pb.listAgents);
+router.post('/agents', pb.createAgent);
+router.get('/agents/:id', pb.getAgent);
+router.put('/agents/:id', pb.updateAgent);
+router.post('/agents/:id/reset-password', pb.resetAgentPassword);
+router.post('/agents/:id/payouts', pb.recordPayout);
+router.put('/schools/:id/agent', pb.setSchoolAgent);
+router.get('/payments', pb.listPayments);
+router.post('/payments', pb.recordPayment);
+router.post('/payments/:id/refund', pb.refundPayment);
+router.get('/commissions', pb.listCommissions);
+router.post('/commissions/approve', pb.approveCommissions);
+router.post('/commissions/:id/void', pb.voidCommission);
+router.get('/payouts', pb.listPayouts);
+router.get('/commission-policy', pb.getPolicy);
+router.put('/commission-policy', pb.setPolicy);
+router.get('/ledger', pb.ledger);
+router.post('/ledger/reconcile', pb.reconcile);
+router.get('/audit', pb.auditLog);
 
 // Backups (any school) + weekly run for all schools
 router.get('/schools/:id/backups', bk.forOwner.list);

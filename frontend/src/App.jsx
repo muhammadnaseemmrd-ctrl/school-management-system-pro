@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearAuth, setUser, setSchool } from './store/authSlice';
@@ -8,12 +8,14 @@ import apiClient from './utils/apiClient';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
-import AdminDashboard from './pages/admin/Dashboard';
-import StudentDashboard from './pages/student/Dashboard';
-import TeacherDashboard from './pages/teacher/Dashboard';
-import ParentDashboard from './pages/parent/Dashboard';
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
+const TeacherDashboard = lazy(() => import('./pages/teacher/Dashboard'));
+const ParentDashboard = lazy(() => import('./pages/parent/Dashboard'));
 import SuperAdminLogin from './pages/superadmin/Login';
-import SuperAdminDashboard from './pages/superadmin/Dashboard';
+const SuperAdminDashboard = lazy(() => import('./pages/superadmin/Dashboard'));
+import AgentLogin from './pages/agent/Login';
+const AgentDashboard = lazy(() => import('./pages/agent/Dashboard'));
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -56,8 +58,8 @@ function App() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-canvas">
         <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#0f6b4f]"></div>
-          <p className="mt-4 text-[#0f6b4f]">Loading...</p>
+          <div className="inline-block h-12 w-12 animate-spin rounded-full border-b-2 border-[#2a5cac]"></div>
+          <p className="mt-4 text-[#2a5cac]">Loading...</p>
         </div>
       </div>
     );
@@ -67,6 +69,7 @@ function App() {
     <Router>
       <div className="min-h-screen bg-canvas">
         {isAuthenticated && <Navbar />}
+        <Suspense fallback={<div className="mx-auto max-w-7xl space-y-4 px-4 py-8" aria-busy="true" aria-label="Loading"><div className="skeleton h-10 w-64" /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton h-28" />)}</div></div>}>
         <Routes>
           <Route
             path="/"
@@ -79,6 +82,10 @@ function App() {
           <Route
             path="/superadmin/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SuperAdminLogin />}
+          />
+          <Route
+            path="/agent/login"
+            element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <AgentLogin />}
           />
           <Route
             path="/register"
@@ -127,12 +134,21 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/agent/*"
+                element={
+                  <ProtectedRoute requiredRole="agent">
+                    <AgentDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<Navigate to={user?.role ? `/${user.role}/dashboard` : '/'} />} />
             </>
           ) : (
             <Route path="*" element={<Navigate to="/" />} />
           )}
         </Routes>
+        </Suspense>
       </div>
     </Router>
   );

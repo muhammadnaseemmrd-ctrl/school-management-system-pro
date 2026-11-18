@@ -23,4 +23,7 @@ dailyAttendanceSchema.index({ studentId: 1, date: 1 }, { unique: true });
 dailyAttendanceSchema.index({ schoolId: 1, classId: 1, date: 1 });
 
 module.exports = mongoose.model('DailyAttendance', dailyAttendanceSchema);
+// Query paths (indexing is part of the schema, so every environment gets it)
+dailyAttendanceSchema.index({ schoolId: 1, date: 1 });
+
 module.exports.STATUSES = STATUSES;

@@ -12,7 +12,7 @@ const CHIP = {
   Paid: ['bg-emerald-50 text-emerald-800 border-emerald-200', CheckCircle2],
   'Under review': ['bg-amber-50 text-amber-800 border-amber-200', Clock],
   Rejected: ['bg-rose-50 text-rose-800 border-rose-200', XCircle],
-  Unpaid: ['bg-white text-[#355e4d] border-[#cfe0d6]', Wallet],
+  Unpaid: ['bg-white text-[#3b4a5c] border-[#e3e7e7]', Wallet],
 };
 export const StatusPill = ({ status }) => {
   const { t } = useLang();
@@ -80,7 +80,7 @@ const FeesPanel = ({ studentId, studentName }) => {
     finally { setBusy(false); }
   };
 
-  if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-9 w-9 animate-spin rounded-full border-4 border-[#0f6b4f] border-t-transparent" /></div>;
+  if (loading) return <div className="flex h-40 items-center justify-center"><div className="h-9 w-9 animate-spin rounded-full border-4 border-[#2a5cac] border-t-transparent" /></div>;
   if (!data) return null;
   const { totals } = data;
 
@@ -88,35 +88,35 @@ const FeesPanel = ({ studentId, studentName }) => {
     <div className="space-y-4">
       <div className="grid grid-cols-3 gap-2 text-center">
         {[['Due', totals.due, 'text-[#be123c]'], ['Under review', totals.underReview, 'text-amber-700'], ['Paid', totals.paid, 'text-emerald-700']].map(([l, v, c]) => (
-          <div key={l} className="rounded-2xl border border-[#cfe0d6] bg-white px-2 py-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#4f7262]">{t(l)}</p><p className={`text-base font-black sm:text-lg ${c}`}>{rs(v)}</p></div>
+          <div key={l} className="rounded-2xl border border-[#e3e7e7] bg-white px-2 py-3"><p className="text-[10px] font-bold uppercase tracking-wide text-[#5b6b7b]">{t(l)}</p><p className={`text-base font-black sm:text-lg ${c}`}>{rs(v)}</p></div>
         ))}
       </div>
 
       {(payRows.length > 0 || pay.instructions) && (
-        <div className="rounded-2xl border border-[#cfe0d6] bg-[#fbfdfb] p-4">
-          <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#4f7262]">{t('Send the fee to')}</p>
+        <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-4">
+          <p className="mb-2 text-xs font-black uppercase tracking-wide text-[#5b6b7b]">{t('Send the fee to')}</p>
           <dl className="grid gap-x-4 gap-y-1 text-sm sm:grid-cols-2">
-            {payRows.map(([l, v]) => <div key={l} className="flex justify-between gap-2 border-b border-[#e8f2ec] py-1"><dt className="text-[#4f7262]">{t(l)}</dt><dd className="select-all font-black text-[#0c2f25]">{v}</dd></div>)}
+            {payRows.map(([l, v]) => <div key={l} className="flex justify-between gap-2 border-b border-[#f7f6f2] py-1"><dt className="text-[#5b6b7b]">{t(l)}</dt><dd className="select-all font-black text-[#1b2837]">{v}</dd></div>)}
           </dl>
-          {pay.instructions && <p className="mt-2 text-xs font-semibold text-[#355e4d]">{pay.instructions}</p>}
+          {pay.instructions && <p className="mt-2 text-xs font-semibold text-[#3b4a5c]">{pay.instructions}</p>}
         </div>
       )}
 
       {!data.hasStructure && data.items.length === 0 && (
-        <div className="rounded-2xl border border-dashed border-[#cfe0d6] bg-white p-6 text-center text-sm text-[#4f7262]">{t('The school has not added any fees for {name} yet.', { name: studentName || data.student.name })}</div>
+        <div className="rounded-2xl border border-dashed border-[#e3e7e7] bg-white p-6 text-center text-sm text-[#5b6b7b]">{t('The school has not added any fees for {name} yet.', { name: studentName || data.student.name })}</div>
       )}
 
       <div className="space-y-2">
         {data.items.map((i) => {
           const canPick = i.status === 'Unpaid' || i.status === 'Rejected';
           return (
-            <label key={i.key} className={`flex items-start gap-3 rounded-2xl border bg-white px-4 py-3 ${canPick ? 'cursor-pointer hover:border-[#0f6b4f]' : ''} ${picked.includes(i.key) ? 'border-[#0f6b4f] ring-1 ring-[#0f6b4f]' : 'border-[#cfe0d6]'}`}>
-              {canPick ? <input type="checkbox" className="mt-1 h-5 w-5 accent-[#0f6b4f]" checked={picked.includes(i.key)} onChange={() => toggle(i.key)} /> : <span className="w-5" />}
+            <label key={i.key} className={`flex items-start gap-3 rounded-2xl border bg-white px-4 py-3 ${canPick ? 'cursor-pointer hover:border-[#2a5cac]' : ''} ${picked.includes(i.key) ? 'border-[#2a5cac] ring-1 ring-[#2a5cac]' : 'border-[#e3e7e7]'}`}>
+              {canPick ? <input type="checkbox" className="mt-1 h-5 w-5 accent-[#2a5cac]" checked={picked.includes(i.key)} onChange={() => toggle(i.key)} /> : <span className="w-5" />}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="text-sm font-black text-[#0c2f25]">{i.title}</p><StatusPill status={i.status} />
+                  <p className="text-sm font-black text-[#1b2837]">{i.title}</p><StatusPill status={i.status} />
                 </div>
-                <p className="mt-0.5 text-sm font-bold text-[#0f6b4f]">{rs(i.amount)}{i.dueDate ? <span className="ml-2 text-xs font-semibold text-[#4f7262]">{t('Due')} {fmtDate(String(i.dueDate).slice(0, 10), { day: 'numeric', month: 'short' })}</span> : null}</p>
+                <p className="mt-0.5 text-sm font-bold text-[#2a5cac]">{rs(i.amount)}{i.dueDate ? <span className="ml-2 text-xs font-semibold text-[#5b6b7b]">{t('Due')} {fmtDate(String(i.dueDate).slice(0, 10), { day: 'numeric', month: 'short' })}</span> : null}</p>
                 {i.status === 'Rejected' && i.reviewNote && <p className="mt-1 rounded-lg bg-rose-50 px-2 py-1 text-xs font-semibold text-rose-800">{t('School note')}: {i.reviewNote}</p>}
               </div>
             </label>
@@ -125,43 +125,43 @@ const FeesPanel = ({ studentId, studentName }) => {
       </div>
 
       {payable.length > 0 && !open && (
-        <button disabled={!picked.length} onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0f6b4f] px-5 py-4 text-base font-black text-white shadow-sm hover:bg-[#0b5340] disabled:opacity-40">
+        <button disabled={!picked.length} onClick={() => setOpen(true)} className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#2a5cac] px-5 py-4 text-base font-black text-white shadow-sm hover:bg-[#234c91] disabled:opacity-40">
           <Camera className="h-5 w-5" /> {picked.length ? t('I paid {amount} - upload screenshot', { amount: rs(total) }) : t('Select the fees you paid')}
         </button>
       )}
 
       {open && (
-        <form onSubmit={submit} className="space-y-3 rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-4 shadow-sm">
-          <div className="flex items-center justify-between"><h3 className="text-base font-black text-[#0c2f25]">{t('Send payment proof')} · {rs(total)}</h3><button type="button" onClick={() => setOpen(false)} className="rounded-full p-1 hover:bg-[#0f6b4f]/10"><X className="h-5 w-5" /></button></div>
-          <p className="text-xs font-semibold text-[#4f7262]">{t('Pay through your bank or wallet first, then upload the screenshot. Fees turn Paid only after the school checks it.')}</p>
+        <form onSubmit={submit} className="space-y-3 rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-4 shadow-sm">
+          <div className="flex items-center justify-between"><h3 className="text-base font-black text-[#1b2837]">{t('Send payment proof')} · {rs(total)}</h3><button type="button" onClick={() => setOpen(false)} className="rounded-full p-1 hover:bg-[#2a5cac]/10"><X className="h-5 w-5" /></button></div>
+          <p className="text-xs font-semibold text-[#5b6b7b]">{t('Pay through your bank or wallet first, then upload the screenshot. Fees turn Paid only after the school checks it.')}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">{t('Paid by')}</label>
-              <select value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })} className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-3 text-sm">{METHODS.map((m) => <option key={m} value={m}>{t(m)}</option>)}</select></div>
-            <div><label className="mb-1 block text-xs font-bold text-[#355e4d]">{t('Transaction ID (optional)')}</label>
-              <input value={form.reference} maxLength={80} onChange={(e) => setForm({ ...form, reference: e.target.value })} className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-3 text-sm" /></div>
+            <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">{t('Paid by')}</label>
+              <select value={form.method} onChange={(e) => setForm({ ...form, method: e.target.value })} className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-3 text-sm">{METHODS.map((m) => <option key={m} value={m}>{t(m)}</option>)}</select></div>
+            <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">{t('Transaction ID (optional)')}</label>
+              <input value={form.reference} maxLength={80} onChange={(e) => setForm({ ...form, reference: e.target.value })} className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-3 text-sm" /></div>
           </div>
           <div>
             <input ref={fileRef} type="file" accept="image/*,application/pdf" className="hidden" onChange={chooseFile} />
-            <button type="button" onClick={() => fileRef.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#9fc0ae] bg-white px-4 py-5 text-sm font-black text-[#0f6b4f] hover:bg-[#edf5f0]">
+            <button type="button" onClick={() => fileRef.current?.click()} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-[#a9b4bf] bg-white px-4 py-5 text-sm font-black text-[#2a5cac] hover:bg-[#f7f6f2]">
               {preview ? <img src={preview} alt="" className="max-h-48 rounded-xl" /> : file ? <><FileText className="h-5 w-5" />{file.name}</> : <><Camera className="h-5 w-5" />{t('Add payment screenshot or photo')}</>}
             </button>
           </div>
-          <textarea rows={2} value={form.note} maxLength={500} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder={t('Message for the school (optional)')} className="w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm" />
-          <button disabled={busy} className="w-full rounded-2xl bg-[#0f6b4f] px-5 py-3.5 text-base font-black text-white hover:bg-[#0b5340] disabled:opacity-50">{busy ? t('Sending...') : t('Send to school')}</button>
+          <textarea rows={2} value={form.note} maxLength={500} onChange={(e) => setForm({ ...form, note: e.target.value })} placeholder={t('Message for the school (optional)')} className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm" />
+          <button disabled={busy} className="w-full rounded-2xl bg-[#2a5cac] px-5 py-3.5 text-base font-black text-white hover:bg-[#234c91] disabled:opacity-50">{busy ? t('Sending...') : t('Send to school')}</button>
         </form>
       )}
 
       {data.proofs.length > 0 && (
         <div>
-          <h3 className="mb-2 mt-2 text-sm font-black uppercase tracking-wide text-[#4f7262]">{t('My payment submissions')}</h3>
+          <h3 className="mb-2 mt-2 text-sm font-black uppercase tracking-wide text-[#5b6b7b]">{t('My payment submissions')}</h3>
           <div className="space-y-2">
             {data.proofs.map((p) => (
-              <div key={p._id} className="flex items-start gap-3 rounded-2xl border border-[#cfe0d6] bg-white p-3">
-                <a href={p.screenshotUrl} target="_blank" rel="noopener noreferrer" className="shrink-0"><img src={p.screenshotUrl} alt="" className="h-14 w-14 rounded-lg border border-[#e1eee6] object-cover" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} /></a>
+              <div key={p._id} className="flex items-start gap-3 rounded-2xl border border-[#e3e7e7] bg-white p-3">
+                <a href={p.screenshotUrl} target="_blank" rel="noopener noreferrer" className="shrink-0"><img src={p.screenshotUrl} alt="" className="h-14 w-14 rounded-lg border border-[#eef2f8] object-cover" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} /></a>
                 <div className="min-w-0 flex-1 text-xs">
-                  <div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm text-[#0c2f25]">{rs(p.totalAmount)}</b><StatusPill status={p.status === 'Pending' ? 'Under review' : p.status === 'Approved' ? 'Paid' : 'Rejected'} /></div>
-                  <p className="mt-0.5 truncate text-[#355e4d]">{p.items.map((i) => i.label).join(', ')}</p>
-                  <p className="text-[#4f7262]">{new Date(p.createdAt).toLocaleDateString()} · {t(p.method)}</p>
+                  <div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm text-[#1b2837]">{rs(p.totalAmount)}</b><StatusPill status={p.status === 'Pending' ? 'Under review' : p.status === 'Approved' ? 'Paid' : 'Rejected'} /></div>
+                  <p className="mt-0.5 truncate text-[#3b4a5c]">{p.items.map((i) => i.label).join(', ')}</p>
+                  <p className="text-[#5b6b7b]">{new Date(p.createdAt).toLocaleDateString()} · {t(p.method)}</p>
                   {p.status === 'Rejected' && p.reviewNote && <p className="mt-1 rounded bg-rose-50 px-2 py-1 font-semibold text-rose-800">{p.reviewNote}</p>}
                 </div>
               </div>

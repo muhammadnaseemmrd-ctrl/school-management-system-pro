@@ -1,4 +1,4 @@
-# Quick Start Guide - Darsgah School Management System
+# Quick Start Guide - Aulensia School Management System
 
 ## 🚀 Get Started in 5 Minutes
 

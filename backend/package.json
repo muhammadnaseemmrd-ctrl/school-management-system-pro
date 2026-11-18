@@ -1,7 +1,7 @@
 {
   "name": "school-management-backend",
   "version": "1.0.0",
-  "description": "Darsgah: multi-school management platform for Pakistan (Express + PostgreSQL)",
+  "description": "Aulensia: multi-school management platform for Pakistan (Express + PostgreSQL)",
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",

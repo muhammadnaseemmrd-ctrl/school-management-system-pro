@@ -6,8 +6,8 @@ import { compressImage } from '../utils/imageCompress';
 import { openProxiedFile } from '../utils/fileProxy';
 import { useLang } from '../i18n/LanguageContext';
 
-const inputCls = 'w-full rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#0f6b4f]';
-const Field = ({ label, children }) => (<div><label className="mb-1 block text-xs font-bold text-[#355e4d]">{label}</label>{children}</div>);
+const inputCls = 'w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#2a5cac]';
+const Field = ({ label, children }) => (<div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">{label}</label>{children}</div>);
 
 const upload = async (file, purpose) => {
   const f = await compressImage(file);
@@ -41,7 +41,7 @@ const ProfileEditor = () => {
   }, [t]);
   useEffect(() => { load(); }, [load]);
 
-  if (!data || !form) return <div className="flex h-28 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#0f6b4f]" /></div>;
+  if (!data || !form) return <div className="flex h-28 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#2a5cac]" /></div>;
 
   const save = async (e) => {
     e.preventDefault();
@@ -89,18 +89,18 @@ const ProfileEditor = () => {
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
   return (
-    <div className="space-y-5 rounded-3xl border border-[#cfe0d6] bg-[#fbfdfb] p-5 shadow-sm">
+    <div className="space-y-5 rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-5 shadow-sm">
       <div className="flex items-center gap-4">
         <div className="relative">
-          {data.avatar ? <img src={data.avatar} alt="" className="h-20 w-20 rounded-full border-2 border-[#0f6b4f] object-cover" /> : <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#0f6b4f] text-3xl font-black text-white">{data.name?.charAt(0)}</div>}
+          {data.avatar ? <img src={data.avatar} alt="" className="h-20 w-20 rounded-full border-2 border-[#2a5cac] object-cover" /> : <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[#2a5cac] text-3xl font-black text-white">{data.name?.charAt(0)}</div>}
           <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={changePhoto} />
-          <button onClick={() => photoRef.current?.click()} disabled={busyPhoto} className="absolute -bottom-1 -end-1 rounded-full bg-[#0f6b4f] p-2 text-white shadow hover:bg-[#0b5340]" title={t('Change photo')}>
+          <button onClick={() => photoRef.current?.click()} disabled={busyPhoto} className="absolute -bottom-1 -end-1 rounded-full bg-[#2a5cac] p-2 text-white shadow hover:bg-[#234c91]" title={t('Change photo')}>
             {busyPhoto ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
           </button>
         </div>
         <div>
-          <h3 className="text-xl font-black text-[#0c2f25]">{data.name}</h3>
-          <p className="text-xs font-semibold text-[#4f7262]">{data.email}</p>
+          <h3 className="text-xl font-black text-[#1b2837]">{data.name}</h3>
+          <p className="text-xs font-semibold text-[#5b6b7b]">{data.email}</p>
         </div>
       </div>
 
@@ -112,25 +112,25 @@ const ProfileEditor = () => {
         <Field label={t('Emergency contact name')}><input className={inputCls} value={form.emergencyName} onChange={set('emergencyName')} /></Field>
         <Field label={t('Emergency contact number')}><input className={inputCls} value={form.emergencyPhone} onChange={set('emergencyPhone')} /></Field>
         <div className="sm:col-span-2"><Field label={t('About me (optional)')}><textarea rows={2} maxLength={500} className={inputCls} value={form.about} onChange={set('about')} /></Field></div>
-        <div className="sm:col-span-2"><button disabled={saving} className="rounded-xl bg-[#0f6b4f] px-5 py-2.5 text-sm font-black text-[#edf5f0] hover:bg-[#0b5340] disabled:opacity-50">{saving ? t('Saving...') : t('Save profile')}</button></div>
+        <div className="sm:col-span-2"><button disabled={saving} className="rounded-xl bg-[#2a5cac] px-5 py-2.5 text-sm font-black text-white hover:bg-[#234c91] disabled:opacity-50">{saving ? t('Saving...') : t('Save profile')}</button></div>
       </form>
 
-      <div className="border-t border-[#e1eee6] pt-4">
-        <h4 className="text-sm font-black uppercase tracking-wide text-[#4f7262]">{t('My documents')}</h4>
-        <p className="mt-1 text-xs text-[#4f7262]">{t('Upload certificates, ID copies or other papers. The school admin can see them. Photos, PDF or Word files up to 4 MB.')}</p>
+      <div className="border-t border-[#eef2f8] pt-4">
+        <h4 className="text-sm font-black uppercase tracking-wide text-[#5b6b7b]">{t('My documents')}</h4>
+        <p className="mt-1 text-xs text-[#5b6b7b]">{t('Upload certificates, ID copies or other papers. The school admin can see them. Photos, PDF or Word files up to 4 MB.')}</p>
         <form onSubmit={addDoc} className="mt-3 grid gap-2 sm:grid-cols-[1fr_9rem_auto_auto]">
           <input className={inputCls} placeholder={t('Document name')} value={doc.title} onChange={(e) => setDoc({ ...doc, title: e.target.value })} />
           <select className={inputCls} value={doc.category} onChange={(e) => setDoc({ ...doc, category: e.target.value })}>{cats.map((c) => <option key={c}>{c}</option>)}</select>
           <input ref={docRef} type="file" className="hidden" accept="image/*,application/pdf,.doc,.docx" onChange={(e) => setDoc({ ...doc, file: e.target.files?.[0] || null })} />
-          <button type="button" onClick={() => docRef.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#9fc0ae] bg-white px-3 py-2.5 text-xs font-bold text-[#0f6b4f]"><Upload className="h-4 w-4" /><span className="max-w-[8rem] truncate">{doc.file ? doc.file.name : t('Choose file')}</span></button>
-          <button disabled={busyDoc || !doc.file} className="rounded-xl bg-[#0f6b4f] px-4 py-2.5 text-xs font-black text-white disabled:opacity-40">{busyDoc ? '...' : t('Add')}</button>
+          <button type="button" onClick={() => docRef.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#a9b4bf] bg-white px-3 py-2.5 text-xs font-bold text-[#2a5cac]"><Upload className="h-4 w-4" /><span className="max-w-[8rem] truncate">{doc.file ? doc.file.name : t('Choose file')}</span></button>
+          <button disabled={busyDoc || !doc.file} className="rounded-xl bg-[#2a5cac] px-4 py-2.5 text-xs font-black text-white disabled:opacity-40">{busyDoc ? '...' : t('Add')}</button>
         </form>
         <div className="mt-3 space-y-2">
-          {data.documents.length === 0 && <p className="rounded-xl border border-dashed border-[#cfe0d6] bg-white p-4 text-center text-xs italic text-[#4f7262]">{t('No documents yet.')}</p>}
+          {data.documents.length === 0 && <p className="rounded-xl border border-dashed border-[#e3e7e7] bg-white p-4 text-center text-xs italic text-[#5b6b7b]">{t('No documents yet.')}</p>}
           {data.documents.map((d) => (
-            <div key={d._id} className="flex items-center gap-3 rounded-xl border border-[#cfe0d6] bg-white px-3 py-2.5">
-              <FileText className="h-5 w-5 shrink-0 text-[#0f6b4f]" />
-              <button onClick={() => openProxiedFile(d.url)} className="min-w-0 flex-1 text-start"><p className="truncate text-sm font-bold text-[#0c2f25]">{d.title}</p><p className="text-[11px] text-[#4f7262]">{d.category} · {new Date(d.uploadedAt).toLocaleDateString()}</p></button>
+            <div key={d._id} className="flex items-center gap-3 rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5">
+              <FileText className="h-5 w-5 shrink-0 text-[#2a5cac]" />
+              <button onClick={() => openProxiedFile(d.url)} className="min-w-0 flex-1 text-start"><p className="truncate text-sm font-bold text-[#1b2837]">{d.title}</p><p className="text-[11px] text-[#5b6b7b]">{d.category} · {new Date(d.uploadedAt).toLocaleDateString()}</p></button>
               <button onClick={() => delDoc(d)} className="rounded-lg p-1.5 text-[#be123c] hover:bg-[#fff1f2]"><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}

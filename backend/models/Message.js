@@ -46,4 +46,7 @@ const messageSchema = new mongoose.Schema(
 
 messageSchema.index({ schoolId: 1, senderId: 1, recipientId: 1 });
 
+// Query paths (indexing is part of the schema, so every environment gets it)
+messageSchema.index({ schoolId: 1, recipientId: 1, isRead: 1, createdAt: -1 });
+
 module.exports = mongoose.model('Message', messageSchema);

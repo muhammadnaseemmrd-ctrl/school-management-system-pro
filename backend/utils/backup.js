@@ -63,7 +63,7 @@ async function collect(schoolId, { withFiles = false } = {}) {
 }
 
 const buildPayload = (c, { clean }) => ({
-  format: 'darsgah-backup', version: 1, createdAt: new Date().toISOString(),
+  format: 'aulensia-backup', version: 1, createdAt: new Date().toISOString(),
   credentials: clean ? 'removed' : 'included',
   school: clean ? strip(c.school) : c.school,
   counts: c.counts,
@@ -135,9 +135,9 @@ function flatten(obj, prefix = '', out = {}, depth = 0) {
 
 async function buildWorkbook(payload) {
   const wb = new ExcelJS.Workbook();
-  wb.creator = 'Darsgah';
+  wb.creator = 'Aulensia';
   const info = wb.addWorksheet('About');
-  info.addRows([['Darsgah school backup'], ['School', payload.school.name], ['School code', payload.school.code], ['Created', payload.createdAt], [], ['Table', 'Rows']]);
+  info.addRows([['Aulensia school backup'], ['School', payload.school.name], ['School code', payload.school.code], ['Created', payload.createdAt], [], ['Table', 'Rows']]);
   for (const [name, n] of Object.entries(payload.counts)) info.addRow([name, n]);
   info.getColumn(1).width = 28; info.getColumn(2).width = 40;
   for (const [name, rows] of Object.entries(payload.tables)) {
@@ -153,7 +153,7 @@ async function buildWorkbook(payload) {
   return wb.xlsx.writeBuffer();
 }
 
-const readme = (payload, notes) => `DARSGAH – SCHOOL DATA BACKUP
+const readme = (payload, notes) => `AULENSIA – SCHOOL DATA BACKUP
 =============================
 School : ${payload.school.name} (${payload.school.code})
 Created: ${payload.createdAt}
@@ -188,7 +188,7 @@ async function buildArchive(schoolId, { includeFiles = false } = {}) {
   if (buffer.length > RESPONSE_CAP) {
     throw Object.assign(new Error(`This backup is ${(buffer.length / 1048576).toFixed(1)} MB, above the 4.5 MB limit of the current free server. ${includeFiles ? 'Try again without uploaded files, or ' : ''}ask the platform owner to export it for you.`), { status: 413 });
   }
-  return { buffer, filename: `darsgah-backup-${safeName(c.school.code)}-${new Date().toISOString().slice(0, 10)}.zip`, notes, counts: c.counts };
+  return { buffer, filename: `aulensia-backup-${safeName(c.school.code)}-${new Date().toISOString().slice(0, 10)}.zip`, notes, counts: c.counts };
 }
 
 // Same ZIP, but built from a stored weekly/manual copy (credentials removed)
@@ -202,7 +202,7 @@ async function archiveFromSnapshot(schoolId, id) {
   zip.file('README.txt', readme({ ...payload, createdAt: new Date(snap.meta.createdAt).toISOString() }, ['Uploaded files are not part of stored weekly copies; use "Download full backup" to include them.']));
   const buffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE', compressionOptions: { level: 6 } });
   if (buffer.length > RESPONSE_CAP) throw Object.assign(new Error('This backup is larger than the 4.5 MB limit of the current free server.'), { status: 413 });
-  return { buffer, filename: `darsgah-backup-${safeName(payload.school.code)}-${new Date(snap.meta.createdAt).toISOString().slice(0, 10)}.zip` };
+  return { buffer, filename: `aulensia-backup-${safeName(payload.school.code)}-${new Date(snap.meta.createdAt).toISOString().slice(0, 10)}.zip` };
 }
 
 module.exports = { TABLES, collect, createSnapshot, listSnapshots, readSnapshot, runWeekly, buildArchive, archiveFromSnapshot, strip, prune };

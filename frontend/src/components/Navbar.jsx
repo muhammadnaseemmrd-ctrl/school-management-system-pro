@@ -16,7 +16,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { user, school } = useSelector((state) => state.auth);
   const { t } = useLang();
-  const isSchoolUser = !!user && user.role !== 'superadmin';
+  const isSchoolUser = !!user && user.role !== 'superadmin' && user.role !== 'agent';
   const branding = useBranding(isSchoolUser);
 
   const handleLogout = () => {
@@ -28,7 +28,8 @@ const Navbar = () => {
     localStorage.removeItem('studentActiveTab');
     localStorage.removeItem('parentActiveTab');
     localStorage.removeItem('superadminActiveTab');
-    const loginPath = user?.role === 'superadmin' ? '/superadmin/login' : '/login';
+    localStorage.removeItem('agentActiveTab');
+    const loginPath = user?.role === 'superadmin' ? '/superadmin/login' : user?.role === 'agent' ? '/agent/login' : '/login';
     dispatch(clearAuth());
     // Replace the entire history stack so back button can't return to dashboard
     window.history.replaceState(null, '', loginPath);
@@ -36,59 +37,59 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-[#cfe0d6] bg-[#edf5f0]/90 backdrop-blur-xl">
+    <nav className="sticky top-0 z-40 border-b border-[#e3e7e7] bg-[#f7f6f2]/90">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
             {isSchoolUser && branding?.logo ? (
-              <img src={branding.logo} alt="" className="h-10 w-10 rounded-2xl border border-[#cfe0d6] bg-white object-contain shadow-sm" />
+              <img src={branding.logo} alt="" className="h-10 w-10 rounded-2xl border border-[#e3e7e7] bg-white object-contain shadow-sm" />
             ) : (
               <LogoMark className="h-10 w-10 drop-shadow-sm" />
             )}
             <div className="min-w-0">
-              <h1 className="max-w-[11rem] truncate text-lg font-extrabold tracking-tight text-[#0c2f25] sm:max-w-xs">{(isSchoolUser && branding?.name) || 'Darsgah'}</h1>
-              <p className="text-xs text-[#4d7262]">{user?.role === 'superadmin' ? t('Platform console') : t('School management system')}</p>
+              <h1 className="max-w-[8rem] truncate text-lg font-extrabold tracking-tight text-[#1b2837] sm:max-w-xs">{(isSchoolUser && branding?.name) || 'Aulensia'}</h1>
+              <p className="text-xs text-[#5b6b7b]">{user?.role === 'superadmin' ? t('Platform console') : user?.role === 'agent' ? t('Partner portal') : t('School management system')}</p>
             </div>
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
             {user && (
-              <div className="flex items-center gap-2 rounded-full border border-[#cfe0d6] bg-[#fbfdfb] px-3 py-2 text-sm text-[#355e4d]">
-                <Shield size={16} className="text-[#0f6b4f]" />
+              <div className="flex items-center gap-2 rounded-full border border-[#e3e7e7] bg-[#ffffff] px-3 py-2 text-sm text-[#3b4a5c]">
+                <Shield size={16} className="text-[#2a5cac]" />
                 <span className="capitalize">{t(user.role.charAt(0).toUpperCase() + user.role.slice(1))}</span>
-                {school?.name && <span className="text-[#4f7262]">· {school.name}</span>}
+                {school?.name && <span className="text-[#5b6b7b]">· {school.name}</span>}
               </div>
             )}
-            {isSchoolUser && <NotificationBell />}
+            {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
             <LanguageToggle />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 rounded-full border border-[#2f8f6f] bg-[#fbfdfb] px-4 py-2 text-sm font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]"
+              className="flex items-center gap-2 rounded-full border border-[#2a5cac] bg-[#ffffff] px-4 py-2 text-sm font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]"
             >
               {t('Logout')}
               <LogOut size={16} />
             </button>
           </div>
 
-          <div className="flex items-center gap-2 md:hidden">
-            {isSchoolUser && <NotificationBell />}
+          <div className="flex shrink-0 items-center gap-1.5 md:hidden">
+            {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
             <LanguageToggle />
-            <button onClick={() => setIsOpen(!isOpen)} className="rounded-full border border-[#2f8f6f] bg-[#fbfdfb] p-2 text-[#0f6b4f]">
+            <button onClick={() => setIsOpen(!isOpen)} className="rounded-full border border-[#2a5cac] bg-[#ffffff] p-2 text-[#2a5cac]">
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>
         </div>
 
         {isOpen && (
-          <div className="border-t border-[#cfe0d6] pb-4 pt-3 md:hidden">
+          <div className="border-t border-[#e3e7e7] pb-4 pt-3 md:hidden">
             {user && (
-              <div className="mb-3 rounded-2xl border border-[#cfe0d6] bg-[#fbfdfb] px-4 py-3 text-sm text-[#355e4d]">
+              <div className="mb-3 rounded-2xl border border-[#e3e7e7] bg-[#ffffff] px-4 py-3 text-sm text-[#3b4a5c]">
                 {t('Signed in as')} <span className="font-semibold capitalize">{t(user.role.charAt(0).toUpperCase() + user.role.slice(1))}</span>
               </div>
             )}
             <button
               onClick={handleLogout}
-              className="flex w-full items-center justify-between rounded-2xl border border-[#2f8f6f] bg-[#fbfdfb] px-4 py-3 text-start text-sm font-semibold text-[#0f6b4f] transition hover:bg-[#e3efe8]"
+              className="flex w-full items-center justify-between rounded-2xl border border-[#2a5cac] bg-[#ffffff] px-4 py-3 text-start text-sm font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]"
             >
               {t('Logout')}
               <LogOut size={16} />

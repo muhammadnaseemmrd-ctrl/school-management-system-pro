@@ -64,10 +64,69 @@ function group(docs, spec) {
   return out;
 }
 
+// Fast path: [$match?, $group { _id: null | '$field', x: { $sum: '$numField' | <number> } | { $count: {} } ... }, $sort/$limit...]
+// runs as one GROUP BY in Postgres instead of loading every matching row into memory.
+// Returns undefined when the pipeline is not that simple (the JS engine below handles it).
+async function trySqlGroup(M, stages, filter) {
+  const g = stages[0] && stages[0].$group;
+  if (!g) return undefined;
+  const idExpr = g._id === undefined ? null : g._id;
+  let keyPath = null; let keyType = null;
+  if (idExpr !== null) {
+    if (typeof idExpr !== 'string' || !idExpr.startsWith('$')) return undefined;
+    keyPath = idExpr.slice(1);
+    const r = M.schema.resolve(keyPath);
+    if (!r || r.unknown || r.inArray || !r.desc || r.desc.kind !== 'leaf' || !['string', 'number', 'boolean', 'objectid'].includes(r.desc.type)) return undefined;
+    keyType = r.desc.type;
+  }
+  const ctx = new W.Ctx(M.schema);
+  const where = W.buildFilter(M.schema, filter, ctx);
+  const cols = [];
+  for (const [field, acc] of Object.entries(g)) {
+    if (field === '_id') continue;
+    if (!acc || typeof acc !== 'object') return undefined;
+    const [op, arg] = Object.entries(acc)[0] || [];
+    if (op === '$sum' && typeof arg === 'number' && Number.isFinite(arg)) cols.push({ field, sql: `COALESCE(SUM(${arg}), 0)` });
+    else if (op === '$sum' && typeof arg === 'string' && arg.startsWith('$')) {
+      const r = M.schema.resolve(arg.slice(1));
+      if (!r || r.unknown || r.inArray || !r.desc || r.desc.kind !== 'leaf' || r.desc.type !== 'number') return undefined;
+      cols.push({ field, sql: `COALESCE(SUM(CASE WHEN jsonb_typeof(${W.E(arg.slice(1))}) = 'number' THEN (${W.T(arg.slice(1))})::numeric END), 0)` });
+    } else if (op === '$count') cols.push({ field, sql: 'COUNT(*)' });
+    else return undefined;
+  }
+  const keySql = keyPath ? `${W.T(keyPath)} AS k, ` : '';
+  const sql = `SELECT ${keySql}${cols.map((c, i) => `${c.sql} AS c${i}`).join(', ')}${cols.length ? '' : '1 AS one'} FROM "${M.table}" WHERE ${where}${keyPath ? ` GROUP BY ${W.T(keyPath)}` : ''}`;
+  const { rows } = await db.get().query(sql, ctx.params);
+  const out = rows.map((r) => {
+    const row = { _id: null };
+    if (keyPath) {
+      const raw = r.k;
+      row._id = raw === null || raw === undefined ? null : keyType === 'number' ? Number(raw) : keyType === 'boolean' ? raw === 'true' : keyType === 'objectid' ? new ObjectId(raw) : raw;
+    }
+    cols.forEach((c, i) => { row[c.field] = Number(r[`c${i}`]); });
+    return row;
+  });
+  return out;
+}
+
 async function runAggregate(M, pipeline) {
   const stages = [...pipeline];
   let filter = {};
   if (stages[0] && stages[0].$match) filter = stages.shift().$match;
+  const fast = await trySqlGroup(M, stages, filter);
+  if (fast) {
+    let docs = fast;
+    for (const st of stages.slice(1)) {
+      const [op, arg] = Object.entries(st)[0];
+      if (op === '$sort') {
+        const keys = Object.entries(arg);
+        docs.sort((a, b) => { for (const [k, d] of keys) { const x = getPath(a, k); const y = getPath(b, k); if (x < y) return -d; if (x > y) return d; } return 0; });
+      } else if (op === '$limit') docs = docs.slice(0, arg);
+      else if (op === '$skip') docs = docs.slice(arg);
+      else throw new Error(`Unsupported aggregation stage ${op}`);
+    }
+    return docs;
+  }
   const ctx = new W.Ctx(M.schema);
   const where = W.buildFilter(M.schema, filter, ctx);
   const { rows } = await db.get().query(`SELECT id, doc FROM "${M.table}" WHERE ${where}`, ctx.params);

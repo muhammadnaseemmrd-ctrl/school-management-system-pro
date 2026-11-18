@@ -14,6 +14,10 @@ const Plan = require('../models/Plan');
 const { FEATURES, FEATURE_KEYS, getPlansMap, invalidatePlans, clearSchoolPlanCache } = require('../utils/plans');
 const { isValidTz } = require('../utils/time');
 const { invalidateSchoolStatus } = require('../middleware/auth');
+const Agent = require('../models/Agent');
+
+// Money and audit history outlive the school it belongs to
+const KEEP_ON_SCHOOL_DELETE = new Set(['School', 'SubscriptionPayment', 'Commission', 'AuditLog']);
 
 const strongTempPassword = () => {
   const base = crypto.randomBytes(6).toString('base64').replace(/[^A-Za-z0-9]/g, 'x');
@@ -87,6 +91,7 @@ exports.getStats = async (req, res) => {
     // Estimated monthly recurring revenue (PKR)
     const mrr = Object.entries(planDistribution).reduce((sum, [k, v]) => sum + (PLANS[k]?.pricePKR || 0) * v, 0);
 
+    const revenue = await require('./platformBillingController').revenueSummary();
     const signups = [];
     for (let i = 5; i >= 0; i--) {
       const d = new Date();
@@ -101,7 +106,7 @@ exports.getStats = async (req, res) => {
       stats: {
         totalSchools, activeSchools, suspendedSchools: totalSchools - activeSchools, newSchools30d,
         totalStudents, totalTeachers, totalParents, totalClasses, attendanceToday,
-        planDistribution, mrr, expiringSoon, signups,
+        planDistribution, mrr, expiringSoon, signups, revenue,
       },
       plans: PLANS,
       features: FEATURES,
@@ -163,7 +168,7 @@ exports.getSchool = async (req, res) => {
 
 exports.createSchool = async (req, res) => {
   try {
-    const { name, code, email, phone, address, adminName, adminEmail, adminPassword, plan = 'free', subscriptionExpiresAt, timezone } = req.body;
+    const { name, code, email, phone, address, adminName, adminEmail, adminPassword, plan = 'free', subscriptionExpiresAt, timezone, agentId, agentCommissionPercent } = req.body;
     if (!name || !code || !email || !phone || !adminName || !adminEmail || !adminPassword) {
       return res.status(400).json({ message: 'name, code, email, phone, adminName, adminEmail and adminPassword are required' });
     }
@@ -180,12 +185,21 @@ exports.createSchool = async (req, res) => {
     const adminId = new mongoose.Types.ObjectId();
     const schoolId = new mongoose.Types.ObjectId();
     const p = PLANS[plan];
+    let agentFields = {};
+    if (agentId) {
+      const agent = mongoose.isValidObjectId(agentId) ? await Agent.findById(agentId) : null;
+      if (!agent) return res.status(400).json({ message: 'Agent not found' });
+      if ([email, adminEmail].some((m) => String(m || '').toLowerCase() === agent.email)) return res.status(422).json({ message: 'An agent cannot be linked to a school that uses their own email address' });
+      const pct = agentCommissionPercent === undefined || agentCommissionPercent === '' ? agent.commissionPercent : Number(agentCommissionPercent);
+      if (!Number.isFinite(pct) || pct < 0 || pct > 100) return res.status(400).json({ message: 'Commission must be a number from 0 to 100' });
+      agentFields = { agentId: agent._id, agentCommissionPercent: pct, referredAt: new Date(), referralSource: 'superadmin' };
+    }
 
     const school = await School.create({
       _id: schoolId, name, code: cleanCode, adminId, email: String(email).toLowerCase(), phone, address,
       principalName: adminName, principalEmail: adminEmail, isActive: true,
       plan, studentLimit: p.studentLimit, teacherLimit: p.teacherLimit,
-      subscriptionExpiresAt: subscriptionExpiresAt || null, createdVia: 'superadmin',
+      subscriptionExpiresAt: subscriptionExpiresAt || null, createdVia: 'superadmin', ...agentFields,
       ...(timezone ? { timezone } : {}),
     });
     await User.create({
@@ -277,7 +291,7 @@ exports.deleteSchool = async (req, res) => {
     const removed = {};
     for (const name of mongoose.modelNames()) {
       const Model = mongoose.model(name);
-      if (name !== 'School' && Model.schema.path('schoolId')) {
+      if (!KEEP_ON_SCHOOL_DELETE.has(name) && Model.schema.path('schoolId')) {
         const r = await Model.deleteMany({ schoolId: school._id });
         removed[name] = r.deletedCount;
       }
