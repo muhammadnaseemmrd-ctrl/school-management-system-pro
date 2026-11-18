@@ -27,6 +27,18 @@ const getSchoolBlock = async (schoolId) => {
   return entry;
 };
 
+
+const nameCache = new Map(); // `${role}:${id}` -> { name, ts }
+const NAME_MODEL = { admin: 'User', teacher: 'Teacher', parent: 'Parent', student: 'Student' };
+const actorNameOf = async (role, id) => {
+  const M = NAME_MODEL[role]; if (!M || !id) return '';
+  const k = `${role}:${id}`; const hit = nameCache.get(k);
+  if (hit && Date.now() - hit.ts < 10 * 60 * 1000) return hit.name;
+  const row = await require(`../models/${M}`).findById(id).select('name');
+  if (nameCache.size > 3000) nameCache.clear();
+  nameCache.set(k, { name: row?.name || '', ts: Date.now() }); return row?.name || '';
+};
+
 // Authenticate Token
 const authenticate = async (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1] || req.query.token;
@@ -59,6 +71,10 @@ const authenticate = async (req, res, next) => {
     } catch (e) {
       return next(e);
     }
+  }
+  // Display name for records and the audit log (tokens carry only the id). Cached so most requests cost nothing.
+  if (decoded.role !== 'superadmin' && decoded.role !== 'agent') {
+    try { req.actorName = await actorNameOf(decoded.role, decoded.userId); } catch (e) { req.actorName = ''; }
   }
   next();
 };

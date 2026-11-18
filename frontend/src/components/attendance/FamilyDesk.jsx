@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import { Card, Modal, Field, Pill, EmptyState, btnGhost, btnPrimary, inputCls, fmtDate, errMsg } from '../ui';
+import FamilySafety from '../safety/FamilySafety';
 import { useList, Body, Tbl, Td, Row, Bar, act, Sub, TONE, todayKey } from './deskKit';
 
 const LEAVE_KINDS = ['Medical', 'Family', 'Religious', 'Exam', 'FieldTrip', 'Internship', 'Other'];
@@ -147,12 +148,12 @@ const Consent = ({ kids }) => {
 };
 
 const FamilyDesk = ({ role = 'parent', kids = [] }) => {
-  const TABS = [['alerts', 'Alerts'], ['leave', 'Leave'], ['corrections', 'Wrong mark?'], ...(role === 'student' ? [['checkin', 'Class check-in']] : []), ['consent', 'Privacy choices']];
+  const TABS = [['alerts', 'Alerts'], ['leave', 'Leave'], ['corrections', 'Wrong mark?'], ...(role === 'student' ? [['checkin', 'Class check-in']] : []), ['safety', 'Pickup & visitors'], ['consent', 'Privacy choices']];
   const [tab, setTab] = useState('alerts');
   return (
     <div className="space-y-4">
       <div role="tablist" className="flex flex-wrap gap-1 border-b border-[#e3e7e7]">{TABS.map(([id, label]) => <button key={id} role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`-mb-px border-b-2 px-3 py-2 text-sm font-semibold ${tab === id ? 'border-[#2a5cac] text-[#2a5cac]' : 'border-transparent text-[#5b6b7b] hover:text-[#1b2837]'}`}>{label}</button>)}</div>
-      {tab === 'alerts' && <Alerts />}{tab === 'leave' && <Leave kids={kids} />}{tab === 'corrections' && <Corrections kids={kids} />}{tab === 'checkin' && <CheckIn />}{tab === 'consent' && <Consent kids={kids} />}
+      {tab === 'alerts' && <Alerts />}{tab === 'leave' && <Leave kids={kids} />}{tab === 'corrections' && <Corrections kids={kids} />}{tab === 'checkin' && <CheckIn />}{tab === 'safety' && <FamilySafety role={role} kids={kids} />}{tab === 'consent' && <Consent kids={kids} />}
     </div>
   );
 };

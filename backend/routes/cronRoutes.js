@@ -37,4 +37,19 @@ router.get('/attendance', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: expire old invitations and one-day pickup codes, flag visitors who stayed too long, wipe ID details past retention (PRD E09)
+router.get('/safety', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const gate = require('../controllers/safetyGateController');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = { expired: 0, flagged: 0, redacted: 0 };
+    for (const s of schools) { const r = await gate.housekeeping(s._id); for (const k of Object.keys(total)) total[k] += r[k]; }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

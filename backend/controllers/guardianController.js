@@ -176,6 +176,7 @@ exports.verifyPickup = async (req, res) => {
     await audit(req, { action: 'safety.pickup.verify', entityType: 'Student', entityId: student._id, schoolId: req.user.schoolId, detail: { decision: out.decision, reason: out.code, parentId: b.parentId || null, person: b.personName || '' } });
     // staff see only the decision. The real reason stays in the audit log, so a restriction is never revealed at the gate.
     const { code, ...safe } = out;
-    res.status(200).json({ studentName: student.name, code: out.decision === 'Authorised' ? 'ok' : 'not-authorised', ...safe });
+    // one set of words for every refusal, so the wording itself can never hint that a restriction exists
+    res.status(200).json({ studentName: student.name, ...safe, code: out.decision === 'Authorised' ? 'ok' : 'not-authorised', message: out.decision === 'Authorised' ? out.message : 'Do not release the child. Ask the person to wait and call the principal.' });
   } catch (e) { fail(res, e); }
 };

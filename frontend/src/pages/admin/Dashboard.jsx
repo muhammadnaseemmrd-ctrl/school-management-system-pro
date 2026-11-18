@@ -12,6 +12,7 @@ import Admissions from './Admissions';
 import Finance from './Finance';
 import Staff from './Staff';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
+import SafetyDesk from '../../components/safety/SafetyDesk';
 import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
@@ -26,7 +27,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -165,10 +166,11 @@ const AdminDashboard = () => {
   const [savingSubjects, setSavingSubjects] = useState(false);
   const [editingStudentId, setEditingStudentId] = useState(null);
   const [grievances, setGrievances] = useState([]);
+  const feesOn = has('fees');
   useEffect(() => {
-    if (!has('fees')) return;
+    if (!feesOn) return;
     apiClient.get('/fees/overview').then((r) => setPendingProofs(r.data.pendingProofs || 0)).catch(() => {});
-  }, [activeTab, has]);
+  }, [activeTab, feesOn]);
   const [selectedGrievance, setSelectedGrievance] = useState(null);
   const [revertMessage, setRevertMessage] = useState('');
   const [grievanceSubTab, setGrievanceSubTab] = useState('teacher'); // 'teacher' or 'student'
@@ -1511,6 +1513,7 @@ const AdminDashboard = () => {
                   { id: 'finance', label: 'Fee collection', icon: Wallet },
                   { id: 'staff', label: 'Staff & payroll', icon: Users },
                   { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
+                  { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1658,6 +1661,7 @@ const AdminDashboard = () => {
             {activeTab === 'finance' && <Finance />}
             {activeTab === 'staff' && <Staff />}
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="admin" />}
+            {activeTab === 'safetyDesk' && <SafetyDesk role="admin" />}
             {activeTab === 'attendance' && <AdminAttendance teachers={teachers} onChanged={() => { try { fetchData && fetchData(); } catch (e) { /* ignore */ } }} />}
 
             {/* OVERVIEW TAB */}
