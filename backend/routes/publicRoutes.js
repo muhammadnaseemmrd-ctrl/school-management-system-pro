@@ -3,7 +3,8 @@ const router = express.Router();
 const Offer = require('../models/Offer');
 const { FEATURES, getPlansMap } = require('../utils/plans');
 const Agent = require('../models/Agent');
-const { lookupLimiter } = require('../middleware/rateLimit');
+const { lookupLimiter, signupLimiter } = require('../middleware/rateLimit');
+const admissions = require('../controllers/admissionController');
 
 // Public, read-only data for the marketing page: active plans and running offers.
 // No school data and no offer codes are exposed here.
@@ -32,6 +33,9 @@ router.get('/plans', async (req, res) => {
 });
 
 // Is this referral code real? Used by the sign-up form so a typo is caught before sending. Only the first name is shown.
+// Website admission form (creates an inquiry only)
+router.post('/schools/:code/inquiry', signupLimiter, admissions.publicInquiry);
+
 router.get('/referral/:code', lookupLimiter, async (req, res) => {
   try {
     const code = String(req.params.code || '').trim().toUpperCase().slice(0, 20);

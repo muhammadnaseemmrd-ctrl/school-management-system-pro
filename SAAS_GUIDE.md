@@ -160,3 +160,7 @@ Rough capacity (estimates, not guarantees). A 500-student school stores about 40
 **School admin: Parents & Guardians.** Click a child's name to see who may do what for that child: profile, attendance, marks, fees, paying fees, notices, and collecting the child. Rights can have an end date. A driver or relative without an account can be authorised for pickup only. A restriction (court order, safety plan) always wins; teachers and gate staff are never told why. The pickup check on the same screen answers Authorised or Denied.
 
 **School admin: Access & permissions.** Give a cover teacher attendance for one class for a few days, or give another admin access to restriction reasons for a week. Emergency access opens restriction reasons for up to 60 minutes, tells every other admin, and is logged.
+
+## Admissions (school admin)
+
+Admin sidebar, Admissions. Record every inquiry (phone, walk-in, website form) with a follow-up date. Start an application from it for each child. The system flags a child who looks like one already applied or enrolled, and a person decides if it is the same child before an offer can be made. Set seats per grade under Seats. Offer a seat when the required documents are checked; with no free seat the child goes on the waitlist, and when a seat opens the admins are told who is next. Enroll after the family accepts: this creates the student, the parent login and guardian rights in one step and shows the first passwords once.

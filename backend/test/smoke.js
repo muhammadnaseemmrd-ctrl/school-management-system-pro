@@ -315,6 +315,7 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await require('./opsChecks')({ call, expect, log, tokens, base });
   await require('./guardianChecks')({ call, expect, log, tokens, base });
   await require('./permissionChecks')({ call, expect, log, tokens, base });
+  await require('./admissionChecks')({ call, expect, log, tokens, base });
 
   console.log(`\n${checks - failures}/${checks} checks passed`);
   server.close(); process.exit(failures ? 1 : 0);
