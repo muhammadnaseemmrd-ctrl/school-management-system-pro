@@ -127,6 +127,7 @@ app.use('/api/parents', gate('parentPortal'), parentRoutes);
 app.use('/api/guardians', guardianRoutes);
 app.use('/api/permissions', permissionRoutes);
 app.use('/api/admissions', require('./routes/admissionRoutes'));
+app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/backup', require('./routes/backupRoutes'));

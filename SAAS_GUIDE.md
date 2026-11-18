@@ -164,3 +164,6 @@ Rough capacity (estimates, not guarantees). A 500-student school stores about 40
 ## Admissions (school admin)
 
 Admin sidebar, Admissions. Record every inquiry (phone, walk-in, website form) with a follow-up date. Start an application from it for each child. The system flags a child who looks like one already applied or enrolled, and a person decides if it is the same child before an offer can be made. Set seats per grade under Seats. Offer a seat when the required documents are checked; with no free seat the child goes on the waitlist, and when a seat opens the admins are told who is next. Enroll after the family accepts: this creates the student, the parent login and guardian rights in one step and shows the first passwords once.
+
+## Fee collection (E06)
+Fee collection tab: generate invoices per class (preview first), print a three-copy challan, take cash at an open till or record bank/JazzCash/Easypaisa payments, import the bank statement and confirm matches, and approve refunds, write-offs, credit notes and discount rules (a second admin always decides). Closing the till records any difference with a note. "Check the books" proves each invoice equals the payments placed on it. Receipts and vouchers are never edited: a mistake is a refund or reversal, both kept in the audit log.

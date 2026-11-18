@@ -9,6 +9,7 @@ import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
 import AccessPermissions from './AccessPermissions';
 import Admissions from './Admissions';
+import Finance from './Finance';
 import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
@@ -23,7 +24,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1505,6 +1506,7 @@ const AdminDashboard = () => {
                   { id: 'students', label: 'Students List', icon: GraduationCap },
                   { id: 'parents', label: 'Parents & Guardians', icon: Users },
                   { id: 'admissions', label: 'Admissions', icon: GraduationCap },
+                  { id: 'finance', label: 'Fee collection', icon: Wallet },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1649,6 +1651,7 @@ const AdminDashboard = () => {
             {activeTab === 'parents' && <ParentsManager />}
             {activeTab === 'access' && <AccessPermissions />}
             {activeTab === 'admissions' && <Admissions />}
+            {activeTab === 'finance' && <Finance />}
             {activeTab === 'attendance' && <AdminAttendance teachers={teachers} onChanged={() => { try { fetchData && fetchData(); } catch (e) { /* ignore */ } }} />}
 
             {/* OVERVIEW TAB */}

@@ -13,9 +13,9 @@ const app = require('../server');
 let base; let failures = 0; let checks = 0;
 const log = (ok, msg) => { checks++; if (!ok) failures++; console.log(`${ok ? 'PASS' : 'FAIL'}  ${msg}`); };
 
-async function call(method, url, token, body) {
+async function call(method, url, token, body, extra) {
   const res = await fetch(base + '/api' + url, {
-    method, headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}) },
+    method, headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}), ...(extra || {}) },
     body: body ? JSON.stringify(body) : undefined,
   });
   let data = null; try { data = await res.json(); } catch { /* not json */ }
@@ -316,6 +316,7 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await require('./guardianChecks')({ call, expect, log, tokens, base });
   await require('./permissionChecks')({ call, expect, log, tokens, base });
   await require('./admissionChecks')({ call, expect, log, tokens, base });
+  await require('./financeChecks')({ call, expect, log, tokens, base });
 
   console.log(`\n${checks - failures}/${checks} checks passed`);
   server.close(); process.exit(failures ? 1 : 0);

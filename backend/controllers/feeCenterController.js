@@ -430,3 +430,4 @@ exports.overview = async (req, res) => {
     res.json({ pendingProofs: pending, charges: agg });
   } catch (e) { fail(res, e); }
 };
+exports._internals = { buildSummary, ensureStudentFee };

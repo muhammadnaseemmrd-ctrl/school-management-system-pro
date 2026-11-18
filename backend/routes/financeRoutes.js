@@ -1,0 +1,40 @@
+const express = require('express');
+const router = express.Router();
+const c = require('../controllers/financeController');
+const { authenticate, authorize } = require('../middleware/auth');
+
+router.get('/me/family', authenticate, authorize('parent'), c.myFamily);
+
+router.use(authenticate, authorize('admin'));
+router.get('/overview', c.overview);
+router.get('/reconcile', c.reconcile);
+router.get('/settings', c.getSettings);
+router.put('/settings', c.putSettings);
+router.post('/invoices/generate', c.generate);
+router.post('/late-fees/run', c.runLateFees);
+router.get('/invoices', c.listInvoices);
+router.get('/invoices/:id', c.getInvoice);
+router.get('/invoices/:id/challan', c.challan);
+router.post('/invoices/:id/void', c.voidInvoice);
+router.get('/sessions', c.listSessions);
+router.post('/sessions/open', c.openSession);
+router.post('/sessions/:id/close', c.closeSession);
+router.get('/payments', c.listPayments);
+router.post('/payments', c.createPayment);
+router.post('/payments/:id/confirm', c.confirmPayment);
+router.get('/payments/:id/receipt', c.receipt);
+router.post('/students/:studentId/apply-credit', c.applyCredit);
+router.get('/students/:studentId/statement', c.studentStatement);
+router.get('/families/:parentId/statement', c.familyStatement);
+router.get('/adjustments', c.listAdjustments);
+router.post('/adjustments', c.requestAdjustment);
+router.post('/adjustments/:id/decide', c.decideAdjustment);
+router.get('/rules', c.listRules);
+router.post('/rules', c.createRule);
+router.post('/rules/:id/decide', c.decideRule);
+router.post('/bank/import', c.importStatement);
+router.get('/bank/lines', c.listLines);
+router.post('/bank/lines/:id/match', c.matchLine);
+router.post('/bank/lines/:id/ignore', c.ignoreLine);
+
+module.exports = router;
