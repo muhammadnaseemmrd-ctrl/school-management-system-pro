@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const c = require('../controllers/dailyAttendanceController');
 const { authenticate, authorize } = require('../middleware/auth');
+const replayGuard = require('../middleware/replayGuard'); // queued offline saves are applied once (PRD E08)
 
 // Head master: my class, then the class sheet for a date
 router.get('/my-class', authenticate, authorize('teacher'), c.getMyClass);
 router.get('/class/:classId', authenticate, authorize('teacher', 'admin'), c.getClassSheet);
-router.post('/class/:classId', authenticate, authorize('teacher', 'admin'), c.saveClassSheet);
+router.post('/class/:classId', authenticate, authorize('teacher', 'admin'), replayGuard, c.saveClassSheet);
 
 // Admin: today at a glance, one student's records, single-day correction
 router.get('/overview', authenticate, authorize('admin'), c.getOverview);

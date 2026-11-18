@@ -8,6 +8,7 @@ const Teacher = require('../models/Teacher');
 const School = require('../models/School');
 const { nowInTz } = require('../utils/time');
 const { tallyDaily, buildDailyReport, dayKey } = require('../utils/attendanceReport');
+const A = require('../utils/attendanceOps');
 
 const EDIT_WINDOW_DAYS = 7; // a head master may correct the last 7 days; the admin can edit any day
 const isId = (v) => mongoose.Types.ObjectId.isValid(v);
@@ -82,9 +83,14 @@ exports.getClassSheet = async (req, res) => {
     const records = await DailyAttendance.find({ schoolId: req.user.schoolId, classId: cls._id, date: dateUTC });
     const byStudent = new Map(records.map((r) => [String(r.studentId), r]));
 
+    const onLeave = await A.leaveMap(req.user.schoolId, students.map((s) => s._id), dayKey(dateUTC));
     const rows = students.map((s) => {
-      const r = byStudent.get(String(s._id));
-      return { _id: s._id, name: s.name, rollNumber: s.rollNumber || '', status: r ? r.status : null, leftAt: r?.leftAt || null, remarks: r?.remarks || '' };
+      const r = byStudent.get(String(s._id)); const lv = onLeave.get(String(s._id));
+      return {
+        _id: s._id, name: s.name, rollNumber: s.rollNumber || '', status: r ? r.status : null, leftAt: r?.leftAt || null, arrivedAt: r?.arrivedAt || null,
+        authorizedBy: r?.authorizedBy || '', remarks: r?.remarks || '',
+        leave: lv ? { _id: lv._id, kind: lv.kind, state: lv.state, toDate: lv.toDate } : null, // approved leave or mobility covers this day
+      };
     });
 
     res.json({
@@ -121,26 +127,42 @@ exports.saveClassSheet = async (req, res) => {
     const incoming = Array.isArray(req.body.records) ? req.body.records : [];
     if (!incoming.length) return res.status(400).json({ message: 'No students to save' });
 
-    const classStudents = await Student.find({ schoolId: req.user.schoolId, classId: cls._id }).select('_id');
+    const classStudents = await Student.find({ schoolId: req.user.schoolId, classId: cls._id }).select('_id name');
     const allowed = new Set(classStudents.map((s) => String(s._id)));
+    const names = new Map(classStudents.map((s) => [String(s._id), s.name]));
+    const key = dayKey(dateUTC);
+    const [before, onLeave] = await Promise.all([
+      DailyAttendance.find({ schoolId: req.user.schoolId, classId: cls._id, date: dateUTC }),
+      A.leaveMap(req.user.schoolId, [...allowed], key),
+    ]);
+    const prior = new Map(before.map((r) => [String(r.studentId), r]));
 
     const ops = [];
     const clean = [];
+    const finals = [];
     for (const r of incoming) {
       if (!allowed.has(String(r.studentId))) return res.status(400).json({ message: 'A student in the list does not belong to this class' });
       if (!STATUSES.includes(r.status)) return res.status(400).json({ message: `Invalid status "${r.status}"` });
-      let leftAt = null;
-      if (r.status === 'HalfDay' && r.leftAt) {
+      let status = r.status; let leftAt = null; let arrivedAt = null;
+      if (status === 'HalfDay' && r.leftAt) {
         if (!TIME_RE.test(String(r.leftAt))) return res.status(400).json({ message: 'Leaving time must look like 11:30' });
         leftAt = r.leftAt;
       }
-      const remarks = String(r.remarks || '').slice(0, 200);
-      clean.push({ status: r.status });
+      if (status === 'Late' && r.arrivedAt) {
+        if (!TIME_RE.test(String(r.arrivedAt))) return res.status(400).json({ message: 'Arrival time must look like 08:45' });
+        arrivedAt = r.arrivedAt;
+      }
+      let remarks = String(r.remarks || '').slice(0, 200);
+      const authorizedBy = ['Late', 'HalfDay'].includes(status) ? String(r.authorizedBy || '').trim().slice(0, 80) : '';
+      // an absence on a day of approved leave is excused leave, not an unexplained absence
+      if (status === 'Absent' && onLeave.has(String(r.studentId))) { status = 'Leave'; remarks = remarks || `Approved ${onLeave.get(String(r.studentId)).kind.toLowerCase()} leave`; }
+      clean.push({ status });
+      finals.push({ studentId: r.studentId, status, leftAt, arrivedAt, authorizedBy, remarks });
       ops.push({
         updateOne: {
           filter: { studentId: r.studentId, date: dateUTC },
           update: {
-            $set: { schoolId: req.user.schoolId, classId: cls._id, status: r.status, leftAt, remarks, markedBy: req.user.userId, markedByModel: role === 'admin' ? 'User' : 'Teacher' },
+            $set: { schoolId: req.user.schoolId, classId: cls._id, status, leftAt, arrivedAt, authorizedBy, remarks, markedBy: req.user.userId, markedByModel: role === 'admin' ? 'User' : 'Teacher' },
           },
           upsert: true,
         },
@@ -148,20 +170,20 @@ exports.saveClassSheet = async (req, res) => {
     }
     await DailyAttendance.bulkWrite(ops);
 
-    // Parents (and the student) hear about absences, late arrivals and half days
+    // keep what each mark replaced, then let alerts and follow-up cases catch up (PRD E08)
     try {
-      const flagged = incoming.filter((r) => ['Absent', 'Late', 'HalfDay'].includes(r.status));
-      const label = { Absent: 'was marked absent', Late: 'arrived late', HalfDay: 'left early (half day)' };
-      for (const r of flagged) {
-        const stu = await Student.findById(r.studentId).select('name');
-        const who = stu?.name || 'Your child';
-        await N.notify({
-          schoolId: req.user.schoolId, recipients: await N.studentAndParents(req.user.schoolId, [r.studentId]),
-          title: `${who} ${label[r.status]}`, body: `${dayKey(dateUTC)}${r.status === 'HalfDay' && r.leftAt ? ` at ${r.leftAt}` : ''}`,
-          link: { parent: '/parent/dashboard#/attendance', student: '/student/dashboard#/attendance' }, type: 'attendance', key: `att:${r.studentId}:${dayKey(dateUTC)}:${r.status}`,
+      const reason = String(req.body.reason || '').slice(0, 300);
+      for (const f of finals) {
+        const was = prior.get(String(f.studentId));
+        await A.logChange({
+          schoolId: req.user.schoolId, studentId: f.studentId, date: key, before: A.snapOf(was),
+          after: A.snapOf(f), source: role === 'admin' ? 'admin' : 'sheet', by: req.user.userId, role: req.user.role, reason,
         });
+        await A.syncAlert({ schoolId: req.user.schoolId, student: { _id: f.studentId, name: names.get(String(f.studentId)) }, classId: cls._id, date: key, record: f, marker: req.user.userId, markerModel: role === 'admin' ? 'User' : 'Teacher' });
+        if (f.status === 'Absent') await A.maybeOpenCase(req.user.schoolId, f.studentId);
       }
-    } catch (e) { console.error('attendance notify', e.message); }
+      await A.dispatchDue(req.user.schoolId);
+    } catch (e) { console.error('attendance alerts', e.message); }
 
     res.json({ message: 'Attendance saved', date: dayKey(dateUTC), summary: tallyDaily(clean) });
   } catch (e) {
@@ -241,18 +263,32 @@ exports.getStudentRecords = async (req, res) => {
 
 exports.adminSetStudentDay = async (req, res) => {
   try {
-    const { studentId, date, status, leftAt, remarks } = req.body;
+    const { studentId, date, status, leftAt, arrivedAt, authorizedBy, remarks } = req.body;
     if (!isId(studentId)) return res.status(400).json({ message: 'Invalid student id' });
     const dateUTC = parseDay(date);
     if (!dateUTC) return res.status(400).json({ message: 'Date must be YYYY-MM-DD' });
     if (!STATUSES.includes(status)) return res.status(400).json({ message: 'Invalid status' });
-    const student = await Student.findOne({ _id: studentId, schoolId: req.user.schoolId }).select('classId');
+    const student = await Student.findOne({ _id: studentId, schoolId: req.user.schoolId }).select('classId name');
     if (!student) return res.status(404).json({ message: 'Student not found' });
+    const key = dayKey(dateUTC);
+    const was = await DailyAttendance.findOne({ studentId, date: dateUTC });
+    const next = {
+      status, leftAt: status === 'HalfDay' && TIME_RE.test(String(leftAt || '')) ? leftAt : null,
+      arrivedAt: status === 'Late' && TIME_RE.test(String(arrivedAt || '')) ? arrivedAt : null,
+      authorizedBy: ['Late', 'HalfDay'].includes(status) ? String(authorizedBy || '').trim().slice(0, 80) : '',
+      remarks: String(remarks || '').slice(0, 200),
+    };
     const rec = await DailyAttendance.findOneAndUpdate(
       { studentId, date: dateUTC },
-      { $set: { schoolId: req.user.schoolId, classId: student.classId, status, leftAt: status === 'HalfDay' && TIME_RE.test(String(leftAt || '')) ? leftAt : null, remarks: String(remarks || '').slice(0, 200), markedBy: req.user.userId, markedByModel: 'User' } },
+      { $set: { schoolId: req.user.schoolId, classId: student.classId, ...next, markedBy: req.user.userId, markedByModel: 'User' } },
       { upsert: true, new: true }
     );
+    try {
+      await A.logChange({ schoolId: req.user.schoolId, studentId, date: key, before: A.snapOf(was), after: A.snapOf(next), source: 'admin', by: req.user.userId, role: 'admin', reason: req.body.reason });
+      await A.syncAlert({ schoolId: req.user.schoolId, student, classId: student.classId, date: key, record: next, marker: req.user.userId, markerModel: 'User' });
+      if (status === 'Absent') await A.maybeOpenCase(req.user.schoolId, studentId);
+      await A.dispatchDue(req.user.schoolId);
+    } catch (e) { console.error('attendance alerts', e.message); }
     res.json({ message: 'Attendance saved', record: rec });
   } catch (e) {
     res.status(500).json({ message: e.message });

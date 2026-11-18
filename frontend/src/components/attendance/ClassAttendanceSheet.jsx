@@ -1,9 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { CalendarDays, CheckCheck, ChevronLeft, ChevronRight, Save, Lock, Info } from 'lucide-react';
+import { CalendarDays, CheckCheck, ChevronLeft, ChevronRight, Save, Lock, Info, WifiOff } from 'lucide-react';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
 import { STATUS, STATUS_ORDER } from './shared';
+
+// A register saved with no network waits on this device and is sent once, with its own id, when the connection returns
+const QKEY = (classId) => `attq:${classId}`;
+const readQ = (classId) => { try { return JSON.parse(localStorage.getItem(QKEY(classId)) || '[]'); } catch { return []; } };
+const writeQ = (classId, q) => { try { localStorage.setItem(QKEY(classId), JSON.stringify(q)); } catch { /* storage full or blocked: the save simply is not queued */ } };
+const newId = () => `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 const addDays = (key, n) => { const d = new Date(`${key}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().split('T')[0]; };
 
@@ -17,6 +23,7 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [queued, setQueued] = useState(() => readQ(classId).length);
 
   const load = useCallback(async (d) => {
     setLoading(true);
@@ -26,7 +33,8 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
       setSheet(s);
       setDate(s.date);
       // students with no saved record start as Present: the head master only has to untick the absentees
-      setRows(s.students.map((st) => ({ ...st, status: st.status || 'Present' })));
+      // a student on approved leave starts as Leave, everyone else as Present
+      setRows(s.students.map((st) => ({ ...st, status: st.status || (st.leave ? 'Leave' : 'Present') })));
       setDirty(!s.marked);
     } catch (e) {
       toast.error(e.response?.data?.message || t('Could not load the class list'));
@@ -37,6 +45,18 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
 
   useEffect(() => { load(''); }, [load]);
 
+  // send anything that was saved offline; the server applies each id once, so a retry can never double-write
+  const flush = useCallback(async () => {
+    let q = readQ(classId); if (!q.length || !navigator.onLine) return;
+    for (const item of q) {
+      try { await apiClient.post(`/daily-attendance/class/${classId}`, { ...item.payload, mutationId: item.mutationId }); q = q.filter((x) => x.mutationId !== item.mutationId); writeQ(classId, q); }
+      catch (e) { if (e.response) { q = q.filter((x) => x.mutationId !== item.mutationId); writeQ(classId, q); toast.error(e.response.data?.message || t('A saved register could not be sent')); } else break; }
+    }
+    setQueued(readQ(classId).length);
+    if (!readQ(classId).length) { toast.success(t('Offline attendance sent')); load(''); }
+  }, [classId, load, t]);
+  useEffect(() => { flush(); window.addEventListener('online', flush); return () => window.removeEventListener('online', flush); }, [flush]);
+
   const counts = useMemo(() => {
     const c = { Present: 0, Late: 0, HalfDay: 0, Absent: 0, Leave: 0 };
     rows.forEach((r) => { c[r.status] = (c[r.status] || 0) + 1; });
@@ -44,10 +64,11 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
   }, [rows]);
 
   const setStatus = (id, status) => {
-    setRows((rs) => rs.map((r) => (r._id === id ? { ...r, status, leftAt: status === 'HalfDay' ? r.leftAt : null } : r)));
+    setRows((rs) => rs.map((r) => (r._id === id ? { ...r, status, leftAt: status === 'HalfDay' ? r.leftAt : null, arrivedAt: status === 'Late' ? r.arrivedAt : null } : r)));
     setDirty(true);
   };
   const setLeft = (id, leftAt) => { setRows((rs) => rs.map((r) => (r._id === id ? { ...r, leftAt } : r))); setDirty(true); };
+  const setField = (id, k, v) => { setRows((rs) => rs.map((r) => (r._id === id ? { ...r, [k]: v } : r))); setDirty(true); };
   const markAllPresent = () => { setRows((rs) => rs.map((r) => ({ ...r, status: 'Present', leftAt: null }))); setDirty(true); };
 
   const changeDate = (d) => {
@@ -57,17 +78,23 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
 
   const save = async () => {
     setSaving(true);
+    const payload = {
+      date,
+      records: rows.map((r) => ({ studentId: r._id, status: r.status, leftAt: r.status === 'HalfDay' ? r.leftAt || undefined : undefined, arrivedAt: r.status === 'Late' ? r.arrivedAt || undefined : undefined, authorizedBy: ['Late', 'HalfDay'].includes(r.status) ? r.authorizedBy || undefined : undefined })),
+    };
+    const mutationId = newId();
     try {
-      await apiClient.post(`/daily-attendance/class/${classId}`, {
-        date,
-        records: rows.map((r) => ({ studentId: r._id, status: r.status, leftAt: r.status === 'HalfDay' ? r.leftAt || undefined : undefined })),
-      });
+      await apiClient.post(`/daily-attendance/class/${classId}`, { ...payload, mutationId });
       toast.success(t('Attendance saved'));
       setDirty(false);
       await load(date);
       onSaved && onSaved();
     } catch (e) {
-      toast.error(e.response?.data?.message || t('Could not save attendance'));
+      if (!e.response) {
+        // no connection: keep the register on this device and send it when we are back online
+        writeQ(classId, [...readQ(classId), { mutationId, payload, savedAt: new Date().toISOString() }]); setQueued(readQ(classId).length); setDirty(false);
+        toast(t('No connection. The register is kept on this device and will be sent automatically.'), { icon: '📶' });
+      } else toast.error(e.response?.data?.message || t('Could not save attendance'));
     } finally {
       setSaving(false);
     }
@@ -115,6 +142,13 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
         )}
       </div>
 
+      {queued > 0 && (
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800" role="status">
+          <span className="flex items-center gap-2"><WifiOff className="h-4 w-4" /> {t('{n} register(s) waiting to be sent from this device', { n: queued })}</span>
+          <button type="button" onClick={flush} className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-bold">{t('Send now')}</button>
+        </div>
+      )}
+
       {/* live counters */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {STATUS_ORDER.map((k) => (
@@ -141,7 +175,7 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
             return (
               <li key={r._id} className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 sm:px-5 ${STATUS[r.status].soft.split(' ')[0]}`}>
                 <span className="w-10 text-sm font-bold text-[#5b6b7b]">{r.rollNumber}</span>
-                <span className="min-w-[8rem] flex-1 text-base font-bold text-[#1b2837]">{r.name}</span>
+                <span className="min-w-[8rem] flex-1 text-base font-bold text-[#1b2837]">{r.name}{r.leave && <span className="ms-2 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-800">{r.leave.state === 'Mobility' ? r.leave.kind : `${t('Approved leave')}: ${r.leave.kind}`}</span>}</span>
 
                 <label className={`flex items-center gap-2 ${readOnly ? 'opacity-60' : 'cursor-pointer'}`}>
                   <input type="checkbox" checked={present} disabled={readOnly} onChange={(e) => setStatus(r._id, e.target.checked ? 'Present' : 'Absent')} className="h-7 w-7 cursor-pointer accent-[#2c776c]" />
@@ -152,6 +186,15 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
                   {STATUS_ORDER.map((k) => <option key={k} value={k}>{t(STATUS[k].label)}</option>)}
                 </select>
 
+                {r.status === 'Late' && (
+                  <label className="flex items-center gap-2 text-xs font-bold text-orange-800">
+                    {t('Arrived at')}
+                    <input type="time" value={r.arrivedAt || ''} disabled={readOnly} onChange={(e) => setField(r._id, 'arrivedAt', e.target.value)} className="rounded-lg border border-orange-300 bg-white px-2 py-1.5 text-sm" />
+                  </label>
+                )}
+                {['Late', 'HalfDay'].includes(r.status) && (
+                  <input value={r.authorizedBy || ''} disabled={readOnly} onChange={(e) => setField(r._id, 'authorizedBy', e.target.value)} placeholder={t('Allowed by')} maxLength={80} className="w-36 rounded-lg border border-[#e3e7e7] bg-white px-2 py-1.5 text-sm" />
+                )}
                 {r.status === 'HalfDay' && (
                   <label className="flex items-center gap-2 text-xs font-bold text-amber-800">
                     {t('Left at')}

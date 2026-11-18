@@ -44,6 +44,8 @@ const attendanceSchema = new mongoose.Schema(
       required: true,
     },
     remarks: String,
+    capturedAt: { type: Date, default: null }, // when the teacher really took it (an offline register syncs later)
+    source: { type: String, default: 'register' }, // register | qr
     markedBy: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: 'markedByModel',

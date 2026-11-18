@@ -284,6 +284,8 @@ studentSchema.add({
 
 
 // Query paths (indexing is part of the schema, so every environment gets it)
+studentSchema.add({ badgeId: { type: String, default: '' } }); // ID badge / NFC / RFID number used by gate readers (PRD E08)
+studentSchema.index({ schoolId: 1, badgeId: 1 });
 studentSchema.index({ schoolId: 1, classId: 1 });
 studentSchema.index({ schoolId: 1, createdAt: -1 });
 studentSchema.index({ schoolId: 1, isActive: 1 });

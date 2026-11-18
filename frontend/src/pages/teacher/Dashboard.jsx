@@ -8,6 +8,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
 import MyStaffRecord from './MyStaffRecord';
+import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
@@ -16,7 +17,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -521,6 +522,7 @@ const TeacherDashboard = () => {
                   ['homework', 'Homework & Grading', ClipboardList],
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
+                  ['attendanceDesk', 'Attendance desk', CheckCircle],
                   ['staff', 'My staff record', Users],
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2217,6 +2219,7 @@ const TeacherDashboard = () => {
 
             {/* TAB 5: PASSWORD SECURITY */}
             {activeTab === 'staff' && <MyStaffRecord />}
+            {activeTab === 'attendanceDesk' && <AttendanceDesk role="teacher" />}
 
             {activeTab === 'security' && (
               <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-6 shadow-sm max-w-xl mx-auto">

@@ -129,6 +129,7 @@ app.use('/api/permissions', permissionRoutes);
 app.use('/api/admissions', require('./routes/admissionRoutes'));
 app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/hr', require('./routes/hrRoutes'));
+app.use('/api/attendance-ops', require('./routes/attendanceOpsRoutes'));
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/backup', require('./routes/backupRoutes'));

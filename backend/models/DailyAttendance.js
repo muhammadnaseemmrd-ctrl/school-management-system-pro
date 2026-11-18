@@ -12,6 +12,8 @@ const dailyAttendanceSchema = new mongoose.Schema(
     date: { type: Date, required: true }, // school-local calendar day stored as UTC midnight
     status: { type: String, enum: STATUSES, required: true },
     leftAt: { type: String, default: null }, // HH:MM, only for HalfDay
+    arrivedAt: { type: String, default: null }, // HH:MM, only for Late (PRD E08)
+    authorizedBy: { type: String, default: '' }, // who allowed the late arrival or early exit
     remarks: { type: String, default: '' },
     markedBy: { type: mongoose.Schema.Types.ObjectId, refPath: 'markedByModel' },
     markedByModel: { type: String, enum: ['User', 'Teacher'], default: 'Teacher' },

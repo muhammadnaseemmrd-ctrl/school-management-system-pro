@@ -19,4 +19,22 @@ router.get('/backup', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: send any verified attendance alert whose wait has passed, and look for missing registers and silent readers (PRD E08)
+router.get('/attendance', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const A = require('../utils/attendanceOps'); const School = require('../models/School');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); let sent = 0; let raised = 0;
+    for (const s of schools) {
+      sent += await A.dispatchDue(s._id);
+      raised += (await require('../utils/attendanceAnomalies').scan(s._id, (await A.clock(s._id)).dateKey)).raised;
+    }
+    res.json({ schools: schools.length, alertsSent: sent, anomaliesRaised: raised });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;
