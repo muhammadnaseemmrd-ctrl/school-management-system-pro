@@ -3,6 +3,7 @@ const router = express.Router();
 const c = require('../controllers/superAdminController');
 const bk = require('../controllers/backupController');
 const pb = require('../controllers/platformBillingController');
+const ops = require('../controllers/opsController');
 const { authenticate, authorize } = require('../middleware/auth');
 const { loginLimiter } = require('../middleware/rateLimit');
 
@@ -57,5 +58,9 @@ router.get('/schools/:id/backups/download', bk.forOwner.download);
 router.get('/schools/:id/backups/:bid/download', bk.forOwner.downloadSnapshot);
 router.delete('/schools/:id/backups/:bid', bk.forOwner.remove);
 router.post('/backups/run-weekly', bk.runWeekly);
+router.get('/ops/health', ops.health);
+router.get('/ops/backup-runs', ops.backupRuns);
+router.get('/ops/restore-drills', ops.listDrills);
+router.post('/schools/:id/restore-drill', ops.runDrill);
 
 module.exports = router;

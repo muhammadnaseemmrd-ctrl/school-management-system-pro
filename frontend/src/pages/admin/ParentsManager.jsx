@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link2, Pencil, Plus, Search, Trash2, X, UserCheck } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
+import GuardianRights from './GuardianRights';
 
 const inputCls = 'w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#2a5cac]';
 const empty = { name: '', email: '', phone: '', relationship: 'Father', password: '', childIds: [] };
@@ -16,6 +17,7 @@ const ParentsManager = () => {
   const [form, setForm] = useState(empty);
   const [studentSearch, setStudentSearch] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [rightsFor, setRightsFor] = useState(null); // { id, name }
 
   const load = useCallback(async () => {
     try {
@@ -87,7 +89,7 @@ const ParentsManager = () => {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="flex items-center gap-2 text-xl font-bold text-[#1b2837]"><UserCheck className="h-5 w-5" /> Parent accounts</h2>
-            <p className="mt-1 text-sm text-[#5b6b7b]">Create login accounts for parents/guardians and link them to their children. Parents get a read-only dashboard with live attendance.</p>
+            <p className="mt-1 text-sm text-[#5b6b7b]">Create login accounts for parents/guardians and link them to their children. Parents get a read-only dashboard with live attendance. Click a child's name to set what each guardian may see, who may collect the child, and any court-ordered restrictions.</p>
           </div>
           <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-xl bg-[#2a5cac] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#234c91]"><Plus className="h-4 w-4" /> Add parent</button>
         </div>
@@ -108,7 +110,7 @@ const ParentsManager = () => {
                 <td className="px-4 py-3"><p className="font-bold text-[#1b2837]">{p.name}</p><p className="text-[10px] text-[#5b6b7b]">{p.email}{p.phone ? ` · ${p.phone}` : ''}</p></td>
                 <td className="px-4 py-3">{p.relationship}</td>
                 <td className="px-4 py-3"><div className="flex flex-wrap gap-1">{p.children.length === 0 ? <span className="italic text-[#5b6b7b]">none</span> : p.children.map((c) => (
-                  <span key={c._id} className="inline-flex items-center gap-1 rounded-full bg-[#2a5cac]/10 px-2 py-0.5 text-[10px] font-bold text-[#2a5cac]"><Link2 className="h-3 w-3" /> {c.name} ({cls(c.classId)})</span>))}</div></td>
+                  <button type="button" key={c._id} title="Guardian rights and pickup" onClick={() => setRightsFor({ id: c._id, name: c.name })} className="inline-flex items-center gap-1 rounded-full bg-[#2a5cac]/10 px-2 py-0.5 text-[10px] font-bold text-[#2a5cac]"><Link2 className="h-3 w-3" /> {c.name} ({cls(c.classId)})</button>))}</div></td>
                 <td className="px-4 py-3"><span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${p.isActive ? 'bg-emerald-50 text-emerald-800' : 'bg-[#fff1f2] text-[#9f1239]'}`}>{p.isActive ? 'Active' : 'Disabled'}</span></td>
                 <td className="px-4 py-3 text-[#5b6b7b]">{p.lastLogin ? new Date(p.lastLogin).toLocaleString() : 'Never'}</td>
                 <td className="px-4 py-3">
@@ -124,6 +126,8 @@ const ParentsManager = () => {
           </tbody>
         </table>
       </div>
+
+      {rightsFor && <GuardianRights studentId={rightsFor.id} studentName={rightsFor.name} parents={parents} onClose={() => { setRightsFor(null); load(); }} />}
 
       {modal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/45 p-4">

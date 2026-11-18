@@ -18,7 +18,7 @@ const fail = (res, e) => res.status(500).json({ message: e.message });
 
 /* ─────────────── helpers ─────────────── */
 // Returns the Student document this user may look at, or null.
-const studentFor = async (req, studentId) => {
+const studentFor = async (req, studentId, right = 'viewFees') => {
   const sid = studentId || (req.user.role === 'student' ? req.user.userId : null);
   if (!oid(sid)) return null;
   const student = await Student.findOne({ _id: sid, schoolId: req.user.schoolId }).populate('classId', 'standard division');
@@ -26,8 +26,8 @@ const studentFor = async (req, studentId) => {
   if (req.user.role === 'admin') return student;
   if (req.user.role === 'student') return String(student._id) === String(req.user.userId) ? student : null;
   if (req.user.role === 'parent') {
-    const parent = await Parent.findOne({ _id: req.user.userId, schoolId: req.user.schoolId, children: student._id });
-    return parent ? student : null;
+    const r = await require('../utils/guardianRights').resolve(req.user.schoolId, req.user.userId, student._id);
+    return r.linked && r.rights[right] ? student : null;
   }
   return null;
 };
@@ -147,7 +147,7 @@ const trustedFile = (url) => {
 
 exports.submitProof = async (req, res) => {
   try {
-    const student = await studentFor(req, req.body.studentId);
+    const student = await studentFor(req, req.body.studentId, 'payFees');
     if (!student) return res.status(404).json({ message: 'Student not found' });
     const { itemKeys, method, reference = '', screenshotUrl, note = '' } = req.body;
     if (!Array.isArray(itemKeys) || itemKeys.length === 0) return res.status(400).json({ message: 'Choose which fees you paid.' });

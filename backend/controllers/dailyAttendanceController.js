@@ -36,7 +36,11 @@ const classAccess = async (req, classId) => {
   if (req.user.role === 'admin') return { cls, role: 'admin' };
   if (req.user.role === 'teacher') {
     const isHead = cls.classTeacherId && String(cls.classTeacherId._id || cls.classTeacherId) === String(req.user.userId);
-    if (!isHead) return { error: [403, 'Only the head master of this class can take its attendance'] };
+    if (!isHead) {
+      // a cover teacher can hold a time-limited grant for this one class (PRD E01)
+      const g = await require('../utils/permissions').can(req.user, 'academics.attendance.mark', { classId: cls._id });
+      if (!g.allowed) return { error: [403, 'Only the head master of this class can take its attendance'] };
+    }
     return { cls, role: 'teacher' };
   }
   return { error: [403, 'Not allowed'] };

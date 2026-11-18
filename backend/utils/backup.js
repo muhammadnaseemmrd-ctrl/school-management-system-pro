@@ -7,7 +7,9 @@ const ExcelJS = require('exceljs');
 const db = require('../lib/pgdoc/db');
 const registry = require('../lib/pgdoc/registry');
 const School = require('../models/School');
+const crypto = require('crypto');
 const Backup = require('../models/Backup');
+const BackupRun = require('../models/BackupRun');
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
@@ -76,15 +78,28 @@ async function prune(schoolId, kind) {
   if (old.length) await Backup.deleteMany({ _id: { $in: old.map((o) => o._id) } });
 }
 
-async function createSnapshot(schoolId, { kind = 'auto', createdBy = null, createdByName = '' } = {}) {
-  const c = await collect(schoolId);
-  const json = Buffer.from(JSON.stringify(buildPayload(c, { clean: false })));
-  const data = await gzip(json, { level: 9 });
-  const doc = await Backup.create({
-    schoolId, kind, createdBy: createdBy || undefined, createdByName, size: data.length, rawSize: json.length, counts: c.counts, data,
-  });
-  await prune(schoolId, kind);
-  return doc;
+async function createSnapshot(schoolId, { kind = 'auto', createdBy = null, createdByName = '', trigger } = {}) {
+  const school = await School.findById(schoolId).select('name');
+  const run = await BackupRun.create({ schoolId, schoolName: school ? school.name : '', trigger: trigger || (kind === 'auto' ? 'weekly' : 'manual'), status: 'Running' });
+  const t0 = Date.now();
+  try {
+    const c = await collect(schoolId);
+    const json = Buffer.from(JSON.stringify(buildPayload(c, { clean: false })));
+    const checksum = crypto.createHash('sha256').update(json).digest('hex');
+    const data = await gzip(json, { level: 9 });
+    const doc = await Backup.create({
+      schoolId, kind, createdBy: createdBy || undefined, createdByName, size: data.length, rawSize: json.length, counts: c.counts, checksum, data,
+    });
+    await prune(schoolId, kind);
+    await BackupRun.findByIdAndUpdate(run._id, {
+      status: 'Succeeded', finishedAt: new Date(), durationMs: Date.now() - t0, backupId: doc._id, sizeBytes: data.length,
+      rowCount: Object.values(c.counts).reduce((a, b) => a + b, 0), checksum,
+    });
+    return doc;
+  } catch (e) {
+    await BackupRun.findByIdAndUpdate(run._id, { status: 'Failed', finishedAt: new Date(), durationMs: Date.now() - t0, error: String(e.message).slice(0, 300) }).catch(() => {});
+    throw e;
+  }
 }
 
 const listSnapshots = (schoolId) =>

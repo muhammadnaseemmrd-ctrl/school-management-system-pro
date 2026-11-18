@@ -232,7 +232,7 @@ exports.bulkEnterMarks = async (req, res) => {
 exports.getStudentMarks = async (req, res) => {
   try {
     const { studentId } = req.params;
-    if (!(await require('../utils/access').canAccessStudent(req.user, studentId))) {
+    if (!(await require('../utils/access').canAccessStudent(req.user, studentId, 'viewMarks'))) {
       return res.status(403).json({ message: 'Access denied' });
     }
 

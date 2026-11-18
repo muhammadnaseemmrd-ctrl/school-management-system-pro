@@ -428,7 +428,7 @@ exports.getUserAttendance = async (req, res) => {
   try {
     const { userId } = req.params;
     const { month, year, page = 1, limit = 100 } = req.query;
-    if (!(await require('../utils/access').canAccessStudent(req.user, userId))) {
+    if (!(await require('../utils/access').canAccessStudent(req.user, userId, 'viewAttendance'))) {
       return res.status(403).json({ message: 'Access denied' });
     }
 

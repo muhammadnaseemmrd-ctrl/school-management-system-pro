@@ -7,6 +7,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, Legend } from 'recharts';
 import apiClient from '../../utils/apiClient';
 import BackupPanel from '../../components/BackupPanel';
+import { OperationsTab } from './Ops';
 import { AgentsTab, PaymentsTab, CommissionsTab, LedgerTab, RecordPaymentModal, LinkAgentModal } from './Money';
 
 const PLAN_COLORS = { free: '#2a5cac', standard: '#2a5cac', premium: '#b86650' };
@@ -28,7 +29,7 @@ const Modal = ({ title, onClose, children, wide }) => (
   </div>
 );
 
-const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['offers', 'Offers', Gift], ['agents', 'Agents', Briefcase], ['payments', 'Payments', Receipt], ['commissions', 'Commissions', Wallet], ['ledger', 'Ledger & activity', Scale], ['security', 'Account Security', Lock]];
+const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['offers', 'Offers', Gift], ['agents', 'Agents', Briefcase], ['payments', 'Payments', Receipt], ['commissions', 'Commissions', Wallet], ['ledger', 'Ledger & activity', Scale], ['ops', 'Backups & recovery', Archive], ['security', 'Account Security', Lock]];
 
 const emptyForm = { name: '', code: '', email: '', phone: '', city: '', adminName: '', adminEmail: '', adminPassword: '', plan: 'free', subscriptionExpiresAt: '', timezone: 'Asia/Karachi' };
 
@@ -69,7 +70,9 @@ const SuperAdminDashboard = () => {
     finally { setLoading(false); }
   }, [filters]);
 
-  useEffect(() => { loadStats(); }, [loadStats]);
+  const [opsAlerts, setOpsAlerts] = useState([]);
+  const loadOps = useCallback(() => apiClient.get('/superadmin/ops/health').then((r) => setOpsAlerts(r.data.alerts || [])).catch(() => {}), []);
+  useEffect(() => { loadStats(); loadOps(); }, [loadStats, loadOps]);
   useEffect(() => { const t = setTimeout(loadSchools, 250); return () => clearTimeout(t); }, [loadSchools]);
 
   const loadOffers = useCallback(async () => {
@@ -215,6 +218,10 @@ const SuperAdminDashboard = () => {
           {/* OVERVIEW */}
           {tab === 'overview' && (
             <div className="space-y-6">
+              {opsAlerts.length > 0 && (
+                <button onClick={() => setTab('ops')} className={`flex w-full items-center gap-3 rounded-2xl border px-5 py-3 text-start text-sm ${opsAlerts.some((a) => a.level === 'error') ? 'border-[#f0c4c7] bg-[#fff1f2] text-[#9f1239]' : 'border-[#ecc7b9] bg-[#fbf0ec] text-[#8a4636]'}`}>
+                  <Archive className="h-5 w-5 shrink-0" /><span className="flex-1"><b>{opsAlerts.length} backup alert{opsAlerts.length === 1 ? '' : 's'}.</b> {opsAlerts[0].message}</span><span className="font-semibold underline">Open</span>
+                </button>)}
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 {(kpis || []).map(([t, v, sub, Icon, tone]) => (
                   <Card key={t}><div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${tone}`}><Icon className="h-5 w-5" /></div>
@@ -370,6 +377,7 @@ const SuperAdminDashboard = () => {
           {tab === 'payments' && <PaymentsTab plans={plans} onChanged={() => { loadStats(); loadSchools(); }} />}
           {tab === 'commissions' && <CommissionsTab onChanged={loadStats} />}
           {tab === 'ledger' && <LedgerTab onChanged={loadStats} />}
+          {tab === 'ops' && <OperationsTab onChanged={loadStats} />}
           {modal?.type === 'pay' && <RecordPaymentModal school={modal.school} plans={plans} onClose={() => setModal(null)} onDone={() => { loadStats(); loadSchools(); }} />}
           {modal?.type === 'agent' && <LinkAgentModal school={modal.school} onClose={() => setModal(null)} onDone={loadSchools} />}
 

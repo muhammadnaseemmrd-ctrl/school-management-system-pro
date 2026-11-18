@@ -6,6 +6,7 @@ const { LOW_ATTENDANCE_THRESHOLD, tallyDaily, buildDailyReport } = require('../u
 const School = require('../models/School');
 const { nowInTz } = require('../utils/time');
 const { hashPassword, validatePasswordStrength } = require('../utils/password');
+const guardianRights = require('../utils/guardianRights');
 
 const PWD_MSG = 'Password must be at least 6 characters, contain 1 capital letter, 1 number, and 1 special character';
 const isId = (v) => mongoose.Types.ObjectId.isValid(v);
@@ -140,7 +141,10 @@ exports.getMyChildren = async (req, res) => {
     const parent = await getParent(req);
     if (!parent) return res.status(404).json({ message: 'Parent account not found or deactivated' });
 
-    const students = await Student.find({ _id: { $in: parent.children }, schoolId: req.user.schoolId })
+    // only children this guardian may see today; each card carries the rights so the app can hide what is not allowed
+    const rightsBy = await guardianRights.resolveForParent(req.user.schoolId, parent, parent.children);
+    const visible = parent.children.filter((id) => rightsBy.get(String(id))?.rights.viewInfo);
+    const students = await Student.find({ _id: { $in: visible }, schoolId: req.user.schoolId })
       .populate('classId', 'standard division')
       .select('name rollNumber studentId photo classId');
 
@@ -148,6 +152,8 @@ exports.getMyChildren = async (req, res) => {
     const { start } = parseRange(undefined, undefined, sn.dateUTC);
 
     const children = await Promise.all(students.map(async (s) => {
+      const rights = rightsBy.get(String(s._id)).rights;
+      if (!rights.viewAttendance) return { ...childCard(s), rights, attendanceHidden: true, overall: null, last30: null, lowAttendance: false, today: null, strip: [] };
       const records = await DailyAttendance.find({ schoolId: req.user.schoolId, studentId: s._id }).select('status date leftAt remarks');
       const overall = tallyDaily(records);
       const last30 = tallyDaily(records.filter((r) => r.date >= start));
@@ -165,6 +171,7 @@ exports.getMyChildren = async (req, res) => {
 
       return {
         ...childCard(s),
+        rights,
         overall,
         last30,
         lowAttendance: overall.total > 0 && overall.percentage < LOW_ATTENDANCE_THRESHOLD,
@@ -187,8 +194,9 @@ exports.getChildAttendance = async (req, res) => {
 
     const parent = await getParent(req);
     if (!parent) return res.status(404).json({ message: 'Parent account not found or deactivated' });
-    if (!parent.children.map(String).includes(studentId)) {
-      return res.status(403).json({ message: 'You can only view attendance of your own children' });
+    const gr = await guardianRights.resolve(req.user.schoolId, parent._id, studentId);
+    if (!gr.linked || !gr.rights.viewAttendance) {
+      return res.status(403).json({ message: 'You do not have access to this child\'s attendance' });
     }
 
     const student = await Student.findOne({ _id: studentId, schoolId: req.user.schoolId })

@@ -152,3 +152,11 @@ Rough capacity (estimates, not guarantees). A 500-student school stores about 40
 **Database indexes:** every collection declares its indexes in the model (`schoolId` is always indexed, plus the compound indexes used by list screens). They are created automatically and checked by the test suite.
 
 **Still future (from the Aulensia V6 PRD):** granular permission grants, guardian-rights model, restore drills, and the remaining epics. See the product handover document.
+
+## Backups you can trust, guardians, and access (owner and admin guide)
+
+**Owner: Backups & recovery.** A backup only counts once a restore drill has shown it can be restored. Press *Run restore drill* on a school: the latest backup is loaded into temporary tables, every row is compared, then the tables are thrown away. A failed drill, a backup older than 8 days or proof older than 30 days shows as an alert on the overview. Weekly backups run from the cron job, which also runs due drills.
+
+**School admin: Parents & Guardians.** Click a child's name to see who may do what for that child: profile, attendance, marks, fees, paying fees, notices, and collecting the child. Rights can have an end date. A driver or relative without an account can be authorised for pickup only. A restriction (court order, safety plan) always wins; teachers and gate staff are never told why. The pickup check on the same screen answers Authorised or Denied.
+
+**School admin: Access & permissions.** Give a cover teacher attendance for one class for a few days, or give another admin access to restriction reasons for a week. Emergency access opens restriction reasons for up to 60 minutes, tells every other admin, and is logged.

@@ -11,6 +11,9 @@ const backupSchema = new mongoose.Schema(
     size: { type: Number, default: 0 },      // compressed bytes
     rawSize: { type: Number, default: 0 },   // JSON bytes
     counts: { type: mongoose.Schema.Types.Mixed, default: {} },
+    checksum: { type: String, default: '' }, // sha256 of the uncompressed JSON, so corruption can be detected later
+    lastDrillStatus: { type: String, default: '' },
+    lastDrillAt: Date,
     data: { type: Buffer, select: false },
   },
   { timestamps: true }

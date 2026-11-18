@@ -29,6 +29,8 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const fileProxyRoutes = require('./routes/fileProxyRoutes');
 const superAdminRoutes = require('./routes/superAdminRoutes');
 const parentRoutes = require('./routes/parentRoutes');
+const guardianRoutes = require('./routes/guardianRoutes');
+const permissionRoutes = require('./routes/permissionRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 
@@ -122,6 +124,8 @@ app.use('/api/files', fileProxyRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/agent', require('./routes/agentRoutes'));
 app.use('/api/parents', gate('parentPortal'), parentRoutes);
+app.use('/api/guardians', guardianRoutes);
+app.use('/api/permissions', permissionRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/backup', require('./routes/backupRoutes'));

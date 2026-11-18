@@ -11,7 +11,12 @@ router.get('/backup', async (req, res) => {
   const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
   const a = Buffer.from(given); const b = Buffer.from(secret);
   if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
-  try { res.json(await backup.runWeekly()); } catch (e) { res.status(500).json({ message: e.message }); }
+  try {
+    const backups = await backup.runWeekly();
+    // after backing up, prove a couple of the least-recently-proven backups can really be restored
+    const drillsRun = await require('../utils/restoreDrill').runDueDrills({ max: 2 }).catch((e) => [{ error: e.message }]);
+    res.json({ ...backups, drills: drillsRun });
+  } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
 module.exports = router;

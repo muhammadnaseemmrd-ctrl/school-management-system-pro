@@ -523,6 +523,7 @@ const ur = {
   "Saving...": "محفوظ ہو رہا ہے...",
   "School management system": "اسکول مینجمنٹ سسٹم",
   "See full attendance": "مکمل حاضری دیکھیں",
+  "Attendance is not shared on this account. Please contact the school office.": "اس اکاؤنٹ پر حاضری ظاہر نہیں کی جاتی۔ براہ کرم اسکول آفس سے رابطہ کریں۔",
   "Signed in as": "لاگ اِن بطور",
   "Status": "حالت",
   "Student": "طالب علم",

@@ -82,7 +82,8 @@ const notify = async ({ schoolId, recipients, title, body = '', link = '', type 
 const admins = async (schoolId) => (await require('../models/User').find({ schoolId, role: 'admin', isActive: { $ne: false } }).select('_id')).map((u) => ({ id: u._id, role: 'admin' }));
 const teachers = async (schoolId) => (await require('../models/Teacher').find({ schoolId }).select('_id')).map((u) => ({ id: u._id, role: 'teacher' }));
 const students = async (schoolId, filter = {}) => (await require('../models/Student').find({ schoolId, ...filter }).select('_id')).map((u) => ({ id: u._id, role: 'student' }));
-const parentsOf = async (schoolId, studentIds) => (await require('../models/Parent').find({ schoolId, children: { $in: studentIds } }).select('_id')).map((u) => ({ id: u._id, role: 'parent' }));
+// Only parent accounts that may be contacted about these students (guardian rights + restrictions, PRD E05)
+const parentsOf = async (schoolId, studentIds, right = 'receiveNotices') => (await require('./guardianRights').contactableParents(schoolId, studentIds, right)).map((u) => ({ id: u._id, role: 'parent' }));
 const parents = async (schoolId) => (await require('../models/Parent').find({ schoolId }).select('_id')).map((u) => ({ id: u._id, role: 'parent' }));
 // a student plus their parents
 const studentAndParents = async (schoolId, studentIds) => [...(studentIds || []).map((id) => ({ id, role: 'student' })), ...(await parentsOf(schoolId, studentIds))];

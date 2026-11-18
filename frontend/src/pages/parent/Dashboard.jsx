@@ -125,6 +125,9 @@ const ParentDashboard = () => {
                       </div>
                     </div>
 
+                    {c.attendanceHidden ? (
+                      <p className="mx-5 my-5 rounded-2xl bg-[#f7f6f2] px-5 py-4 text-sm font-semibold text-[#3b4a5c]">{t('Attendance is not shared on this account. Please contact the school office.')}</p>
+                    ) : (<>
                     {/* TODAY - the one thing a parent wants to know */}
                     <div className={`mx-5 mt-4 rounded-2xl px-5 py-4 text-white ${BANNER[c.today.status] || BANNER.None}`}>
                       <p className="text-xs font-bold uppercase tracking-wide text-white/80">{t('Today')} · {fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
@@ -162,6 +165,7 @@ const ParentDashboard = () => {
                     <button onClick={() => { setChildId(c._id); setTab('attendance'); }} className="flex w-full items-center justify-between border-t border-[#eef2f8] bg-[#f7f6f2] px-5 py-4 text-base font-black text-[#2a5cac] hover:bg-[#eef2f8]">
                       {t('See full attendance')} <Arrow className="h-5 w-5" />
                     </button>
+                    </>)}
                   </div>
                 ))}
               </div>
