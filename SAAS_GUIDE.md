@@ -167,3 +167,6 @@ Admin sidebar, Admissions. Record every inquiry (phone, walk-in, website form) w
 
 ## Fee collection (E06)
 Fee collection tab: generate invoices per class (preview first), print a three-copy challan, take cash at an open till or record bank/JazzCash/Easypaisa payments, import the bank statement and confirm matches, and approve refunds, write-offs, credit notes and discount rules (a second admin always decides). Closing the till records any difference with a note. "Check the books" proves each invoice equals the payments placed on it. Receipts and vouchers are never edited: a mistake is a refund or reversal, both kept in the audit log.
+
+## Staff and payroll (E07)
+Admin tab "Staff & payroll": positions with salary bands, staff files with contracts (notice dates), documents and mandatory training with expiry warnings, onboarding checklist, shifts and a published roster, staff attendance, leave with automatic cover requests for teachers, overtime and advances (another admin approves), monthly payroll and exit settlements. Payroll rules (tax bands, provident fund, fixed deductions) are entered by you and must be reviewed by a different person; nothing statutory is built in. The person who prepares a payroll run can never finalize it. Teachers see their roster, cover duties, leave, appraisals and payslips under "My staff record".

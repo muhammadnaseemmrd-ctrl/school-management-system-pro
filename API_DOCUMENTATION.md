@@ -1138,3 +1138,20 @@ Whole PKR. 403 not allowed (including approving your own request) · 404 not in 
 | GET/POST | `/bank/lines`, `/bank/lines/:id/match`, `/bank/lines/:id/ignore` | Match to an invoice (creates a confirmed bank payment) or ignore with a reason. |
 | GET/PUT | `/settings`, POST `/late-fees/run` | Grace days and late fee amount; one late fee per invoice. |
 | GET | `/overview`, `/reconcile`, `/students/:id/statement`, `/families/:parentId/statement` | Totals, books check, statements. The parent family statement honours the `viewFees` guardian right. |
+
+## Staff, leave and payroll (E07) — `/api/hr` (admin; teachers use `/api/hr/me/*` for their own record)
+
+Whole PKR; dates are `YYYY-MM-DD`; Sunday is the weekly day off. 403 not allowed (including approving your own entry) · 404 not in this school · 409 stale or already exists · 422 not possible in this state.
+
+| Area | Endpoints |
+|---|---|
+| People | `GET/POST /positions`, `PUT /positions/:id` (salary band; changes kept in history; `{retire:true}`) · `GET/POST /employees`, `GET/PUT /employees/:id` (`version` guard; salary must fit the position band) · `PUT /employees/:id/checklist/:key`, `POST /employees/:id/activate` (needs full checklist and a signed contract) |
+| Contracts | `POST /contracts`, `/contracts/:id/sign` (one signed contract at a time; renewal ends the old), `/contracts/:id/end` |
+| File | `POST /employees/:id/records` (`document`, `training` with `mandatory`, `appraisal` needs consented goals and written review), `POST /appraisals/:id/respond`, `GET /expiring?days=60` |
+| Roster | `GET/POST /shifts`, `GET/POST /roster` (skips Sundays and approved leave; warns over 48 h/week), `POST /roster/publish` |
+| Attendance | `GET/POST /attendance` (late is computed against the rostered shift; changing a recorded day needs a reason and is kept) |
+| Leave and cover | `POST /leave`, `/leave/:id/decide`, `/leave/:id/cancel`; approved leave for a teacher creates one `CoverAssignment` per timetabled lesson. `GET /cover`, `/cover/:id/candidates`, `POST /cover/:id/assign` (no overlap, not on leave, mandatory training in date) |
+| Overtime, advances | `POST /overtime`, `/overtime/:id/decide`; `POST /advances`, `/advances/:id/decide` (another admin decides; advances capped at N months of basic) |
+| Payroll | `POST /payroll/rules`, `/payroll/rules/:id/review` (another admin or accountant, with a note; nothing statutory is built in), `POST /payroll/batches {period}` (prepare or re-prepare), `POST /payroll/batches/:id/finalize` (preparer cannot finalize; blocked while any rule is unreviewed; 409 if inputs changed), `GET /payroll/batches/:id/payslips/:employeeId` (audited) |
+| Exit | `POST /settlements`, `PUT /settlements/:id/clear/:key`, `POST /settlements/:id/settle` (another admin; all clearance items done) |
+| Teacher | `GET /me`, `GET /me/payslips/:id`, `POST /me/leave`, `POST /me/leave/:id/cancel`, `POST /me/appraisals/:id/respond` |

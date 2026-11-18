@@ -7,6 +7,7 @@ import {
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
+import MyStaffRecord from './MyStaffRecord';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
@@ -15,7 +16,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -520,6 +521,7 @@ const TeacherDashboard = () => {
                   ['homework', 'Homework & Grading', ClipboardList],
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
+                  ['staff', 'My staff record', Users],
                 ].map(([id, label, Icon]) => (
                   <button
                     key={id}
@@ -2214,6 +2216,8 @@ const TeacherDashboard = () => {
             })()}
 
             {/* TAB 5: PASSWORD SECURITY */}
+            {activeTab === 'staff' && <MyStaffRecord />}
+
             {activeTab === 'security' && (
               <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-6 shadow-sm max-w-xl mx-auto">
                 <h2 className="text-xl font-bold text-[#1b2837] flex items-center gap-2">

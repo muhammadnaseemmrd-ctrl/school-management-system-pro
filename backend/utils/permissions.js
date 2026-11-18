@@ -18,7 +18,7 @@ const CATALOG = {
   'platform.billing.manage': { label: 'Manage platform billing and agents', scope: 'platform', defaults: ['superadmin'], grantable: false, implemented: true,
     rule: 'Platform owner only. Has no implicit access to learner records inside a school.' },
   'finances.journal.post': { label: 'Post a journal entry', scope: 'school', defaults: [], grantable: false, implemented: false, rule: 'Planned: balanced journal plus explicit approval.' },
-  'hr.payroll.finalize': { label: 'Finalize payroll', scope: 'school', defaults: [], grantable: false, implemented: false, rule: 'Planned: the person who prepared payroll cannot finalize it.' },
+  'hr.payroll.finalize': { label: 'Finalize payroll', scope: 'school', defaults: ['admin'], grantable: false, implemented: true, rule: 'The person who prepared a payroll run can never finalize it. Unreviewed deduction rules block finalizing.' },
   'documents.issue': { label: 'Issue an official document', scope: 'school', defaults: [], grantable: false, implemented: false, rule: 'Planned: issued documents are immutable; revoke and reissue.' },
 };
 const MAX_GRANT_DAYS = 90;
