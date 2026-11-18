@@ -94,10 +94,10 @@ exports.listLeave = async (req, res) => {
 };
 
 /* ───────── cover ───────── */
-const free = async (sid, teacherId, c, exceptCoverId) => {
+const free = async (sid, teacherId, c, exceptCoverId, ignoreSlot) => {
   const day = H.DAYNAMES[H.dow(c.date)];
   const tts = await Timetable.find({ schoolId: sid, dayOfWeek: day, isActive: { $ne: false } });
-  for (const t of tts) for (const s of t.slots || []) if (!s.isBreak && String(s.teacherId) === String(teacherId) && H.overlap(s.startTime, s.endTime, c.startTime, c.endTime)) return 'teaches another class at that time';
+  for (const t of tts) for (const s of t.slots || []) if (!s.isBreak && String(s.teacherId) === String(teacherId) && H.overlap(s.startTime, s.endTime, c.startTime, c.endTime)) { if (ignoreSlot && String(t.classId) === String(ignoreSlot.classId) && s.startTime === ignoreSlot.startTime && s.endTime === ignoreSlot.endTime) continue; return 'teaches another class at that time'; }
   const other = await Cover.find({ schoolId: sid, coverTeacherId: teacherId, date: c.date, status: 'Assigned' });
   if (other.some((o) => String(o._id) !== String(exceptCoverId) && H.overlap(o.startTime, o.endTime, c.startTime, c.endTime))) return 'is already covering another lesson then';
   const e = await Employee.findOne({ schoolId: sid, teacherId });
@@ -113,6 +113,7 @@ exports.listCover = async (req, res) => {
     res.json({ cover: rows.map((r) => ({ ...JSON.parse(JSON.stringify(r)), absentName: t.get(String(r.absentTeacherId)), coverName: r.coverTeacherId ? t.get(String(r.coverTeacherId)) : null, className: cl.get(String(r.classId)) })) });
   } catch (e) { fail(res, e); }
 };
+exports.coverFree = free;
 exports.coverCandidates = async (req, res) => {
   try {
     const sid = req.user.schoolId; const c = isId(req.params.id) ? await Cover.findOne({ _id: req.params.id, schoolId: sid }) : null; if (!c) return res.status(404).json({ message: 'Cover lesson not found' });
@@ -125,6 +126,7 @@ exports.assignCover = async (req, res) => {
   try {
     const sid = req.user.schoolId; const c = isId(req.params.id) ? await Cover.findOne({ _id: req.params.id, schoolId: sid }) : null; if (!c) return res.status(404).json({ message: 'Cover lesson not found' });
     if (c.status === 'Cancelled') return res.status(422).json({ message: 'This cover is cancelled because the leave was cancelled.' });
+    if (c.source && c.source !== 'leave') return res.status(422).json({ message: 'This cover is arranged on the timetable cover desk, where a second administrator approves it.' });
     if (req.body?.unassign) { c.coverTeacherId = null; c.status = 'Needed'; await c.save(); await audit(req, { action: 'hr.cover.unassign', entityType: 'CoverAssignment', entityId: c._id, schoolId: sid }); return res.json({ cover: c }); }
     const t = isId(req.body?.coverTeacherId) ? await Teacher.findOne({ _id: req.body.coverTeacherId, schoolId: sid }) : null; if (!t) return res.status(404).json({ message: 'Teacher not found' }); if (String(t._id) === String(c.absentTeacherId)) return res.status(422).json({ message: 'The absent teacher cannot cover their own lesson.' });
     const why = await free(sid, t._id, c, c._id); if (why) return res.status(422).json({ message: `${t.name} ${why}.` });

@@ -1194,3 +1194,20 @@ Staff routes need gate duty: admins by default, teachers only with a time-limite
 | Drills | `POST /drills {kind, title, assemblyPoint, real}` (one open at a time), `GET /drills`, `GET /drills/current`, `GET /drills/:id`, `GET /drills/:id/roster` (class head counts; teachers count their own class), `POST /drills/:id/muster {classId, marks, allSafe}`, `POST /drills/:id/others/:lineId`, `POST /drills/:id/notify-families` (only for students marked Safe), `GET /drills/:id/fallback` (phone list), `POST /drills/:id/close {summary, forceReason?}` (blocked while anyone is unaccounted for unless `forceReason`), `POST /drills/:id/sign` (a different admin), `POST /drills/:id/actions`, `POST /drills/:id/actions/:index/done`. |
 
 Not in this release: a separate guard login (gate duty is given to an admin or a granted teacher), SMS and WhatsApp (notices are in-app and push, with a phone-call list as fallback), identity checks on readers for visitors (sent to the desk), camera, transport and health links (later epics).
+
+## Timetable planning, rooms, cover and swaps (E10) — `/api/timetable-ops`
+Gated by the `timetable` module. Admins manage everything; teachers use `/mine`, `/colleagues`, `/lessons`, `/cover/:id/respond` and the swap routes.
+
+| Area | Routes |
+|---|---|
+| Overview | `GET /overview` (conflicts, workload exceptions, cover needed/proposed, swaps waiting, rooms) |
+| Rooms | `GET/POST /rooms {name, kind, capacity, equipment, homeClassId, notes}`, `PUT /rooms/:id`, `POST /rooms/:id/active {active}`, `GET /rooms/free?day&startTime&endTime`, `GET /rooms/:id/schedule`. A room can never be booked twice, even with `force`. A room that is on the timetable cannot be renamed (409). With no rooms listed, a free-text room is still accepted |
+| Checks | `GET /conflicts` (teacher/room double bookings plus capacity, kind, inactive and unknown room warnings), `GET /workload` (per teacher per day, free periods, longest run, cover counts, exceptions against the school limits) |
+| Versions | `GET /versions/status`, `GET /versions`, `POST /versions/publish {note, effectiveFrom}` (422 while a double booking exists or nothing changed), `GET /versions/:id?classId`, `POST /versions/:id/restore`. A published version is an immutable snapshot with a per-class diff; only teachers and families whose lessons changed are notified |
+| Cover | `GET/POST /cover` (ad-hoc cover; leave cover from E07 also appears), `GET /cover/:id/candidates` (ranked: knows subject, knows class, fewest covers in 30 days, lightest day; excluded list with reasons), `POST /cover/:id/propose {teacherId}`, `POST /cover/:id/decide {decision}` (a **different** admin; 403 for the proposer), `POST /cover/:id/release {cancel?}`, `POST /cover/:id/respond {response: Accepted|Declined, note}` (the covering teacher) |
+| Teacher | `GET /mine?from` (week with lesson states normal/covered/cover-needed/cover), `GET /colleagues`, `GET /lessons?date&teacherId` |
+| Swaps | `GET/POST /swaps {date, peerId, myLesson, peerLesson, reason}`, `POST /swaps/:id/respond {response}` (peer), `/decide {decision}` (admin), `/cancel`. Requested → PeerAccepted → Approved; approval creates two swap covers |
+
+Generator: `POST /api/timetables/generate` keeps manual (locked) periods by default (`keepManual:false` starts clean) and returns `preservedManual, droppedManual, roomsPlaced, roomsUnplaced`. Config also takes `maxPeriodsPerDay`, `maxPeriodsPerWeek`, `maxConsecutive`; `Subject.roomKind` restricts a subject to a room kind.
+
+Not in this release: the live timetable is visible to everyone before publishing (publishing records a version and notifies); cleared periods are refilled by the generator; leave cover is still assigned in the HR flow (no second-admin step there); no notice to families for one-off covers; teacher availability is lessons, leave, training and the daily limit only.

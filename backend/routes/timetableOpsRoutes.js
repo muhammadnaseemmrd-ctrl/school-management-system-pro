@@ -1,0 +1,11 @@
+const express = require('express'); const router = express.Router(); const c = require('../controllers/timetableOpsController'); const { authenticate, authorize } = require('../middleware/auth');
+router.use(authenticate);
+const admin = authorize('admin'); const staff = authorize('admin', 'teacher'); const teacher = authorize('teacher');
+router.get('/overview', admin, c.overview);
+router.get('/rooms', admin, c.listRooms); router.post('/rooms', admin, c.createRoom); router.get('/rooms/free', staff, c.freeRooms); router.get('/rooms/:id/schedule', admin, c.roomSchedule); router.put('/rooms/:id', admin, c.updateRoom); router.post('/rooms/:id/active', admin, c.setRoomActive);
+router.get('/conflicts', admin, c.conflicts); router.get('/workload', admin, c.workload);
+router.get('/versions/status', admin, c.versionStatus); router.get('/versions', staff, c.listVersions); router.post('/versions/publish', admin, c.publish); router.get('/versions/:id', staff, c.getVersion); router.post('/versions/:id/restore', admin, c.restore);
+router.get('/cover', admin, c.listCover); router.post('/cover', admin, c.createCover); router.get('/cover/:id/candidates', admin, c.candidates); router.post('/cover/:id/propose', admin, c.propose); router.post('/cover/:id/decide', admin, c.decideCover); router.post('/cover/:id/release', admin, c.releaseCover); router.post('/cover/:id/respond', teacher, c.respondCover);
+router.get('/mine', staff, c.mine); router.get('/colleagues', teacher, c.colleagues); router.get('/lessons', staff, c.lessons);
+router.get('/swaps', staff, c.listSwaps); router.post('/swaps', staff, c.createSwap); router.post('/swaps/:id/respond', teacher, c.respondSwap); router.post('/swaps/:id/decide', admin, c.decideSwap); router.post('/swaps/:id/cancel', staff, c.cancelSwap);
+module.exports = router;

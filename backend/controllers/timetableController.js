@@ -3,6 +3,9 @@ const TimetableConfig = require('../models/TimetableConfig');
 const Subject = require('../models/Subject');
 const Teacher = require('../models/Teacher');
 const Class = require('../models/Class');
+const TT = require('../utils/timetableOps');
+const Room = require('../models/Room');
+const Student = require('../models/Student');
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -142,10 +145,11 @@ exports.getConfig = async (req, res) => {
 
 exports.saveConfig = async (req, res) => {
   try {
-    const { schoolStartTime, schoolEndTime, lectureDurationMinutes, workingDays, breaks, academicYear } = req.body;
+    const { schoolStartTime, schoolEndTime, lectureDurationMinutes, workingDays, breaks, academicYear, maxPeriodsPerDay, maxPeriodsPerWeek, maxConsecutive } = req.body;
+    const lim = {}; for (const [k, v, hi] of [['maxPeriodsPerDay', maxPeriodsPerDay, 12], ['maxPeriodsPerWeek', maxPeriodsPerWeek, 60], ['maxConsecutive', maxConsecutive, 10]]) if (v !== undefined) { const n = Number(v); if (!Number.isInteger(n) || n < 1 || n > hi) return res.status(400).json({ message: `${k} must be a whole number from 1 to ${hi}.` }); lim[k] = n; }
     const config = await TimetableConfig.findOneAndUpdate(
       { schoolId: req.user.schoolId },
-      { schoolStartTime, schoolEndTime, lectureDurationMinutes, workingDays, breaks, academicYear },
+      { schoolStartTime, schoolEndTime, lectureDurationMinutes, workingDays, breaks, academicYear, ...lim },
       { upsert: true, new: true }
     );
     res.json({ config });
@@ -239,7 +243,9 @@ exports.updateSlot = async (req, res) => {
         }
       }
 
-      const entry = { startTime, endTime, subjectId, teacherId, isBreak: false, breakName: '', room: room || '' };
+      const bad = await TT.checkRoom({ schoolId, classId, day: dayOfWeek, startTime, endTime, roomName: room, subject, force });
+      if (bad) return res.status(bad.status).json(bad.body);
+      const entry = { startTime, endTime, subjectId, teacherId, isBreak: false, breakName: '', room: room || '', locked: true, editedByName: req.actorName || '' };
       if (idx >= 0) slots[idx] = entry; else slots.push(entry);
     }
 
@@ -270,6 +276,7 @@ exports.generateTimetable = async (req, res) => {
   try {
     const schoolId = req.user.schoolId;
     const { standards } = req.body;
+    const keepManual = req.body.keepManual !== false;
 
     const config = await TimetableConfig.findOne({ schoolId });
     if (!config) return res.status(400).json({ message: 'Please save school timing configuration first.' });
@@ -355,6 +362,28 @@ exports.generateTimetable = async (req, res) => {
       }
     }
 
+    // Manual edits (locked periods) stay exactly as they were
+    const classIds = classes.map(c => c._id);
+    const lockedSlots = {}; let preservedManual = 0; let droppedManual = 0;
+    if (keepManual) {
+      for (const tt of await Timetable.find({ schoolId, classId: { $in: classIds } })) {
+        const clsId = String(tt.classId); const day = tt.dayOfWeek;
+        for (const sl of tt.slots || []) {
+          if (sl.isBreak || !sl.locked) continue;
+          if (!generated[clsId]?.[day]) { droppedManual++; continue; }
+          const L = sl.toObject ? sl.toObject() : { ...sl };
+          ((lockedSlots[clsId] ||= {})[day] ||= []).push(L); preservedManual++;
+          daySlots.forEach((ds, idx) => {
+            if (ds.type === 'break' || !TT.overlaps(ds.startTime, ds.endTime, L.startTime, L.endTime)) return;
+            generated[clsId][day][idx] = { keep: L };
+            const tb = L.teacherId && teacherBusy[String(L.teacherId)]; if (tb && tb[day]) tb[day][idx] = true;
+          });
+          const need = (classNeeds[clsId] || []).find(n => String(n.subjectId) === String(L.subjectId) && String(n.teacherId) === String(L.teacherId));
+          if (need && need.remaining > 0) need.remaining--;
+        }
+      }
+    }
+
     // First pass: Allocate standard weekly lectures
     for (const day of config.workingDays) {
       for (const cls of classes) {
@@ -410,7 +439,8 @@ exports.generateTimetable = async (req, res) => {
             let physicallyClashed = false;
             for (const otherCls of classes) {
               const otherClsId = otherCls._id.toString();
-              if (generated[otherClsId]?.[day]?.[slotIdx]?.teacherId?.toString() === tIdStr) {
+              const og = generated[otherClsId]?.[day]?.[slotIdx]; const ogT = og?.keep ? og.keep.teacherId : og?.teacherId;
+              if (ogT?.toString() === tIdStr) {
                 physicallyClashed = true;
                 break;
               }
@@ -441,14 +471,36 @@ exports.generateTimetable = async (req, res) => {
       }
     }
 
+    // Rooms: lab subjects get a free room of the right kind, other lessons the class's own room
+    const rooms = await Room.find({ schoolId, active: true });
+    let roomsPlaced = 0, roomsUnplaced = 0;
+    if (rooms.length) {
+      const busy = {}; const mark = (day, room, a, b) => { (busy[day] ||= []).push({ k: TT.roomKey(room), a, b }); };
+      const isBusy = (day, room, a, b) => (busy[day] || []).some(x => x.k === TT.roomKey(room) && TT.overlaps(x.a, x.b, a, b));
+      for (const tt of await Timetable.find({ schoolId, classId: { $nin: classIds } })) for (const sl of tt.slots || []) if (!sl.isBreak && sl.room) mark(tt.dayOfWeek, sl.room, sl.startTime, sl.endTime);
+      for (const byDay of Object.values(lockedSlots)) for (const [day, list] of Object.entries(byDay)) for (const L of list) if (L.room) mark(day, L.room, L.startTime, L.endTime);
+      const sizes = {}; for (const cls of classes) sizes[String(cls._id)] = await Student.countDocuments({ schoolId, classId: cls._id, isActive: { $ne: false } });
+      for (const day of config.workingDays) for (const cls of classes) {
+        const clsId = String(cls._id); const size = sizes[clsId] || 0;
+        for (let i = 0; i < daySlots.length; i++) {
+          const g = generated[clsId][day][i]; if (!g || g.keep) continue;
+          const sub = subjects.find(x => String(x._id) === String(g.subjectId));
+          let pool;
+          if (sub?.roomKind && sub.roomKind !== 'Classroom') pool = rooms.filter(r => r.kind === sub.roomKind && r.capacity >= size).sort((a, b) => a.capacity - b.capacity);
+          else pool = [...rooms.filter(r => String(r.homeClassId) === clsId), ...rooms.filter(r => r.kind === 'Classroom' && !r.homeClassId && r.capacity >= size).sort((a, b) => a.capacity - b.capacity)];
+          const pick = pool.find(r => !isBusy(day, r.name, g.startTime, g.endTime));
+          if (pick) { g.room = pick.name; mark(day, pick.name, g.startTime, g.endTime); roomsPlaced++; } else roomsUnplaced++;
+        }
+      }
+    }
+
     // Persist
-    const classIds = classes.map(c => c._id);
     await Timetable.deleteMany({ schoolId, classId: { $in: classIds } });
     const docs = [];
     for (const cls of classes) {
       for (const day of config.workingDays) {
         const rawSlots = generated[cls._id.toString()][day];
-        const finalSlots = [];
+        const finalSlots = []; const emitted = new Set();
 
         for (let i = 0; i < daySlots.length; i++) {
           const ds = daySlots[i];
@@ -461,16 +513,22 @@ exports.generateTimetable = async (req, res) => {
             });
           } else {
             const gen = rawSlots[i];
-            if (gen) {
+            if (gen && gen.keep) {
+              if (!emitted.has(gen.keep)) { emitted.add(gen.keep); finalSlots.push({ ...gen.keep, isBreak: false }); }
+            } else if (gen) {
               finalSlots.push({
                 startTime: ds.startTime,
                 endTime: ds.endTime,
                 subjectId: gen.subjectId,
-                teacherId: gen.teacherId
+                teacherId: gen.teacherId,
+                room: gen.room || ''
               });
             }
           }
         }
+        // a manual period outside the normal grid is still kept
+        for (const L of (lockedSlots[cls._id.toString()]?.[day] || [])) if (!emitted.has(L)) finalSlots.push({ ...L, isBreak: false });
+        finalSlots.sort((a, b) => toMin(a.startTime) - toMin(b.startTime));
 
         docs.push({
           schoolId,
@@ -484,9 +542,11 @@ exports.generateTimetable = async (req, res) => {
     }
     await Timetable.insertMany(docs);
 
-    res.json({ message: 'Timetable generated successfully!', classesProcessed: classes.length, slotsPerDay: daySlots.length });
+    res.json({ message: 'Timetable generated successfully!', classesProcessed: classes.length, slotsPerDay: daySlots.length, preservedManual, droppedManual, roomsPlaced, roomsUnplaced });
   } catch (e) {
     console.error('Timetable generation error:', e);
     res.status(500).json({ message: e.message });
   }
 };
+
+exports.helpers = { toMin, fromMin, buildDaySlots };

@@ -13,6 +13,7 @@ import Finance from './Finance';
 import Staff from './Staff';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
+import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
@@ -27,7 +28,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -708,6 +709,11 @@ const AdminDashboard = () => {
     });
   };
 
+  const [ttRooms, setTtRooms] = useState([]);
+  useEffect(() => {
+    if (ttEditCell && !ttRooms.length) apiClient.get('/timetable-ops/rooms').then((r) => setTtRooms((r.data.rooms || []).filter((x) => x.active))).catch(() => {});
+  }, [!!ttEditCell]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const saveTimetableCell = async ({ clear = false, force = false } = {}) => {
     const cell = ttEditCell;
     if (!cell) return;
@@ -728,8 +734,9 @@ const AdminDashboard = () => {
       await fetchAllTimetables();
       if (selectedViewClassId) fetchClassTimetable(selectedViewClassId);
     } catch (err) {
-      if (err.response?.status === 409 && err.response?.data?.clash) {
-        setTtEditCell((c) => c && { ...c, clash: err.response.data.message });
+      const d = err.response?.data || {};
+      if (err.response?.status === 409 && (d.clash || d.roomClash || d.roomInactive || d.capacity || d.roomKind)) {
+        setTtEditCell((c) => c && { ...c, clash: d.message, hardClash: !!(d.roomClash || d.roomInactive) });
       } else {
         toast.error(err.response?.data?.message || 'Failed to update the period');
       }
@@ -1514,6 +1521,7 @@ const AdminDashboard = () => {
                   { id: 'staff', label: 'Staff & payroll', icon: Users },
                   { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
                   { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
+                  { id: 'timetablePlan', label: 'Timetable planning', icon: Calendar },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1662,6 +1670,7 @@ const AdminDashboard = () => {
             {activeTab === 'staff' && <Staff />}
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="admin" />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="admin" />}
+            {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'attendance' && <AdminAttendance teachers={teachers} onChanged={() => { try { fetchData && fetchData(); } catch (e) { /* ignore */ } }} />}
 
             {/* OVERVIEW TAB */}
@@ -4541,26 +4550,38 @@ const AdminDashboard = () => {
 
                         <div className="space-y-1">
                           <label className="text-xs font-bold text-[#3b4a5c]">Room (optional)</label>
-                          <input
-                            type="text"
-                            value={ttEditCell.room}
-                            onChange={(e) => setTtEditCell({ ...ttEditCell, room: e.target.value })}
-                            placeholder="e.g. Room 5"
-                            className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm font-semibold text-[#1b2837] outline-none focus:border-[#2a5cac]"
-                          />
+                          {ttRooms.length ? (
+                            <select
+                              value={ttEditCell.room}
+                              onChange={(e) => setTtEditCell({ ...ttEditCell, room: e.target.value, clash: null })}
+                              className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm font-semibold text-[#1b2837] outline-none focus:border-[#2a5cac]"
+                            >
+                              <option value="">No room</option>
+                              {ttEditCell.room && !ttRooms.some((r) => r.name === ttEditCell.room) && <option value={ttEditCell.room}>{ttEditCell.room} (not on the room list)</option>}
+                              {ttRooms.map((r) => <option key={r._id} value={r.name}>{r.name} · {r.kind} · {r.capacity} seats</option>)}
+                            </select>
+                          ) : (
+                            <input
+                              type="text"
+                              value={ttEditCell.room}
+                              onChange={(e) => setTtEditCell({ ...ttEditCell, room: e.target.value })}
+                              placeholder="e.g. Room 5"
+                              className="w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm font-semibold text-[#1b2837] outline-none focus:border-[#2a5cac]"
+                            />
+                          )}
                         </div>
 
                         {ttEditCell.clash && (
                           <div className="rounded-xl border border-[#ecc7b9] bg-[#fbf0ec] p-3 space-y-2">
                             <p className="text-xs font-bold text-[#8a4636]"><span>⚠️</span> {ttEditCell.clash}</p>
-                            <button
+                            {ttEditCell.hardClash ? <p className="text-xs text-[#8a4636]">A room cannot be used twice. Choose another room.</p> : <button
                               type="button"
                               disabled={ttSaving}
                               onClick={() => saveTimetableCell({ force: true })}
                               className="px-3 py-1.5 rounded-lg bg-[#d9826a] text-[#2b1510] text-xs font-bold hover:bg-[#a2543f] transition disabled:opacity-60"
                             >
                               Save anyway
-                            </button>
+                            </button>}
                           </div>
                         )}
 

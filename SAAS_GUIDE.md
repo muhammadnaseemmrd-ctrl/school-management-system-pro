@@ -185,3 +185,13 @@ Admin tab "Gate & safety" with Overview, Visitors, Dismissal, Contractors, Gate 
 **Contractors and the logbook.** A contractor pass is made by one admin and approved by another, with a shift limit and allowed gates; leaving is never refused. The guard logbook keeps incidents and notes; a shift handover counts only when the named person accepts it, and open items carry over.
 
 **Drills.** Start a fire, earthquake, lockdown, evacuation or emergency assembly; class teachers count their class (Safe, Missing with where last seen, or already collected). Families are told only about children marked safe; a phone list covers the rest. The drill cannot be closed while anyone is unaccounted for unless the administrator writes why, and a different administrator signs the report.
+
+## Timetable planning (E10)
+Open **Timetable planning** in the admin menu (or **Timetable & cover** for teachers).
+
+- **Overview** shows double bookings, teachers over their limits, cover waiting and swaps waiting, and the publish panel. Publishing is blocked while a teacher or room is booked twice. Only the people whose lessons changed are told.
+- **Rooms**: list classrooms and labs with seats. Once rooms exist, periods must use a listed room, a room can't be used by two classes at once, and lab subjects go to labs. A manual edit to a period is kept when you regenerate.
+- **Cover**: ask for cover, see free teachers in fair order with the reason anyone is left out, propose one. A second administrator approves, then the teacher is told and can confirm or hand the lesson back with a reason.
+- **Swaps**: two teachers exchange one lesson on a date. The colleague agrees, an administrator approves.
+- **Workload**: per teacher per day, free periods, longest run; the limits are editable here.
+- **Versions**: every published timetable is kept; open one to see what changed, or restore it.

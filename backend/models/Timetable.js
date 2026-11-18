@@ -38,6 +38,9 @@ const timetableSchema = new mongoose.Schema(
           default: '',
         },
         room: String,
+        // a manual edit is kept when the timetable is generated again
+        locked: { type: Boolean, default: false },
+        editedByName: { type: String, default: '' },
       },
     ],
     academicYear: String,

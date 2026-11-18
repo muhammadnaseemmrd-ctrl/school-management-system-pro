@@ -24,6 +24,7 @@ const timetableConfigSchema = new mongoose.Schema(
       enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
     },
     breaks: [breakSlotSchema],
+    maxPeriodsPerDay: { type: Number, default: 7 }, maxPeriodsPerWeek: { type: Number, default: 32 }, maxConsecutive: { type: Number, default: 4 },
     academicYear: { type: String, default: () => {
       const y = new Date().getFullYear();
       return `${y}-${y + 1}`;

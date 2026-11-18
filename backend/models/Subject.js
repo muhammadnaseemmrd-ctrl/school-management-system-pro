@@ -16,6 +16,8 @@ const subjectSchema = new mongoose.Schema(
       required: true,
     },
     description: String,
+    // lessons of this subject need this kind of room (e.g. Lab); left empty for any room
+    roomKind: { type: String, enum: ['Classroom', 'Lab', 'Library', 'Hall', 'Sports', 'Computer', 'Other'] },
     maxMarks: {
       type: Number,
       default: 100,

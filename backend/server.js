@@ -131,6 +131,7 @@ app.use('/api/finance', require('./routes/financeRoutes'));
 app.use('/api/hr', require('./routes/hrRoutes'));
 app.use('/api/attendance-ops', require('./routes/attendanceOpsRoutes'));
 app.use('/api/safety', require('./routes/safetyRoutes'));
+app.use('/api/timetable-ops', gate('timetable'), require('./routes/timetableOpsRoutes'));
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/backup', require('./routes/backupRoutes'));
