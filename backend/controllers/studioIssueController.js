@@ -156,7 +156,7 @@ async function allowedStudents(req) {
   const schoolId = sid(req); const u = req.user;
   if (u.role === 'student') return new Map([[String(u.userId), { viewInfo: true, viewMarks: true, viewFees: true }]]);
   const parent = await Parent.findOne({ _id: oid(u.userId), schoolId }); if (!parent) return new Map();
-  const ids = (parent.children || []).map(String); const rights = await G.resolveForParent(schoolId, parent, ids); return rights;
+  const ids = (parent.children || []).map(String); const rights = await G.resolveForParent(schoolId, parent, ids); return new Map([...rights].map(([k, v]) => [k, v.rights]));   // each entry is {linked, rights, restricted}: use the rights
 }
 exports.mine = wrap(async (req, res) => {
   const schoolId = sid(req); const rights = await allowedStudents(req); const ids = [...rights.keys()].filter((k) => rights.get(k).viewInfo !== false);
