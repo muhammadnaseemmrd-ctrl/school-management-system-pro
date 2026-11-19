@@ -132,6 +132,7 @@ app.use('/api/hr', require('./routes/hrRoutes'));
 app.use('/api/attendance-ops', require('./routes/attendanceOpsRoutes'));
 app.use('/api/safety', require('./routes/safetyRoutes'));
 app.use('/api/timetable-ops', gate('timetable'), require('./routes/timetableOpsRoutes'));
+app.use('/api/studio', require('./routes/studioRoutes'));
 app.use('/api/sync', require('./routes/syncRoutes'));
 app.use('/api/teacher-today', require('./routes/teacherTodayRoutes'));
 app.use('/api/notifications', notificationRoutes);

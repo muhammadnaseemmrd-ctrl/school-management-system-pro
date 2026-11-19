@@ -23,7 +23,12 @@ const CATALOG = {
     rule: 'Platform owner only. Has no implicit access to learner records inside a school.' },
   'finances.journal.post': { label: 'Post a journal entry', scope: 'school', defaults: [], grantable: false, implemented: false, rule: 'Planned: balanced journal plus explicit approval.' },
   'hr.payroll.finalize': { label: 'Finalize payroll', scope: 'school', defaults: ['admin'], grantable: false, implemented: true, rule: 'The person who prepared a payroll run can never finalize it. Unreviewed deduction rules block finalizing.' },
-  'documents.issue': { label: 'Issue an official document', scope: 'school', defaults: [], grantable: false, implemented: false, rule: 'Planned: issued documents are immutable; revoke and reissue.' },
+  'documents.issue': { label: 'Issue an official document (ID cards, certificates, report cards, receipts)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a registrar needs a time-limited grant. An issued document never changes: a mistake is revoked and reissued, and every issue is recorded with its serial number.' },
+  'documents.template.manage': { label: 'Design and change document templates', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Drafts can change; a new version goes live only when a different administrator approves it. Documents already issued keep the design they were printed with.' },
+  'documents.print': { label: 'Print documents and run print batches', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'A print officer can print and report printer problems, but cannot issue, revoke or change designs.' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;
