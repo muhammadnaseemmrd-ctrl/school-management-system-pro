@@ -5,6 +5,7 @@ import {
   MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar 
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
+import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyDesk from '../../components/attendance/FamilyDesk';
 import apiClient from '../../utils/apiClient';
 import usePlan from '../../utils/usePlan';
@@ -28,7 +29,7 @@ const StudentDashboard = () => {
   const [uploadingHomeworkId, setUploadingHomeworkId] = useState(null);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk'];
+    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -317,6 +318,7 @@ const StudentDashboard = () => {
                   ['homework', 'My Homework', ClipboardList],
                   ['attendance', 'Roster & Attendance', CheckCircle],
                   ['desk', 'Leave, alerts & check-in', Bell],
+                  ['documents', 'My documents', FileText],
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
                 ].map(([id, label, Icon]) => (
@@ -790,6 +792,7 @@ const StudentDashboard = () => {
           </div>
         )}
 
+        {activeSubTab === 'documents' && <MyDocuments />}
         {activeSubTab === 'desk' && <FamilyDesk role="student" kids={profileData ? [{ _id: profileData._id, name: profileData.name }] : []} />}
 
         {/* TAB 1.7: ATTENDANCE (once a day, marked by the class head master) */}

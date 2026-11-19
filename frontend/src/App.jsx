@@ -8,6 +8,7 @@ import apiClient from './utils/apiClient';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
+const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
 const TeacherDashboard = lazy(() => import('./pages/teacher/Dashboard'));
@@ -81,6 +82,8 @@ function App() {
             path="/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <Login />}
           />
+          <Route path="/verify" element={<VerifyDocument />} />
+          <Route path="/verify/:token" element={<VerifyDocument />} />
           <Route
             path="/superadmin/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SuperAdminLogin />}

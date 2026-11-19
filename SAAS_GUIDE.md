@@ -203,3 +203,7 @@ Teachers land on **Today**: the lessons they teach (including cover), the class 
 - **Nothing is lost or doubled.** Each change is sent once even if the connection drops mid-send.
 - **Clashes are never decided silently.** If someone else marked a child or changed a mark while you were away, that item goes to **Clashes**, showing both versions. Keep yours, keep the saved one, combine them, or hand it to a colleague or the school office. The decision and the reason are kept.
 - **Offline sync** (admin): integrity of the last 30 days, open clashes by teacher, what was refused and why, and which devices have sent work.
+
+## Documents studio (E12)
+
+Admins open **Documents studio**. Start from an Aulensia original, make your own copy and change it on the canvas: drag, resize, snap to guides, nudge with the arrow keys (Shift for bigger steps), align, undo and redo, front and back sides, school colours, English and Urdu previews, and a live checks panel (text contrast, safe area, picture licences). Send it for review; another administrator approves it and it goes live. Issue documents one by one or in bulk; each gets a number and a check code, and is kept exactly as issued. Print in batches (several cards to a sheet with cut marks, or one per page), record jams or failures and retry only what failed. Download any issued document as a PDF or a 300 dpi PNG. Students and parents see their documents under **My documents**; anyone can check a document at `/verify/<code>`.

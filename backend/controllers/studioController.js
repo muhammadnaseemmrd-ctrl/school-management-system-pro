@@ -18,6 +18,7 @@ const Exam = require('../models/Exam');
 const N = require('../utils/notify');
 const { audit } = require('../utils/audit');
 const S = require('../utils/studio/service');
+const { can } = require('../utils/permissions');
 const F = require('../utils/studio/fields');
 const Col = require('../utils/studio/color');
 const { validate, paperOf } = require('../utils/studio/validate');
@@ -74,7 +75,8 @@ exports.overview = wrap(async (req, res) => {
     Issuance.countDocuments({ schoolId, issuedAt: { $gte: since } }), Issuance.countDocuments({ schoolId, status: 'Revoked', revokedAt: { $gte: since } }),
     Batch.find({ schoolId, status: { $in: ['Printing', 'NeedsAttention'] } }).select('name status items updatedAt'), Asset.countDocuments({ schoolId, retired: false, verified: false, origin: { $ne: 'base' } }),
   ]);
-  res.json({ templates, inReview: review, drafts, issuedLast30: issued, revokedLast30: revoked, assetsToClear: assets,
+  const allowed = { manage: (await can(req.user, 'documents.template.manage')).allowed, issue: (await can(req.user, 'documents.issue')).allowed, print: (await can(req.user, 'documents.print')).allowed };
+  res.json({ can: allowed, templates, inReview: review, drafts, issuedLast30: issued, revokedLast30: revoked, assetsToClear: assets,
     batchesOpen: batches.map((b) => ({ _id: b._id, name: b.name, status: b.status, failed: b.items.filter((i) => i.status === 'Failed').length, queued: b.items.filter((i) => i.status === 'Queued').length, updatedAt: b.updatedAt })) });
 });
 
@@ -85,7 +87,10 @@ exports.listTemplates = wrap(async (req, res) => {
   const list = await DocTemplate.find(q).sort({ isBase: -1, family: 1, name: 1 });
   const open = await Version.find({ schoolId, state: { $in: ['Draft', 'Review'] } }).select('templateId state version');
   const by = new Map(); open.forEach((v) => by.set(String(v.templateId), v));
-  res.json({ templates: list.map((t) => ({ ...tplView(t), open: by.get(String(t._id)) ? { state: by.get(String(t._id)).state, version: by.get(String(t._id)).version, _id: by.get(String(t._id))._id } : null })) });
+  // preview=1 adds the live front side of each design so the gallery can draw thumbnails in one request
+  let previews = new Map();
+  if (req.query.preview === '1') { const ids = list.map((t) => t.liveVersionId).filter(Boolean); (await Version.find({ schoolId, _id: { $in: ids } })).forEach((v) => previews.set(String(v._id), v)); }
+  res.json({ templates: list.map((t) => ({ ...tplView(t), open: by.get(String(t._id)) ? { state: by.get(String(t._id)).state, version: by.get(String(t._id)).version, _id: by.get(String(t._id))._id } : null, ...(previews.get(String(t.liveVersionId)) ? { preview: { paper: previews.get(String(t.liveVersionId)).layout.paper, side: previews.get(String(t.liveVersionId)).layout.sides[0], theme: previews.get(String(t.liveVersionId)).theme || {} } } : {}) })) });
 });
 
 const loadTpl = async (req, id) => { const t = await DocTemplate.findOne({ _id: oid(id), schoolId: sid(req) }); return t; };

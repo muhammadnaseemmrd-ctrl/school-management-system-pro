@@ -1228,3 +1228,22 @@ A change made on a device with no network is queued with a client-made `mutation
 The app shell is cached by the service worker so Today reopens offline; `/api` is never cached by it. A queued change is shown as "waiting on this device", never as saved. Daily and lesson registers are still validated by the E08 rules (future dates, lesson windows judged by capture time, who is scheduled).
 
 Not in this release: a lesson register for a student in two lessons of the same subject on a day still keeps one record (E08 limit); no background sync when the app is closed (the queue is sent when the app is next open and online); the offline copy holds rosters in the browser's storage until sign-out.
+
+## Documents studio (E12) — `/api/studio`
+
+Templates, review, issuing, print queue and pictures for ID cards, staff badges, visitor passes, report cards, transcripts, certificates, fee challans, invoices, receipts, letterheads, library cards and letters. Permissions: `documents.template.manage`, `documents.issue`, `documents.print` (admin by default; others by grant). Every change is audited.
+
+| Area | Endpoints |
+|---|---|
+| Catalog | `GET /catalog` (families, merge fields, papers, default theme), `GET /overview` (counts and the caller's `can` flags) |
+| Templates | `GET /templates?preview=1` (adds a front-side preview of the live design), `POST /templates {name, family, basedOnId}`, `GET /templates/:id`, `POST /templates/:id/duplicate`, `POST /templates/:id/archive {archived}`, `POST /templates/import` (file; the package must state its licence), `GET /templates/:id/versions/:vid/export` |
+| Versions | `POST /templates/:id/versions` (new draft), `GET|PUT|DELETE /templates/:id/versions/:vid`, `POST .../submit`, `.../approve`, `.../reject {note}`, `GET .../proof?locale=&subjectId=&term=` (PDF), `POST /validate {family, layout, theme}` (live checks: contrast, safe area, QR/barcode content, licences) |
+| Pictures | `GET /assets`, `POST /assets` (PNG/JPEG, 2 MB, with licence), `PUT /assets/:id/license`, `POST /assets/:id/verify`, `POST /assets/:id/retire` |
+| Issuing | `GET /subjects?family=&q=&classId=`, `POST /issue {templateId, subjectIds, custom, term, validUntil, locale}` (up to 200), `GET /issuances`, `GET /issuances/:id`, `GET /issuances/:id/pdf`, `GET /issuances/:id/snapshot` (the stored copy for PNG export), `POST /issuances/:id/revoke {reason}`, `POST /issuances/:id/replace {reason}` |
+| Print | `GET|POST /batches`, `GET /batches/:id`, `GET /batches/:id/pdf?scope=pending|all`, `POST /batches/:id/start`, `.../results {allOk | results:[{itemId, ok, errorCode}]}`, `.../retry`, `.../items/:itemId/cancel {reason}`, `.../cancel {reason}` |
+| Family | `GET /my/documents`, `GET /my/documents/:id/pdf` (student, or a linked parent with the right to see the child's information, marks or fees) |
+| Public | `GET /api/public/verify/:token` (no sign-in, rate limited): status, school, document, masked holder, number, dates |
+
+Rules worth knowing: an Aulensia original cannot be edited, only copied; a different administrator approves (a sole administrator may approve their own, recorded as such); a design with an error, or a picture without a cleared licence, cannot go live; an issued document is a frozen copy (values, layout, theme, photo) and prints identically after later template or record changes; one valid ID card, library card or staff badge per person; the QR code carries only the check link and the barcode only the number; a batch holds one paper size; a revoked or replaced document is dropped from open batches.
+
+Front end: admin "Documents studio" (also in the teacher dashboard for anyone granted a documents permission), "My documents" for students, "Documents" for parents, and the public `/verify/:token` page.
