@@ -7,7 +7,7 @@ const ORD = { 2: 'squared', 3: 'cubed' };
 // Take one {group} or a single character starting at i; return [text, nextIndex]
 function arg(s, i) {
   if (s[i] === '{') { let d = 1; let j = i + 1; while (j < s.length && d) { if (s[j] === '{') d += 1; else if (s[j] === '}') d -= 1; j += 1; } return [s.slice(i + 1, j - 1), j]; }
-  const m = /^(\\[a-zA-Z]+|[A-Za-z0-9+\-.]+)/.exec(s.slice(i)); if (m) return [m[0], i + m[0].length]; return [s[i] || '', i + 1];
+  const m = /^(\\[a-zA-Z]+|[+-]?\d+(?:\.\d+)?|[+-]?[A-Za-z])/.exec(s.slice(i)); if (m) return [m[0], i + m[0].length]; return [s[i] || '', i + 1];   // like LaTeX: one symbol, or a whole number
 }
 
 // → array of tokens: {t:'text'|'sup'|'sub'|'frac'|'sqrt'|'sym', ...} that a screen can draw

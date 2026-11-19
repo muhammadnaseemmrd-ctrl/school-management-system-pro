@@ -1247,3 +1247,32 @@ Templates, review, issuing, print queue and pictures for ID cards, staff badges,
 Rules worth knowing: an Aulensia original cannot be edited, only copied; a different administrator approves (a sole administrator may approve their own, recorded as such); a design with an error, or a picture without a cleared licence, cannot go live; an issued document is a frozen copy (values, layout, theme, photo) and prints identically after later template or record changes; one valid ID card, library card or staff badge per person; the QR code carries only the check link and the barcode only the number; a batch holds one paper size; a revoked or replaced document is dropped from open batches.
 
 Front end: admin "Documents studio" (also in the teacher dashboard for anyone granted a documents permission), "My documents" for students, "Documents" for parents, and the public `/verify/:token` page.
+
+## Quizzes and online exams (E13) — `/api/assess`
+Staff routes need an administrator or teacher sign-in; a teacher works only on the classes and subjects they teach. Student routes (`/take/*`) are for students, `/take/family` is for parents.
+
+| Area | Routes |
+|---|---|
+| Question bank | `GET /bank/meta`, `GET /bank?q=&kind=&state=&topic=&difficulty=&bloom=&mine=1`, `POST /bank`, `GET|PUT|DELETE /bank/:id`, `POST /bank/:id/activate|retire|duplicate`, `POST /bank/:id/share {sharing}`, `POST /bank/notation {text}` (tokens, spoken form, plain text) |
+| Types | `mcq`, `multi`, `tf`, `short`, `essay`, `match`, `order`, `numeric`. Options, pairs, accepted answers, numeric tolerance, part marks, negative marks, rubric, Urdu stem, topic, difficulty, thinking level, learning goal, licence |
+| Package | `GET /bank/export?ids=` (only questions the school wrote or that are openly licensed), `POST /bank/import {format, items, licenseStatement}` |
+| Rubrics | `GET|POST /rubrics`, `PUT /rubrics/:id`, `POST /rubrics/:id/archive` |
+| Quizzes | `GET|POST /quizzes`, `GET|PUT|DELETE /quizzes/:id`, `POST /quizzes/:id/blueprint/preview|apply`, `POST .../submit-review|publish|approve|reject|close|archive|extend`, `GET .../paper?key=0|1`, `POST .../authorize-key {reason}`, `GET .../invigilator-code`, `GET .../roster`, `POST .../release {mode, at, force, reason}`, `GET .../analysis`, `POST .../analysis/apply` |
+| Taking | `GET /take/available`, `POST /take/:id/start {identity}`, `GET /take/attempts/:id`, `PUT /take/attempts/:id/save {answers, seq, focus}` (returns a signed receipt), `POST /take/attempts/:id/submit {answers, receipt}`, `GET /take/attempts/:id/result`, `POST /take/attempts/:id/appeal {reason, refs}`, `GET /take/results`, `GET /take/family` |
+| Marking | `GET /grading/queue`, `GET /grading/attempts/:id`, `POST /grading/attempts/:id/items/:ref/mark {score | criteria, comment}`, `POST .../incidents`, `POST .../void` (administrator) |
+| Appeals | `GET /appeals`, `POST /appeals/:id/decide {decision: uphold|reject|revise, note, changes:[{ref, score}]}` |
+| Arrangements | `GET|POST /access`, `POST /access/:id/decide` (administrator), `POST /access/:id/revoke` (administrator) |
+
+Rules worth knowing:
+- **Versions.** A question used in a published quiz is locked. Changing it makes a new version with a change note; the published quiz keeps the old one exactly.
+- **Quizzes and exams.** The author can publish a quiz. An exam is sent for review and a different administrator approves it (a sole administrator may approve their own, recorded as such). An exam needs an opening and closing time and the window must be at least as long as the time allowed.
+- **Sealing.** Before an exam opens, or while a quiz is open, the paper and answer key return **423**. After the closing time an administrator can release them early with a reason. While a quiz is open the teacher view shows no key.
+- **Variants.** Each attempt gets a seed that rebuilds the same paper (question and choice order) later, so an appeal can show exactly what the student saw.
+- **Clock.** The deadline is set by the server when the attempt starts (extra time from an approved arrangement included) and is never taken from the phone. Autosave returns a signed receipt. After the deadline, saves are refused (**422**). A hand-in made up to the offline grace period late is accepted only with a valid receipt for the answers the server holds, and is flagged as late because of the connection; otherwise only what was saved in time is marked. Answers sent with a late hand-in are ignored. An abandoned attempt is handed in by the server.
+- **Identity.** Sign-in, admission number, or the invigilator's daily six-digit code. Five wrong checks in an hour return **429**.
+- **Marking.** Closed questions mark automatically (partial and negative marks as set). A short answer that does not match is flagged for the teacher instead of being marked wrong. With two markers the second cannot see the first mark or the student's name; if the marks differ by more than the set percentage a third person who has not marked it decides. A finished result is signed (HMAC) and carries a version.
+- **Release.** Results stay hidden from students and parents until released. A release is refused while the quiz is open or marking is unfinished, unless an administrator forces it with a reason. Exam results are released by an administrator. A scheduled release takes effect at its time.
+- **Appeals.** Within the appeal period; one open appeal per result; the reviewer cannot be anyone who marked the work. A revision creates a new signed result version and records before, after and the changed marks.
+- **Arrangements.** Extra time, large text, read aloud, separate room, extra attempts, and make-up windows. A teacher requests, an administrator approves. The reason is visible only to the requester and administrators and never reaches the paper or the class.
+- **Privacy.** The student is told exactly what is recorded: answers and save times, and window focus changes as a note. No camera, microphone or screen recording.
+- **Parents.** `GET /take/family` shows released results only for children whose guardian rights include marks.

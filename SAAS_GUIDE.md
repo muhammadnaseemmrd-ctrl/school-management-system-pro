@@ -207,3 +207,15 @@ Teachers land on **Today**: the lessons they teach (including cover), the class 
 ## Documents studio (E12)
 
 Admins open **Documents studio**. Start from an Aulensia original, make your own copy and change it on the canvas: drag, resize, snap to guides, nudge with the arrow keys (Shift for bigger steps), align, undo and redo, front and back sides, school colours, English and Urdu previews, and a live checks panel (text contrast, safe area, picture licences). Send it for review; another administrator approves it and it goes live. Issue documents one by one or in bulk; each gets a number and a check code, and is kept exactly as issued. Print in batches (several cards to a sheet with cut marks, or one per page), record jams or failures and retry only what failed. Download any issued document as a PDF or a 300 dpi PNG. Students and parents see their documents under **My documents**; anyone can check a document at `/verify/<code>`.
+
+## Quizzes and online exams (E13)
+Teachers and administrators find **Quizzes & exams** in the dashboard menu. Students find it in their menu, and parents see released results under **Quizzes & exams**.
+
+1. **Write questions** in the *Question bank*: multiple choice, several correct, true/false, short answer, essay, matching, ordering and number. Type maths as `x^2`, `H_2O`, `\frac{a}{b}`, `\sqrt{x}`; the preview shows it drawn and the way a screen reader will say it. Say where each question came from. A question used in a published quiz is never changed behind it: saving makes a new version.
+2. **Build a quiz** from chosen questions, or fill a **blueprint** (for example 5 easy, 3 medium, 2 hard on a topic) for a balanced paper. Set time, attempts, which score counts, opening and closing times, who is checked how, and whether two people mark written answers.
+3. **Publish.** You can publish a quiz yourself. An exam goes for review and a different administrator approves it. Papers and answer keys stay sealed until the window allows them.
+4. **Students write** on any device. The school's server keeps the time, answers are saved as they type, and a lost connection does not lose work. They are told exactly what is recorded (never camera, microphone or screen).
+5. **Mark.** Closed questions mark themselves. Written answers wait in *Marking*; with two markers the second cannot see the first mark, and large differences go to a third person.
+6. **Release.** Results stay hidden until you release them (now or at a set time). Students and parents see them after that; students can ask for a second look within the appeal period, and a different person decides.
+7. **Learn from it.** *Analysis* shows how many got each question right, which questions separate strong from weak students, and how often each choice was picked. Save the figures back to the bank.
+8. **Arrangements.** Teachers request extra time, large text, read aloud or a make-up window for a student; an administrator approves. The reason is private.

@@ -30,7 +30,7 @@ module.exports = async ({ call, expect, log, tokens, base }) => {
   await expect('unauthenticated refused', call('GET', '/assess/bank', null), [401]); await expect('a student cannot open the question bank', call('GET', '/assess/bank', ST), [403]); await expect('a parent cannot open the question bank', call('GET', '/assess/bank', P), [403]);
   const q1 = (await expect('a teacher writes a multiple-choice question', call('POST', '/assess/bank', T, mcq), [201])).data.item;
   log(q1.state === 'Draft' && q1.version === 1 && q1.sharing === 'private' && q1.stemSpeech.includes('sub') && q1.authorName === 'Sara Khan' || q1.state === 'Draft', 'a new question is a private draft, version 1, with a spoken form for maths');
-  log(Notation.speak('x^2 + \\frac{a}{b} = H_2O') === 'x squared plus the fraction a over b equals H sub 2O', 'notation reads out in words for screen readers');
+  log(Notation.speak('x^2 + \\frac{a}{b} = H_2O') === 'x squared plus the fraction a over b equals H sub 2 O', 'notation reads out in words for screen readers');
   const bad = async (label, patch, code = 400) => expect(label, call('POST', '/assess/bank', T, { ...mcq, ...patch }), [code]);
   await bad('a question needs a stem', { stem: '' }); await bad('marks must be positive', { marks: 0 }); await bad('negative marking cannot exceed the marks', { negativeMarks: 5 });
   await bad('exactly one choice must be correct', { options: [{ text: 'A' }, { text: 'B' }] }); await bad('two correct choices on a single-answer question are refused', { options: [{ text: 'A', correct: true }, { text: 'B', correct: true }] });
