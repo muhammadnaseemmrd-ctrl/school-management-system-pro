@@ -1211,3 +1211,20 @@ Gated by the `timetable` module. Admins manage everything; teachers use `/mine`,
 Generator: `POST /api/timetables/generate` keeps manual (locked) periods by default (`keepManual:false` starts clean) and returns `preservedManual, droppedManual, roomsPlaced, roomsUnplaced`. Config also takes `maxPeriodsPerDay`, `maxPeriodsPerWeek`, `maxConsecutive`; `Subject.roomKind` restricts a subject to a room kind.
 
 Not in this release: the live timetable is visible to everyone before publishing (publishing records a version and notifies); cleared periods are refilled by the generator; leave cover is still assigned in the HR flow (no second-admin step there); no notice to families for one-off covers; teacher availability is lessons, leave, training and the daily limit only.
+
+## Teacher Today and offline sync (E11) — `/api/sync`, `/api/teacher-today`
+A change made on a device with no network is queued with a client-made `mutationId`. On reconnect the device sends it once; the server applies each id once, compares it with what changed meanwhile, and sends clashes to an inbox.
+
+| Area | Routes |
+|---|---|
+| Push | `POST /sync/push {mutations:[{mutationId, kind, entityKey, baseRevision, capturedAt, payload}], deviceId}` (max 50). Per item result: `Applied`, `Partial`, `Conflicted`, `Rejected` (with the reason), `Retry` (not recorded, send again). A replay returns the first answer with `duplicate: true`. Kinds: `draft`, `marks`, `attendance` (daily roll call), `period` (lesson register) |
+| Compare | Registers and marks use a three-way compare: `base` is what the device last saw. If the server value equals `base` the change applies; if it equals the new value nothing changes; otherwise that student or mark becomes a conflict while the rest are applied. Drafts use a revision number (`baseRevision`). Who may write is checked before any comparison, so a clash never reveals data the person could not write |
+| Pull | `GET /sync/pull?since`, `GET /sync/mutations` (history of what this person sent) |
+| Drafts | `GET /sync/drafts`, `POST /sync/drafts/:localId/publish` (homework only; 422 if class, subject, due date or title missing; 409 if already published), `POST /sync/drafts/:localId/discard` |
+| Clashes | `GET /sync/conflicts?status=Open|Resolved`, `POST /sync/conflicts/:id/resolve {resolution: mine|server|merged, value, note}`, `POST /sync/conflicts/:id/delegate {to:'office'}` or `{teacherId}`. The owner, the person it was handed to, or an admin may act; a clash handed to the office can only be settled by the office (403 for the owner). Resolving writes through the same rules as a live save (head master only, edit windows, assignment) and a refused resolution leaves the clash open. The owner is told when someone else settles it |
+| Office | `GET /sync/overview` (integrity %, counts, open clashes by teacher, devices), `GET /sync/rejections` |
+| Today | `GET /teacher-today` (lessons with register progress, class roll calls, marking, exam marks missing, cover and swaps waiting, drafts, counts), `GET /teacher-today/pack` (the same plus rosters, what is already marked, existing marks, drafts and an expiry, to be kept on the device) |
+
+The app shell is cached by the service worker so Today reopens offline; `/api` is never cached by it. A queued change is shown as "waiting on this device", never as saved. Daily and lesson registers are still validated by the E08 rules (future dates, lesson windows judged by capture time, who is scheduled).
+
+Not in this release: a lesson register for a student in two lessons of the same subject on a day still keeps one record (E08 limit); no background sync when the app is closed (the queue is sent when the app is next open and online); the offline copy holds rosters in the browser's storage until sign-out.

@@ -32,6 +32,8 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('aulensia-profile');
+      Object.keys(localStorage).filter((k) => k.startsWith('aulensia-cache:')).forEach((k) => localStorage.removeItem(k)); // the saved day belongs to the person who was signed in
       // Mark session as logged out so forward-navigation history can't reuse stale tokens
       sessionStorage.setItem('loggedOut', '1');
     },

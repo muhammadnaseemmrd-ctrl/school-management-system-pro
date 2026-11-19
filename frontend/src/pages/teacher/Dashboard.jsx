@@ -11,6 +11,7 @@ import MyStaffRecord from './MyStaffRecord';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
 import TeacherTimetableDesk from '../../components/timetable/TeacherTimetableDesk';
+import TeacherToday from '../../components/today/TeacherToday';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
@@ -19,7 +20,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -29,7 +30,7 @@ const TeacherDashboard = () => {
   const [activeTab, setActiveTab] = useState(() => {
     const tabFromHash = getTabFromHash();
     if (tabFromHash) return tabFromHash;
-    return localStorage.getItem('teacherActiveTab') || 'overview';
+    return localStorage.getItem('teacherActiveTab') || 'today';
   });
 
   useEffect(() => {
@@ -525,6 +526,7 @@ const TeacherDashboard = () => {
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
                   ['attendanceDesk', 'Attendance desk', CheckCircle],
+                  ['today', 'Today', Clock],
                   ['safetyDesk', 'Gate & safety', ShieldAlert],
                   ['timetablePlan', 'Timetable & cover', Calendar],
                   ['staff', 'My staff record', Users],
@@ -2226,6 +2228,7 @@ const TeacherDashboard = () => {
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="teacher" />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'timetablePlan' && <TeacherTimetableDesk meId={profileData?._id} />}
+            {activeTab === 'today' && <TeacherToday onNavigate={setActiveTab} />}
 
             {activeTab === 'security' && (
               <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-6 shadow-sm max-w-xl mx-auto">

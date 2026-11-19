@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
-  Trash2, X, ClipboardList, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet 
+  Trash2, X, ClipboardList, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff 
 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
@@ -14,6 +14,7 @@ import Staff from './Staff';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
+import SyncDesk from '../../components/today/SyncDesk';
 import { useLang } from '../../i18n/LanguageContext';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
@@ -28,7 +29,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'syncDesk', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1522,6 +1523,7 @@ const AdminDashboard = () => {
                   { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
                   { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
                   { id: 'timetablePlan', label: 'Timetable planning', icon: Calendar },
+                  { id: 'syncDesk', label: 'Offline sync', icon: WifiOff },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1671,6 +1673,7 @@ const AdminDashboard = () => {
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="admin" />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="admin" />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
+            {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'attendance' && <AdminAttendance teachers={teachers} onChanged={() => { try { fetchData && fetchData(); } catch (e) { /* ignore */ } }} />}
 
             {/* OVERVIEW TAB */}

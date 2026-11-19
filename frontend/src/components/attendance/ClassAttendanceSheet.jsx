@@ -4,12 +4,8 @@ import { CalendarDays, CheckCheck, ChevronLeft, ChevronRight, Save, Lock, Info, 
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
 import { STATUS, STATUS_ORDER } from './shared';
+import { submit, flush as syncFlush, useSync } from '../../utils/syncQueue';
 
-// A register saved with no network waits on this device and is sent once, with its own id, when the connection returns
-const QKEY = (classId) => `attq:${classId}`;
-const readQ = (classId) => { try { return JSON.parse(localStorage.getItem(QKEY(classId)) || '[]'); } catch { return []; } };
-const writeQ = (classId, q) => { try { localStorage.setItem(QKEY(classId), JSON.stringify(q)); } catch { /* storage full or blocked: the save simply is not queued */ } };
-const newId = () => `m-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 const addDays = (key, n) => { const d = new Date(`${key}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().split('T')[0]; };
 
@@ -23,7 +19,7 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
-  const [queued, setQueued] = useState(() => readQ(classId).length);
+  const sync = useSync(); const queued = sync.queued.filter((q) => q.kind === 'attendance' && q.payload?.classId === classId).length;
 
   const load = useCallback(async (d) => {
     setLoading(true);
@@ -45,17 +41,8 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
 
   useEffect(() => { load(''); }, [load]);
 
-  // send anything that was saved offline; the server applies each id once, so a retry can never double-write
-  const flush = useCallback(async () => {
-    let q = readQ(classId); if (!q.length || !navigator.onLine) return;
-    for (const item of q) {
-      try { await apiClient.post(`/daily-attendance/class/${classId}`, { ...item.payload, mutationId: item.mutationId }); q = q.filter((x) => x.mutationId !== item.mutationId); writeQ(classId, q); }
-      catch (e) { if (e.response) { q = q.filter((x) => x.mutationId !== item.mutationId); writeQ(classId, q); toast.error(e.response.data?.message || t('A saved register could not be sent')); } else break; }
-    }
-    setQueued(readQ(classId).length);
-    if (!readQ(classId).length) { toast.success(t('Offline attendance sent')); load(''); }
-  }, [classId, load, t]);
-  useEffect(() => { flush(); window.addEventListener('online', flush); return () => window.removeEventListener('online', flush); }, [flush]);
+  // the shared offline queue sends anything saved with no network; reload when it has been sent
+  useEffect(() => { if (sync.lastSyncAt && !queued) load(date || ''); }, [sync.lastSyncAt]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const counts = useMemo(() => {
     const c = { Present: 0, Late: 0, HalfDay: 0, Absent: 0, Leave: 0 };
@@ -82,19 +69,18 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
       date,
       records: rows.map((r) => ({ studentId: r._id, status: r.status, leftAt: r.status === 'HalfDay' ? r.leftAt || undefined : undefined, arrivedAt: r.status === 'Late' ? r.arrivedAt || undefined : undefined, authorizedBy: ['Late', 'HalfDay'].includes(r.status) ? r.authorizedBy || undefined : undefined })),
     };
-    const mutationId = newId();
+    // base = what this screen was shown by the server, so a change made by someone else meanwhile is flagged, not overwritten
+    payload.classId = classId; payload.base = Object.fromEntries((sheet?.students || []).map((st) => [st._id, st.status || null]));
     try {
-      await apiClient.post(`/daily-attendance/class/${classId}`, { ...payload, mutationId });
-      toast.success(t('Attendance saved'));
-      setDirty(false);
-      await load(date);
-      onSaved && onSaved();
+      const res = await submit({ kind: 'attendance', entityKey: `att:${classId}:${date}`, payload, label: `Register ${sheet?.class?.name || ''} ${date}` });
+      if (res.queued) { setDirty(false); toast(t('No connection. The register is kept on this device and will be sent automatically.'), { icon: '📶' }); }
+      else {
+        const r = res.result;
+        if (r.status === 'Rejected') toast.error(r.message || t('Could not save attendance'));
+        else { if (r.status === 'Applied') toast.success(t('Attendance saved')); else toast(r.message, { icon: '⚠️', duration: 7000 }); setDirty(false); await load(date); onSaved && onSaved(); }
+      }
     } catch (e) {
-      if (!e.response) {
-        // no connection: keep the register on this device and send it when we are back online
-        writeQ(classId, [...readQ(classId), { mutationId, payload, savedAt: new Date().toISOString() }]); setQueued(readQ(classId).length); setDirty(false);
-        toast(t('No connection. The register is kept on this device and will be sent automatically.'), { icon: '📶' });
-      } else toast.error(e.response?.data?.message || t('Could not save attendance'));
+      toast.error(e.response?.data?.message || t('Could not save attendance'));
     } finally {
       setSaving(false);
     }
@@ -145,7 +131,7 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
       {queued > 0 && (
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800" role="status">
           <span className="flex items-center gap-2"><WifiOff className="h-4 w-4" /> {t('{n} register(s) waiting to be sent from this device', { n: queued })}</span>
-          <button type="button" onClick={flush} className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-bold">{t('Send now')}</button>
+          <button type="button" onClick={() => syncFlush()} className="rounded-lg border border-amber-300 bg-white px-3 py-1 text-xs font-bold">{t('Send now')}</button>
         </div>
       )}
 

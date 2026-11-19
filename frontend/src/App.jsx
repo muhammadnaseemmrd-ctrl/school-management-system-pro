@@ -40,12 +40,14 @@ function App() {
         const response = await apiClient.get('/auth/profile');
         // Successful login — clear any stale loggedOut flag
         sessionStorage.removeItem('loggedOut');
+        try { localStorage.setItem('aulensia-profile', JSON.stringify(response.data.user)); } catch { /* storage full */ }
         dispatch(setUser(response.data.user));
         dispatch(setSchool(response.data.user.schoolId));
       } catch (error) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        dispatch(clearAuth());
+        // No network is not the same as signed out: a teacher reopening the app offline keeps their place (PRD E11)
+        let kept = null; try { kept = !error.response ? JSON.parse(localStorage.getItem('aulensia-profile') || 'null') : null; } catch { kept = null; }
+        if (kept && kept.role) { dispatch(setUser(kept)); dispatch(setSchool(kept.schoolId)); }
+        else { localStorage.removeItem('accessToken'); localStorage.removeItem('refreshToken'); dispatch(clearAuth()); }
       } finally {
         setLoading(false);
       }

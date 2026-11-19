@@ -23,6 +23,8 @@ const Navbar = () => {
     clearBranding();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('aulensia-profile');
+    Object.keys(localStorage).filter((k) => k.startsWith('aulensia-cache:')).forEach((k) => localStorage.removeItem(k));
     localStorage.removeItem('adminActiveTab');
     localStorage.removeItem('teacherActiveTab');
     localStorage.removeItem('studentActiveTab');

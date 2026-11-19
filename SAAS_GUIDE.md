@@ -195,3 +195,11 @@ Open **Timetable planning** in the admin menu (or **Timetable & cover** for teac
 - **Swaps**: two teachers exchange one lesson on a date. The colleague agrees, an administrator approves.
 - **Workload**: per teacher per day, free periods, longest run; the limits are editable here.
 - **Versions**: every published timetable is kept; open one to see what changed, or restore it.
+
+## Teacher Today (E11)
+Teachers land on **Today**: the lessons they teach (including cover), the class roll call for the class they head, exam marks still missing, homework to mark, and drafts. 
+
+- **Works with no network.** Take registers, enter marks and write notes. They wait on the device and are marked "Waiting to send" until the server has them. Press **Save for offline** to keep the day on the device; reopening the app with no connection shows that copy.
+- **Nothing is lost or doubled.** Each change is sent once even if the connection drops mid-send.
+- **Clashes are never decided silently.** If someone else marked a child or changed a mark while you were away, that item goes to **Clashes**, showing both versions. Keep yours, keep the saved one, combine them, or hand it to a colleague or the school office. The decision and the reason are kept.
+- **Offline sync** (admin): integrity of the last 30 days, open clashes by teacher, what was refused and why, and which devices have sent work.
