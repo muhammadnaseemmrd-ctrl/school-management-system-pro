@@ -21,6 +21,7 @@ router.post('/cases/:id/referrals', staff, K.addReferral); router.post('/cases/:
 router.post('/cases/:id/circle', staff, K.addCircle); router.delete('/cases/:id/circle/:pid', staff, K.removeCircle);
 router.post('/cases/:id/close', staff, K.closeCase); router.post('/cases/:id/close/approve', staff, K.approveClose); router.post('/cases/:id/reopen', staff, K.reopenCase);
 router.post('/cases/:id/access-request', staff, K.requestAccess);
+router.post('/access-request', staff, K.requestAccessByNumber);
 router.get('/access-requests', staff, K.listAccess); router.get('/access-requests/mine', staff, K.myAccess); router.post('/access-requests/:id/decide', staff, K.decideAccess); router.post('/access-requests/:id/revoke', staff, K.revokeAccess);
 router.get('/access-log', staff, K.accessLog);
 

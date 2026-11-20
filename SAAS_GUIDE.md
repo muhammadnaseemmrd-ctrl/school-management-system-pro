@@ -256,3 +256,14 @@ Administrators and teachers find **Family messages** in the dashboard menu; pare
 5. **Delivery check.** Open a conversation and press *Delivery* to see which alerts were sent, held for quiet hours or failed and retried.
 
 Set `CRON_SECRET` on Vercel. The daily job (07:05 Pakistan time) releases held alerts and raises breaches; away from Vercel the server sweeps every 10 minutes.
+
+## Student care (E21)
+Administrators and teachers find **Student care** in the dashboard menu; parents find **Wellbeing**; students find **Wellbeing & support**.
+
+1. **Cases.** Open a case when a child needs coordinated help: choose the topic, how much support, a lead and who else may see it. Add notes, actions with owners and dates, and referrals. Bullying and safeguarding cases are confidential: only the people on them and the safeguarding leads can open them, and each read is recorded. Closing one needs a second safeguarding lead to sign off.
+2. **Concerns.** Students, parents and staff can tell the safeguarding team about a worry, with or without a name. Someone who sends one without a name gets a code to see the reply. Triage a concern: reply, close it with a reason, or turn it into a case.
+3. **Sick bay.** The nurse keeps a health plan per child (allergies, conditions, emergency plan), adds medicines (the parent is asked to agree first), records each dose as given, refused or not given, and logs visits. Parents are told straight away if a child is sent home or an allergic reaction happens. Teachers see an alert for the children they teach and can record a visit.
+4. **Support.** Propose adjustments (extra time, a reader and so on); another coordinator decides. Book appointments with the counsellor, nurse or a mentor; students and parents can ask for one. Set goals, pair a mentor, and keep a career pathway.
+5. **Staff and access.** Record safeguarding and other training; teachers without current safeguarding training cannot join confidential cases. Ask for emergency access to a confidential case by its number; a second lead approves. Answer families' privacy requests before they are due. Under *Settings* choose the escalation times and review periods.
+
+Set `CRON_SECRET` on Vercel. The daily job (07:40 Pakistan time) escalates cases without a lead and unseen concerns, flags reviews and training that is running out, and closes emergency access that has expired; away from Vercel the server sweeps every 15 minutes.

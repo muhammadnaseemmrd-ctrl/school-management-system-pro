@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
-  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus
-} from 'lucide-react';
+  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -12,6 +11,7 @@ import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
 import EarlyDesk from '../../components/early/EarlyDesk';
 import StaffFamilyDesk from '../../components/comms/StaffFamilyDesk';
+import StaffCare from '../../components/care/StaffCare';
 import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
 import OmrDesk from '../../components/omr/OmrDesk';
@@ -25,7 +25,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'studio', 'assessments', 'omr'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -537,6 +537,7 @@ const TeacherDashboard = () => {
                   ['safetyDesk', 'Gate & safety', ShieldAlert],
                   ['earlyYears', 'Nursery', Users],
                   ['familyDesk', 'Family messages', Mail],
+                  ['careDesk', 'Student care', HeartPulse],
                   ['timetablePlan', 'Timetable & cover', Calendar],
                   ['staff', 'My staff record', Users],
                   ['assessments', 'Quizzes & exams', ClipboardList],
@@ -2244,6 +2245,7 @@ const TeacherDashboard = () => {
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'earlyYears' && <EarlyDesk />}
             {activeTab === 'familyDesk' && <StaffFamilyDesk />}
+            {activeTab === 'careDesk' && <StaffCare />}
             {activeTab === 'timetablePlan' && <TeacherTimetableDesk meId={profileData?._id} />}
             {activeTab === 'today' && <TeacherToday onNavigate={setActiveTab} />}
 

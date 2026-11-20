@@ -248,6 +248,11 @@ exports.requestAccess = wrap('requestAccess', async (req, res) => {
   await N.notify({ schoolId: sid(req), recipients: await S.holders(sid(req), 'care.safeguarding.lead', req.user.userId), title: others.length ? 'Emergency access to a confidential case was requested' : 'Emergency access to a confidential case was used', body: `${k.number} by ${req.actorName || 'staff'}.`, type: 'safety', link: '#/care', key: `care-bg:${doc._id}`, urgent: true });
   res.status(201).json({ access: doc, approved: !others.length });
 });
+// Ask by case number, so nobody has to open a case they cannot see to find the button
+exports.requestAccessByNumber = wrap('requestAccessByNumber', async (req, res) => {
+  const num = clean((req.body || {}).number, 30).toUpperCase(); const k = num ? await CareCase.findOne({ schoolId: sid(req), number: num }).select('_id confidential') : null;
+  if (!k || !k.confidential) return bad(res, 404, 'No confidential case has that number.'); req.params.id = String(k._id); return exports.requestAccess(req, res);
+});
 exports.listAccess = wrap('listAccess', async (req, res) => {
   const c = await S.ctx(req); if (!c.dsl) return bad(res, 403, 'Safeguarding leads only.');
   const rows = await CareAccess.find({ schoolId: sid(req), ...(req.query.status ? { status: String(req.query.status) } : {}) }).sort({ createdAt: -1 }).limit(100); res.json({ access: rows });

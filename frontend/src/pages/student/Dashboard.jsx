@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, Clock, ClipboardList, LayoutGrid, 
   MessageSquare, Sparkles, Lock, User, FileText, Send, Image, History, 
-  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar 
-} from 'lucide-react';
+  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import TakeQuiz from '../../components/assess/TakeQuiz';
 import FamilyDesk from '../../components/attendance/FamilyDesk';
+import FamilyCare from '../../components/care/FamilyCare';
 import apiClient from '../../utils/apiClient';
 import usePlan from '../../utils/usePlan';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -30,7 +30,7 @@ const StudentDashboard = () => {
   const [uploadingHomeworkId, setUploadingHomeworkId] = useState(null);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes'];
+    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -319,6 +319,7 @@ const StudentDashboard = () => {
                   ['homework', 'My Homework', ClipboardList],
                   ['attendance', 'Roster & Attendance', CheckCircle],
                   ['desk', 'Leave, alerts & check-in', Bell],
+                  ['support', 'Wellbeing & support', HeartPulse],
                   ['quizzes', 'Quizzes & exams', ClipboardList],
                   ['documents', 'My documents', FileText],
                   ['notices', 'Notice Board', Bell],
@@ -796,6 +797,7 @@ const StudentDashboard = () => {
 
         {activeSubTab === 'documents' && <MyDocuments />}
         {activeSubTab === 'quizzes' && <TakeQuiz />}
+        {activeSubTab === 'support' && <FamilyCare role="student" />}
         {activeSubTab === 'desk' && <FamilyDesk role="student" kids={profileData ? [{ _id: profileData._id, name: profileData.name }] : []} />}
 
         {/* TAB 1.7: ATTENDANCE (once a day, marked by the class head master) */}

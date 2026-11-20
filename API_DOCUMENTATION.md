@@ -1347,3 +1347,30 @@ Rules worth knowing:
 - **Meeting days.** Publishing creates a slot per teacher per session. Booking is a conditional write, so two families racing for one time cannot both get it; a family cannot hold overlapping times, book the same teacher about the same child twice, or exceed the day's limit. Families can cancel until `cancelHoursBefore`; staff cancel with a reason and the family is told. The teacher's private note is never shown to the family; the summary is.
 - **Reading a teacher's conversation as an administrator is recorded** in the audit log.
 - **Status codes.** 400 invalid, 403 denied, 404 not in your school or not yours, 409 conflict (already booked, limit, closed), 422 wrong state, 429 rate limit.
+
+## Student care (E21) — `/api/care`
+Support cases, concerns, health and medicine, adjustments, appointments, goals, mentors, career pathways, staff training, emergency access and privacy requests. Staff reach the screens as **Student care**; parents as **Wellbeing**; students as **Wellbeing & support**. Permissions come from the permission fabric (`care.case.work`, `care.safeguarding.lead`, `care.health.manage`, `care.counsel`, `care.privacy.manage`); administrators hold them all.
+
+| Area | Routes |
+|---|---|
+| Who am I here | `GET /me` (what this person can do), `GET|PUT /settings` (admin), `GET /overview`, `GET /students?q=` (staff search), `GET /staff` |
+| Cases | `GET|POST /cases`, `GET|PATCH /cases/:id`, `POST /cases/:id/status|notes|actions|actions/:aid|referrals|referrals/:rid|circle|close|close/approve|reopen|access-request`, `DELETE /cases/:id/circle/:pid` |
+| Emergency access | `POST /access-request` (by case number), `GET /access-requests|access-requests/mine`, `POST /access-requests/:id/decide|revoke`, `GET /access-log` |
+| Concerns | `POST /reports` (everyone; `anonymous` allowed for students and parents; returns a receipt `code`), `GET /reports/status?code=`, staff: `GET /reports`, `GET /reports/:id`, `POST /reports/:id/reply|dismiss|convert` |
+| Health | `GET /health/summary|alerts|proposals|plan/:studentId|medication/today|incidents`, `PUT /health/plan/:studentId`, `POST /health/plan/:studentId/medications|proposal`, `PUT /health/plan/:studentId/medications/:mid`, `POST /health/medication/log`, `POST /health/incidents` |
+| Families | `GET /family/health`, `POST /family/health/proposal` (parent), `POST /family/medication-consent` (parent), `GET /family/support` |
+| Support | `GET|POST /accommodations`, `POST /accommodations/:id/decide|end`, `GET /accommodations/class/:classId`, `GET /class/:classId`, `GET|POST /goals`, `POST /goals/:id/review`, `GET|POST /appointments`, `POST /appointments/:id/schedule|status`, `GET|POST /mentors`, `POST /mentors/:id/meeting|end`, `GET /careers/pathways`, `GET|PUT /careers/:studentId` |
+| Training | `GET|POST /training` |
+| Privacy | `GET|POST /privacy` (families and students raise), `POST /privacy/:id/decide` (`review`, `fulfil`, `refuse`), `GET /privacy/:id/export` |
+| Housekeeping | `GET /api/cron/care` (bearer `CRON_SECRET`; escalates unled cases and unseen concerns, flags reviews and expiring training, closes lapsed emergency access) |
+
+Rules worth knowing:
+- **Confidential cases (safeguarding, bullying)** are visible only to their lead, circle, opener and safeguarding leads. Ordinary case rights never reach them. Every read is logged.
+- **Emergency access** needs a different safeguarding lead to approve, lasts at most 60 minutes, is read-only and is recorded. A lead who is the only one may open it themselves; that is marked as sole approval.
+- **Closing a confidential case** needs a second lead to sign off (or a recorded sole sign-off). An adjustment needs a coordinator other than its proposer (or a recorded sole approval).
+- **Teachers must hold current safeguarding training** to join or lead a confidential case.
+- **Anonymous concerns** store no person, only a hash of the receipt code. The code is the only way back to the reply. There is a daily limit per person.
+- **Medicine is given only with a parent's consent**, once per slot per day. Changing the name, dose or times removes the consent. Teachers see an emergency alert view only; every full plan read is logged.
+- **Counselling is private.** Sessions are not shown to parents or other staff, and the reason is only shown to the counsellor.
+- **Privacy requests** have a due date. An access export leaves out cases, notes, concerns and counselling reasons. Erasure removes goals, careers and past appointments and keeps the health plan and any cases under a legal hold, and says so.
+- **Status codes.** 403 denied, 404 not in your school or not yours, 409 conflict (already decided or closed), 422 invalid, 423 locked (training lapsed), 428 second person needed, 429 rate limit.
