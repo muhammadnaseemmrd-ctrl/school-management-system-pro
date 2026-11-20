@@ -44,7 +44,13 @@ async function ensureSchema() {
       await query('SELECT pg_advisory_xact_lock(727274)');
       const again = await query(`SELECT v FROM pgdoc_meta WHERE k = 'schema_hash'`);
       if (again.rows[0] && again.rows[0].v === hash) return;
-      for (const s of stmts) await query(s);
+      // One round trip per batch instead of per statement: hundreds of sequential CREATE ... IF NOT EXISTS calls to a
+      // remote Postgres can take longer than a serverless function is allowed to run after a deploy.
+      if (db.info().driver === 'pg') {
+        for (let i = 0; i < stmts.length; i += 40) await query(stmts.slice(i, i + 40).join(';\n'));
+      } else {
+        for (const s of stmts) await query(s);
+      }
       await query(`INSERT INTO pgdoc_meta (k, v) VALUES ('schema_hash', $1) ON CONFLICT (k) DO UPDATE SET v = EXCLUDED.v`, [hash]);
     });
   }
