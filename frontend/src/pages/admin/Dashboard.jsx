@@ -2351,7 +2351,7 @@ const AdminDashboard = () => {
                               <div className="flex justify-between items-start gap-3">
                                 <div>
                                   <h3 className="text-base font-black text-[#1b2837] group-hover:text-[#2a5cac] transition">{stdLabel}</h3>
-                                  <p className="text-[10px] text-gray-500 font-mono mt-0.5">
+                                  <p className="text-[10px] text-[#5b6b7b] font-mono mt-0.5">
                                     Total Divisions: {divs.length}
                                   </p>
                                 </div>
@@ -2420,7 +2420,7 @@ const AdminDashboard = () => {
                           <div className="flex justify-between items-start gap-2">
                             <div>
                               <h3 className="font-bold text-base text-[#1b2837] group-hover:text-[#2a5cac] transition">{sub.name}</h3>
-                              <p className="text-[10px] text-gray-500 font-mono mt-0.5">Code: {sub.code}</p>
+                              <p className="text-[10px] text-[#5b6b7b] font-mono mt-0.5">Code: {sub.code}</p>
                             </div>
                             <div className="flex gap-1">
                               <button
@@ -2567,7 +2567,7 @@ const AdminDashboard = () => {
                             </button>
                             <div>
                               <h3 className="text-xl font-black text-[#1b2837]">{examList[0]?.name}</h3>
-                              <p className="text-xs text-gray-500 font-mono mt-0.5">
+                              <p className="text-xs text-[#5b6b7b] font-mono mt-0.5">
                                 📅 Date: {new Date(date).toLocaleDateString()} | Max: {maxMarks} | Pass: {passingMarks}
                               </p>
                               <p className="text-[10px] text-[#5b6b7b] font-semibold mt-1">
@@ -2692,7 +2692,7 @@ const AdminDashboard = () => {
                               <div className="flex justify-between items-start gap-3">
                                 <div>
                                   <h3 className="text-lg font-black text-[#1b2837] group-hover:text-[#2a5cac] transition">{examName}</h3>
-                                  <p className="text-[10px] text-gray-500 font-mono mt-0.5">
+                                  <p className="text-[10px] text-[#5b6b7b] font-mono mt-0.5">
                                     📅 Date: {new Date(date).toLocaleDateString()}
                                   </p>
                                 </div>
@@ -3193,7 +3193,7 @@ const AdminDashboard = () => {
                               >
                                 Select All
                               </button>
-                              <span className="text-[10px] text-gray-400">|</span>
+                              <span className="text-[10px] text-[#5b6b7b]">|</span>
                               <button
                                 type="button"
                                 onClick={() => setSubjectForm(prev => ({ ...prev, standards: [] }))}
@@ -3264,7 +3264,7 @@ const AdminDashboard = () => {
                                         
                                         <div className="space-y-2">
                                           <div className="flex flex-col gap-0.5">
-                                            <span className="text-[10px] text-gray-500 font-bold">Total Yearly:</span>
+                                            <span className="text-[10px] text-[#5b6b7b] font-bold">Total Yearly:</span>
                                             <input
                                               type="number"
                                               required
@@ -3278,7 +3278,7 @@ const AdminDashboard = () => {
                                           </div>
 
                                           <div className="flex flex-col gap-0.5">
-                                            <span className="text-[10px] text-gray-500 font-bold">Duration:</span>
+                                            <span className="text-[10px] text-[#5b6b7b] font-bold">Duration:</span>
                                             <select
                                               value={currentDuration}
                                               onChange={(e) => updateField('lectureDuration', e.target.value)}
@@ -3379,7 +3379,7 @@ const AdminDashboard = () => {
                                 >
                                   Select All
                                 </button>
-                                <span className="text-[10px] text-gray-400">|</span>
+                                <span className="text-[10px] text-[#5b6b7b]">|</span>
                                 <button
                                   type="button"
                                   onClick={() => setExamForm(prev => ({ ...prev, standards: [] }))}
@@ -3424,7 +3424,7 @@ const AdminDashboard = () => {
                           type="text"
                           disabled
                           value={examForm.standards?.[0] ? `Standard ${examForm.standards[0]}` : 'N/A'}
-                          className="w-full rounded-xl border border-[#e3e7e7] bg-gray-100 px-3 py-2 text-sm outline-none cursor-not-allowed"
+                          className="w-full rounded-xl border border-[#e3e7e7] bg-[#f1f2f2] px-3 py-2 text-sm outline-none cursor-not-allowed"
                         />
                       </div>
                     )}
@@ -3700,7 +3700,7 @@ const AdminDashboard = () => {
                                       ? 'bg-rose-500/10 text-rose-700'
                                       : notice.category === 'Result'
                                         ? 'bg-emerald-500/10 text-emerald-700'
-                                        : 'bg-gray-500/10 text-gray-700'
+                                        : 'bg-[#5b6b7b]/10 text-[#3b4a5c]'
                               }`}>
                                 {notice.category}
                               </span>
@@ -4308,7 +4308,7 @@ const AdminDashboard = () => {
                                       <div className="hidden print:block mb-4 text-center">
                                         <h1 className="text-xl font-black text-[#1b2837]">{schoolName || 'School Hub'}</h1>
                                         <h2 className="text-md font-bold text-[#2a5cac]">Class Timetable — Std {cls.standard} ({cls.division})</h2>
-                                        <p className="text-[10px] text-gray-500">Academic Year: 2026-2027</p>
+                                        <p className="text-[10px] text-[#5b6b7b]">Academic Year: 2026-2027</p>
                                       </div>
 
                                       {ttEditClassId === cls._id && (
@@ -4364,7 +4364,7 @@ const AdminDashboard = () => {
                                                   const tdayForCell = classTTs.find(t => t.dayOfWeek?.toLowerCase() === day.toLowerCase());
                                                   const slotMatch = tdayForCell?.slots?.find(sl => `${sl.startTime} - ${sl.endTime}` === slot);
                                                   const cellBody = cell || (
-                                                    <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
+                                                    <div className="p-1 bg-[#f7f6f2] border border-dashed border-[#e3e7e7] rounded-lg text-center text-[9px] text-[#5b6b7b] font-bold">
                                                       Free Period
                                                     </div>
                                                   );
@@ -4472,7 +4472,7 @@ const AdminDashboard = () => {
                                       <div className="hidden print:block mb-4 text-center">
                                         <h1 className="text-xl font-black text-[#1b2837]">{schoolName || 'School Hub'}</h1>
                                         <h2 className="text-md font-bold text-[#2a5cac]">Teacher Schedule — {teacher.name}</h2>
-                                        <p className="text-[10px] text-gray-500">Employee ID: {teacher.employeeId || ''} | Dept: {teacher.department || ''}</p>
+                                        <p className="text-[10px] text-[#5b6b7b]">Employee ID: {teacher.employeeId || ''} | Dept: {teacher.department || ''}</p>
                                       </div>
 
                                       <div className="min-w-full overflow-x-auto border border-[#e3e7e7] rounded-xl bg-white shadow-2xs">
@@ -4522,7 +4522,7 @@ const AdminDashboard = () => {
                                                   return (
                                                     <td key={slot} className="p-1 border-r border-[#e3e7e7]/40 last:border-r-0 min-w-[100px]">
                                                       {cell || (
-                                                        <div className="p-1 bg-gray-50 border border-dashed border-gray-150 rounded-lg text-center text-[9px] text-gray-300 font-bold">
+                                                        <div className="p-1 bg-[#f7f6f2] border border-dashed border-[#e3e7e7] rounded-lg text-center text-[9px] text-[#5b6b7b] font-bold">
                                                           Free Period
                                                         </div>
                                                       )}
@@ -6102,13 +6102,13 @@ const AdminDashboard = () => {
                                       Download File
                                     </a>
                                   ) : (
-                                    <p className="text-gray-400 mt-1">Not Uploaded</p>
+                                    <p className="text-[#5b6b7b] mt-1">Not Uploaded</p>
                                   )}
                                 </div>
                               );
                             })
                           ) : (
-                            <p className="italic text-gray-400">No documents uploaded.</p>
+                            <p className="italic text-[#5b6b7b]">No documents uploaded.</p>
                           )}
                         </div>
                       </div>
@@ -6153,17 +6153,17 @@ const AdminDashboard = () => {
                           <div className="p-5 border border-[#e3e7e7] bg-white rounded-2xl space-y-1 text-center">
                             <p className="text-[10px] uppercase font-bold text-[#5b6b7b]">Total Annual Fee</p>
                             <p className="text-2xl font-black text-[#2a5cac]">${totalAmount}</p>
-                            <p className="text-xs text-gray-400">Standard {struct.standard}</p>
+                            <p className="text-xs text-[#5b6b7b]">Standard {struct.standard}</p>
                           </div>
                           <div className="p-5 border border-[#e3e7e7] bg-white rounded-2xl space-y-1 text-center">
                             <p className="text-[10px] uppercase font-bold text-[#5b6b7b]">Total Paid</p>
                             <p className="text-2xl font-black text-emerald-700">${totalPaid}</p>
-                            <p className="text-xs text-gray-400">{paidCount} of {installmentsCount} installments</p>
+                            <p className="text-xs text-[#5b6b7b]">{paidCount} of {installmentsCount} installments</p>
                           </div>
                           <div className="p-5 border border-[#e3e7e7] bg-white rounded-2xl space-y-1 text-center">
                             <p className="text-[10px] uppercase font-bold text-[#5b6b7b]">Pending Balance</p>
                             <p className="text-2xl font-black text-rose-700">${pendingAmount}</p>
-                            <p className="text-xs text-gray-400">{installmentsCount - paidCount} installments pending</p>
+                            <p className="text-xs text-[#5b6b7b]">{installmentsCount - paidCount} installments pending</p>
                           </div>
                         </div>
 

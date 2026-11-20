@@ -21,7 +21,7 @@ const useList = (path, key, params = {}) => {
   return { ...s, setPage, reload: load };
 };
 
-const CheckIcon = ({ c }) => (c.ok === true ? <CheckCircle2 className="h-4 w-4 shrink-0 text-[#2c776c]" /> : c.ok === false ? (c.warn ? <AlertTriangle className="h-4 w-4 shrink-0 text-[#b86650]" /> : <XCircle className="h-4 w-4 shrink-0 text-[#b3261e]" />) : <MinusCircle className="h-4 w-4 shrink-0 text-[#5b6b7b]" />);
+const CheckIcon = ({ c }) => (c.ok === true ? <CheckCircle2 className="h-4 w-4 shrink-0 text-[#2c776c]" /> : c.ok === false ? (c.warn ? <AlertTriangle className="h-4 w-4 shrink-0 text-[#8a4636]" /> : <XCircle className="h-4 w-4 shrink-0 text-[#b3261e]" />) : <MinusCircle className="h-4 w-4 shrink-0 text-[#5b6b7b]" />);
 
 const DrillModal = ({ drill, onClose }) => (
   <Modal title={`Restore drill · ${drill.schoolName}`} onClose={onClose} wide>

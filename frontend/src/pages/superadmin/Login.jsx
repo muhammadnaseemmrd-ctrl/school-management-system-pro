@@ -65,7 +65,7 @@ const SuperAdminLogin = () => {
             {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
-        <p className="mt-6 text-center text-xs text-[#8a97a5]">Restricted area for the platform owner. <Link to="/login" className="font-bold text-[#c9d6ea] underline">School login</Link></p>
+        <p className="mt-6 text-center text-xs text-[#5b6b7b]">Restricted area for the platform owner. <Link to="/login" className="font-bold text-[#c9d6ea] underline">School login</Link></p>
       </div>
     </div>
   );

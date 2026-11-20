@@ -9,7 +9,7 @@ export const STATUS = {
   HalfDay: { label: 'Half day', chip: 'bg-amber-50 text-amber-800 border-amber-200', cell: 'bg-amber-400 text-white', soft: 'bg-amber-50 border-amber-200', dot: 'bg-amber-400', icon: LogOut },
   Absent: { label: 'Absent', chip: 'bg-[#fff1f2] text-[#9f1239] border-[#fecdd3]', cell: 'bg-[#f43f5e] text-white', soft: 'bg-[#fff1f2] border-[#fecdd3]', dot: 'bg-[#f43f5e]', icon: XCircle },
   Leave: { label: 'On leave', chip: 'bg-[#eef2f8] text-[#234c91] border-[#c9d6ea]', cell: 'bg-[#5b87c9] text-white', soft: 'bg-[#eef2f8] border-[#c9d6ea]', dot: 'bg-[#5b87c9]', icon: Palmtree },
-  None: { label: 'Not marked yet', chip: 'bg-stone-100 text-stone-600 border-stone-200', cell: 'bg-stone-100 text-stone-400', soft: 'bg-stone-50 border-stone-200', dot: 'bg-stone-300', icon: CircleSlash },
+  None: { label: 'Not marked yet', chip: 'bg-[#f1f2f2] text-[#5b6b7b] border-[#e3e7e7]', cell: 'bg-[#f1f2f2] text-[#5b6b7b]', soft: 'bg-[#f7f6f2] border-[#e3e7e7]', dot: 'bg-[#a9b4bf]', icon: CircleSlash },
 };
 
 export const STATUS_ORDER = ['Present', 'Late', 'HalfDay', 'Absent', 'Leave'];
@@ -67,7 +67,7 @@ export const MonthCalendar = ({ month, onMonthChange, byDate, today, selected, o
             <button
               key={key} type="button" disabled={!rec}
               onClick={() => onSelect && onSelect(selected === key ? null : key)}
-              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#f7f6f2]/60 text-[#a9b4bf]' : 'bg-stone-50 text-stone-300'} ${key === today ? 'ring-2 ring-[#2a5cac] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#1b2837]' : ''}`}
+              className={`h-11 rounded-xl text-sm font-bold transition sm:h-12 ${rec ? `${st.cell} cursor-pointer hover:scale-105` : weekend ? 'bg-[#f7f6f2]/60 text-[#5b6b7b]' : 'bg-[#f7f6f2] text-[#5b6b7b]'} ${key === today ? 'ring-2 ring-[#2a5cac] ring-offset-1' : ''} ${selected === key ? 'scale-105 ring-2 ring-[#1b2837]' : ''}`}
             >
               {day}
             </button>

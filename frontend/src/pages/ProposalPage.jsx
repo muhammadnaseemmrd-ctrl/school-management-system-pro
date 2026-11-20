@@ -23,7 +23,7 @@ export default function ProposalPage() {
       <article className="mx-auto max-w-3xl rounded-2xl border border-[#e3e7e7] bg-white p-6 shadow-sm sm:p-10 print:border-0 print:shadow-none">
         <header className="flex flex-wrap items-start justify-between gap-4 border-b border-[#e3e7e7] pb-6">
           <div><p className="font-display text-2xl font-bold text-[#2a5cac]">{seller.name}</p><p className="mt-1 text-sm text-[#5b6b7b]">{[seller.address, seller.email, seller.phone].filter(Boolean).join(' · ')}</p></div>
-          <div className="text-end"><p className="text-xs font-bold uppercase tracking-widest text-[#b86650]">Quote</p><p className="font-mono text-lg font-bold">{q.number}</p><p className="mt-1 text-sm text-[#5b6b7b]">{day(q.createdAt)}</p></div>
+          <div className="text-end"><p className="text-xs font-bold uppercase tracking-widest text-[#8a4636]">Quote</p><p className="font-mono text-lg font-bold">{q.number}</p><p className="mt-1 text-sm text-[#5b6b7b]">{day(q.createdAt)}</p></div>
         </header>
         <section className="mt-6 grid gap-1 sm:grid-cols-2"><div><p className="text-xs font-bold uppercase tracking-widest text-[#5b6b7b]">Prepared for</p><p className="font-semibold">{q.schoolName}</p><p className="text-sm text-[#3b4a5c]">{q.buyerName}</p></div>
           <div className="sm:text-end"><p className="text-xs font-bold uppercase tracking-widest text-[#5b6b7b]">Status</p><p className={`font-semibold ${q.status === 'Accepted' ? 'text-[#2c776c]' : q.status === 'Sent' ? 'text-[#2a5cac]' : 'text-[#8a3a28]'}`}>{badge}</p>{open && <p className="text-sm text-[#3b4a5c]">Valid until {day(q.validUntil)}</p>}</div></section>

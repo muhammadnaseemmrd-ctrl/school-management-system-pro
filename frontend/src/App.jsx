@@ -72,7 +72,9 @@ function App() {
   return (
     <Router>
       <div className="min-h-screen bg-canvas">
+        <a href="#main-content" onClick={(e) => { const m = document.getElementById('main-content'); if (m) { e.preventDefault(); m.focus(); m.scrollIntoView(); } }} className="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-[100] focus:rounded-xl focus:bg-[#2a5cac] focus:px-4 focus:py-2 focus:text-sm focus:font-black focus:text-white">Skip to content</a>
         {isAuthenticated && <Navbar />}
+        <div id="main-content" tabIndex={-1} className="outline-none">
         <Suspense fallback={<div className="mx-auto max-w-7xl space-y-4 px-4 py-8" aria-busy="true" aria-label="Loading"><div className="skeleton h-10 w-64" /><div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton h-28" />)}</div></div>}>
         <Routes>
           <Route
@@ -156,6 +158,7 @@ function App() {
           )}
         </Routes>
         </Suspense>
+        </div>
       </div>
     </Router>
   );

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck } from 'lucide-react';
+import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck, MoreHorizontal } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyQuizResults from '../../components/assess/FamilyQuizResults';
@@ -25,7 +25,7 @@ const Card = ({ className = '', children }) => (
 const addDays = (key, n) => { const d = new Date(`${key}T00:00:00Z`); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().split('T')[0]; };
 const classLabel = (c) => (c ? `${c.standard}-${c.division}` : '—');
 const BANNER = {
-  Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#5b87c9]', None: 'bg-stone-400',
+  Present: 'bg-emerald-700', Late: 'bg-[#8a4636]', HalfDay: 'bg-amber-700', Absent: 'bg-rose-700', Leave: 'bg-[#2a5cac]', None: 'bg-[#5b6b7b]',
 };
 
 const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
@@ -35,6 +35,7 @@ const ParentDashboard = () => {
   const { t, fmtDate, isRtl } = useLang();
   const { has } = usePlan();
   const [nursery, setNursery] = useState(false);
+  const [more, setMore] = useState(false);
   useEffect(() => { apiClient.get('/early/family/children').then((r) => setNursery((r.data.children || []).length > 0)).catch(() => setNursery(false)); }, []);
   const TABS = useMemo(() => ALL_TABS.filter(([id]) => (id === 'fees' ? has('fees') : id === 'notices' ? has('notices') : id === 'messages' ? has('messages') : id === 'nursery' ? nursery : true)), [has, nursery]);
   const [tab, setTab] = useState(() => {
@@ -109,13 +110,27 @@ const ParentDashboard = () => {
         </div>
 
         {/* big, simple tab buttons (bottom bar on phones) */}
-        <nav className={`fixed inset-x-0 bottom-0 z-30 grid ${TABS.length === 5 ? 'grid-cols-5' : TABS.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} border-t border-[#e3e7e7] bg-[#ffffff] md:static md:z-auto md:rounded-2xl md:border md:shadow-sm`}>
-          {TABS.map(([id, label, Icon]) => (
-            <button key={id} onClick={() => setTab(id)} className={`flex flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:flex-row md:justify-center md:gap-2 md:text-sm ${tab === id ? 'bg-[#2a5cac] text-white md:rounded-2xl' : 'text-[#3b4a5c] hover:bg-[#f7f6f2] md:rounded-2xl'}`}>
-              <Icon className="h-6 w-6 md:h-5 md:w-5" /> {t(label)}
+        <nav aria-label={t('Main sections')} className={`fixed inset-x-0 bottom-0 z-30 grid ${TABS.length === 4 ? "grid-cols-4" : TABS.length > 4 ? "grid-cols-5" : "grid-cols-3"} border-t border-[#e3e7e7] bg-[#ffffff] md:static md:z-auto md:grid-cols-4 md:rounded-2xl md:border md:shadow-sm`}>
+          {TABS.map(([id, label, Icon], i) => (
+            <button key={id} onClick={() => { setTab(id); setMore(false); }} aria-current={tab === id ? 'page' : undefined} className={`${i >= 4 && TABS.length > 4 ? 'hidden md:flex' : 'flex'} flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:flex-row md:justify-center md:gap-2 md:text-sm ${tab === id ? 'bg-[#2a5cac] text-white md:rounded-2xl' : 'text-[#3b4a5c] hover:bg-[#f7f6f2] md:rounded-2xl'}`}>
+              <Icon className="h-6 w-6 md:h-5 md:w-5" aria-hidden="true" /> {t(label)}
             </button>
           ))}
+          {TABS.length > 4 && (
+            <button onClick={() => setMore((v) => !v)} aria-expanded={more} aria-controls="parent-more" className={`flex flex-col items-center gap-1 px-2 py-3 text-xs font-black transition md:hidden ${TABS.slice(4).some(([id]) => id === tab) ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#f7f6f2]'}`}>
+              <MoreHorizontal className="h-6 w-6" aria-hidden="true" /> {t('More')}
+            </button>
+          )}
         </nav>
+        {more && TABS.length > 4 && (
+          <div id="parent-more" role="group" aria-label={t('More sections')} className="fixed inset-x-0 bottom-[4.5rem] z-30 mx-3 grid grid-cols-2 gap-2 rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-3 shadow-xl md:hidden">
+            {TABS.slice(4).map(([id, label, Icon]) => (
+              <button key={id} onClick={() => { setTab(id); setMore(false); }} aria-current={tab === id ? 'page' : undefined} className={`flex items-center gap-2 rounded-2xl px-3 py-3 text-sm font-black ${tab === id ? 'bg-[#2a5cac] text-white' : 'bg-[#f7f6f2] text-[#3b4a5c]'}`}>
+                <Icon className="h-5 w-5" aria-hidden="true" /> {t(label)}
+              </button>
+            ))}
+          </div>
+        )}
 
         {loading ? (
           <div className="flex h-56 items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-[#2a5cac] border-t-transparent" /></div>

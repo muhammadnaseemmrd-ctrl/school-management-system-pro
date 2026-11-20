@@ -88,7 +88,7 @@ const NotificationBell = () => {
                   <span className={`block text-sm leading-snug text-[#1b2837] ${n.readAt ? 'font-semibold' : 'font-black'}`}>{n.title}</span>
                   {n.body && <span className="mt-0.5 block truncate text-xs text-[#5b6b7b]">{n.body}</span>}
                 </span>
-                <span className="text-[10px] font-bold text-[#8a97a5]">{ago(n.createdAt)}</span>
+                <span className="text-[10px] font-bold text-[#5b6b7b]">{ago(n.createdAt)}</span>
               </button>
             ))}
           </div>

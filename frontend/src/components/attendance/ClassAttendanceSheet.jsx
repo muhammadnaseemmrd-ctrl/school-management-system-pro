@@ -108,7 +108,7 @@ const ClassAttendanceSheet = ({ classId, onSaved }) => {
             <button type="button" onClick={() => changeDate(addDays(date, -1))} className="rounded-xl border border-[#e3e7e7] bg-white p-3 text-[#2a5cac] hover:bg-[#f7f6f2]" aria-label={t('Previous day')}><PrevIcon className="h-5 w-5" /></button>
             <label className="relative">
               <CalendarDays className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#2a5cac]" />
-              <input type="date" value={date} max={sheet.today} onChange={(e) => e.target.value && changeDate(e.target.value)} className="rounded-xl border border-[#e3e7e7] bg-white py-3 pe-3 ps-10 text-base font-bold text-[#1b2837] focus:border-[#2a5cac] focus:outline-none" />
+              <input type="date" aria-label="Date" value={date} max={sheet.today} onChange={(e) => e.target.value && changeDate(e.target.value)} className="rounded-xl border border-[#e3e7e7] bg-white py-3 pe-3 ps-10 text-base font-bold text-[#1b2837] focus:border-[#2a5cac] focus:outline-none" />
             </label>
             <button type="button" onClick={() => changeDate(addDays(date, 1))} disabled={isToday} className="rounded-xl border border-[#e3e7e7] bg-white p-3 text-[#2a5cac] hover:bg-[#f7f6f2] disabled:opacity-40" aria-label={t('Next day')}><NextIcon className="h-5 w-5" /></button>
             {!isToday && <button type="button" onClick={() => changeDate(sheet.today)} className="rounded-xl bg-[#2a5cac] px-4 py-3 text-sm font-bold text-white hover:bg-[#234c91]">{t('Today')}</button>}

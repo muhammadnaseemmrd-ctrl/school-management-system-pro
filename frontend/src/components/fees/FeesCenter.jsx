@@ -260,7 +260,7 @@ const Transport = ({ students, classes }) => {
           {routes.length === 0 && <p className="py-4 text-center text-sm italic text-[#5b6b7b]">Add your first route (e.g. "Route 1 - G-10").</p>}
           {routes.map((r) => (
             <div key={r._id} className="flex items-center gap-3 rounded-2xl border border-[#e3e7e7] bg-white px-3 py-2.5">
-              <div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{r.name}{!r.isActive && <span className="ml-2 text-[10px] text-stone-500">(inactive)</span>}</p><p className="text-[11px] text-[#5b6b7b]">{[r.vehicle, r.driverName, r.driverPhone].filter(Boolean).join(' · ')} · {r.students} student(s)</p></div>
+              <div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{r.name}{!r.isActive && <span className="ml-2 text-[10px] text-[#5b6b7b]">(inactive)</span>}</p><p className="text-[11px] text-[#5b6b7b]">{[r.vehicle, r.driverName, r.driverPhone].filter(Boolean).join(' · ')} · {r.students} student(s)</p></div>
               <b className="text-sm text-[#2a5cac]">{rs(r.monthlyFee)}</b>
               <button onClick={() => setRoute(r)} className="rounded-lg border border-[#e3e7e7] px-2 py-1 text-[11px] font-bold">Edit</button>
               <button onClick={() => delRoute(r)} className="rounded-lg border border-[#e3e7e7] p-1.5 text-[#be123c]"><Trash2 className="h-3.5 w-3.5" /></button>

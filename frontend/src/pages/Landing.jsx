@@ -18,7 +18,7 @@ const pkr = (n) => `Rs ${Number(n || 0).toLocaleString('en-PK')}`;
 const goTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
 const Eyebrow = ({ children }) => (
-  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b86650]">{children}</p>
+  <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#8a4636]">{children}</p>
 );
 
 const SectionHead = ({ eyebrow, title, text, center }) => (
@@ -67,7 +67,7 @@ const DashboardPreview = () => (
         </div>
       </div>
       <div className="mt-4 flex items-start gap-3 rounded-xl bg-[#fbf0ec] p-3">
-        <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#b86650]" />
+        <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-[#8a4636]" />
         <div>
           <p className="text-xs font-bold text-[#1b2837]">New notice: Parent–teacher meeting</p>
           <p className="text-[11px] text-[#7a4a3d]">Sent to parents and teachers</p>
@@ -149,7 +149,7 @@ export default function Landing() {
       <section className="px-5 pb-14 pt-12 lg:px-8 lg:pb-20 lg:pt-16">
         <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#b86650]">Built in Pakistan, for Pakistani schools</p>
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-[#8a4636]">Built in Pakistan, for Pakistani schools</p>
             <h1 className="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
               Run your whole school from one simple place.
             </h1>
@@ -367,7 +367,7 @@ export default function Landing() {
 
           {pricing.offers.length > 0 && (
             <div className="mx-auto mt-8 max-w-3xl rounded-3xl border border-[#e3b4a4] bg-[#fbf0ec] p-5 text-center">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#b86650]">Running now</p>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#8a4636]">Running now</p>
               {pricing.offers.slice(0, 2).map((o) => (
                 <p key={o.title} className="mt-2 font-bold text-[#1b2837]">
                   {o.title}

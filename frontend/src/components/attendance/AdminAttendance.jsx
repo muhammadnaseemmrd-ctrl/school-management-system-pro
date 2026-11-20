@@ -60,7 +60,7 @@ const AdminAttendance = ({ teachers = [], onChanged }) => {
           </div>
           <label className="relative">
             <CalendarDays className="pointer-events-none absolute start-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#2a5cac]" />
-            <input type="date" value={date} max={data?.today} onChange={(e) => e.target.value && load(e.target.value)} className="rounded-xl border border-[#e3e7e7] bg-white py-3 pe-3 ps-10 text-base font-bold text-[#1b2837] focus:border-[#2a5cac] focus:outline-none" />
+            <input type="date" aria-label="Date" value={date} max={data?.today} onChange={(e) => e.target.value && load(e.target.value)} className="rounded-xl border border-[#e3e7e7] bg-white py-3 pe-3 ps-10 text-base font-bold text-[#1b2837] focus:border-[#2a5cac] focus:outline-none" />
           </label>
         </div>
         {date && <p className="mt-3 text-sm font-semibold text-[#3b4a5c]">{fmtDate(date, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>}

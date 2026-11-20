@@ -157,7 +157,7 @@ const ParentsManager = () => {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">Full name</label><input required className={inputCls} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-                <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">Login email</label><input required type="email" disabled={modal !== 'create'} className={`${inputCls} disabled:bg-stone-100`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
+                <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">Login email</label><input required type="email" disabled={modal !== 'create'} className={`${inputCls} disabled:bg-[#f1f2f2]`} value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
                 <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">Phone</label><input className={inputCls} value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
                 <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">Relationship</label><select className={inputCls} value={form.relationship} onChange={(e) => setForm({ ...form, relationship: e.target.value })}><option>Father</option><option>Mother</option><option>Guardian</option></select></div>
                 <div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">{modal === 'create' ? 'Password' : 'New password (leave blank to keep)'}</label>

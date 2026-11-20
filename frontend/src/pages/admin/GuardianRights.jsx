@@ -23,7 +23,7 @@ const RightsBoxes = ({ value, onChange, keys, disabled }) => (
 
 const Chips = ({ rights, keys }) => (
   <div className="mt-1 flex flex-wrap gap-1">{keys.map((k) => (
-    <span key={k} className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${rights[k] ? 'bg-[#edf5f3] text-[#215a52]' : 'bg-[#f1f2f2] text-[#8a97a3] line-through'}`}>{LABEL[k]}</span>))}</div>
+    <span key={k} className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${rights[k] ? 'bg-[#edf5f3] text-[#215a52]' : 'bg-[#f1f2f2] text-[#5b6b7b] line-through'}`}>{LABEL[k]}</span>))}</div>
 );
 
 const GuardianRights = ({ studentId, studentName, parents, onClose }) => {

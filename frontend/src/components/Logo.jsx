@@ -17,7 +17,7 @@ const Logo = ({ size = 'md', subtitle, tone = 'dark', name = 'Aulensia' }) => {
       <LogoMark className={`${box} shrink-0`} />
       <div className="min-w-0">
         <p className={`flex items-baseline gap-2 font-display text-xl font-bold leading-tight tracking-tight ${tone === 'light' ? 'text-white' : 'text-[#1b2837]'}`}>
-          {name}<span lang="ur" dir="rtl" className={`font-urdu text-sm font-bold ${tone === 'light' ? 'text-[#d9826a]' : 'text-[#b86650]'}`}>اولینسیا</span>
+          {name}<span lang="ur" dir="rtl" className={`font-urdu text-sm font-bold ${tone === 'light' ? 'text-[#d9826a]' : 'text-[#8a4636]'}`}>اولینسیا</span>
         </p>
         {subtitle && <p className={`text-xs ${tone === 'light' ? 'text-[#c9d6ea]' : 'text-[#5b6b7b]'}`}>{subtitle}</p>}
       </div>

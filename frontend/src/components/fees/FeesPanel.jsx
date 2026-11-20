@@ -157,7 +157,7 @@ const FeesPanel = ({ studentId, studentName }) => {
           <div className="space-y-2">
             {data.proofs.map((p) => (
               <div key={p._id} className="flex items-start gap-3 rounded-2xl border border-[#e3e7e7] bg-white p-3">
-                <a href={p.screenshotUrl} target="_blank" rel="noopener noreferrer" className="shrink-0"><img src={p.screenshotUrl} alt="" className="h-14 w-14 rounded-lg border border-[#eef2f8] object-cover" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} /></a>
+                <a href={p.screenshotUrl} target="_blank" rel="noopener noreferrer" aria-label="Open payment proof" className="shrink-0"><img src={p.screenshotUrl} alt="" className="h-14 w-14 rounded-lg border border-[#eef2f8] object-cover" onError={(e) => { e.currentTarget.style.visibility = 'hidden'; }} /></a>
                 <div className="min-w-0 flex-1 text-xs">
                   <div className="flex flex-wrap items-center justify-between gap-2"><b className="text-sm text-[#1b2837]">{rs(p.totalAmount)}</b><StatusPill status={p.status === 'Pending' ? 'Under review' : p.status === 'Approved' ? 'Paid' : 'Rejected'} /></div>
                   <p className="mt-0.5 truncate text-[#3b4a5c]">{p.items.map((i) => i.label).join(', ')}</p>

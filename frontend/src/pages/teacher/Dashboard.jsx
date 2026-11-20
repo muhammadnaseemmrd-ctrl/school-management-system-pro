@@ -822,7 +822,7 @@ const TeacherDashboard = () => {
                                         ? 'bg-rose-500/10 text-rose-700'
                                         : notice.category === 'Result'
                                           ? 'bg-emerald-500/10 text-emerald-700'
-                                          : 'bg-gray-500/10 text-gray-700'
+                                          : 'bg-[#5b6b7b]/10 text-[#3b4a5c]'
                                 }`}>
                                   {notice.category}
                                 </span>
@@ -2215,7 +2215,7 @@ const TeacherDashboard = () => {
                                  return (
                                    <td key={slot} className="p-2 border-r border-[#e3e7e7]/40 last:border-r-0 min-w-[150px]">
                                      {cell || (
-                                       <div className="p-2 bg-gray-50 border border-dashed border-gray-200 rounded-xl text-center text-[10px] text-gray-300 font-bold">
+                                       <div className="p-2 bg-[#f7f6f2] border border-dashed border-[#e3e7e7] rounded-xl text-center text-[10px] text-[#5b6b7b] font-bold">
                                          Free Period
                                        </div>
                                      )}

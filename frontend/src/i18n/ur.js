@@ -1,6 +1,16 @@
 import landingUr from './landingUr';
 // Urdu dictionary. Keys are the English text used in the UI; anything missing falls back to English.
 const ur = {
+  "Wellbeing": "فلاح و بہبود",
+  "Quizzes & exams": "کوئز اور امتحانات",
+  "Permissions": "اجازتیں",
+  "Messages & help": "پیغامات اور مدد",
+  "Leave & alerts": "رخصت اور اطلاعات",
+  "Nursery": "نرسری",
+  "Skip to content": "مواد پر جائیں",
+  "More": "مزید",
+  "More sections": "مزید حصے",
+  "Main sections": "مرکزی حصے",
   "Aulensia": "اولینسیا",
   "Login portal": "لاگ اِن پورٹل",
   "Welcome back": "دوبارہ خوش آمدید",

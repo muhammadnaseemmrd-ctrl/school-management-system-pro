@@ -226,7 +226,7 @@ export default function SchoolRegistration() {
                       value={formData.schoolName}
                       onChange={handleChange}
                       placeholder="e.g. Allied Public School"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
                   </div>
                 </div>
@@ -239,7 +239,7 @@ export default function SchoolRegistration() {
                     value={formData.schoolCode}
                     onChange={handleChange}
                     placeholder="e.g. SCHOOL001"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                   <p className="mt-1 text-xs text-[#5b6b7b]">Used for login later.</p>
                 </div>
@@ -252,7 +252,7 @@ export default function SchoolRegistration() {
                     value={formData.adminName}
                     onChange={handleChange}
                     placeholder="e.g. Mr. Principal"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                 </div>
               </>
@@ -266,7 +266,7 @@ export default function SchoolRegistration() {
                     value={formData.schoolName}
                     onChange={handleChange}
                     placeholder="e.g. Allied Public School"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                 </div>
 
@@ -278,7 +278,7 @@ export default function SchoolRegistration() {
                     value={formData.schoolCodeForMember}
                     onChange={handleChange}
                     placeholder="e.g. SCHOOL001"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                 </div>
 
@@ -290,7 +290,7 @@ export default function SchoolRegistration() {
                     value={formData.name}
                     onChange={handleChange}
                     placeholder={role === 'teacher' ? 'e.g. Mr. Sharma' : 'e.g. Riya Patel'}
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                 </div>
               </>
@@ -306,7 +306,7 @@ export default function SchoolRegistration() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={role === 'admin' ? 'admin@school.com' : 'name@school.com'}
-                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                 />
               </div>
             </div>
@@ -323,7 +323,7 @@ export default function SchoolRegistration() {
                       value={formData.phone}
                       onChange={handleChange}
                       placeholder="+92 300 1234567"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
                   </div>
                 </div>
@@ -336,7 +336,7 @@ export default function SchoolRegistration() {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="Street or area name"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                   />
                 </div>
 
@@ -351,7 +351,7 @@ export default function SchoolRegistration() {
                         value={formData.city}
                         onChange={handleChange}
                         placeholder="City"
-                        className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                        className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       />
                     </div>
                   </div>
@@ -361,7 +361,7 @@ export default function SchoolRegistration() {
                       name="province"
                       value={formData.province}
                       onChange={handleChange}
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     >
                       <option value="">Select province</option>
                       {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
@@ -378,7 +378,7 @@ export default function SchoolRegistration() {
                   type="text" dir="ltr" name="referralCode" value={ref} maxLength={20} autoComplete="off"
                   onChange={(e) => setRef(e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, ''))}
                   placeholder="AG-XXXX"
-                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 font-mono outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 font-mono outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                 />
                 {ref.length >= 4 && !refState.checking && refState.valid === true && <p className="mt-1 text-xs text-[#215a52]">Partner code accepted{refState.name ? ` — ${refState.name} referred you` : ''}.</p>}
                 {ref.length >= 4 && !refState.checking && refState.valid === false && <p className="mt-1 text-xs text-[#8a4636]">We could not find that code. You can still register without it.</p>}
@@ -395,7 +395,7 @@ export default function SchoolRegistration() {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="At least 6 characters"
-                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -434,7 +434,7 @@ export default function SchoolRegistration() {
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   placeholder="Re-enter password"
-                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                  className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                 />
                 <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}

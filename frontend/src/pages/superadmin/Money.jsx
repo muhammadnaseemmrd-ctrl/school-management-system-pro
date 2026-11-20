@@ -354,13 +354,13 @@ export const LedgerTab = ({ onChanged }) => {
     <div className="page-ready space-y-6">
       <Card>
         <div className="flex flex-wrap items-center gap-3">
-          {data.ok ? <ShieldCheck className="h-6 w-6 text-[#2c776c]" /> : <AlertTriangle className="h-6 w-6 text-[#b86650]" />}
+          {data.ok ? <ShieldCheck className="h-6 w-6 text-[#2c776c]" /> : <AlertTriangle className="h-6 w-6 text-[#8a4636]" />}
           <div className="flex-1"><h3 className="font-semibold">{data.ok ? 'Books balance' : 'Books need attention'}</h3><p className="text-xs text-[#5b6b7b]">{data.unsettled ? `${data.unsettled} payment(s) not yet posted. ` : ''}Checks compare the ledger against payments, payouts and commissions.</p></div>
           <button disabled={busy} onClick={fix} className={btnGhost}>{busy ? 'Checking…' : 'Check and repair'}</button>
         </div>
         <ul className="mt-4 divide-y divide-[#e3e7e7]">{data.checks.map((c) => (
           <li key={c.name} className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm">
-            <span className="flex items-center gap-2">{c.ok ? <CheckCircle2 className="h-4 w-4 text-[#2c776c]" /> : <AlertTriangle className="h-4 w-4 text-[#b86650]" />}{c.name}</span>
+            <span className="flex items-center gap-2">{c.ok ? <CheckCircle2 className="h-4 w-4 text-[#2c776c]" /> : <AlertTriangle className="h-4 w-4 text-[#8a4636]" />}{c.name}</span>
             <span className="text-xs text-[#5b6b7b]" dir="ltr">{pkr(c.expected)} expected · {pkr(c.actual)} found</span>
           </li>))}</ul>
       </Card>

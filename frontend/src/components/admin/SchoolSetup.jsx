@@ -161,7 +161,7 @@ const PlanOffers = () => {
             <Card key={o._id} className="space-y-2 border-amber-300 bg-amber-50/60">
               <div className="flex items-center justify-between"><p className="text-base font-black text-[#1b2837]">🎁 {o.title}</p><span className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-black text-white">{o.discountType === 'percent' ? `${o.discountValue}% off` : `Rs ${o.discountValue} off`}</span></div>
               {o.description && <p className="text-xs text-[#3b4a5c]">{o.description}</p>}
-              <ul className="text-xs text-[#3b4a5c]">{Object.entries(o.prices).map(([k, p]) => <li key={k}>{p.label}: <s className="text-[#8a97a5]">{rs(p.original)}</s> <b className="text-emerald-700">{rs(p.discounted)}</b></li>)}</ul>
+              <ul className="text-xs text-[#3b4a5c]">{Object.entries(o.prices).map(([k, p]) => <li key={k}>{p.label}: <s className="text-[#5b6b7b]">{rs(p.original)}</s> <b className="text-emerald-700">{rs(p.discounted)}</b></li>)}</ul>
               <p className="text-[11px] font-semibold text-[#5b6b7b]">{o.code ? <>Code: <b className="font-mono text-[#2a5cac]">{o.code}</b> · </> : null}{o.validUntil ? `Valid until ${new Date(o.validUntil).toLocaleDateString()}` : 'No end date'}</p>
             </Card>
           ))}

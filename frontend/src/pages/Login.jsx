@@ -327,7 +327,7 @@ export default function Login() {
                       value={formData.schoolCode}
                       onChange={handleChange}
                       placeholder="e.g. SCHOOL001"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white uppercase"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white uppercase"
                     />
                   </div>
                 </div>
@@ -342,7 +342,7 @@ export default function Login() {
                       value={formData.email}
                       onChange={handleChange}
                       placeholder="admin@school.com"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
                   </div>
                 </div>
@@ -366,7 +366,7 @@ export default function Login() {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="Enter your password"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -414,7 +414,7 @@ export default function Login() {
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="e.g. user@school.com"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
                   </div>
@@ -471,7 +471,7 @@ export default function Login() {
                       value={resetCode}
                       onChange={(e) => setResetCode(e.target.value)}
                       placeholder="e.g. A1#B2"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white tracking-widest text-center font-bold"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white tracking-widest text-center font-bold"
                       required
                     />
                   </div>
@@ -550,7 +550,7 @@ export default function Login() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="At least 6 characters"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
                     <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
@@ -591,7 +591,7 @@ export default function Login() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm your password"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#8a97a5] focus:border-[#2a5cac] focus:bg-white"
+                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
                     <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">

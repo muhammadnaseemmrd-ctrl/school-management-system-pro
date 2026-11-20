@@ -327,13 +327,13 @@ const SuperAdminDashboard = () => {
                 {Object.entries(plans).map(([k, p], i) => (
                   <Card key={k} className={`space-y-3 ${p.isActive === false ? 'opacity-60' : ''}`}>
                     <div className="flex items-center justify-between"><span className="inline-block rounded-full px-3 py-1 text-[11px] font-black uppercase text-white" style={{ background: planColor(k, i) }}>{p.label}</span>
-                      {p.isActive === false && <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-bold text-stone-600">Hidden</span>}</div>
+                      {p.isActive === false && <span className="rounded-full bg-[#e3e7e7] px-2 py-0.5 text-[10px] font-bold text-[#5b6b7b]">Hidden</span>}</div>
                     <div><p className="text-3xl font-black">{pkr(p.pricePKR)}<span className="text-sm font-semibold text-[#5b6b7b]"> / month</span></p>
                       {p.yearlyPricePKR > 0 && <p className="text-xs font-semibold text-[#5b6b7b]">or {pkr(p.yearlyPricePKR)} / year</p>}</div>
                     {p.description && <p className="text-xs text-[#5b6b7b]">{p.description}</p>}
                     <p className="text-sm text-[#3b4a5c]">{p.studentLimit ? `Up to ${p.studentLimit}` : 'Unlimited'} students · {p.teacherLimit ? `Up to ${p.teacherLimit}` : 'Unlimited'} teachers</p>
                     <ul className="grid grid-cols-1 gap-1 text-xs">
-                      {featureList.map((f) => (<li key={f.key} className={p.features?.[f.key] ? 'font-semibold text-emerald-800' : 'text-[#8a97a5] line-through'}>{p.features?.[f.key] ? '✓' : '✕'} {f.label}</li>))}
+                      {featureList.map((f) => (<li key={f.key} className={p.features?.[f.key] ? 'font-semibold text-emerald-800' : 'text-[#5b6b7b] line-through'}>{p.features?.[f.key] ? '✓' : '✕'} {f.label}</li>))}
                     </ul>
                     <div className="flex gap-2 pt-1">
                       <button onClick={() => setPlanForm({ ...p, slug: k, _editing: true, features: { ...(p.features || {}) } })} className="flex-1 rounded-xl border border-[#e3e7e7] bg-white px-3 py-2 text-xs font-bold text-[#2a5cac] hover:bg-[#f7f6f2]"><Pencil className="mr-1 inline h-3.5 w-3.5" />Edit</button>
