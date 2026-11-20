@@ -232,3 +232,16 @@ Teachers and administrators find **Paper exams (OMR)** in the dashboard menu.
 6. **Export** the grades as a CSV once approved.
 
 Photos are kept with the sitting so any decision can be checked later. This version needs a network connection to send photos, and does not mark written answers.
+
+## Nursery and early years (E15)
+Administrators and teachers find **Nursery** in the dashboard menu; parents see a **Nursery** tab when their child is in a room.
+
+1. **Set up (administrator).** Open *Rooms and settings*. Create a room, pick an age group, a lead and carers, then place children in it. Check the children-per-adult figures under *School settings*: they are the school's own numbers, so make sure they match what applies to you.
+2. **Each morning (carers).** *Today* shows who is expected, here, collected or absent. Check children in by naming who brought them; release them to a person on the collection list. Press *I am in the room* so the adult count is right. A red banner says when a room needs another adult.
+3. **Log the day.** Tick children and log meals, drinks, naps, toilet, mood and notes in one go. Change one child's amount without redoing the rest. A flaky connection never records the same batch twice.
+4. **Family diary.** *Make drafts from today's log*, add a photo or a comment, then send for review. A different person reviews it before the family sees anything. Photos appear only for children whose family has agreed.
+5. **Learning.** Record what you saw a child do (Exploring, Practising, Confident). *Milestones* shows where the room has not yet been looked at. There are no scores or rankings. Copy a built-in framework to make your own.
+6. **Activities.** Browse or write activities, plan the week for a room, print tracing and observation sheets. Activities with small parts for under-threes need an adult close by.
+7. **Pickup changes.** When a family asks to add, pause or remove a collector, phone them on the number the school already holds (or see them, or use a signed form), record how you confirmed it, then apply. Every guardian is told.
+
+Parents read the diary, see today's status, update health information (the nursery confirms it with them first), change what the nursery may share, and ask for collector changes.

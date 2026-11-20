@@ -4,6 +4,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyQuizResults from '../../components/assess/FamilyQuizResults';
 import FamilyDesk from '../../components/attendance/FamilyDesk';
+import FamilyNursery from '../../components/early/FamilyNursery';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
@@ -24,16 +25,18 @@ const BANNER = {
   Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#5b87c9]', None: 'bg-stone-400',
 };
 
-const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
 const fileName = (u = '') => decodeURIComponent((u.split('?')[0].split('/').pop() || 'Attachment')).slice(0, 40);
 
 const ParentDashboard = () => {
   const { t, fmtDate, isRtl } = useLang();
   const { has } = usePlan();
-  const TABS = useMemo(() => ALL_TABS.filter(([id]) => (id === 'fees' ? has('fees') : id === 'notices' ? has('notices') : true)), [has]);
+  const [nursery, setNursery] = useState(false);
+  useEffect(() => { apiClient.get('/early/family/children').then((r) => setNursery((r.data.children || []).length > 0)).catch(() => setNursery(false)); }, []);
+  const TABS = useMemo(() => ALL_TABS.filter(([id]) => (id === 'fees' ? has('fees') : id === 'notices' ? has('notices') : id === 'nursery' ? nursery : true)), [has, nursery]);
   const [tab, setTab] = useState(() => {
     const h = window.location.hash.replace('#/', '');
-    return TABS.some(([id]) => id === h) ? h : 'home';
+    return h === 'nursery' || TABS.some(([id]) => id === h) ? h : 'home';
   });
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
@@ -188,6 +191,7 @@ const ParentDashboard = () => {
 
             {tab === 'documents' && <MyDocuments />}
             {tab === 'quizzes' && <FamilyQuizResults />}
+            {tab === 'nursery' && <FamilyNursery />}
             {tab === 'desk' && <FamilyDesk role="parent" kids={(data?.children || []).filter((c) => !c.attendanceHidden)} />}
 
             {tab === 'fees' && (

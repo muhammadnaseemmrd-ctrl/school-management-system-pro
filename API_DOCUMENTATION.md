@@ -1298,3 +1298,29 @@ Rules worth knowing:
 - **Moderation.** Spread of marks, unusual sheets, how each question went, and questions where nearly everyone chose one wrong answer (suspect key). Notes and history are kept.
 - **Approval.** A different administrator from whoever graded, sent, created or corrected (a sole administrator may approve and it is recorded). **Publish** writes ordinary marks scaled to the exam's total and tells students and guardians who may see marks. Published sittings changed by a later key revision are flagged and changed only by `regrade-published` with a reason.
 - **Status codes.** 403 denied, 404 not in your school, 409 already done or layout locked, 422 wrong state, 428 consent, 429 rate limit.
+
+## Nursery and early years (E15) — `/api/early`
+Administrators manage rooms, settings and frameworks. A room's lead and carers work only in their own room. Parents use `/family/*` for linked children only. Photos are JPEG data URLs (the phone shrinks them first); activity audio is a data URL up to 1 MB and must have a transcript.
+
+| Area | Routes |
+|---|---|
+| Settings and rooms | `GET|PUT /settings` (children-per-adult figures, nap alert, photo size, arrival and collection notices), `GET /overview`, `GET|POST /rooms`, `GET|PUT /rooms/:id`, `POST /rooms/:id/archive|children|presence/in|presence/out`, `GET /rooms/:id/safety-card|coverage`, `GET /children/search`, `DELETE /children/:id/placement` |
+| Ratios | `GET /ratios`, `GET /ratio-events`, `POST /ratio-events/:id/ack` |
+| Arrival and collection | `POST /check-in|check-out|absent` (release uses the same collection checks as the gate; a refusal always reads "Do not release the child. Ask the person to wait and call the principal.") |
+| Care log | `POST /care/bulk` (one tap, many children, `clientKey` makes a repeat harmless), `GET /care`, `POST /care/:id/correct|void|discussed` |
+| Child profile | `GET /children/:id/profile|collectors|timeline|progress|practice`, `PUT /children/:id/consent` (office consent needs who gave it), `POST /profile/pending/:pid` (confirm a family's update) |
+| Family diary | `POST /media`, `GET /media/:id/image`, `GET|POST /posts`, `POST /posts/generate`, `PUT /posts/:id`, `POST /posts/:id/submit|review|retract` |
+| Learning | `GET /frameworks`, `POST /frameworks/:id/copy|publish|archive`, `PUT /frameworks/:id`, `GET|POST /observations`, `POST /observations/:id/void`, `GET|POST /activities`, `POST /activities/:ref/copy|publish|archive`, `POST /activities/:id/audio`, `GET|POST /plans`, `POST /plans/:id/done|skip`, `GET /icons`, `GET|POST /routines`, `GET|POST /practice`, `GET /worksheets/tracing|observation` (PDF) |
+| Pickup changes | `GET|POST /pickup-changes`, `POST /pickup-changes/:id/verify|apply|decline` |
+| Family | `GET /family/children`, `GET /family/children/:id/feed|profile|consent|routine|pickup`, `POST /family/children/:id/profile|pickup`, `PUT /family/children/:id/consent`, `POST /family/posts/:id/read`, `POST /family/pickup/:id/cancel` |
+
+Rules worth knowing:
+- **Ratios are the school's own.** Children per adult are editable and are not presented as legal minimums. A room short of adults raises an event, notifies the lead and administrators, and stays on record until acknowledged.
+- **A second person checks every diary.** The turn-off setting does not exist. If the lead is the only person who can review, that is recorded.
+- **Photos go out only inside a reviewed post, for children whose family agreed.** Withdrawing consent hides existing photos from the family straight away.
+- **Behaviour notes** can be shared only after staff record that they were talked over with the family (`discussedAt`).
+- **No scores, ranks or leaderboards.** Observations use Exploring, Practising and Confident; practice effort uses Exploring, Following and Steady.
+- **Built-in content** is original: a 37-milestone, five-area framework and 26 activities (`aul:` references). Copy to edit; content of unknown licence cannot be published, and content not written by the school is published only by an administrator.
+- **Pickup people.** A family can ask to add, pause or remove a collector, but nothing applies until staff record how they confirmed it (call-back, in person or signed form) and with whom. Pause ends the link and starts a new one from the return date. Named collectors hold no guardian rights except collection.
+- **Safety.** Under-three activities with small parts need an adult close by. Each entry records who wrote it.
+- **Status codes.** 400 invalid, 403 denied, 404 not in your school, 409 already done, 422 wrong state, 428 consent.

@@ -13,6 +13,7 @@ import Finance from './Finance';
 import Staff from './Staff';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
+import EarlyDesk from '../../components/early/EarlyDesk';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -32,7 +33,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1525,6 +1526,7 @@ const AdminDashboard = () => {
                   { id: 'staff', label: 'Staff & payroll', icon: Users },
                   { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
                   { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
+                  { id: 'earlyYears', label: 'Nursery', icon: Users },
                   { id: 'timetablePlan', label: 'Timetable planning', icon: Calendar },
                   { id: 'syncDesk', label: 'Offline sync', icon: WifiOff },
                   { id: 'studio', label: 'Documents studio', icon: FileText },
@@ -1678,6 +1680,7 @@ const AdminDashboard = () => {
             {activeTab === 'staff' && <Staff />}
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="admin" />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="admin" />}
+            {activeTab === 'earlyYears' && <EarlyDesk isAdmin />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}
