@@ -88,6 +88,8 @@ app.use(cors({
 }));
 // Photographs of answer sheets arrive as JSON (a JPEG of up to 900 KB, base64); everything else keeps the small default limit.
 app.use('/api/omr', express.json({ limit: '2mb' }));
+// Nursery photos (a JPEG up to 600 KB) and recordings (up to 1 MB) also arrive as base64 JSON.
+app.use('/api/early', express.json({ limit: '2mb' }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -137,6 +139,7 @@ app.use('/api/timetable-ops', gate('timetable'), require('./routes/timetableOpsR
 app.use('/api/studio', require('./routes/studioRoutes'));
 app.use('/api/assess', require('./routes/assessRoutes'));
 app.use('/api/omr', require('./routes/omrRoutes'));
+app.use('/api/early', require('./routes/earlyRoutes'));
 app.use('/api/sync', require('./routes/syncRoutes'));
 app.use('/api/teacher-today', require('./routes/teacherTodayRoutes'));
 app.use('/api/notifications', notificationRoutes);

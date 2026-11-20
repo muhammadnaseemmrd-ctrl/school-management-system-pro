@@ -10,7 +10,7 @@ const Backup = require('../models/Backup');
 const BackupRun = require('../models/BackupRun');
 const RestoreDrill = require('../models/RestoreDrill');
 const School = require('../models/School');
-const { TABLES, collect } = require('./backup');
+const { TABLES, refreshTables, collect } = require('./backup');
 
 const gunzip = promisify(zlib.gunzip);
 const q = (id) => `"${String(id).replace(/"/g, '""')}"`;
@@ -66,6 +66,7 @@ async function runDrill(schoolId, { backupId, actor = null, trigger = 'owner' } 
     add('Row counts match what the backup recorded', bad.length === 0, bad.join('; ') || `${Object.keys(payload.counts || {}).length} tables agree`);
 
     // 4) isolated restore into temporary tables, then compare every row
+    refreshTables();
     const work = [['School', [payload.school]], ...Object.entries(payload.tables).filter(([n]) => TABLES.includes(n))];
     let restored = 0; const mismatch = []; let sandboxError = '';
     try {

@@ -13,14 +13,26 @@ const BackupRun = require('../models/BackupRun');
 
 const gzip = promisify(zlib.gzip);
 const gunzip = promisify(zlib.gunzip);
+const fs = require('fs'); const path = require('path');
 
-// Models that belong to one school (everything keyed by schoolId). Notifications and push subscriptions are
-// short-lived, per-device data, so they are left out.
-const TABLES = [
+// Everything a school owns. The core list is explicit; every other model that carries a schoolId (guardian links, safety records,
+// answer sheets, the nursery, finance, HR and so on) is picked up by name, so a module added later is backed up without anyone
+// remembering to list it. Short-lived or platform-level data stays out: notifications, push subscriptions, device-sync state,
+// the backups themselves, and anything that belongs to the platform rather than to one school.
+// Pictures, recordings and scanned sheets live in binary columns outside the document; they are not in the snapshot (StoredFile is).
+const CORE = [
   'User', 'Teacher', 'Student', 'Parent', 'Class', 'Subject', 'Timetable', 'TimetableConfig',
   'Attendance', 'DailyAttendance', 'Exam', 'Marks', 'Homework', 'Notice', 'Event', 'Message', 'Complaint',
   'FeeStructure', 'StudentFee', 'FeeCharge', 'PaymentProof', 'TransportRoute', 'TransportAssignment', 'StoredFile',
 ];
+const LEFT_OUT = new Set(['School', 'SuperAdmin', 'Plan', 'SubscriptionPayment', 'Notification', 'PushSubscription', 'Backup', 'BackupRun', 'RestoreDrill', 'AlertReceipt', 'SyncMutation', 'SyncRevision', 'SyncConflict', 'Agent', 'AgentPayout', 'Commission']);
+const TABLES = [...CORE];                                  // refreshed in place, so every importer sees the current list
+function refreshTables() {
+  const dir = path.join(__dirname, '..', 'models');
+  for (const f of fs.readdirSync(dir)) if (f.endsWith('.js')) { try { require(path.join(dir, f)); } catch (e) { /* a model that cannot load is simply not listed */ } }
+  const extra = registry.names().filter((n) => !CORE.includes(n) && !LEFT_OUT.has(n) && (n === 'AppSetting' || registry.get(n).schema.path('schoolId'))).sort();   // AppSetting is keyed '<module>:<schoolId>'
+  TABLES.length = 0; TABLES.push(...CORE, ...extra); return TABLES;
+}
 const SECRET_KEYS = new Set(['password', 'passwordResetToken', 'passwordResetExpires', 'refreshToken', 'refreshTokens', 'resetToken']);
 const RETENTION = { auto: 4, manual: 3 };
 const WEEK_MS = 7 * 24 * 3600 * 1000;
@@ -43,7 +55,7 @@ const q = (id) => `"${String(id).replace(/"/g, '""')}"`;
 // Read all rows of one school straight from the tables. Passwords stay in the stored copy (so a full restore keeps
 // everybody's login) and are removed again whenever a file is handed to a person.
 async function collect(schoolId, { withFiles = false } = {}) {
-  const sid = String(schoolId);
+  refreshTables(); const sid = String(schoolId);
   const school = (await db.get().query(`SELECT id, doc FROM ${q(registry.get('School').table)} WHERE id = $1`, [sid])).rows[0];
   if (!school) throw Object.assign(new Error('School not found'), { status: 404 });
   const tables = {}; const counts = {}; const files = [];
@@ -55,6 +67,9 @@ async function collect(schoolId, { withFiles = false } = {}) {
         `SELECT id, doc - 'key' AS doc${withFiles ? ', bin_data' : ''} FROM ${q(M.table)} WHERE doc->>'schoolId' = $1 ORDER BY id`, [sid]);
       tables[name] = rows.map((r) => ({ _id: r.id, ...r.doc }));
       if (withFiles) for (const r of rows) if (r.bin_data) files.push({ id: r.id, name: r.doc.originalName || r.id, mime: r.doc.mimeType, data: Buffer.from(r.bin_data) });
+    } else if (name === 'AppSetting') {
+      const { rows } = await db.get().query(`SELECT id, doc FROM ${q(M.table)} WHERE doc->>'key' LIKE $1 ORDER BY id`, [`%:${sid}`]);
+      tables[name] = rows.map((r) => ({ _id: r.id, ...r.doc }));
     } else {
       const { rows } = await db.get().query(`SELECT id, doc FROM ${q(M.table)} WHERE doc->>'schoolId' = $1 ORDER BY id`, [sid]);
       tables[name] = rows.map((r) => ({ _id: r.id, ...r.doc }));
@@ -220,4 +235,4 @@ async function archiveFromSnapshot(schoolId, id) {
   return { buffer, filename: `aulensia-backup-${safeName(payload.school.code)}-${new Date(snap.meta.createdAt).toISOString().slice(0, 10)}.zip` };
 }
 
-module.exports = { TABLES, collect, createSnapshot, listSnapshots, readSnapshot, runWeekly, buildArchive, archiveFromSnapshot, strip, prune };
+module.exports = { TABLES, refreshTables, collect, createSnapshot, listSnapshots, readSnapshot, runWeekly, buildArchive, archiveFromSnapshot, strip, prune };
