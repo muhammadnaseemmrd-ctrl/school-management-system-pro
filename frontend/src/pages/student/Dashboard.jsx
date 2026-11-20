@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, Clock, ClipboardList, LayoutGrid, 
   MessageSquare, Sparkles, Lock, User, FileText, Send, Image, History, 
-  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse } from 'lucide-react';
+  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse, GraduationCap } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import TakeQuiz from '../../components/assess/TakeQuiz';
 import FamilyDesk from '../../components/attendance/FamilyDesk';
 import FamilyCare from '../../components/care/FamilyCare';
+import RegistrarStudent from '../../components/registrar/RegistrarStudent';
+import useRegistrarPresence from '../../components/registrar/usePresence';
 import apiClient from '../../utils/apiClient';
 import usePlan from '../../utils/usePlan';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -21,6 +23,7 @@ const StudentDashboard = () => {
   const { t } = useLang();
   const { has } = usePlan();
   const [profileData, setProfileData] = useState(null);
+  const hasRecord = useRegistrarPresence('student');
   const [myGrievances, setMyGrievances] = useState([]);
   const [studentHomework, setStudentHomework] = useState([]);
   const [attendanceData, setAttendanceData] = useState(null);
@@ -30,7 +33,7 @@ const StudentDashboard = () => {
   const [uploadingHomeworkId, setUploadingHomeworkId] = useState(null);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support'];
+    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support', 'record'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -285,6 +288,7 @@ const StudentDashboard = () => {
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close menu"
               className="md:hidden rounded-full p-1.5 hover:bg-[#2a5cac]/10 text-[#2a5cac]"
             >
               <X className="h-5 w-5" />
@@ -321,6 +325,7 @@ const StudentDashboard = () => {
                   ['desk', 'Leave, alerts & check-in', Bell],
                   ['support', 'Wellbeing & support', HeartPulse],
                   ['quizzes', 'Quizzes & exams', ClipboardList],
+                  ...(hasRecord ? [['record', 'Academic record', GraduationCap]] : []),
                   ['documents', 'My documents', FileText],
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
@@ -797,6 +802,7 @@ const StudentDashboard = () => {
 
         {activeSubTab === 'documents' && <MyDocuments />}
         {activeSubTab === 'quizzes' && <TakeQuiz />}
+        {activeSubTab === 'record' && hasRecord && <RegistrarStudent />}
         {activeSubTab === 'support' && <FamilyCare role="student" />}
         {activeSubTab === 'desk' && <FamilyDesk role="student" kids={profileData ? [{ _id: profileData._id, name: profileData.name }] : []} />}
 

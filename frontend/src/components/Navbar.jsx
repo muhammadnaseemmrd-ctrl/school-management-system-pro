@@ -79,7 +79,7 @@ const Navbar = () => {
             {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
             <AppearanceToggle />
             <LanguageToggle />
-            <button onClick={() => setIsOpen(!isOpen)} className="rounded-full border border-[#2a5cac] bg-[#ffffff] p-2 text-[#2a5cac]">
+            <button onClick={() => setIsOpen(!isOpen)} aria-label={isOpen ? 'Close menu' : 'Open menu'} aria-expanded={isOpen} className="rounded-full border border-[#2a5cac] bg-[#ffffff] p-2 text-[#2a5cac]">
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>

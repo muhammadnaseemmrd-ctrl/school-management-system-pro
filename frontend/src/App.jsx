@@ -9,6 +9,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
+const VerifyTranscript = lazy(() => import('./pages/VerifyTranscript'));
 const ProposalPage = lazy(() => import('./pages/ProposalPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
@@ -88,6 +89,8 @@ function App() {
           <Route path="/proposal/:token" element={<ProposalPage />} />
           <Route path="/verify" element={<VerifyDocument />} />
           <Route path="/verify/:token" element={<VerifyDocument />} />
+          <Route path="/verify-transcript" element={<VerifyTranscript />} />
+          <Route path="/verify-transcript/:key" element={<VerifyTranscript />} />
           <Route
             path="/superadmin/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SuperAdminLogin />}

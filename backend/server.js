@@ -144,6 +144,7 @@ app.use('/api/early', require('./routes/earlyRoutes'));
 app.use('/api/care', express.json({ limit: '200kb' }), require('./routes/careRoutes'));
 app.use('/api/theme', express.json({ limit: '100kb' }), require('./routes/themeRoutes'));
 app.use('/api/migration', express.json({ limit: '3mb' }), require('./routes/migrationRoutes'));
+app.use('/api/registrar', express.json({ limit: '200kb' }), require('./routes/registrarRoutes'));
 app.use('/api/campuses', express.json({ limit: '50kb' }), require('./routes/campusRoutes'));
 app.use('/api/consents', express.json({ limit: '50kb' }), require('./routes/consentRoutes'));
 app.use('/api/organizations', express.json({ limit: '50kb' }), require('./routes/organizationRoutes'));

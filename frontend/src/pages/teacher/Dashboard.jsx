@@ -14,6 +14,8 @@ import StaffFamilyDesk from '../../components/comms/StaffFamilyDesk';
 import StaffCare from '../../components/care/StaffCare';
 import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
+import RegistrarTeacher from '../../components/registrar/RegistrarTeacher';
+import useRegistrarPresence from '../../components/registrar/usePresence';
 import OmrDesk from '../../components/omr/OmrDesk';
 import TeacherTimetableDesk from '../../components/timetable/TeacherTimetableDesk';
 import TeacherToday from '../../components/today/TeacherToday';
@@ -25,7 +27,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -76,6 +78,7 @@ const TeacherDashboard = () => {
   const [expandedAllDivsStd, setExpandedAllDivsStd] = useState(null);
   const [profileData, setProfileData] = useState(null);
   const [studioAccess, setStudioAccess] = useState(false);
+  const hasRegistrar = useRegistrarPresence('teacher');
   useEffect(() => { apiClient.get('/studio/overview').then((r) => setStudioAccess(!!(r.data.can?.manage || r.data.can?.issue || r.data.can?.print))).catch(() => setStudioAccess(false)); }, []);
   const [myGrievances, setMyGrievances] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -496,6 +499,7 @@ const TeacherDashboard = () => {
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close menu"
               className="md:hidden rounded-full p-1.5 hover:bg-[#2a5cac]/10 text-[#2a5cac]"
             >
               <X className="h-5 w-5" />
@@ -542,6 +546,7 @@ const TeacherDashboard = () => {
                   ['staff', 'My staff record', Users],
                   ['assessments', 'Quizzes & exams', ClipboardList],
                   ['omr', 'Paper exams (OMR)', ScanLine],
+                  ...(hasRegistrar ? [['registrar', 'Courses & advising', GraduationCap]] : []),
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2241,6 +2246,7 @@ const TeacherDashboard = () => {
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="teacher" />}
             {activeTab === 'studio' && studioAccess && <DocStudio />}
             {activeTab === 'assessments' && <AssessDesk />}
+            {activeTab === 'registrar' && hasRegistrar && <RegistrarTeacher />}
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'earlyYears' && <EarlyDesk />}

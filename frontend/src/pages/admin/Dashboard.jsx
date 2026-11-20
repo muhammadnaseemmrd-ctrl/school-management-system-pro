@@ -18,6 +18,7 @@ import StaffCare from '../../components/care/StaffCare';
 import ThemeStudio from '../../components/theme/ThemeStudio';
 import HelpDesk from '../../components/support/HelpDesk';
 import Migration from '../../components/migration/Migration';
+import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -37,7 +38,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1508,6 +1509,7 @@ const AdminDashboard = () => {
             </div>
             <button
               onClick={() => setIsSidebarOpen(false)}
+              aria-label="Close menu"
               className="md:hidden rounded-full p-1.5 hover:bg-[#2a5cac]/10 text-[#2a5cac]"
             >
               <X className="h-5 w-5" />
@@ -1541,6 +1543,7 @@ const AdminDashboard = () => {
                   { id: 'brand', label: 'Brand & theme', icon: Palette },
                   { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
                   { id: 'migration', label: 'Import & new year', icon: Upload },
+                  { id: 'registrar', label: 'Registrar', icon: GraduationCap },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1695,6 +1698,7 @@ const AdminDashboard = () => {
             {activeTab === 'brand' && <ThemeStudio />}
             {activeTab === 'saasSupport' && <HelpDesk />}
             {activeTab === 'migration' && <Migration />}
+            {activeTab === 'registrar' && <RegistrarAdmin />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}
