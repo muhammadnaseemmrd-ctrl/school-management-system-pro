@@ -8,6 +8,7 @@ import LanguageToggle from '../components/LanguageToggle';
 import Logo from '../components/Logo';
 import apiClient from '../utils/apiClient';
 import useReveal from '../utils/useReveal';
+import DemoRequest, { captureCampaign } from '../components/DemoRequest';
 import {
   NAV, HERO_CHIPS, STATS, BEFORE_AFTER, MODULES, ROLES, STEPS, PAKISTAN, TRUST, FAQ,
   DEMO_LOGINS, DEMO_SCHOOL_CODE, FALLBACK_PLANS, ROADMAP,
@@ -83,6 +84,9 @@ export default function Landing() {
   const [role, setRole] = useState('admin');
   const [yearly, setYearly] = useState(false);
   const [pricing, setPricing] = useState({ plans: FALLBACK_PLANS, offers: [], live: false });
+  const [ask, setAsk] = useState(null); // 'demo' | 'quote' | 'question' while the request form is open
+  const [proof, setProof] = useState([]); // only real, consented customer words; empty means the section is not shown
+  useEffect(() => { captureCampaign(); apiClient.get('/public/proof').then((r) => setProof(Array.isArray(r.data?.proof) ? r.data.proof : [])).catch(() => {}); }, []);
 
   useEffect(() => {
     let off = false;
@@ -156,7 +160,10 @@ export default function Landing() {
               <button onClick={() => navigate('/register')} className="inline-flex items-center gap-2 rounded-lg bg-[#2a5cac] px-6 py-3 font-semibold text-white transition hover:bg-[#234c91]">
                 Register your school <ArrowRight className="h-4 w-4 rtl:rotate-180" />
               </button>
-              <button onClick={() => jump('features')} className="inline-flex items-center gap-2 rounded-lg border border-[#2a5cac] bg-[#f7f6f2] px-6 py-3 font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]">
+              <button onClick={() => setAsk('demo')} className="inline-flex items-center gap-2 rounded-lg border border-[#2a5cac] bg-[#f7f6f2] px-6 py-3 font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]">
+                Book a demo
+              </button>
+              <button onClick={() => jump('features')} className="inline-flex items-center gap-2 rounded-lg border border-[#a9b4bf] bg-[#f7f6f2] px-6 py-3 font-semibold text-[#3b4a5c] transition hover:bg-[#eef2f8]">
                 See all features
               </button>
               <button onClick={() => jump('demo')} className="inline-flex items-center gap-2 rounded-lg px-4 py-3 font-semibold text-[#3b4a5c] transition hover:bg-[#eef2f8]">
@@ -343,6 +350,16 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ───────── What schools say: shown only when the owner holds consent for each entry ───────── */}
+      {proof.length > 0 && (
+        <section id="proof" className="px-5 py-16 lg:px-8">
+          <div className="mx-auto max-w-7xl"><SectionHead eyebrow="From schools using Aulensia" title="In their words" />
+            <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {proof.map((t, i) => (<figure key={i} className="rounded-2xl border border-[#e3e7e7] bg-white p-6"><blockquote className="text-[#1b2837]">{t.quote}</blockquote><figcaption className="mt-4 text-sm text-[#5b6b7b]"><span className="font-bold text-[#1b2837]">{t.personName}</span>{t.personRole ? `, ${t.personRole}` : ''}<br />{t.schoolName}</figcaption></figure>))}
+            </div></div>
+        </section>
+      )}
+
       {/* ───────── Pricing ───────── */}
       <section id="pricing" className="scroll-mt-20 px-5 py-16 lg:px-8">
         <div className="mx-auto max-w-7xl">
@@ -400,6 +417,7 @@ export default function Landing() {
                     className={`mt-7 rounded-lg px-5 py-3 font-bold transition ${star ? 'bg-[#f7f6f2] text-[#2a5cac] hover:bg-white' : 'bg-[#2a5cac] text-white hover:bg-[#234c91]'}`}>
                     Start with {p.label}
                   </button>
+                  {amount > 0 && <button onClick={() => setAsk('quote')} className={`mt-2 rounded-lg px-5 py-2 text-sm font-semibold underline-offset-4 hover:underline ${star ? 'text-white' : 'text-[#2a5cac]'}`}>Get a quote for my school</button>}
                 </div>
               );
             })}
@@ -463,6 +481,7 @@ export default function Landing() {
             <button onClick={() => navigate('/register')} className="inline-flex items-center gap-2 rounded-lg bg-[#d9826a] px-7 py-3 font-bold text-[#1b2837] transition hover:bg-[#d9826a]">
               Register your school <ArrowRight className="h-4 w-4 rtl:rotate-180" />
             </button>
+            <button onClick={() => setAsk('demo')} className="rounded-lg border border-[#c9d6ea] px-7 py-3 font-bold transition hover:bg-[#234c91]">Book a demo</button>
             <button onClick={() => navigate('/login')} className="rounded-lg border border-[#c9d6ea] px-7 py-3 font-bold transition hover:bg-[#234c91]">Login</button>
           </div>
         </div>
@@ -484,6 +503,7 @@ export default function Landing() {
         </div>
         <p className="mx-auto mt-8 max-w-7xl border-t border-[#e3e7e7] pt-5 text-sm text-[#5b6b7b]">© 2026 Aulensia. All rights reserved.</p>
       </footer>
+      <DemoRequest open={!!ask} interest={ask || 'demo'} onClose={() => setAsk(null)} />
     </div>
   );
 }

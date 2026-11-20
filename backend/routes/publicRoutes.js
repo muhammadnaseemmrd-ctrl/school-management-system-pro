@@ -52,4 +52,12 @@ router.get('/referral/:code', lookupLimiter, async (req, res) => {
   } catch (e) { res.status(500).json({ message: 'Could not check the code' }); }
 });
 
+// Website: ask for a demo or quote, view a quote by private link, show consented customer words (PRD E28)
+const sales = require('../controllers/salesController');
+router.post('/leads', signupLimiter, sales.publicLead);
+router.get('/proposal/:token', lookupLimiter, sales.proposal);
+router.post('/proposal/:token/accept', signupLimiter, sales.acceptProposal);
+router.post('/proposal/:token/decline', signupLimiter, sales.declineProposal);
+router.get('/proof', lookupLimiter, sales.publicProof);
+
 module.exports = router;

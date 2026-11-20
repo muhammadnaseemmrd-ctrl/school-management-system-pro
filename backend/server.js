@@ -143,6 +143,7 @@ app.use('/api/omr', require('./routes/omrRoutes'));
 app.use('/api/early', require('./routes/earlyRoutes'));
 app.use('/api/care', express.json({ limit: '200kb' }), require('./routes/careRoutes'));
 app.use('/api/theme', express.json({ limit: '100kb' }), require('./routes/themeRoutes'));
+app.use('/api/support', express.json({ limit: '100kb' }), require('./routes/supportRoutes'));
 app.use('/api/sync', require('./routes/syncRoutes'));
 app.use('/api/teacher-today', require('./routes/teacherTodayRoutes'));
 app.use('/api/notifications', notificationRoutes);
@@ -233,6 +234,11 @@ if (!process.env.VERCEL) server.listen(PORT, () => {
   // School web addresses (PRD E27): look again at live addresses once a day. On Vercel the daily cron does this.
   require('node-cron').schedule('20 3 * * *', () => {
     ready.then(async () => { const School = require('./models/School'); const K = require('./controllers/themeController'); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) await K.sweep(sc._id); }).catch((e) => console.error('[theme] sweep failed:', e.message));
+  });
+
+  // Sales and support (PRD E28): quotes expire, invoices get reminders, support deadlines are flagged. On Vercel the daily cron does this.
+  require('node-cron').schedule('*/30 * * * *', () => {
+    ready.then(async () => { await require('./controllers/salesController').sweep(); await require('./controllers/supportController').sweep(); }).catch((e) => console.error('[sales] sweep failed:', e.message));
   });
 
   // Auto Notice Expiration Cleanup Task

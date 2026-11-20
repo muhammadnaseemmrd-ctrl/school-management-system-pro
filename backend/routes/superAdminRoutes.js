@@ -63,4 +63,16 @@ router.get('/ops/backup-runs', ops.backupRuns);
 router.get('/ops/restore-drills', ops.listDrills);
 router.post('/schools/:id/restore-drill', ops.runDrill);
 
+// Sales, quotes, invoices, support inbox and proof (PRD E28)
+const sales = require('../controllers/salesController'); const sup = require('../controllers/supportController');
+router.get('/sales/pipeline', sales.pipeline);
+router.get('/sales/leads', sales.listLeads); router.get('/sales/leads/:id', sales.getLead); router.patch('/sales/leads/:id', sales.updateLead); router.post('/sales/leads/:id/convert', sales.convertLead);
+router.get('/sales/quotes', sales.listQuotes); router.post('/sales/quotes', sales.createQuote); router.get('/sales/quotes/:id', sales.getQuote); router.patch('/sales/quotes/:id', sales.updateQuote);
+router.post('/sales/quotes/:id/send', sales.sendQuote); router.post('/sales/quotes/:id/withdraw', sales.withdrawQuote);
+router.get('/sales/invoices', sales.listInvoices); router.post('/sales/invoices/:id/pay', sales.payInvoice); router.post('/sales/invoices/:id/void', sales.voidInvoice);
+router.get('/sales/settings', sales.getSettings); router.put('/sales/settings', sales.putSettings);
+router.get('/sales/proof', sales.listProof); router.post('/sales/proof', sales.createProof); router.put('/sales/proof/:id', sales.updateProof);
+router.post('/sales/proof/:id/publish', sales.publishProof); router.post('/sales/proof/:id/withdraw', sales.withdrawProof); router.delete('/sales/proof/:id', sales.deleteProof);
+router.get('/support/stats', sup.ownerStats); router.get('/support', sup.ownerList); router.get('/support/:id', sup.ownerGet); router.post('/support/:id/reply', sup.ownerReply); router.patch('/support/:id', sup.ownerUpdate);
+
 module.exports = router;

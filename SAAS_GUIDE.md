@@ -278,3 +278,11 @@ Every person can also choose **light, dark or follow my device** with the appear
 **Urdu wording**: set a label the school's own way ("Class" → "درجہ"). Labels people saw in Urdu with no translation are listed by how often; give them wording or ignore them.
 
 Platform owner: set `ROOT_DOMAIN` (the shared address schools can take a name under) and `CNAME_TARGET` (what custom addresses point at). Add the school's address to the Vercel project's domains; Aulensia does not do that automatically. `vercel.json` runs `/api/cron/theme` daily.
+
+## Sales, quotes and support (E28)
+
+**From website to paying school.** A visitor uses *Book a demo* or *Get a quote* on the landing page. The request appears in **Sales & support → Leads** with where it came from (campaign, partner code). Open the lead, mark when you contacted them, make a **quote** (plan, monthly or yearly, an optional set-up item, a discount up to 50% with a reason), and copy the private link to send by email or WhatsApp. The buyer opens the link, reads the quote and terms and accepts with their name and email; that creates an **invoice** and shows your payment details (set them under *Settings*). When the money arrives, **Create their school** on the lead if it does not exist yet, then **Record payment** on the invoice. That one step puts the school on the plan, adds the entry to the books, pays the partner's commission if the lead came through one, and marks the lead Won. Recording it twice changes nothing.
+
+**Help for schools.** School administrators open **Help & invoices** to ask a question, follow replies, mark a case solved and rate the help. You answer from **Support inbox**. Internal notes are never shown to the school. Each case has a first-reply and a resolve deadline counted in working hours (Monday to Friday, 9am to 6pm Pakistan time); *Waiting for the school* pauses the resolve clock. Missed deadlines are flagged once and shown in the inbox.
+
+**Customer words on the website.** The website shows no testimonials until you publish one. To publish, record the person's exact words, where the original is kept, their consent date and how to reach them (and, if you shortened the words, the date they approved the edit). Entries ask for a fresh review after a year and stop showing on their own. Withdrawing one removes it from the website within seconds.

@@ -1405,3 +1405,31 @@ Rules worth knowing:
 - **Wording overrides.** Plain text only (no `<` or `>`), the same `{placeholders}` as the English label; text without Urdu letters is saved with a warning. A school's wording is applied before the built-in dictionary.
 - **Documents.** Studio documents take the school's published colours unless the design sets its own.
 - **Status codes.** 403 denied or plan feature off, 404 not found or not your school, 409 draft exists, address taken, already live, 422 invalid or checks failed, 429 too many address checks.
+
+## Website leads, quotes, invoices, support and proof (E28)
+
+### Public (no sign-in) — `/api/public`
+| Method | Path | What it does |
+|---|---|---|
+| POST | `/leads` | Ask for a demo, quote or answer. Needs `name`, `email`, `schoolName` and `consent: true`; optional `phone`, `city`, `role`, `students`, `interest` (`demo`/`quote`/`question`), `message`, `preferredTime`, `refCode` (partner code), `utmSource/utmMedium/utmCampaign`. A filled hidden `website` field is treated as a robot and silently ignored. The same email or phone (last 10 digits) within 90 days is one lead with `requests` counted up. Limits: 10 requests/hour/route and 5 new leads/hour per address. Only a hash of the address is stored. |
+| GET | `/proposal/:token` | The buyer's view of a quote (and its invoice and payment details once accepted). `Cache-Control: no-store`. A wrong or withdrawn link is 404. |
+| POST | `/proposal/:token/accept` | `{name, email, agree:true}`. A conditional write makes two clicks one acceptance. Creates one invoice for the exact quote total and records who accepted, when, from which address hash, and a hash of the terms. |
+| POST | `/proposal/:token/decline` | `{reason?}`. |
+| GET | `/proof` | Published, consented, in-review-date customer words only. Empty by default. |
+
+### Owner — `/api/superadmin/sales/...` and `/api/superadmin/support/...`
+- `GET sales/pipeline` counts, conversion (90 days), sources, open quotes and unpaid/overdue invoices.
+- `GET sales/leads?status&q&agentId`, `GET/PATCH sales/leads/:id` (status, `lostReason`, `demoAt`, `ownerNote`, `logContact`), `POST sales/leads/:id/convert` (creates the school and its administrator; the temporary password is returned once). `Won` is set only by a paid invoice.
+- `POST/GET sales/quotes`, `GET/PATCH sales/quotes/:id` (drafts only), `POST sales/quotes/:id/send` (returns the private link once; only a hash is stored), `POST sales/quotes/:id/withdraw`. Discounts are 0–50% and need a reason; plan prices come from the plan list.
+- `GET sales/invoices?status&overdue=1`, `POST sales/invoices/:id/pay` (same payment path as every other subscription payment, so ledger, plan, expiry and agent commission follow; the invoice id is the idempotency key), `POST sales/invoices/:id/void` (reason).
+- `GET/PUT sales/settings` payment details, terms (versioned), quote and invoice days, support hours.
+- `GET/POST sales/proof`, `PUT sales/proof/:id`, `POST sales/proof/:id/publish` (needs consent, a consent date within a year, a contact, where the original is kept, and an edit approval if the words were changed), `POST .../withdraw`, `DELETE`.
+- `GET support`, `GET support/stats`, `GET support/:id`, `POST support/:id/reply` (`internal`, `waitForSchool`), `PATCH support/:id` (status, priority, assignee).
+
+### School administrator — `/api/support` (admin role only)
+`GET/POST /cases`, `GET /cases/:id`, `POST /cases/:id/reply|resolve|rate`, `GET /invoices`. A school sees only its own cases and invoices; internal notes are never returned. A `clientKey` makes a retried "open" one case.
+
+### Daily job
+`GET /api/cron/sales` (Bearer `CRON_SECRET`): expires old quotes, reminds an overdue invoice once a week, flags missed support deadlines once, closes cases resolved for 7 days.
+
+Support deadlines use working hours (Monday–Friday, 09:00–18:00 Pakistan time). Waiting on the school pauses the resolve clock.

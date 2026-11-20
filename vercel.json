@@ -46,6 +46,10 @@
     {
       "path": "/api/cron/theme",
       "schedule": "20 3 * * *"
+    },
+    {
+      "path": "/api/cron/sales",
+      "schedule": "50 3 * * *"
     }
   ]
 }

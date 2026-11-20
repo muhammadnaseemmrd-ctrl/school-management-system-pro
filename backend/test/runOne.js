@@ -9,6 +9,7 @@ const expect = async (label, p, ok = [200, 201]) => { const r = await p; const g
   const server = http.createServer(app); await new Promise((r) => server.listen(0, r)); base = `http://127.0.0.1:${server.address().port}`; await call('GET', '/schools/branding');
   const login = async (email, password) => { const r = await call('POST', '/auth/login', null, { email, password, schoolCode: 'DEMO01' }); return r.data && (r.data.token || r.data.accessToken); };
   const tokens = { admin: await login('admin@demo.school', 'Demo@1234'), teacher: await login('sara.khan@demo.school', 'Teacher@123'), student: await login('ayesha.khan@demo.school', 'Student@123'), parent: await login('parent@demo.school', 'Parent@123') };
+  { const sa = await call('POST', '/superadmin/login', null, { email: 'owner@test.local', password: 'Super@12345' }); tokens.superadmin = sa.data && (sa.data.token || sa.data.accessToken); }
   for (const m of String(process.argv[2]).split(',')) await require('./' + m)({ call, expect, log, tokens, base });
   console.log(`\n${checks - failures}/${checks} checks passed`); server.close(); process.exit(failures ? 1 : 0);
 })().catch((e) => { console.error('crashed:', e); process.exit(2); });
