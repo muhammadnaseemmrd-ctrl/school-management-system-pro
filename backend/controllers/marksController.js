@@ -90,6 +90,7 @@ exports.enterMarks = async (req, res) => {
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
+    { const RO = require('../utils/migration/rollover'); const fz = await RO.frozenExam(req.user.schoolId, exam); if (fz) return res.status(423).json({ message: RO.FROZEN_MESSAGE(fz) }); }
 
     if (req.user.role === 'teacher') {
       const Teacher = require('../models/Teacher');
@@ -159,6 +160,7 @@ exports.bulkEnterMarks = async (req, res) => {
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
+    { const RO = require('../utils/migration/rollover'); const fz = await RO.frozenExam(req.user.schoolId, exam); if (fz) return res.status(423).json({ message: RO.FROZEN_MESSAGE(fz) }); }
 
     if (req.user.role === 'teacher') {
       const Teacher = require('../models/Teacher');
@@ -331,6 +333,7 @@ exports.updateExam = async (req, res) => {
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
+    { const RO = require('../utils/migration/rollover'); const fz = await RO.frozenExam(req.user.schoolId, exam); if (fz) return res.status(423).json({ message: RO.FROZEN_MESSAGE(fz) }); }
 
     if (req.user.role === 'teacher') {
       const Teacher = require('../models/Teacher');
@@ -360,6 +363,7 @@ exports.deleteExam = async (req, res) => {
     if (!exam) {
       return res.status(404).json({ message: 'Exam not found' });
     }
+    { const RO = require('../utils/migration/rollover'); const fz = await RO.frozenExam(req.user.schoolId, exam); if (fz) return res.status(423).json({ message: RO.FROZEN_MESSAGE(fz) }); }
 
     if (req.user.role === 'teacher') {
       const Teacher = require('../models/Teacher');

@@ -1433,3 +1433,29 @@ Rules worth knowing:
 `GET /api/cron/sales` (Bearer `CRON_SECRET`): expires old quotes, reminds an overdue invoice once a week, flags missed support deadlines once, closes cases resolved for 7 days.
 
 Support deadlines use working hours (Monday–Friday, 09:00–18:00 Pakistan time). Waiting on the school pauses the resolve clock.
+
+## Data import and year rollover (E29) — `/api/migration`
+School administrators only (`admin` role). Nothing is written by a preview. Every commit works in small batches, remembers each row or learner, and can be repeated safely. Every job can be taken back.
+
+### Overview and templates
+- `GET /overview` — current and next academic year, class and learner counts, the default class order, the active results freeze, recent imports and rollovers.
+- `GET /template/students|classes` — a CSV with the expected columns and one sample row.
+
+### Import (classes or students)
+- `POST /import/preview` `{ kind: "students"|"classes", fileName?, csv? | rows?[], options?: { createMissingClasses } }` → `201 { job, rows }`. Up to 1000 rows (`413` above that). Column names are matched loosely (for example `DOB`, `Date of Birth`, `Grade`/`Standard`, `Adm No`). A row is `ok` (will be added), `update` (a matching record would change; the exact `diff` is returned), `skip` (nothing would change), `review` (a likely duplicate that needs a decision) or `error` (with the reason). Matching: same admission number; same name and date of birth; same name and guardian phone; repeats inside the file; an admission number that belongs to someone with a different name is held for review. The summary also reports `planLimit` (plan seats) and `sameFileAs` (this exact file was imported before).
+- `GET /import`, `GET /import/:id?state=&page=&limit=` (rows with their results), `GET /import/:id/issues.csv`.
+- `POST /import/:id/decisions` `{ decisions: { "<row>": "skip"|"update"|"create" }, defaultReview? }`. `update` needs an existing match.
+- `POST /import/:id/commit` `{ batch? }` (default 25, up to 100 rows). Call until `done: true`. Returns `credentials` for the accounts made in that batch (temporary passwords are returned once and are never stored in readable form). `422` while review rows have no decision, `402` if the plan seat limit would be exceeded, `423` while another call is working, `200 { alreadyCommitted: true }` when repeated. A record saved before an interrupted request is adopted on the next try, not created twice. Students are created with their class, a guardian account and link when a guardian email is given (an existing guardian is linked, not duplicated), and a fee record when the class has a fee structure.
+- `POST /import/:id/rollback` `{ reason }` (5+ characters). Removes what the job created and undoes its changes. Anything used since is kept and listed (a student with attendance, marks or fee records; a record changed again after the import). Empty classes made by the job are removed. `POST /import/:id/cancel` for a preview that has not started.
+
+### Year rollover
+Classes stay the same records from year to year; a learner moves between classes and the school's `academicYear` changes. The class order (ladder) defaults to the school's standards in natural order, with pre-school stages first, and can be edited.
+- `POST /rollover` `{ toYear?, holdOnDues?, ladder? }` — opens a draft (`409` if another is open) and runs the first dry run. `GET /rollover`, `GET /rollover/:id?action=&q=&page=&limit=`.
+- `PATCH /rollover/:id/config` `{ toYear?, ladder?, holdOnDues?, overrides?: { "<studentId>": { action: "promote"|"repeat"|"graduate", reason } | null }, acknowledgedDuplicates? }` — changes the settings and re-runs the dry run.
+- `POST /rollover/:id/preview` — recomputes readiness and the plan. Readiness blockers: year format and order, the year was already opened, another rollover open, no classes, scanned marking batches not published (`unresolved-grades`), duplicate enrolments (admission number repeated, or the same name and date of birth) until marked as checked, and results not frozen. Warnings: classes without an active class teacher, learners without a class, classes over capacity after the move. Information: open invoices and outstanding fees (these stay on each learner's account and carry into the new year) and timetables kept.
+- `POST /rollover/:id/freeze` / `unfreeze` (unfreeze only before the commit). While frozen, marks of exams made on or before the freeze time cannot be entered, edited or deleted (`423`), including OMR publishing and regrading. Exams made afterwards are not affected, so the closed year stays frozen after the rollover.
+- `POST /rollover/:id/review` `{ acknowledge: true, planHash?, note? }` — records who read the plan and its hash (`selfReviewed` shows if it was the same person who prepared it). Refused with `422` while blocked and `409` if the plan changed.
+- `POST /rollover/:id/commit` `{ batch? }` (default 200, up to 500) — call until `done: true`. Refused with `409 stale` if learners or classes changed since the reviewed dry run. Creates any missing next classes, moves learners (promote, stay, graduate; graduates become `Graduated` and inactive), recounts class headcounts, sets every class and the school to the new year and keeps the closed year in `School.academicYearHistory`. Resumable; `423` while another call is working.
+- `POST /rollover/:id/rollback` `{ reason }` — puts learners back where they were (only those still where the rollover put them; others are listed as conflicts), removes empty classes the rollover made, restores the years and unfreezes. `POST /rollover/:id/cancel` for a draft or reviewed run.
+
+Indexes: `ImportJob (schoolId, createdAt)`, `(schoolId, status)`, `(schoolId, kind, planHash, status)`; `RolloverRun (schoolId, createdAt)`, `(schoolId, status)`, `(schoolId, status, frozen.at)`; `Student (schoolId, importJobId)`, `(schoolId, admissionNumber)`.

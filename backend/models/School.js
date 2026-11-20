@@ -41,6 +41,8 @@ const schoolSchema = new mongoose.Schema(
     website: String,
     motto: { type: String, default: '' },
     academicYear: { type: String, default: '' },
+    // closed years, newest last; written by the year rollover (PRD E29)
+    academicYearHistory: { type: [mongoose.Schema.Types.Mixed], default: [] },
     // Shown to parents/students on the fee screen so they know where to send money
     paymentInfo: {
       bankName: { type: String, default: '' },

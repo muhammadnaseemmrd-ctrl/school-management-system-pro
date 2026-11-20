@@ -74,6 +74,9 @@ const studentSchema = new mongoose.Schema(
     admissionNumber: {
       type: String,
     },
+    // set when the record was made by a data import, so the import can be taken back (PRD E29)
+    importJobId: { type: String, default: '' },
+    importRow: { type: Number },
     rollNumber: {
       type: String,
     },
@@ -287,6 +290,8 @@ studentSchema.add({
 studentSchema.add({ badgeId: { type: String, default: '' } }); // ID badge / NFC / RFID number used by gate readers (PRD E08)
 studentSchema.index({ schoolId: 1, badgeId: 1 });
 studentSchema.index({ schoolId: 1, classId: 1 });
+studentSchema.index({ schoolId: 1, importJobId: 1 });
+studentSchema.index({ schoolId: 1, admissionNumber: 1 });
 studentSchema.index({ schoolId: 1, createdAt: -1 });
 studentSchema.index({ schoolId: 1, isActive: 1 });
 

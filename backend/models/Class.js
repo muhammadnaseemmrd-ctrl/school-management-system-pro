@@ -29,6 +29,8 @@ const classSchema = new mongoose.Schema(
     },
     room: String,
     academicYear: String,
+    importJobId: { type: String, default: '' },
+    rolloverRunId: { type: String, default: '' },
   },
   { timestamps: true }
 );

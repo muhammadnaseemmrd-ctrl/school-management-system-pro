@@ -1,4 +1,5 @@
 // Scanning, review, grading, moderation and publishing of paper exams (PRD E14: CAP-0321, CAP-0322, CAP-0323; flow 5.8).
+const RO = require('../utils/migration/rollover');
 const Form = require('../models/OmrForm');
 const Key = require('../models/OmrKey');
 const Batch = require('../models/OmrBatch');
@@ -206,7 +207,7 @@ async function examFor(req, f, b) {
 exports.publish = wrap('publish', async (req, res) => {
   const { batch, f, err } = await loadBatch(req, req.params.id); if (err) return bad(res, ...err); const schoolId = sid(req); const w = who(req);
   if (batch.status !== 'Approved') return bad(res, 422, batch.status === 'Published' ? 'Already published.' : 'The batch must be approved by a moderator first.');
-  const ex = await examFor(req, f, req.body || {}); if (ex.error) return bad(res, 400, ex.error); const r = await writeMarks(req, batch, f, ex.exam, ex.subjectId);
+  const ex = await examFor(req, f, req.body || {}); if (ex.error) return bad(res, 400, ex.error); { const fz = await RO.frozenExam(schoolId, ex.exam); if (fz) return bad(res, 423, RO.FROZEN_MESSAGE(fz)); } const r = await writeMarks(req, batch, f, ex.exam, ex.subjectId);
   batch.status = 'Published'; batch.publish = { at: new Date(), byId: w.id, byName: w.name, examId: ex.exam._id, subjectId: ex.subjectId, count: r.total, outOf: ex.exam.totalMarks, version: 1 }; history(batch, w, 'published', `${r.written} mark(s) written to ${ex.exam.name}.`); await batch.save();
   if (!f.examId) { f.examId = ex.exam._id; await f.save(); }
   await notifyMarks(schoolId, r.changed, f, batch, false); await audit(req, { action: 'omr.batch.publish', entityType: 'OmrBatch', entityId: batch._id, schoolId, detail: { examId: ex.exam._id, written: r.written } }); res.json({ batch: sum(batch), written: r.written });
@@ -217,7 +218,7 @@ exports.regradePublished = wrap('regrade published', async (req, res) => {
   const { batch, f, err } = await loadBatch(req, req.params.id); if (err) return bad(res, ...err); const schoolId = sid(req); const w = who(req); const reason = str(req.body?.reason, 300);
   if (batch.status !== 'Published') return bad(res, 422, 'Only published batches are regraded this way.'); if (reason.length < 5) return bad(res, 400, 'Say why the published marks are being changed (at least 5 letters).');
   const key = await O.currentKey(f); if (!key || key.version === batch.keyVersion) return bad(res, 409, 'The answer key has not changed since these marks were published.');
-  const r = await O.gradeBatch(batch, f, key); const exam = await Exam.findOne({ _id: batch.publish.examId, schoolId }); if (!exam) return bad(res, 404, 'The exam was removed.');
+  const r = await O.gradeBatch(batch, f, key); const exam = await Exam.findOne({ _id: batch.publish.examId, schoolId }); if (!exam) return bad(res, 404, 'The exam was removed.'); { const fz = await RO.frozenExam(schoolId, exam); if (fz) return bad(res, 423, RO.FROZEN_MESSAGE(fz)); }
   const wr = await writeMarks(req, batch, f, exam, batch.publish.subjectId); batch.keyVersion = key.version; batch.resultsHash = r.hash; batch.publish.version = (batch.publish.version || 1) + 1; history(batch, w, 'published marks regraded', `Key ${key.version}: ${r.changed.length} sheet(s) changed. ${reason}`); await batch.save();
   await notifyMarks(schoolId, wr.changed, f, batch, true); await N.notify({ schoolId, recipients: await N.admins(schoolId), title: `Published marks revised: ${f.title}`, body: `${r.changed.length} mark(s) changed after key ${key.version}. ${reason}`, link: '/admin/dashboard#/omr', type: 'general', key: `omr-regrade-${batch._id}-${batch.publish.version}` });
   await audit(req, { action: 'omr.batch.regrade', entityType: 'OmrBatch', entityId: batch._id, schoolId, detail: { keyVersion: key.version, changed: r.changed.length, reason } }); res.json({ batch: sum(batch), changed: r.changed.length });

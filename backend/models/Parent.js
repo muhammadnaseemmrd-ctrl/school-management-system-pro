@@ -12,6 +12,7 @@ const parentSchema = new mongoose.Schema(
     role: { type: String, enum: ['parent'], default: 'parent', required: true },
     relationship: { type: String, enum: ['Father', 'Mother', 'Guardian'], default: 'Guardian' },
     children: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
+    importJobId: { type: String, default: '' },
     avatar: { type: String, default: null },
     isActive: { type: Boolean, default: true },
     lastLogin: Date,
