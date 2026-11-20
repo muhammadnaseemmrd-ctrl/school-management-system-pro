@@ -106,4 +106,18 @@ router.get('/sales', async (req, res) => {
   try { res.json({ sales: await require('../controllers/salesController').sweep(), support: await require('../controllers/supportController').sweep() }); } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: pause access for instalments overdue past the grace period, free seats held by unpaid orders, move cohorts on, remind of live sessions (PRD E17)
+router.get('/training', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const sweep = require('../utils/training/service').sweep; const total = {};
+    for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) { const r = await sweep(sc._id); for (const [k, v] of Object.entries(r)) total[k] = (total[k] || 0) + v; }
+    res.json(total);
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

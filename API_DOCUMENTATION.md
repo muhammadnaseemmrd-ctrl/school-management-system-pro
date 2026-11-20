@@ -1519,3 +1519,40 @@ Approvals are **maker-checker**: the person who asked cannot approve; a school w
 - Public, no sign-in: `GET /api/public/registrar/verify/:key` → `{ valid, status: Valid|Altered|Withdrawn, serial, kind, school, student (first name and initials), program, issuedAt }`. `Altered` means the stored copy no longer matches its hash or signature. Page: `/verify-transcript/:key`.
 
 Indexes: `RegCourse (schoolId, code) unique`; `RegProgram (schoolId, code) unique`; `RegProgramVersion (schoolId, programId, catalogYear) unique`; `RegTerm (schoolId, code) unique`; `RegSection (schoolId, termId, courseId, section) unique`, `(schoolId, teacherId, termId)`; `RegStudentProgram currentKey unique`, `(schoolId, advisorId, isCurrent)`; `RegEnrollment activeKey unique`, `(schoolId, studentId, termId)`, `(schoolId, sectionId, status)`; `RegAppeal activeKey unique`, `(schoolId, number) unique`; `RegTranscript verifyKey unique`, `(schoolId, serial) unique`, `(schoolId, studentId, createdAt)`; `RegGradeChange`, `RegException` by `(schoolId, status)` and `(schoolId, studentId)`.
+
+
+## Training courses, cohorts and certificates (E17) — `/api/training`
+Courses for people outside the normal classes (staff, parents, outsiders). Staff and admins write courses; learners buy or are given access; the school confirms payment by hand; counted time, checks and reviewed work decide completion; an approval issues a signed certificate anyone can check. School-wide: a campus-limited admin gets `403`. No payment gateway, no email or WhatsApp: private links are shown once and copied by hand.
+
+Rules the server enforces:
+- Proof of payment never opens access. Only an admin confirm with the **exact** amount does (`422` otherwise). A reused reference needs `force: true` and a `forceReason` (10+ characters).
+- Access comes only from a confirmed payment, a confirmed sponsorship, a free course, or a written admin grant (reason, optional end date).
+- Video and reading lessons need **server-counted visible time**: a heartbeat every 15 s; only visible beats at least 5 s apart count, a gap over 40 s counts for nothing, 20 s at most per beat; needed time = min(1800 s, 60% of the lesson minutes). Early `complete` → `422`.
+- Check questions are graded on the server; right answers are never sent to the learner.
+- Assignments: rubric with a pass mark, a maximum number of attempts, extra attempts by an admin; returned work needs feedback.
+- Completion runs `none → ready → held → complete`. Approval issues credential `TC-YYYY-NNNNN` with a 12-character check key, an HMAC signature and a frozen snapshot. A refund after a certificate sets `refundFlag` for an admin decision.
+- Maker-checker: the person who asked cannot approve; a sole admin may approve their own request and the record says `sole: true`.
+
+### Learner (private link or student sign-in) — `/api/training/learn`
+The link goes in the `X-Learner-Key` header (`lk_` + 48 hex; only its SHA-256 hash is stored and the key is shown once). A signed-in student may omit it.
+- `GET /me` (courses, orders, certificates), `GET /catalog`, `POST /checkout`, `POST /orders/:id/proof` `{ reference, note }`, `POST /orders/:id/cancel`.
+- `GET /courses/:id`, `GET /courses/:id/lessons/:lid`, `POST …/beat` `{ visible }`, `POST …/position`, `POST …/answer` `{ answers }`, `POST …/submit` `{ text, link }`, `POST …/complete`.
+- `GET|POST /courses/:id/discussion` (posts are moderated; under-18 posts are held; three reports hold a post), report and reply routes.
+- `GET /courses/:id/slots`, `POST /slots/:id/book`, `POST /slots/:id/cancel` (office hours; a slot is booked by a conditional write so two people cannot take it).
+- `GET /credentials/:id/pdf`, `GET /credentials/:id/export`.
+
+### Staff
+- `GET /overview`, `GET|PUT /settings` (currency, tax percent and label, refund, grace and hold days, payment instructions, public page, policy versions with a reason).
+- `GET|POST /instructors`, verify/suspend/reset. Courses: `GET|POST /courses`, `PATCH /courses/:id` (modules, landing, price, instalments), `POST /courses/:id/submit`, `POST /courses/:id/decide`.
+- Cohorts and sessions: `GET|POST /cohorts`, `POST /cohorts/:id/sessions`, attendance, status steps. Seats are taken by compare-and-set.
+- Offers: `GET|POST /bundles` (`ordered` bundles unlock in order), `GET|POST /coupons` (validated on the server, usage and attribution counted).
+- Sales: `GET|POST /learners`, `GET|POST /orders`, `POST /orders/:id/installments/:no/confirm`, proof turn-down, cancel, refund, end access, `GET|POST /entitlements`, `GET|POST /sponsors` (approval needs a contract reference), `GET|POST /sponsorships`, `GET /reports`.
+- Review: `GET /submissions`, `POST /submissions/:id/review` `{ decision: accept|return, scores, feedback }`; `GET /completions`, `POST /completions/:id/decide` (approve issues the certificate; hold needs a reason); `GET /credentials`, withdraw with a reason; `GET /posts`, `POST /posts/:id/decide`; `GET|POST /slots`.
+
+### Public, no sign-in
+- `GET /api/public/training/:code` (page text, courses, bundles; `404` until the school opens its public page), `GET …/:code/course/:slug`, `POST …/:code/quote`, `POST …/:code/checkout` (consent required, a hidden `website` field is a honeypot, rate limited).
+- `GET /api/public/training/credential/:key` → Valid / Altered / Withdrawn / Expired with a masked name. `GET /api/public/training/sponsor/:key` → a report with only that sponsor's learners.
+- Pages: `/courses/:code`, `/courses/:code/:slug`, `/learn` (the link arrives in the address bar after `#`, is stored in this browser and removed from the address), `/verify-credential/:key`, `/sponsor/:key`.
+- Cron: `GET /api/cron/training` daily (pause overdue instalments after the grace days, cancel unpaid holds, start and close cohorts, send session reminders 26 hours ahead).
+
+Indexes: every `Tr*` collection leads with `schoolId` except the two keys that are looked up without a school. Unique: course `(schoolId, slug)`, order `(schoolId, orderNo)`, sponsor invoice `(schoolId, invoiceNo)`, credential `(schoolId, serial)` and `verifyKey`, learner `keyHash` (unique only where set, so learners without a link do not collide), entitlement `(schoolId, learnerId, courseId)`, submission `(schoolId, learnerId, courseId, lessonId, attempt)`. Lookups: orders by status and date and by `refs`, posts by course and status (`reportCount` is top-level so the report limit is a plain filter), submissions by status, sessions and slots by start time.

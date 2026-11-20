@@ -16,6 +16,8 @@ import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
 import RegistrarTeacher from '../../components/registrar/RegistrarTeacher';
 import useRegistrarPresence from '../../components/registrar/usePresence';
+import TrainingTeacher from '../../components/training/TrainingTeacher';
+import useTrainingPresence from '../../components/training/usePresence';
 import OmrDesk from '../../components/omr/OmrDesk';
 import TeacherTimetableDesk from '../../components/timetable/TeacherTimetableDesk';
 import TeacherToday from '../../components/today/TeacherToday';
@@ -27,7 +29,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -79,6 +81,7 @@ const TeacherDashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [studioAccess, setStudioAccess] = useState(false);
   const hasRegistrar = useRegistrarPresence('teacher');
+  const hasTraining = useTrainingPresence('teacher');
   useEffect(() => { apiClient.get('/studio/overview').then((r) => setStudioAccess(!!(r.data.can?.manage || r.data.can?.issue || r.data.can?.print))).catch(() => setStudioAccess(false)); }, []);
   const [myGrievances, setMyGrievances] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -547,6 +550,7 @@ const TeacherDashboard = () => {
                   ['assessments', 'Quizzes & exams', ClipboardList],
                   ['omr', 'Paper exams (OMR)', ScanLine],
                   ...(hasRegistrar ? [['registrar', 'Courses & advising', GraduationCap]] : []),
+                  ...(hasTraining ? [['training', 'Training courses', BookOpenCheck]] : []),
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2247,6 +2251,7 @@ const TeacherDashboard = () => {
             {activeTab === 'studio' && studioAccess && <DocStudio />}
             {activeTab === 'assessments' && <AssessDesk />}
             {activeTab === 'registrar' && hasRegistrar && <RegistrarTeacher />}
+            {activeTab === 'training' && hasTraining && <TrainingTeacher />}
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'earlyYears' && <EarlyDesk />}

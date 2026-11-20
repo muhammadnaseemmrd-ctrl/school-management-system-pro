@@ -9,6 +9,14 @@ const studioIssue = require('../controllers/studioIssueController');
 
 // Check a printed document by the reference in its QR code (PRD E12). Rate limited, no sign-in, nothing personal beyond a masked name.
 router.get('/verify/:token', lookupLimiter, studioIssue.verify);
+// Training: public course page, honest checkout, certificate check and sponsor report (PRD E17)
+const trL = require('../controllers/trLearnController');
+router.get('/training/credential/:key', lookupLimiter, trL.pubCredential);
+router.get('/training/sponsor/:key', lookupLimiter, trL.pubSponsor);
+router.get('/training/:code', lookupLimiter, trL.pubList);
+router.get('/training/:code/course/:slug', lookupLimiter, trL.pubCourse);
+router.post('/training/:code/quote', lookupLimiter, trL.pubQuote);
+router.post('/training/:code/checkout', signupLimiter, trL.pubCheckout);
 router.get('/registrar/verify/:key', lookupLimiter, require('../controllers/regStudentController').verify);
 // Which school owns this web address (PRD E27 white-label sign-in). Name, code, logo and colours only.
 router.get('/brand', lookupLimiter, require('../controllers/themeController').publicBrand);

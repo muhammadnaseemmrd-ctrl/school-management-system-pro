@@ -19,6 +19,7 @@ import ThemeStudio from '../../components/theme/ThemeStudio';
 import HelpDesk from '../../components/support/HelpDesk';
 import Migration from '../../components/migration/Migration';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
+import TrainingAdmin from '../../components/training/TrainingAdmin';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -38,7 +39,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1544,6 +1545,7 @@ const AdminDashboard = () => {
                   { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
                   { id: 'migration', label: 'Import & new year', icon: Upload },
                   { id: 'registrar', label: 'Registrar', icon: GraduationCap },
+                  { id: 'training', label: 'Training', icon: BookOpenCheck },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1699,6 +1701,7 @@ const AdminDashboard = () => {
             {activeTab === 'saasSupport' && <HelpDesk />}
             {activeTab === 'migration' && <Migration />}
             {activeTab === 'registrar' && <RegistrarAdmin />}
+            {activeTab === 'training' && <TrainingAdmin />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}

@@ -10,6 +10,8 @@ import FamilyDesk from '../../components/attendance/FamilyDesk';
 import FamilyCare from '../../components/care/FamilyCare';
 import RegistrarStudent from '../../components/registrar/RegistrarStudent';
 import useRegistrarPresence from '../../components/registrar/usePresence';
+import StudentCourses from '../../components/training/StudentCourses';
+import useTrainingPresence from '../../components/training/usePresence';
 import apiClient from '../../utils/apiClient';
 import usePlan from '../../utils/usePlan';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -24,6 +26,7 @@ const StudentDashboard = () => {
   const { has } = usePlan();
   const [profileData, setProfileData] = useState(null);
   const hasRecord = useRegistrarPresence('student');
+  const hasCourses = useTrainingPresence('student');
   const [myGrievances, setMyGrievances] = useState([]);
   const [studentHomework, setStudentHomework] = useState([]);
   const [attendanceData, setAttendanceData] = useState(null);
@@ -33,7 +36,7 @@ const StudentDashboard = () => {
   const [uploadingHomeworkId, setUploadingHomeworkId] = useState(null);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support', 'record'];
+    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support', 'record', 'courses'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -326,6 +329,7 @@ const StudentDashboard = () => {
                   ['support', 'Wellbeing & support', HeartPulse],
                   ['quizzes', 'Quizzes & exams', ClipboardList],
                   ...(hasRecord ? [['record', 'Academic record', GraduationCap]] : []),
+                  ...(hasCourses ? [['courses', 'Training courses', BookOpenCheck]] : []),
                   ['documents', 'My documents', FileText],
                   ['notices', 'Notice Board', Bell],
                   ['timetable', 'My Class Timetable', Calendar],
@@ -803,6 +807,7 @@ const StudentDashboard = () => {
         {activeSubTab === 'documents' && <MyDocuments />}
         {activeSubTab === 'quizzes' && <TakeQuiz />}
         {activeSubTab === 'record' && hasRecord && <RegistrarStudent />}
+        {activeSubTab === 'courses' && hasCourses && <StudentCourses />}
         {activeSubTab === 'support' && <FamilyCare role="student" />}
         {activeSubTab === 'desk' && <FamilyDesk role="student" kids={profileData ? [{ _id: profileData._id, name: profileData.name }] : []} />}
 

@@ -100,6 +100,7 @@ const verifySchoolAccess = (req, res, next) => {
 
 module.exports = {
   authenticate,
+  getSchoolBlock,
   authorize,
   verifySchoolAccess,
   invalidateSchoolStatus,

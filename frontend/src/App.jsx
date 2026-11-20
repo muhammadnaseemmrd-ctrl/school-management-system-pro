@@ -10,6 +10,10 @@ import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const VerifyTranscript = lazy(() => import('./pages/VerifyTranscript'));
+const VerifyCredential = lazy(() => import('./pages/VerifyCredential'));
+const SponsorReport = lazy(() => import('./pages/SponsorReport'));
+const Courses = lazy(() => import('./pages/Courses'));
+const Learn = lazy(() => import('./pages/Learn'));
 const ProposalPage = lazy(() => import('./pages/ProposalPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
@@ -91,6 +95,12 @@ function App() {
           <Route path="/verify/:token" element={<VerifyDocument />} />
           <Route path="/verify-transcript" element={<VerifyTranscript />} />
           <Route path="/verify-transcript/:key" element={<VerifyTranscript />} />
+          <Route path="/verify-credential" element={<VerifyCredential />} />
+          <Route path="/verify-credential/:key" element={<VerifyCredential />} />
+          <Route path="/sponsor/:key" element={<SponsorReport />} />
+          <Route path="/courses/:code" element={<Courses />} />
+          <Route path="/courses/:code/:slug" element={<Courses />} />
+          <Route path="/learn" element={<Learn />} />
           <Route
             path="/superadmin/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SuperAdminLogin />}
