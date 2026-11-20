@@ -11,6 +11,7 @@ import MyStaffRecord from './MyStaffRecord';
 import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
 import EarlyDesk from '../../components/early/EarlyDesk';
+import StaffFamilyDesk from '../../components/comms/StaffFamilyDesk';
 import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
 import OmrDesk from '../../components/omr/OmrDesk';
@@ -24,7 +25,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'studio', 'assessments', 'omr'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'studio', 'assessments', 'omr'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -535,6 +536,7 @@ const TeacherDashboard = () => {
                   ['today', 'Today', Clock],
                   ['safetyDesk', 'Gate & safety', ShieldAlert],
                   ['earlyYears', 'Nursery', Users],
+                  ['familyDesk', 'Family messages', Mail],
                   ['timetablePlan', 'Timetable & cover', Calendar],
                   ['staff', 'My staff record', Users],
                   ['assessments', 'Quizzes & exams', ClipboardList],
@@ -2241,6 +2243,7 @@ const TeacherDashboard = () => {
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'earlyYears' && <EarlyDesk />}
+            {activeTab === 'familyDesk' && <StaffFamilyDesk />}
             {activeTab === 'timetablePlan' && <TeacherTimetableDesk meId={profileData?._id} />}
             {activeTab === 'today' && <TeacherToday onNavigate={setActiveTab} />}
 

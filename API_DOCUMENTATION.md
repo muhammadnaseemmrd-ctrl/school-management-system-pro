@@ -1324,3 +1324,26 @@ Rules worth knowing:
 - **Pickup people.** A family can ask to add, pause or remove a collector, but nothing applies until staff record how they confirmed it (call-back, in person or signed form) and with whom. Pause ends the link and starts a new one from the return date. Named collectors hold no guardian rights except collection.
 - **Safety.** Under-three activities with small parts need an adult close by. Each entry records who wrote it.
 - **Status codes.** 400 invalid, 403 denied, 404 not in your school, 409 already done, 422 wrong state, 428 consent.
+
+## Family communication (E20) — `/api/comms`
+Messages, the family help desk, parent-teacher meeting days, quiet hours and bilingual (English/Urdu) delivery. Behind the plan feature `messages`. Administrators run the school office inbox, help desk, meeting days and settings; teachers write only about children they teach; parents use only their own children. Who may be contacted follows the guardian rights in E02 (`receiveMessages`, `receiveNotices`, contact restrictions).
+
+| Area | Routes |
+|---|---|
+| Settings and preferences | `GET|PUT /settings` (admin: quiet hours, working days and hours, reply and resolution deadlines per priority, auto-close and reopen days, meeting defaults), `GET|PUT /prefs` (anyone: language `en`/`ur`, own quiet hours, phone alerts on/off), `GET /overview` (counts for the badges; also runs a throttled sweep for staff), `POST /sweep` (admin) |
+| Who can I write to | `GET /family/children` (parent), `GET /contacts?studentId` (parent: school office and the child's teachers), `GET /students?q` (staff: child search with contactable parents) |
+| Messages | `GET|POST /threads` (`box=all|unread|waiting|closed`, `q`, `scope=office|teachers|all` for admin), `GET /threads/:id`, `POST /threads/:id/messages|read|close|reopen`, `POST /threads/:id/messages/:mid/remove` (admin, reason shown to the family), `GET /threads/:id/deliveries` (admin) |
+| Help desk | `GET|POST /tickets` (parents raise; admin lists with `status`, `category`, `priority`, `assignee=me|none`, `breach=1`, `q`), `GET /tickets/:id`, `POST /tickets/:id/comments|status|assign|priority|rate`, `GET|POST /canned`, `PUT|DELETE /canned/:id`, `GET /helpdesk/report?days`, `GET /helpdesk/admins` |
+| Meeting days | admin: `GET|POST /ptm`, `GET|PUT /ptm/:id`, `POST /ptm/:id/publish|close|cancel|nudge`, `GET /ptm/:id/unbooked`; staff: `GET /ptm/:id/slots`, `POST /ptm/slots/:sid/block|unblock|done|noshow|cancel`; family: `GET /ptm/family`, `GET /ptm/family/:id/slots?studentId`, `POST /ptm/slots/:sid/book|cancel` |
+| Housekeeping | `GET /api/cron/comms` (bearer `CRON_SECRET`; sweeps every school) |
+
+Rules worth knowing:
+- **One conversation per family, child and teacher (or the office).** Starting one that exists adds to it (`existing: true`). `clientKey` makes a retried send harmless. At most 30 messages an hour per sender.
+- **Two languages.** The sender may add a translation; each reader sees their own language first (`text`, with `alt` when both exist). Alerts are sent to each person in their own language.
+- **Quiet hours are enforced for every alert, not just messages.** The in-app notification is always immediate; only the phone push waits. Safety alerts and urgent messages (administrators only, with a reason) are never held. Held pushes are released by the sweep.
+- **Deliveries are tracked and retried** (3 tries, 5, 30 and 120 minutes apart). Admins see the state of each.
+- **Deadlines count working time only** (default Mon–Sat 08:00–15:00) and pause while a request is *Waiting on family*; the paused time is added back to the due date. A breach is raised once, with an event and an alert.
+- **Help desk.** Numbers look like `HD-2026-00001`. Safety concerns are urgent and visible to administrators only; health concerns start high. A priority change needs a reason and is audited. A resolved request closes itself after `autoCloseDays`; the family can reopen within `reopenDays`. Internal notes are never shown to families.
+- **Meeting days.** Publishing creates a slot per teacher per session. Booking is a conditional write, so two families racing for one time cannot both get it; a family cannot hold overlapping times, book the same teacher about the same child twice, or exceed the day's limit. Families can cancel until `cancelHoursBefore`; staff cancel with a reason and the family is told. The teacher's private note is never shown to the family; the summary is.
+- **Reading a teacher's conversation as an administrator is recorded** in the audit log.
+- **Status codes.** 400 invalid, 403 denied, 404 not in your school or not yours, 409 conflict (already booked, limit, closed), 422 wrong state, 429 rate limit.

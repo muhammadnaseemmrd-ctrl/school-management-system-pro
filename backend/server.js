@@ -121,6 +121,7 @@ app.use('/api/homework', gate('homework'), homeworkRoutes);
 app.use('/api/complaints', gate('complaints'), complaintRoutes);
 app.use('/api/events', gate('events'), eventRoutes);
 app.use('/api/messages', gate('messages'), messageRoutes);
+app.use('/api/comms', express.json({ limit: '200kb' }), gate('messages'), require('./routes/commsRoutes'));
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/upload', require('./routes/uploadRoutes'));
 app.use('/api/fees', require('./routes/feeRoutes'));
@@ -216,6 +217,11 @@ if (!process.env.VERCEL) server.listen(PORT, () => {
   require('node-cron').schedule('0 2 * * 0', () => {
     ready.then(() => require('./utils/backup').runWeekly({ budgetMs: 10 * 60 * 1000 })).catch((e) => console.error('[backup] weekly job failed:', e.message));
   }, { timezone: 'Asia/Karachi' });
+
+  // Family communication (PRD E20): release pushes held for quiet hours, raise late replies, remind families of meetings. On Vercel the daily cron does this.
+  require('node-cron').schedule('*/10 * * * *', () => {
+    ready.then(async () => { const School = require('./models/School'); const sweep = require('./utils/comms/sweep'); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) await sweep.run(sc._id); }).catch((e) => console.error('[comms] sweep failed:', e.message));
+  });
 
   // Auto Notice Expiration Cleanup Task
   const Notice = require('./models/Notice');

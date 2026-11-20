@@ -38,7 +38,8 @@ const ROLE_OF_MODEL = { User: 'admin', Teacher: 'teacher', Student: 'student', P
 const roleOfModel = (m) => ROLE_OF_MODEL[m] || null;
 
 // recipients: [{ id, role }]. Never throws – a notification problem must not break the main action.
-const notify = async ({ schoolId, recipients, title, body = '', link = '', type = 'general', key = '', exclude = null }) => {
+const BYPASS_QUIET = new Set(['safety']); // gate, drill and pickup alerts are never held back
+const notify = async ({ schoolId, recipients, title, body = '', link = '', type = 'general', key = '', exclude = null, urgent = false, track = null }) => {
   try {
     const seen = new Set();
     let list = (recipients || []).filter((r) => {
@@ -62,20 +63,71 @@ const notify = async ({ schoolId, recipients, title, body = '', link = '', type 
     const docs = list.map((r) => ({ schoolId: oid(schoolId), userId: oid(r.id), userRole: r.role, type, title, body: String(body).slice(0, 300), link: linkFor(r.role), key }));
     await Notification.insertMany(docs, { ordered: false });
 
+    // Quiet hours (PRD E20): the in-app copy above is always saved at once. A push waits while the school's quiet hours, or the person's own, apply.
+    // Safety alerts and urgent office messages go straight through. Held pushes are sent later by comms.dispatchDue.
+    const now = new Date(); const later = new Map(); const off = new Set();
+    try {
+      const C = require('./comms/service'); const settings = await C.getSettings(schoolId); const tz = await C.K.tzOf(schoolId);
+      const prefs = await require('../models/CmPref').find({ schoolId: oid(schoolId), userId: { $in: docs.map((d) => d.userId) } });
+      const pmap = new Map(prefs.map((x) => [`${x.role}:${x.userId}`, x]));
+      const bypass = (urgent && settings.urgentBypass) || BYPASS_QUIET.has(type);
+      for (const d of docs) {
+        const pf = pmap.get(`${d.userRole}:${d.userId}`);
+        if (pf && pf.push === false) { off.add(String(d.userId)); continue; }
+        if (bypass) continue;
+        const until = C.K.quietUntil(now, [settings.quiet.on ? settings.quiet : null, pf && pf.quietOn ? { from: pf.quietFrom, to: pf.quietTo } : null], tz);
+        if (until) later.set(String(d.userId), until);
+      }
+    } catch (e) { console.error('quiet hours check failed:', e.message); }
+    const Delivery = require('../models/CmDelivery'); const meta = track || {};
+    const base = (d) => ({ schoolId: oid(schoolId), recipientRole: d.userRole, recipientId: d.userId, kind: meta.kind || type, refId: oid(meta.refId), lang: meta.lang || 'en', bypassedQuiet: !!(urgent || BYPASS_QUIET.has(type)) });
+    const rows = [];
+    if (track) for (const d of docs) rows.push({ ...base(d), channel: 'inapp', state: 'sent', sentAt: now });
+    for (const d of docs) {
+      const k = String(d.userId);
+      if (later.has(k)) rows.push({ ...base(d), channel: 'push', state: 'deferred', deferUntil: later.get(k), payload: { title, body: String(body).slice(0, 140), url: linkFor(d.userRole) || '/' } });
+      else if (off.has(k) && track) rows.push({ ...base(d), channel: 'push', state: 'skipped', reason: 'push turned off' });
+    }
     // Web Push (best effort, limited so a request never hangs)
-    const subs = await PushSubscription.find({ userId: { $in: docs.map((d) => d.userId) } }).limit(400);
-    if (!subs.length) return;
-    await getVapid();
-    await Promise.race([
-      Promise.allSettled(subs.map(async (s) => {
-        try { await getWebpush().sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title, body: String(body).slice(0, 140), url: linkFor(s.userRole) || '/' }), { TTL: 86400 }); }
-        catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await PushSubscription.deleteOne({ _id: s._id }); }
-      })),
-      new Promise((r) => setTimeout(r, 6000)),
-    ]);
+    const subs = await PushSubscription.find({ userId: { $in: docs.map((d) => d.userId).filter((u) => !later.has(String(u)) && !off.has(String(u))) } }).limit(400);
+    const outcome = new Map();
+    if (subs.length) {
+      await getVapid();
+      await Promise.race([
+        Promise.allSettled(subs.map(async (s) => {
+          try { await getWebpush().sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title, body: String(body).slice(0, 140), url: linkFor(s.userRole) || '/' }), { TTL: 86400 }); outcome.set(String(s.userId), 'sent'); }
+          catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await PushSubscription.deleteOne({ _id: s._id }); else if (outcome.get(String(s.userId)) !== 'sent') outcome.set(String(s.userId), 'failed'); }
+        })),
+        new Promise((r) => setTimeout(r, 6000)),
+      ]);
+    }
+    if (track) {
+      for (const d of docs) {
+        const k = String(d.userId); if (later.has(k) || off.has(k)) continue;
+        const o = outcome.get(k);
+        if (o === 'sent') rows.push({ ...base(d), channel: 'push', state: 'sent', sentAt: now, attempts: 1 });
+        else if (o === 'failed') rows.push({ ...base(d), channel: 'push', state: 'failed', attempts: 1, nextTryAt: new Date(Date.now() + 5 * 60000), payload: { title, body: String(body).slice(0, 140), url: linkFor(d.userRole) || '/' } });
+        else rows.push({ ...base(d), channel: 'push', state: 'skipped', reason: 'no device' });
+      }
+    }
+    if (rows.length) await Delivery.insertMany(rows, { ordered: false });
   } catch (e) {
     console.error('notify failed:', e.message);
   }
+};
+
+// Send one push now (used to release pushes held for quiet hours). Returns 'sent', 'none' (no device) or 'failed'.
+const pushOnly = async (userId, role, payload) => {
+  try {
+    const subs = await PushSubscription.find({ userId: oid(userId) }).limit(10);
+    if (!subs.length) return 'none';
+    await getVapid(); let ok = false;
+    await Promise.all(subs.map(async (s) => {
+      try { await getWebpush().sendNotification({ endpoint: s.endpoint, keys: s.keys }, JSON.stringify({ title: payload.title || '', body: payload.body || '', url: payload.url || '/' }), { TTL: 86400 }); ok = true; }
+      catch (e) { if (e.statusCode === 404 || e.statusCode === 410) await PushSubscription.deleteOne({ _id: s._id }); }
+    }));
+    return ok ? 'sent' : 'failed';
+  } catch (e) { return 'failed'; }
 };
 
 /* ── who to tell ── */
@@ -96,4 +148,4 @@ const resolveRole = async (id) => {
   return null;
 };
 
-module.exports = { notify, getVapid, roleOfModel, resolveRole, admins, teachers, students, parentsOf, parents, studentAndParents };
+module.exports = { notify, pushOnly, getVapid, roleOfModel, resolveRole, admins, teachers, students, parentsOf, parents, studentAndParents };

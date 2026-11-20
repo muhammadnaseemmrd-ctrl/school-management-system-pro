@@ -245,3 +245,14 @@ Administrators and teachers find **Nursery** in the dashboard menu; parents see 
 7. **Pickup changes.** When a family asks to add, pause or remove a collector, phone them on the number the school already holds (or see them, or use a signed form), record how you confirmed it, then apply. Every guardian is told.
 
 Parents read the diary, see today's status, update health information (the nursery confirms it with them first), change what the nursery may share, and ask for collector changes.
+
+## Family communication (E20)
+Administrators and teachers find **Family messages** in the dashboard menu; parents find **Messages & help**. The school needs the Messages feature in its plan.
+
+1. **Messages.** Parents write to the school office or to a teacher of their child, in English or Urdu. Staff reply the same way; add the same message in the other language and each person reads their own. Teachers see only their own conversations. When an administrator opens a teacher's conversation, that is recorded. Conversations that wait longer than the school's reply time show *Reply is late*.
+2. **Quiet hours.** Under *Settings* choose when non-urgent phone alerts wait (default 21:00 to 07:00). Everything is still in the app straight away. Safety alerts and administrator messages marked urgent are never held. Each person can also set their own quiet hours, language and phone alerts under *My alerts*.
+3. **Help desk (administrator).** Families raise requests (fees, documents, transport, health, a complaint and so on). Each gets a number and two deadlines counted in working time. Take a request, reply, add internal notes the family cannot see, use ready-made replies, ask the family for something (the clock pauses until they answer) and resolve it. The family can rate the help or reopen within the reopening period. *Report* shows volumes, median reply and resolution times, deadlines met, reopenings and ratings.
+4. **Meeting days.** Plan a day: classes, teachers, sessions, minutes per meeting and when booking opens and closes. Publish it and families are told. Watch who has not booked and remind them once a day. Teachers block times they cannot do and, afterwards, record each meeting: a summary the family sees and a private note only staff see. Families get a reminder about a day before. The day closes itself after its last session.
+5. **Delivery check.** Open a conversation and press *Delivery* to see which alerts were sent, held for quiet hours or failed and retried.
+
+Set `CRON_SECRET` on Vercel. The daily job (07:05 Pakistan time) releases held alerts and raises breaches; away from Vercel the server sweeps every 10 minutes.
