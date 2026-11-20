@@ -10,6 +10,8 @@ const schema = new mongoose.Schema({
   action: { type: String, required: true },
   classId: { type: mongoose.Schema.Types.ObjectId, ref: 'Class', default: null },   // scope: one class, or empty for the whole school
   className: { type: String, default: '' },
+  campusId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campus', default: null },   // scope: one campus (E01); empty = every campus
+  campusName: { type: String, default: '' },
   source: { type: String, enum: ['grant', 'break-glass'], default: 'grant' },
   validFrom: { type: Date, default: Date.now },
   validTo: { type: Date, required: true },
@@ -23,5 +25,6 @@ const schema = new mongoose.Schema({
 schema.index({ schoolId: 1, granteeId: 1, action: 1, validTo: -1 });
 schema.index({ schoolId: 1, createdAt: -1 });
 schema.index({ schoolId: 1, source: 1, createdAt: -1 });
+schema.index({ schoolId: 1, campusId: 1, validTo: -1 });
 
 module.exports = mongoose.model('PermissionGrant', schema);

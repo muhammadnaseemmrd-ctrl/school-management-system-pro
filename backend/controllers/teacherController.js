@@ -97,6 +97,7 @@ exports.getTeacherById = async (req, res) => {
 exports.createTeacher = async (req, res) => {
   try {
     const { name, email, password, phone, employeeId, ...rest } = req.body;
+    delete rest.schoolId;     // the school comes from the session, never the form
 
     // Check if any classes/standards and subjects exist for this school
     const Class = require('../models/Class');
@@ -220,7 +221,7 @@ exports.updateTeacher = async (req, res) => {
 
     let teacher = await Teacher.findOneAndUpdate(
       { _id: req.params.id, schoolId: req.user.schoolId },
-      req.body,
+      require('../utils/tenantGuard').safeBody(req.body),
       { new: true, runValidators: true }
     );
 
@@ -306,6 +307,7 @@ exports.deleteTeacher = async (req, res) => {
 exports.assignSubject = async (req, res) => {
   try {
     const { subjectId } = req.body;
+    if (!(await require('../utils/tenantGuard').allInSchool(require('../models/Subject'), req.user.schoolId, subjectId))) return res.status(404).json({ message: 'Subject not found' });
 
     const teacher = await Teacher.findOneAndUpdate(
       { _id: req.params.id, schoolId: req.user.schoolId },
@@ -330,6 +332,7 @@ exports.assignSubject = async (req, res) => {
 exports.assignClass = async (req, res) => {
   try {
     const { classId } = req.body;
+    if (!(await require('../utils/tenantGuard').allInSchool(require('../models/Class'), req.user.schoolId, classId))) return res.status(404).json({ message: 'Class not found' });
 
     const teacher = await Teacher.findOneAndUpdate(
       { _id: req.params.id, schoolId: req.user.schoolId },

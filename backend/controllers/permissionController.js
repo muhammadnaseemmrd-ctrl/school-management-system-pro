@@ -3,10 +3,11 @@ const PermissionGrant = require('../models/PermissionGrant');
 const User = require('../models/User'); const Teacher = require('../models/Teacher'); const Class = require('../models/Class');
 const P = require('../utils/permissions'); const N = require('../utils/notify');
 const { audit } = require('../utils/audit');
+const Campus = require('../utils/campus'); const CampusModel = require('../models/Campus');
 
 const isId = (v) => mongoose.isValidObjectId(String(v || ''));
 const fail = (res, e) => res.status(500).json({ message: e.message });
-const shape = (g) => ({ _id: g._id, granteeId: g.granteeId, granteeName: g.granteeName, action: g.action, label: P.CATALOG[g.action]?.label || g.action, classId: g.classId, className: g.className,
+const shape = (g) => ({ _id: g._id, granteeId: g.granteeId, granteeName: g.granteeName, action: g.action, label: P.CATALOG[g.action]?.label || g.action, classId: g.classId, className: g.className, campusId: g.campusId || null, campusName: g.campusName || '',
   source: g.source, validFrom: g.validFrom, validTo: g.validTo, reason: g.reason, grantedByName: g.grantedByName, revokedAt: g.revokedAt, revokeReason: g.revokeReason, active: P.liveGrant(g, new Date()) });
 
 exports.matrix = async (req, res) => {
@@ -17,6 +18,8 @@ exports.list = async (req, res) => {
   try {
     const q = { schoolId: req.user.schoolId };
     if (req.query.source === 'break-glass') q.source = 'break-glass';
+    const sc = await Campus.scopeOf(req.user);
+    if (sc && req.query.source !== 'break-glass') q.campusId = { $in: sc.campusIds.map((i) => new mongoose.Types.ObjectId(i)) };   // a campus admin sees the grants of their campuses
     const rows = await PermissionGrant.find(q).sort({ createdAt: -1 }).limit(200);
     const out = rows.map(shape);
     res.json({ grants: req.query.active === '1' ? out.filter((g) => g.active) : out });
@@ -47,13 +50,25 @@ exports.create = async (req, res) => {
       if (!cls) return res.status(404).json({ message: 'Class not found' });
       if (b.granteeRole !== 'teacher') return res.status(422).json({ message: 'Admins can already take attendance for every class.' });
     }
-    const dup = (await PermissionGrant.find({ schoolId: sid, granteeId: grantee._id, action: b.action, classId: cls ? cls._id : null })).find((g) => P.liveGrant(g, to) || P.liveGrant(g, from));
+    // optional campus limit. A campus admin may only grant inside their own campuses, and never for the whole school.
+    let campus = null; const mine = await Campus.scopeOf(req.user);
+    if (b.campusId) {
+      campus = isId(b.campusId) ? await CampusModel.findOne({ _id: b.campusId, schoolId: sid, status: 'active' }) : null;
+      if (!campus) return res.status(404).json({ message: 'Campus not found' });
+      if (cls && String(await Campus.campusOfClass(sid, cls._id)) !== String(campus._id)) return res.status(422).json({ message: 'That class is not on the chosen campus.' });
+    }
+    if (mine) {
+      const where = campus ? String(campus._id) : cls ? await Campus.campusOfClass(sid, cls._id) : null;
+      if (!where || !mine.campusIds.includes(String(where))) return res.status(403).json({ message: 'You can only give access inside your own campus. Choose a campus or a class you look after.' });
+      if (!campus) campus = await CampusModel.findOne({ _id: where, schoolId: sid });
+    }
+    const dup = (await PermissionGrant.find({ schoolId: sid, granteeId: grantee._id, action: b.action, classId: cls ? cls._id : null, campusId: campus ? campus._id : null })).find((g) => P.liveGrant(g, to) || P.liveGrant(g, from));
     if (dup) return res.status(422).json({ message: 'This person already has this permission for that period.' });
 
     const g = await PermissionGrant.create({ schoolId: sid, granteeId: grantee._id, granteeModel: b.granteeRole === 'teacher' ? 'Teacher' : 'User', granteeName: grantee.name, action: b.action,
-      classId: cls ? cls._id : null, className: cls ? `${cls.standard}-${cls.division}` : '', source: 'grant', validFrom: from, validTo: to, reason: String(b.reason).slice(0, 300),
+      classId: cls ? cls._id : null, className: cls ? `${cls.standard}-${cls.division}` : '', campusId: campus ? campus._id : null, campusName: campus ? campus.name : '', source: 'grant', validFrom: from, validTo: to, reason: String(b.reason).slice(0, 300),
       grantedBy: req.user.userId, grantedByName: req.actorName || '' });
-    await audit(req, { action: 'permission.grant', entityType: 'PermissionGrant', entityId: g._id, schoolId: sid, detail: { grantee: grantee.name, permission: b.action, classId: cls?._id || null, until: to } });
+    await audit(req, { action: 'permission.grant', entityType: 'PermissionGrant', entityId: g._id, schoolId: sid, detail: { grantee: grantee.name, permission: b.action, classId: cls?._id || null, campusId: campus?._id || null, until: to } });
     await N.notify({ schoolId: sid, recipients: [{ id: grantee._id, role: b.granteeRole }], title: `You have new access: ${def.label}`, body: `${cls ? `Class ${cls.standard}-${cls.division}. ` : ''}Until ${to.toDateString()}.`, type: 'general' });
     res.status(201).json({ grant: shape(g) });
   } catch (e) { fail(res, e); }
@@ -63,6 +78,7 @@ exports.revoke = async (req, res) => {
   try {
     const g = isId(req.params.id) ? await PermissionGrant.findOne({ _id: req.params.id, schoolId: req.user.schoolId }) : null;
     if (!g) return res.status(404).json({ message: 'Grant not found' });
+    { const sc = await Campus.scopeOf(req.user); if (sc && (!g.campusId || !sc.campusIds.includes(String(g.campusId)))) return res.status(404).json({ message: 'Grant not found' }); }
     if (g.revokedAt || new Date(g.validTo) <= new Date()) return res.status(422).json({ message: 'This permission has already ended.' });
     const reason = String(req.body?.reason || '').trim();
     if (reason.length < 3) return res.status(400).json({ message: 'Write a short reason.' });
@@ -98,8 +114,10 @@ exports.breakGlass = async (req, res) => {
 exports.people = async (req, res) => {
   try {
     const sid = req.user.schoolId;
+    await Campus.ensureDefault(sid); const scope = await Campus.scopeOf(req.user);
+    const campuses = (await CampusModel.find({ schoolId: sid, status: 'active' }).sort({ isDefault: -1, name: 1 })).filter((c) => !scope || scope.campusIds.includes(String(c._id)));
     const [admins, teachers, classes] = await Promise.all([User.find({ schoolId: sid, role: 'admin' }).select('name email'), Teacher.find({ schoolId: sid }).select('name email'), Class.find({ schoolId: sid }).select('standard division')]);
-    res.json({ admins: admins.map((u) => ({ _id: u._id, name: u.name, email: u.email })), teachers: teachers.map((u) => ({ _id: u._id, name: u.name, email: u.email })),
+    res.json({ campuses: campuses.map((c) => ({ _id: c._id, name: c.name })), admins: admins.map((u) => ({ _id: u._id, name: u.name, email: u.email })), teachers: teachers.map((u) => ({ _id: u._id, name: u.name, email: u.email })),
       classes: classes.map((c) => ({ _id: c._id, name: `${c.standard}-${c.division}` })).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })) });
   } catch (e) { fail(res, e); }
 };

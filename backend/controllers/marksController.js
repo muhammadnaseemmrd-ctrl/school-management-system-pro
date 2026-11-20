@@ -349,7 +349,7 @@ exports.updateExam = async (req, res) => {
       }
     }
 
-    const updatedExam = await Exam.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    const updatedExam = await Exam.findOneAndUpdate({ _id: req.params.id, schoolId: req.user.schoolId }, require('../utils/tenantGuard').safeBody(req.body), { new: true, runValidators: true });
     res.json({ message: 'Exam updated successfully', exam: updatedExam });
   } catch (error) {
     res.status(500).json({ message: error.message });

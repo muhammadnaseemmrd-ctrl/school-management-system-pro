@@ -1,13 +1,16 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { KeyRound, Siren, CheckCircle2, CircleDashed } from 'lucide-react';
+import Campuses from '../../components/access/Campuses';
+import Consents from '../../components/access/Consents';
+import { Tabs } from '../../components/early/earlyKit';
 import apiClient from '../../utils/apiClient';
 import { Card, Modal, Field, Pill, EmptyState, btnGhost, btnPrimary, btnDanger, inputCls, fmtDate, errMsg } from '../../components/ui';
 
 const iso = (d) => new Date(Date.now() + d * 864e5).toISOString().slice(0, 10);
 const until = (v) => { const d = new Date(v); d.setHours(23, 59, 59, 0); return d.toISOString(); };
 
-const AccessPermissions = () => {
+const PermissionsPanel = () => {
   const [m, setM] = useState(null); const [grants, setGrants] = useState([]); const [people, setPeople] = useState(null); const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState(null); const [revoke, setRevoke] = useState(null); const [glass, setGlass] = useState(null);
@@ -36,7 +39,7 @@ const AccessPermissions = () => {
             <p className="mt-1 max-w-2xl text-sm text-[#5b6b7b]">Roles give everyone their normal access. Anything beyond that is given for a limited time, for a reason, and can be taken back. Every grant and every emergency use is recorded.</p></div>
           <div className="flex gap-2">
             <button className={btnGhost} onClick={() => setGlass({ reason: '', minutes: 30 })}><Siren className="h-4 w-4" /> Emergency access</button>
-            <button className={btnPrimary} onClick={() => setForm({ action: grantable[0].action, granteeRole: 'teacher', granteeId: '', classId: '', validTo: iso(7), reason: '' })}>Grant access</button></div>
+            <button className={btnPrimary} onClick={() => setForm({ action: grantable[0].action, granteeRole: 'teacher', granteeId: '', classId: '', campusId: '', validTo: iso(7), reason: '' })}>Grant access</button></div>
         </div>
       </Card>
 
@@ -46,7 +49,7 @@ const AccessPermissions = () => {
           {active.length === 0 ? <EmptyState title="No temporary access is active" text="Use Grant access to let a cover teacher take a class's attendance for a few days, or to let another admin read restriction reasons." /> : (
             <table className="w-full min-w-[640px] text-start text-sm"><tbody>{active.map((g) => (
               <tr key={g._id} className="border-b border-[#e3e7e7]/60 last:border-0">
-                <td className="px-4 py-3"><p className="font-semibold">{g.granteeName}</p><p className="text-xs text-[#5b6b7b]">{g.label}{g.className ? ` · class ${g.className}` : ''}</p></td>
+                <td className="px-4 py-3"><p className="font-semibold">{g.granteeName}</p><p className="text-xs text-[#5b6b7b]">{g.label}{g.className ? ` · class ${g.className}` : ''}{g.campusName ? ` · ${g.campusName}` : ''}</p></td>
                 <td className="px-4 py-3 text-xs">Until {fmtDate(g.validTo)}<p className="text-[#5b6b7b]">{g.reason}</p></td>
                 <td className="px-4 py-3 text-xs text-[#5b6b7b]">by {g.grantedByName || 'admin'}</td>
                 <td className="px-4 py-3"><button className={`${btnDanger} !px-3 !py-1.5 !text-xs`} onClick={() => setRevoke({ id: g._id, reason: '' })}>Take back</button></td></tr>))}</tbody></table>)}
@@ -81,11 +84,12 @@ const AccessPermissions = () => {
           {def.scope !== 'class' && <p className="text-xs text-[#5b6b7b]">Only school admins can be given this.</p>}
           <Field label="Who"><select className={inputCls} value={form.granteeId} onChange={(e) => setForm({ ...form, granteeId: e.target.value })}><option value="">Choose…</option>{who.map((p) => <option key={p._id} value={p._id}>{p.name}</option>)}</select></Field>
           {def.scope === 'class' && <Field label="Class"><select className={inputCls} value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value })}><option value="">Choose…</option>{people.classes.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}</select></Field>}
+          {people.campuses.length > 1 && !(def.scope === 'class') && <Field label="Campus" hint="Leave on every campus, or limit this access to one"><select className={inputCls} value={form.campusId} onChange={(e) => setForm({ ...form, campusId: e.target.value })}><option value="">Every campus</option>{people.campuses.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}</select></Field>}
           <Field label="Until" hint={`At most ${m.limits.maxGrantDays} days`}><input type="date" min={iso(1)} className={inputCls} value={form.validTo} onChange={(e) => setForm({ ...form, validTo: e.target.value })} /></Field>
           <Field label="Reason"><input className={inputCls} value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} placeholder="For example: covering for a colleague on leave" /></Field>
           <div className="flex justify-end gap-2"><button className={btnGhost} onClick={() => setForm(null)}>Cancel</button>
             <button disabled={busy || !form.granteeId || form.reason.trim().length < 5 || (def.scope === 'class' && !form.classId)} className={btnPrimary}
-              onClick={async () => { if (await run(() => apiClient.post('/permissions/grants', { ...form, validTo: until(form.validTo), classId: form.classId || undefined }), 'Access granted')) setForm(null); }}>Grant</button></div>
+              onClick={async () => { if (await run(() => apiClient.post('/permissions/grants', { ...form, validTo: until(form.validTo), classId: form.classId || undefined, campusId: form.campusId || undefined }), 'Access granted')) setForm(null); }}>Grant</button></div>
         </div></Modal>}
 
       {revoke && <Modal title="Take back this access" onClose={() => setRevoke(null)}>
@@ -109,5 +113,17 @@ export const EmergencyModal = ({ glass, setGlass, busy, onSend, max = 60, onDone
     </div>
   </Modal>
 );
+
+const AccessPermissions = () => {
+  const [tab, setTab] = useState('permissions');
+  return (
+    <div className="space-y-5">
+      <Tabs label="Access sections" value={tab} onChange={setTab} items={[['permissions', 'Permissions'], ['campuses', 'Campuses'], ['consent', 'Consent register']]} />
+      {tab === 'permissions' && <PermissionsPanel />}
+      {tab === 'campuses' && <Campuses />}
+      {tab === 'consent' && <Consents />}
+    </div>
+  );
+};
 
 export default AccessPermissions;

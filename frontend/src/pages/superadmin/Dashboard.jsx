@@ -9,6 +9,7 @@ import apiClient from '../../utils/apiClient';
 import BackupPanel from '../../components/BackupPanel';
 import { OperationsTab } from './Ops';
 import { SalesTab } from './Sales';
+import Organizations from '../../components/access/Organizations';
 import { AgentsTab, PaymentsTab, CommissionsTab, LedgerTab, RecordPaymentModal, LinkAgentModal } from './Money';
 
 const PLAN_COLORS = { free: '#2a5cac', standard: '#2a5cac', premium: '#b86650' };
@@ -30,7 +31,7 @@ const Modal = ({ title, onClose, children, wide }) => (
   </div>
 );
 
-const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['offers', 'Offers', Gift], ['agents', 'Agents', Briefcase], ['payments', 'Payments', Receipt], ['commissions', 'Commissions', Wallet], ['ledger', 'Ledger & activity', Scale], ['ops', 'Backups & recovery', Archive], ['sales', 'Sales & support', Inbox], ['security', 'Account Security', Lock]];
+const TABS = [['overview', 'Platform Overview', BarChart3], ['schools', 'Schools (Tenants)', Building2], ['plans', 'Plans & Pricing', Layers], ['offers', 'Offers', Gift], ['agents', 'Agents', Briefcase], ['payments', 'Payments', Receipt], ['commissions', 'Commissions', Wallet], ['ledger', 'Ledger & activity', Scale], ['ops', 'Backups & recovery', Archive], ['sales', 'Sales & support', Inbox], ['organizations', 'Organizations', Building2], ['security', 'Account Security', Lock]];
 
 const emptyForm = { name: '', code: '', email: '', phone: '', city: '', adminName: '', adminEmail: '', adminPassword: '', plan: 'free', subscriptionExpiresAt: '', timezone: 'Asia/Karachi' };
 
@@ -380,6 +381,7 @@ const SuperAdminDashboard = () => {
           {tab === 'ledger' && <LedgerTab onChanged={loadStats} />}
           {tab === 'ops' && <OperationsTab onChanged={loadStats} />}
           {tab === 'sales' && <SalesTab plans={plans} />}
+          {tab === 'organizations' && <Organizations />}
           {modal?.type === 'pay' && <RecordPaymentModal school={modal.school} plans={plans} onClose={() => setModal(null)} onDone={() => { loadStats(); loadSchools(); }} />}
           {modal?.type === 'agent' && <LinkAgentModal school={modal.school} onClose={() => setModal(null)} onDone={loadSchools} />}
 

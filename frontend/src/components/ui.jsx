@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Inbox } from 'lucide-react';
 
@@ -25,19 +25,35 @@ export const Field = ({ label, hint, children }) => (
   </label>
 );
 
-export const Modal = ({ title, onClose, children, wide }) => createPortal(
-  <div className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1b2837]/45 p-4" role="dialog" aria-modal="true" aria-label={title}
-    onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
-    <div className={`max-h-[90vh] w-full overflow-y-auto rounded-2xl border border-[#e3e7e7] bg-white p-6 shadow-2xl ${wide ? 'max-w-2xl' : 'max-w-md'}`}>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <h3 className="text-lg font-bold text-[#1b2837]">{title}</h3>
-        <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-[#5b6b7b] hover:bg-[#f7f6f2]"><X className="h-5 w-5" /></button>
+// A dialog. Escape closes the top-most one wherever the focus is (also after a button got disabled mid-save),
+// focus moves inside on open and goes back to where it was on close.
+export const Modal = ({ title, onClose, children, wide }) => {
+  const ref = useRef(null); const closeRef = useRef(onClose); closeRef.current = onClose;
+  useEffect(() => {
+    const before = document.activeElement; const dlg = ref.current;
+    if (dlg && !dlg.contains(document.activeElement)) (dlg.querySelector('input:not([type=hidden]),select,textarea') || dlg.querySelector('[data-dialog-panel]'))?.focus?.();
+    const onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      const all = document.querySelectorAll('[role="dialog"]');
+      if (all[all.length - 1] !== ref.current) return;
+      e.stopPropagation(); closeRef.current();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => { document.removeEventListener('keydown', onKey); if (before && document.contains(before)) before.focus?.(); };
+  }, []);
+  return createPortal(
+    <div ref={ref} className="fixed inset-0 z-[70] flex items-center justify-center bg-[#1b2837]/45 p-4" role="dialog" aria-modal="true" aria-label={title}>
+      <div data-dialog-panel tabIndex={-1} className={`max-h-[90vh] w-full overflow-y-auto rounded-2xl border border-[#e3e7e7] bg-white p-6 shadow-2xl outline-none ${wide ? 'max-w-2xl' : 'max-w-md'}`}>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h3 className="text-lg font-bold text-[#1b2837]">{title}</h3>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-[#5b6b7b] hover:bg-[#f7f6f2]"><X className="h-5 w-5" /></button>
+        </div>
+        {children}
       </div>
-      {children}
-    </div>
-  </div>,
-  document.body,
-);
+    </div>,
+    document.body,
+  );
+};
 
 const TONES = {
   Pending: 'bg-[#fbf0ec] text-[#8a4636]', Approved: 'bg-[#eef2f8] text-[#234c91]', Paid: 'bg-[#edf5f3] text-[#215a52]', Void: 'bg-[#f1f2f2] text-[#5b6b7b]',

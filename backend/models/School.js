@@ -94,6 +94,8 @@ const schoolSchema = new mongoose.Schema(
     agentCommissionPercent: { type: Number, default: 0 },
     referredAt: { type: Date, default: null },
     referralSource: { type: String, enum: ['', 'link', 'code', 'superadmin'], default: '' },
+    // Group of schools this one belongs to (E01). Grouping never shares data between schools.
+    organizationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Organization', default: null },
   },
   { timestamps: true }
 );
@@ -103,5 +105,6 @@ schoolSchema.index({ createdAt: -1 });
 schoolSchema.index({ plan: 1, isActive: 1 });
 schoolSchema.index({ agentId: 1, createdAt: -1 });
 schoolSchema.index({ subscriptionExpiresAt: 1 });
+schoolSchema.index({ organizationId: 1 });
 
 module.exports = mongoose.model('School', schoolSchema);

@@ -10,6 +10,13 @@ exports.getAllStudents = async (req, res) => {
 
     let query = { schoolId };
 
+    // a campus admin lists only the students of their campuses
+    const sc = await require('../utils/campus').scopeOf(req.user);
+    if (sc) {
+      if (classId && !sc.classIds.has(String(classId))) return res.status(403).json({ message: 'That class is outside your campus.' });
+      query.classId = classId ? classId : { $in: [...sc.classIds] };
+    }
+
     if (req.user.role === 'teacher') {
       const Teacher = require('../models/Teacher');
       const teacher = await Teacher.findById(req.user.userId);
@@ -35,7 +42,7 @@ exports.getAllStudents = async (req, res) => {
       } else {
         query.classId = { $in: assignedClassIds };
       }
-    } else {
+    } else if (!sc) {
       if (classId) query.classId = classId;
     }
     if (search) {
@@ -97,6 +104,8 @@ exports.getStudentById = async (req, res) => {
 exports.createStudent = async (req, res) => {
   try {
     const { name, email, password, phone, rollNumber, registrationNumber, classId, division, ...rest } = req.body;
+    delete rest.schoolId;
+    if (classId && !(await require('../utils/campus').canAccessClass(req.user, classId))) return res.status(403).json({ message: 'That class is outside your campus.' });
 
     // Check if any classes/standards and subjects exist for this school
     const classCount = await Class.countDocuments({ schoolId: req.user.schoolId });
@@ -208,6 +217,10 @@ exports.createStudent = async (req, res) => {
 // Update Student
 exports.updateStudent = async (req, res) => {
   try {
+    const { safeBody } = require('../utils/tenantGuard');
+    req.body = safeBody(req.body, ['studentCount']);          // the school never comes from the form
+    if (!(await require('../utils/access').canAccessStudent(req.user, req.params.id))) return res.status(404).json({ message: 'Student not found' });
+    if (req.body.classId && !(await require('../utils/campus').canAccessClass(req.user, req.body.classId))) return res.status(403).json({ message: 'That class is outside your campus.' });
     let resolvedClassId = req.body.classId;
     let resolvedDivision = req.body.division;
 
@@ -232,7 +245,7 @@ exports.updateStudent = async (req, res) => {
       req.body.division = resolvedDivision;
     }
 
-    const originalStudent = await Student.findById(req.params.id);
+    const originalStudent = await Student.findOne({ _id: req.params.id, schoolId: req.user.schoolId });
 
     if (req.body.password) {
       const { hashPassword } = require('../utils/password');
@@ -259,7 +272,7 @@ exports.updateStudent = async (req, res) => {
     }
 
     // Update class student count if class changed
-    if (originalStudent && String(originalStudent.classId) !== String(resolvedClassId)) {
+    if (originalStudent && resolvedClassId !== undefined && String(originalStudent.classId) !== String(resolvedClassId)) {      // only when the form actually names a class
       if (originalStudent.classId) {
         await Class.findByIdAndUpdate(originalStudent.classId, { $inc: { studentCount: -1 } });
       }
@@ -283,6 +296,7 @@ exports.deleteStudent = async (req, res) => {
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Access denied. Only administrators can delete students.' });
     }
+    if (!(await require('../utils/access').canAccessStudent(req.user, req.params.id))) return res.status(404).json({ message: 'Student not found' });
 
     const student = await Student.findOneAndDelete({
       _id: req.params.id,

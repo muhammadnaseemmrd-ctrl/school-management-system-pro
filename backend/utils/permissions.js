@@ -2,6 +2,7 @@
 // Role defaults come from the catalog; anything beyond a role default needs a scoped, time-limited grant.
 const mongoose = require('../lib/pgdoc');
 const PermissionGrant = require('../models/PermissionGrant');
+const Campus = require('./campus');
 
 // implemented: true = enforced somewhere in the product today
 const CATALOG = {
@@ -46,14 +47,24 @@ const oid = (v) => (v && mongoose.isValidObjectId(String(v)) ? new mongoose.Type
 const liveGrant = (g, at) => !g.revokedAt && new Date(g.validFrom) <= at && new Date(g.validTo) > at;
 
 // -> { allowed, via: 'role' | 'grant' | 'break-glass' | null, grantId }
-async function can(user, action, { classId = null, at = new Date() } = {}) {
+async function can(user, action, { classId = null, campusId = null, at = new Date() } = {}) {
   const def = CATALOG[action];
   if (!user || !def) return { allowed: false, via: null };
-  if (def.defaults.includes(user.role)) return { allowed: true, via: 'role' };
+  if (def.defaults.includes(user.role)) {
+    // a campus admin's role default stops at the edge of their campuses (deny cross-campus by default)
+    if (user.role === 'admin') {
+      const sc = await Campus.scopeOf(user);
+      if (sc && ((classId && !sc.classIds.has(String(classId))) || (campusId && !sc.campusIds.includes(String(campusId))))) return { allowed: false, via: null, reason: 'campus' };
+    }
+    return { allowed: true, via: 'role' };
+  }
   if (!def.grantable || !user.schoolId || !oid(user.userId)) return { allowed: false, via: null };
-  const grants = await PermissionGrant.find({ schoolId: oid(user.schoolId), granteeId: oid(user.userId), action });
-  const hit = grants.filter((g) => liveGrant(g, at) && (!g.classId || (classId && String(g.classId) === String(classId))))
-    .sort((a, b) => (a.classId ? 0 : 1) - (b.classId ? 0 : 1))[0];
+  const grants = (await PermissionGrant.find({ schoolId: oid(user.schoolId), granteeId: oid(user.userId), action })).filter((g) => liveGrant(g, at));
+  // a grant tied to a campus only works for things in that campus; the campus of a class is looked up only when needed
+  let where = campusId ? String(campusId) : null;
+  if (!where && classId && grants.some((g) => g.campusId)) where = await Campus.campusOfClass(user.schoolId, classId);
+  const hit = grants.filter((g) => (!g.classId || (classId && String(g.classId) === String(classId))) && (!g.campusId || (where && String(g.campusId) === where)))
+    .sort((a, b) => (a.classId ? 0 : a.campusId ? 1 : 2) - (b.classId ? 0 : b.campusId ? 1 : 2))[0];
   return hit ? { allowed: true, via: hit.source, grantId: hit._id } : { allowed: false, via: null };
 }
 

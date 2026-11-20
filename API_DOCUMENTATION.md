@@ -1459,3 +1459,28 @@ Classes stay the same records from year to year; a learner moves between classes
 - `POST /rollover/:id/rollback` `{ reason }` — puts learners back where they were (only those still where the rollover put them; others are listed as conflicts), removes empty classes the rollover made, restores the years and unfreezes. `POST /rollover/:id/cancel` for a draft or reviewed run.
 
 Indexes: `ImportJob (schoolId, createdAt)`, `(schoolId, status)`, `(schoolId, kind, planHash, status)`; `RolloverRun (schoolId, createdAt)`, `(schoolId, status)`, `(schoolId, status, frozen.at)`; `Student (schoolId, importJobId)`, `(schoolId, admissionNumber)`.
+
+## Tenants, campuses and consent (E01)
+The school always comes from the signed-in session, never from a request body. Update endpoints for students, classes, teachers and exams drop `schoolId`, `_id`, timestamps and import/rollover markers from the body (`utils/tenantGuard.safeBody`); linking a teacher to a class or subject checks that it belongs to the same school.
+
+### Campuses — `/api/campuses` (admin)
+Every school has one default campus ("Main campus", code `MAIN`), made the first time it is needed. A class with no campus belongs to it. An administrator with no active campus membership is **school-wide**; the first membership makes them a **campus admin** who sees only classes and students of their campuses (lists, by-id reads, edits, deletes, class creation, grants, consents). At least one administrator must stay school-wide.
+- `GET /` — campuses with class, student and limited-admin counts, `me: { schoolWide, campusIds }`, and the organization the school belongs to.
+- `POST /` `{ name, code?, address?, phone? }` — school-wide only; code unique per school (`409`); at most 25.
+- `PATCH /:id` `{ name?, address?, phone?, status? }` — `closed` refused for the default campus or one that still has classes (`409`).
+- `POST /:id/classes` `{ classIds[] }` — moves classes (students move with them). A campus admin may only move within their campuses.
+- `GET /classes` — classes the caller may see, with their campus.
+- `GET /members`, `POST /members` `{ userId, campusId }`, `DELETE /members/:mid` — school-wide only; limits an admin to a campus and takes the limit away.
+Campus-limited grants: `POST /api/permissions/grants` accepts `campusId`; a grant tied to a campus only works for that campus (directly or through a class on it). Role defaults of a campus admin stop at their campus edge (`permissions.can`). Emergency (break-glass) access stays available and audited.
+
+### Consent register — `/api/consents`
+Append-only: giving, renewing or withdrawing adds a row; the newest row is `isCurrent` and the database allows only one current row per person and purpose (`currentKey` unique). No answer means no.
+- `GET /purposes` (any signed-in role) — purposes with plain wording and current wording `version`: `photo_media`, `trip_participation`, `health_sharing`, `data_sharing`, `ai_tools` (about a child), `news_messages` (about a parent), `staff_directory` (about a teacher).
+- Office (admin): `GET /` (`purpose, subjectType, subjectId, status, history=1, page, limit`), `GET /summary` (given, withdrawn, ended and not-answered counts), `GET /pending?purpose=`, `GET /history?subjectType&subjectId&purpose`, `GET /check?…` → `{ allowed, state: granted|withdrawn|expired|none, version, since, expiresAt }`, `POST /` `{ subjectType, subjectId, purpose, givenByName, givenByRelation?, method: paper|in-person|phone, evidenceNote?, expiresAt? }`, `POST /withdraw` `{ subjectType, subjectId, purpose, reason?, method? }`. A campus admin sees and records only consents of their campuses; staff consents need a school-wide admin.
+- Family: `GET /mine` (parent: each linked child with `viewInfo` right, and themselves; student: self, read only), `POST /mine` `{ subjectType: student|parent, subjectId, purpose, expiresAt? }`, `POST /mine/withdraw`. Recorded with method `portal`.
+- Other modules ask `utils/consent.hasConsent(schoolId, studentId, purpose)` (false when nothing is recorded).
+
+### Organizations — `/api/organizations` (platform owner)
+`GET /`, `POST /` `{ name, contactName?, contactEmail? }`, `GET /:id`, `PATCH /:id` (`status: active|suspended`), `GET /unassigned-schools`, `POST /:id/schools` `{ schoolId }` (a school is in at most one organization), `DELETE /:id/schools/:schoolId`. Grouping never shares data: schools in one organization cannot reach each other's records.
+
+Indexes: `Campus (schoolId, code) unique`, `(schoolId, status)`, `(schoolId, isDefault)`; `CampusMembership (activeKey) unique`, `(schoolId, userId, revokedAt)`, `(schoolId, campusId, revokedAt)`; `Consent (currentKey) unique`, `(schoolId, subjectType, subjectId, purpose, createdAt)`, `(schoolId, isCurrent, purpose, status)`, `(schoolId, campusId, isCurrent)`, `(schoolId, purpose, status, createdAt)`, `(schoolId, expiresAt)`; `Organization (slug) unique`; `School (organizationId)`; `Class (schoolId, campusId)`; `PermissionGrant (schoolId, campusId, validTo)`.

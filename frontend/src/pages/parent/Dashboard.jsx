@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse } from 'lucide-react';
+import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyQuizResults from '../../components/assess/FamilyQuizResults';
@@ -7,6 +7,7 @@ import FamilyDesk from '../../components/attendance/FamilyDesk';
 import FamilyNursery from '../../components/early/FamilyNursery';
 import FamilyMessages from '../../components/comms/FamilyMessages';
 import FamilyCare from '../../components/care/FamilyCare';
+import { FamilyConsent } from '../../components/access/Consents';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
@@ -27,7 +28,7 @@ const BANNER = {
   Present: 'bg-emerald-500', Late: 'bg-orange-400', HalfDay: 'bg-amber-400', Absent: 'bg-[#f43f5e]', Leave: 'bg-[#5b87c9]', None: 'bg-stone-400',
 };
 
-const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
 const fileName = (u = '') => decodeURIComponent((u.split('?')[0].split('/').pop() || 'Attachment')).slice(0, 40);
 
 const ParentDashboard = () => {
@@ -196,6 +197,7 @@ const ParentDashboard = () => {
             {tab === 'nursery' && <FamilyNursery />}
             {tab === 'messages' && <FamilyMessages />}
             {tab === 'wellbeing' && <FamilyCare role="parent" />}
+            {tab === 'consent' && <FamilyConsent />}
             {tab === 'desk' && <FamilyDesk role="parent" kids={(data?.children || []).filter((c) => !c.attendanceHidden)} />}
 
             {tab === 'fees' && (

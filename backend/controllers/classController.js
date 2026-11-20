@@ -1,4 +1,6 @@
 const Class = require('../models/Class');
+const Campus = require('../utils/campus');
+const { safeBody } = require('../utils/tenantGuard');
 
 // Get All Classes
 exports.getAllClasses = async (req, res) => {
@@ -8,6 +10,8 @@ exports.getAllClasses = async (req, res) => {
 
     let query = { schoolId };
     if (standard) query.standard = standard;
+    const sc = await Campus.scopeOf(req.user);
+    if (sc) query._id = { $in: [...sc.classIds] };     // a campus admin lists only the classes of their campuses
 
     const classes = await Class.find(query)
       .populate('classTeacherId', 'name email')
@@ -38,7 +42,7 @@ exports.getClassById = async (req, res) => {
       .populate('classTeacherId', 'name email phone')
       .populate('schoolId');
 
-    if (!classData) {
+    if (!classData || !(await Campus.canAccessClass(req.user, classData._id))) {
       return res.status(404).json({ message: 'Class not found' });
     }
 
@@ -52,6 +56,18 @@ exports.getClassById = async (req, res) => {
 exports.createClass = async (req, res) => {
   try {
     const { standard, division, academicYear } = req.body;
+    // a campus admin creates classes only inside their own campuses; everyone else may pick any active campus
+    let campusId = null;
+    const sc = await Campus.scopeOf(req.user);
+    if (req.body.campusId) {
+      const cp = await require('../models/Campus').findOne({ _id: req.body.campusId, schoolId: req.user.schoolId, status: 'active' });
+      if (!cp) return res.status(404).json({ message: 'Campus not found' });
+      if (sc && !sc.campusIds.includes(String(cp._id))) return res.status(403).json({ message: 'That campus is outside your access.' });
+      campusId = cp._id;
+    } else if (sc) {
+      if (sc.campusIds.length > 1) return res.status(422).json({ message: 'Choose which of your campuses this class belongs to.' });
+      campusId = sc.campusIds[0];
+    }
 
     // Check if class exists (without filtering by academicYear since index standard+division is unique per school)
     let classExists = await Class.findOne({
@@ -68,8 +84,10 @@ exports.createClass = async (req, res) => {
       schoolId: req.user.schoolId,
       standard,
       division,
+      campusId: campusId || null,
       academicYear: academicYear || new Date().getFullYear().toString(),
     });
+    Campus.bust(req.user.schoolId);
 
     // Replicate existing standard exams to the new division
     try {
@@ -124,9 +142,11 @@ exports.createClass = async (req, res) => {
 // Update Class
 exports.updateClass = async (req, res) => {
   try {
+    if (!(await Campus.canAccessClass(req.user, req.params.id))) return res.status(404).json({ message: 'Class not found' });
+    // the school and the campus never change through this form (campus moves have their own, audited call)
     const classData = await Class.findOneAndUpdate(
       { _id: req.params.id, schoolId: req.user.schoolId },
-      req.body,
+      safeBody(req.body, ['campusId', 'studentCount']),
       { new: true, runValidators: true }
     ).populate('classTeacherId');
 
@@ -146,6 +166,7 @@ exports.updateClass = async (req, res) => {
 // Assign or remove the head master of a class (one per class)
 exports.setHeadMaster = async (req, res) => {
   try {
+    if (!(await Campus.canAccessClass(req.user, req.params.id))) return res.status(404).json({ message: 'Class not found' });
     const { teacherId } = req.body;
     const { replaced } = await require('../utils/headMaster').setHeadMaster(req.user.schoolId, req.params.id, teacherId || null);
     const cls = await Class.findOne({ _id: req.params.id, schoolId: req.user.schoolId }).populate('classTeacherId', 'name email');
@@ -158,6 +179,7 @@ exports.setHeadMaster = async (req, res) => {
 // Delete Class
 exports.deleteClass = async (req, res) => {
   try {
+    if (!(await Campus.canAccessClass(req.user, req.params.id))) return res.status(404).json({ message: 'Class not found' });
     const classData = await Class.findOneAndDelete({
       _id: req.params.id,
       schoolId: req.user.schoolId,
@@ -168,11 +190,12 @@ exports.deleteClass = async (req, res) => {
     }
 
     // Find all remaining divisions for this standard in ascending order
-    const remainingClasses = await Class.find({
+    // students are only moved to a division on the same campus
+    const remainingClasses = (await Class.find({
       schoolId: req.user.schoolId,
       standard: classData.standard,
       _id: { $ne: classData._id }
-    }).sort({ division: 1 });
+    }).sort({ division: 1 })).filter((c) => String(c.campusId || '') === String(classData.campusId || ''));
 
     const Student = require('../models/Student');
     const studentsToTransfer = await Student.find({
@@ -252,6 +275,7 @@ exports.deleteClass = async (req, res) => {
 // Delete Whole Standard (Class)
 exports.deleteStandard = async (req, res) => {
   try {
+    if (await Campus.scopeOf(req.user)) return res.status(403).json({ message: 'A whole standard can only be removed by a school-wide administrator.' });
     const { standardName } = req.params;
     const schoolId = req.user.schoolId;
 
@@ -296,6 +320,7 @@ exports.deleteStandard = async (req, res) => {
 // Get Class Students
 exports.getClassStudents = async (req, res) => {
   try {
+    if (!(await Campus.canAccessClass(req.user, req.params.id))) return res.status(404).json({ message: 'Class not found' });
     const Student = require('../models/Student');
 
     const classData = await Class.findOne({
@@ -325,6 +350,7 @@ exports.getClassStudents = async (req, res) => {
 // Bulk Setup Classes (Standards & Divisions)
 exports.bulkSetupClasses = async (req, res) => {
   try {
+    if (await Campus.scopeOf(req.user)) return res.status(403).json({ message: 'Bulk class setup can only be run by a school-wide administrator.' });
     const { classesConfig } = req.body;
     if (!classesConfig || !Array.isArray(classesConfig)) {
       return res.status(400).json({ message: 'classesConfig is required and must be an array' });
