@@ -8,7 +8,7 @@ const LanguageToggle = ({ className = '' }) => {
   const next = lang === 'ur' ? 'en' : 'ur';
   return (
     <button
-      type="button"
+      type="button" data-no-i18n
       onClick={() => setLang(next)}
       title={lang === 'ur' ? 'Switch to English' : 'اردو میں تبدیل کریں'}
       className={`inline-flex items-center gap-1.5 rounded-full border border-[#2a5cac] bg-[#ffffff] px-2.5 py-2 text-sm sm:gap-2 sm:px-3 font-bold text-[#2a5cac] transition hover:bg-[#eef2f8] ${className}`}

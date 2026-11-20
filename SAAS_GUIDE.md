@@ -267,3 +267,14 @@ Administrators and teachers find **Student care** in the dashboard menu; parents
 5. **Staff and access.** Record safeguarding and other training; teachers without current safeguarding training cannot join confidential cases. Ask for emergency access to a confidential case by its number; a second lead approves. Answer families' privacy requests before they are due. Under *Settings* choose the escalation times and review periods.
 
 Set `CRON_SECRET` on Vercel. The daily job (07:40 Pakistan time) escalates cases without a lead and unseen concerns, flags reviews and training that is running out, and closes emergency access that has expired; away from Vercel the server sweeps every 15 minutes.
+
+## Brand & theme (E27)
+Administrators open **Brand & theme** (sidebar). **Look**: start a draft, pick the main and second colours, light/dark/follow-the-device, corners and letters. The screen shows two small previews and seven readability checks; a colour that fails can be fixed with one click ("nearest colour that works"). *Try it on this whole screen* paints the draft on the administrator's screen only. **Publish** puts it live for everyone and for printed documents; every version is kept and *Go back to this* publishes a copy of an old one (with a reason).
+
+Every person can also choose **light, dark or follow my device** with the appearance button in the top bar (and on the sign-in pages). The choice stays on that device. Dark mode is computed from the school's colour, so a school's brand stays recognisable.
+
+**Web address**: Premium schools add their own address (for example `portal.myschool.edu.pk`). The screen shows the TXT record to prove ownership, then the CNAME to point at the platform, then goes live. On that address the sign-in page shows the school's name, logo and colours and already knows the school code. A daily check marks an address that stopped working and tells the administrators.
+
+**Urdu wording**: set a label the school's own way ("Class" → "درجہ"). Labels people saw in Urdu with no translation are listed by how often; give them wording or ignore them.
+
+Platform owner: set `ROOT_DOMAIN` (the shared address schools can take a name under) and `CNAME_TARGET` (what custom addresses point at). Add the school's address to the Vercel project's domains; Aulensia does not do that automatically. `vercel.json` runs `/api/cron/theme` daily.

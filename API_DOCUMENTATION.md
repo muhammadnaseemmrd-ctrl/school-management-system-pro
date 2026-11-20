@@ -1374,3 +1374,34 @@ Rules worth knowing:
 - **Counselling is private.** Sessions are not shown to parents or other staff, and the reason is only shown to the counsellor.
 - **Privacy requests** have a due date. An access export leaves out cases, notes, concerns and counselling reasons. Erasure removes goals, careers and past appointments and keeps the health plan and any cases under a legal hold, and says so.
 - **Status codes.** 403 denied, 404 not in your school or not yours, 409 conflict (already decided or closed), 422 invalid, 423 locked (training lapsed), 428 second person needed, 429 rate limit.
+
+## Brand, theme, web address and wording (E27) — `/api/theme`, `/api/public/brand`
+
+A school's look is a list of safe tokens (two hex colours, light/dark/system, corner style, font), never free CSS. Every colour in the app is a variable (the build rewrites the Tailwind colours), so one published theme recolours all four portals, and dark mode works the same way.
+
+| Route | Who | What |
+|---|---|---|
+| `GET /api/theme/current` | all school roles | Live theme `{version, tokens, publishedAt, note}`; version 0 is the standard look. Never cached (`no-cache`). |
+| `GET /api/theme` | admin | Live version, the draft (if any) and the last 40 versions |
+| `POST /api/theme/check` | admin | Run the contrast checks on `{tokens}` without saving |
+| `POST /api/theme/draft` | admin | Start a draft from the live theme, or from `{fromVersion}`. 409 if one exists |
+| `PUT /api/theme/draft` | admin | Change draft tokens `{tokens, note}`. A bad colour, mode, corner style or font is refused (422), not replaced. Returns the report |
+| `DELETE /api/theme/draft` | admin | Discard the draft |
+| `POST /api/theme/draft/publish` | admin | Publish `{note}`. 422 with the report when any of the seven checks fails. The old live version is archived |
+| `POST /api/theme/versions/:id/rollback` | admin | `{reason ≥ 5}`. Publishes a copy of that version as the newest one (history is never rewritten) |
+| `GET/POST /api/theme/domains`, `POST …/:id/verify`, `POST …/:id/activate`, `DELETE …/:id` | admin | Web addresses. Adding needs the `whiteLabel` plan feature (Premium). Up to 5 per school |
+| `GET /api/theme/i18n/overrides` | all school roles | The school's own Urdu wording `{ur: {English: Urdu}}` |
+| `POST /api/theme/i18n/missing` | all school roles | `{labels: [≤30]}`: counts labels that had no Urdu. Only label-like text is kept (see rules). |
+| `GET /api/theme/i18n?q=` | admin | Wording and the open missing-label list |
+| `PUT /api/theme/i18n/overrides`, `DELETE …/overrides/:id`, `POST …/missing/:id/dismiss` | admin | Set, remove, ignore |
+| `GET /api/public/brand?host=` | public (rate limited) | Which school owns an address: name, code, logo, motto and theme tokens only. 404 for unknown, pending, failed or removed addresses |
+| `GET /api/cron/theme` | cron secret | Re-checks live custom addresses; marks failures and tells administrators once |
+
+The seven checks: primary on white, white on primary (buttons), primary on the page background (all 4.5:1), accent on white (3:1), primary printed in grey (4.5:1), primary and accent distinguishable in grey (1.3:1), and the automatically lightened primary on the dark surface (4.5:1). `report.suggestion` is the nearest darker shade that passes everything.
+
+Rules worth knowing:
+- **Web addresses.** A single label under `ROOT_DOMAIN` (not a reserved name such as `www`, `admin`, `api`) is live at once. Any other name is a custom address: prove ownership with a TXT record at `_aulensia.<host>` (value `aulensia-verify=<token>`), then point a CNAME at `CNAME_TARGET` (default `cname.<ROOT_DOMAIN>`). IP addresses, localhost, test names and hosting addresses are refused. At most 10 checks an hour per address (429). Hosting the address on the platform (adding the domain to Vercel) is a separate step for the platform owner.
+- **Missing-label privacy.** The browser only sends short text found in buttons, headings, column titles and tabs. The server drops anything with digits, `@`, slashes, markup, more than seven words or the shape of a person's name, ignores labels already translated, and caps requests (30), people (120 an hour) and labels per school (1,500). Counts are per school, never per person.
+- **Wording overrides.** Plain text only (no `<` or `>`), the same `{placeholders}` as the English label; text without Urdu letters is saved with a warning. A school's wording is applied before the built-in dictionary.
+- **Documents.** Studio documents take the school's published colours unless the design sets its own.
+- **Status codes.** 403 denied or plan feature off, 404 not found or not your school, 409 draft exists, address taken, already live, 422 invalid or checks failed, 429 too many address checks.

@@ -6,6 +6,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import apiClient from '../../utils/apiClient';
 import { setUser, setSchool } from '../../store/authSlice';
 import LanguageToggle from '../../components/LanguageToggle';
+import AppearanceToggle from '../../components/AppearanceToggle';
 import { LogoMark } from '../../components/Logo';
 import { useLang } from '../../i18n/LanguageContext';
 import { inputCls, btnPrimary, errMsg } from '../../components/ui';
@@ -37,7 +38,7 @@ const AgentLogin = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#f7f6f2] px-4">
       <Toaster position="top-right" />
-      <div className="fixed end-4 top-4 z-50"><LanguageToggle /></div>
+      <div className="fixed end-4 top-4 z-50 flex items-center gap-2"><AppearanceToggle /><LanguageToggle /></div>
       <div className="page-ready w-full max-w-md rounded-2xl border border-[#e3e7e7] bg-white p-8">
         <div className="mb-6 flex items-center gap-3">
           <LogoMark className="h-11 w-11" />

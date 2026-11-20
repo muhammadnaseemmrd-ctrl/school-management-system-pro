@@ -6,6 +6,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import { setUser, setSchool } from '../store/authSlice';
 import apiClient from '../utils/apiClient';
 import LanguageToggle from '../components/LanguageToggle';
+import AppearanceToggle from '../components/AppearanceToggle';
+import { useTheme } from '../theme/ThemeProvider';
 import Logo from '../components/Logo';
 
 export default function Login() {
@@ -30,6 +32,10 @@ export default function Login() {
       navigate(`/${user.role}/dashboard`, { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
+
+  // On a school's own web address the school code is already known
+  const { hostBrand } = useTheme();
+  useEffect(() => { if (hostBrand?.school?.code) setFormData((f) => (f.schoolCode ? f : { ...f, schoolCode: hostBrand.school.code })); }, [hostBrand]);
 
   // Views: 'login', 'forgot', 'verify', 'reset'
   const [view, setView] = useState('login');
@@ -262,14 +268,16 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-[#f7f6f2] px-4 py-10 text-[#1b2837] sm:px-6 lg:px-8">
       <Toaster position="top-right" />
-      <div className="fixed end-4 top-4 z-50"><LanguageToggle /></div>
+      <div className="fixed end-4 top-4 z-50 flex items-center gap-2"><AppearanceToggle /><LanguageToggle /></div>
 
       <div className="mx-auto grid min-h-[calc(100vh-2.5rem)] max-w-7xl gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         {/* Left Info Panel */}
         <div className="relative overflow-hidden rounded-2xl border border-[#e3e7e7] bg-paper p-8 lg:p-10">
           <div className="relative">
             <div className="mb-6">
-              <Logo size="lg" subtitle="Login portal" />
+              {hostBrand?.school ? (
+                <div className="flex items-center gap-3" data-no-i18n>{hostBrand.school.logo && <img src={hostBrand.school.logo} alt="" className="h-14 w-14 rounded-2xl border border-[#e3e7e7] bg-white object-contain" />}<div><p className="text-xl font-extrabold text-[#1b2837]">{hostBrand.school.name}</p>{hostBrand.school.motto && <p className="text-sm text-[#5b6b7b]">{hostBrand.school.motto}</p>}</div></div>
+              ) : <Logo size="lg" subtitle="Login portal" />}
             </div>
 
             <h1 className="max-w-xl text-5xl font-black leading-tight tracking-tight text-[#1b2837] lg:text-6xl">

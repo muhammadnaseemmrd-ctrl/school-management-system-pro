@@ -9,6 +9,8 @@ const studioIssue = require('../controllers/studioIssueController');
 
 // Check a printed document by the reference in its QR code (PRD E12). Rate limited, no sign-in, nothing personal beyond a masked name.
 router.get('/verify/:token', lookupLimiter, studioIssue.verify);
+// Which school owns this web address (PRD E27 white-label sign-in). Name, code, logo and colours only.
+router.get('/brand', lookupLimiter, require('../controllers/themeController').publicBrand);
 
 // Public, read-only data for the marketing page: active plans and running offers.
 // No school data and no offer codes are exposed here.

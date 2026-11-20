@@ -16,6 +16,7 @@ const FEATURES = [
   { key: 'messages', label: 'Messages', desc: 'Messaging between users' },
   { key: 'complaints', label: 'Grievances', desc: 'Complaints / grievance desk' },
   { key: 'fileUploads', label: 'File uploads', desc: 'Attach files and images' },
+  { key: 'whiteLabel', label: 'Own web address', desc: 'Sign-in on the school\'s own address (portal.myschool.edu.pk)' },
 ];
 const FEATURE_KEYS = FEATURES.map((f) => f.key);
 const allOn = () => Object.fromEntries(FEATURE_KEYS.map((k) => [k, true]));

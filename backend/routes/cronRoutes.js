@@ -82,4 +82,18 @@ router.get('/safety', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: look again at the web addresses schools have set up (PRD E27)
+router.get('/theme', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const K = require('../controllers/themeController'); const total = { checked: 0, failed: 0 };
+    for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) { const r = await K.sweep(sc._id); total.checked += r.checked; total.failed += r.failed; }
+    res.json(total);
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

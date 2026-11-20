@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import ur from './ur';
 import { startAutoTranslate, stopAutoTranslate } from './autoTranslate';
+import { getOverride, onOverrides } from './overrides';
 
 // English text is the key. Missing Urdu entries fall back to the English text, so a screen that is
 // only partly translated still works. {name} style placeholders are replaced from `vars`.
@@ -11,6 +12,8 @@ export const LanguageProvider = ({ children }) => {
     try { return localStorage.getItem('lang') === 'ur' ? 'ur' : 'en'; } catch (e) { return 'en'; }
   });
   const isRtl = lang === 'ur';
+  const [ov, setOv] = useState(0); // the school's own wording changed
+  useEffect(() => onOverrides(() => setOv((n) => n + 1)), []);
 
   useEffect(() => {
     try { localStorage.setItem('lang', lang); } catch (e) { /* ignore */ }
@@ -19,12 +22,12 @@ export const LanguageProvider = ({ children }) => {
     document.body.classList.toggle('lang-ur', isRtl);
     if (isRtl) startAutoTranslate(); else stopAutoTranslate();
     return () => stopAutoTranslate();
-  }, [lang, isRtl]);
+  }, [lang, isRtl, ov]);
 
   const t = useCallback((key, vars) => {
-    const s = (lang === 'ur' && ur[key]) || key;
+    const s = (lang === 'ur' && (getOverride(key) || ur[key])) || key;
     return vars ? s.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? '')) : s;
-  }, [lang]);
+  }, [lang, ov]);
 
   const locale = isRtl ? 'ur-PK' : 'en-GB';
   const fmtDate = useCallback((key, opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) => {

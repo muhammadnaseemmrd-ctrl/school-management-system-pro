@@ -3,6 +3,7 @@
 // Screens written with t() are translated directly; this only covers the remainder. Original text is kept
 // so switching back to English restores it exactly.
 import ur from './ur';
+import { getOverride, reportMissing } from './overrides';
 
 const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
 const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'PRE']);
@@ -25,20 +26,26 @@ const lookup = (raw) => {
   const trail = raw.match(/\s*$/)[0];
   const core = raw.trim();
   if (!core) return null;
+  const own = getOverride(core); if (own) return lead + own + trail;
   if (ur[core]) return lead + ur[core] + trail;
   for (const [re, fn] of PATTERNS) { const m = core.match(re); if (m) return lead + fn(m) + trail; }
   const m = core.match(/^(.*?)(\s*[:*]+)$/); // "Date *" / "Name:"
-  if (m && ur[m[1]]) return lead + ur[m[1]] + m[2] + trail;
+  if (m && (getOverride(m[1]) || ur[m[1]])) return lead + (getOverride(m[1]) || ur[m[1]]) + m[2] + trail;
   return null;
 };
 
 const skipped = (el) => !el || SKIP.has(el.tagName) || el.closest('[data-no-i18n]');
 
+const LABEL_PARENTS = 'button,label,th,legend,summary,h1,h2,h3,h4,option,[role=tab],[role=button],a';
+const LATIN = /[A-Za-z]/; const ARABIC = /[\u0600-\u06FF]/;
 const translateText = (node) => {
   const rec = textRec.get(node);
   if (rec && node.nodeValue === rec.ur) return;
   const out = lookup(node.nodeValue);
-  if (out && out !== node.nodeValue) { textRec.set(node, { en: node.nodeValue, ur: out }); node.nodeValue = out; }
+  if (out && out !== node.nodeValue) { textRec.set(node, { en: node.nodeValue, ur: out }); node.nodeValue = out; return; }
+  // not translated: remember it if it is a label (a button, heading or column title), never body text, names or numbers
+  const core = node.nodeValue.trim();
+  if (core.length >= 2 && core.length <= 80 && LATIN.test(core) && !ARABIC.test(core) && node.parentElement && node.parentElement.closest(LABEL_PARENTS) && !node.parentElement.closest('[data-no-i18n]')) reportMissing(core);
 };
 
 const translateAttrs = (el) => {

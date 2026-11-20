@@ -6,6 +6,7 @@ import { BookOpen, LogOut, Menu, Shield, X } from 'lucide-react';
 import { clearAuth } from '../store/authSlice';
 import { useLang } from '../i18n/LanguageContext';
 import LanguageToggle from './LanguageToggle';
+import AppearanceToggle from './AppearanceToggle';
 import NotificationBell from './NotificationBell';
 import useBranding, { clearBranding } from '../utils/useBranding';
 import { LogoMark } from './Logo';
@@ -63,6 +64,7 @@ const Navbar = () => {
               </div>
             )}
             {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
+            <AppearanceToggle />
             <LanguageToggle />
             <button
               onClick={handleLogout}
@@ -75,6 +77,7 @@ const Navbar = () => {
 
           <div className="flex shrink-0 items-center gap-1.5 md:hidden">
             {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
+            <AppearanceToggle />
             <LanguageToggle />
             <button onClick={() => setIsOpen(!isOpen)} className="rounded-full border border-[#2a5cac] bg-[#ffffff] p-2 text-[#2a5cac]">
               {isOpen ? <X size={24} /> : <Menu size={24} />}

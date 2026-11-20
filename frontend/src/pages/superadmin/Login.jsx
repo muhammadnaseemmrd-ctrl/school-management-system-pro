@@ -6,6 +6,7 @@ import { Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import apiClient from '../../utils/apiClient';
 import { setUser, setSchool } from '../../store/authSlice';
 import LanguageToggle from '../../components/LanguageToggle';
+import AppearanceToggle from '../../components/AppearanceToggle';
 import { LogoMark } from '../../components/Logo';
 
 const SuperAdminLogin = () => {
@@ -37,7 +38,7 @@ const SuperAdminLogin = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#111b27] px-4">
       <Toaster position="top-right" />
-      <div className="fixed end-4 top-4 z-50"><LanguageToggle /></div>
+      <div className="fixed end-4 top-4 z-50 flex items-center gap-2"><AppearanceToggle /><LanguageToggle /></div>
       <div className="w-full max-w-md rounded-2xl border border-[#2b3a4d] bg-[#16202d] p-8 shadow-2xl">
         <div className="mb-6 flex items-center gap-3">
           <LogoMark className="h-12 w-12" />

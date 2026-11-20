@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -15,6 +15,7 @@ import SafetyDesk from '../../components/safety/SafetyDesk';
 import EarlyDesk from '../../components/early/EarlyDesk';
 import StaffFamilyDesk from '../../components/comms/StaffFamilyDesk';
 import StaffCare from '../../components/care/StaffCare';
+import ThemeStudio from '../../components/theme/ThemeStudio';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -34,7 +35,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1535,6 +1536,7 @@ const AdminDashboard = () => {
                   { id: 'studio', label: 'Documents studio', icon: FileText },
                   { id: 'assessments', label: 'Quizzes & exams', icon: ClipboardList },
                   { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
+                  { id: 'brand', label: 'Brand & theme', icon: Palette },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1686,6 +1688,7 @@ const AdminDashboard = () => {
             {activeTab === 'earlyYears' && <EarlyDesk isAdmin />}
             {activeTab === 'familyDesk' && <StaffFamilyDesk isAdmin />}
             {activeTab === 'careDesk' && <StaffCare isAdmin />}
+            {activeTab === 'brand' && <ThemeStudio />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}
