@@ -32,6 +32,10 @@
       "schedule": "0 6 * * *"
     },
     {
+      "path": "/api/cron/care",
+      "schedule": "40 2 * * *"
+    },
+    {
       "path": "/api/cron/safety",
       "schedule": "15 22 * * *"
     },

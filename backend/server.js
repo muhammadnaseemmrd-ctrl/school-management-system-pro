@@ -141,6 +141,7 @@ app.use('/api/studio', require('./routes/studioRoutes'));
 app.use('/api/assess', require('./routes/assessRoutes'));
 app.use('/api/omr', require('./routes/omrRoutes'));
 app.use('/api/early', require('./routes/earlyRoutes'));
+app.use('/api/care', express.json({ limit: '200kb' }), require('./routes/careRoutes'));
 app.use('/api/sync', require('./routes/syncRoutes'));
 app.use('/api/teacher-today', require('./routes/teacherTodayRoutes'));
 app.use('/api/notifications', notificationRoutes);
@@ -221,6 +222,11 @@ if (!process.env.VERCEL) server.listen(PORT, () => {
   // Family communication (PRD E20): release pushes held for quiet hours, raise late replies, remind families of meetings. On Vercel the daily cron does this.
   require('node-cron').schedule('*/10 * * * *', () => {
     ready.then(async () => { const School = require('./models/School'); const sweep = require('./utils/comms/sweep'); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) await sweep.run(sc._id); }).catch((e) => console.error('[comms] sweep failed:', e.message));
+  });
+
+  // Student care (PRD E21): escalate unseen concerns, case reviews, medicine not recorded, overdue privacy requests. On Vercel the daily cron does this.
+  require('node-cron').schedule('*/15 * * * *', () => {
+    ready.then(async () => { const School = require('./models/School'); const sweep = require('./utils/care/sweep'); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) await sweep.run(sc._id); }).catch((e) => console.error('[care] sweep failed:', e.message));
   });
 
   // Auto Notice Expiration Cleanup Task

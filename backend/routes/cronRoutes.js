@@ -37,6 +37,21 @@ router.get('/attendance', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: escalate unseen concerns and leaderless cases, flag case reviews, record medicine nobody recorded, chase overdue privacy requests (PRD E21)
+router.get('/care', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const sweep = require('../utils/care/sweep');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = {};
+    for (const s of schools) { const r = await sweep.run(s._id); for (const [k, v] of Object.entries(r)) total[k] = (total[k] || 0) + v; }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 // Every few minutes or daily: release pushes held for quiet hours, raise late replies and SLA breaches, remind families of meetings (PRD E20)
 router.get('/comms', async (req, res) => {
   const secret = process.env.CRON_SECRET;
