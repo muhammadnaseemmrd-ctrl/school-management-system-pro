@@ -142,5 +142,9 @@ module.exports = async ({ call, expect, log, tokens, base }) => {
   await expect('the sheet layout is locked once photos exist', call('PUT', `/omr/forms/${fid}`, T, { questions: 30 }), [409]); await expect('but the title can change', call('PUT', `/omr/forms/${fid}`, T, { title: 'E14 Maths paper (term 1)' })); await expect('the roster can be topped up', call('POST', `/omr/forms/${fid}/candidates`, T, {}));
   const acts = (await AuditLog.find({ schoolId: sid, action: /^omr\./ }).select('action')).map((a) => a.action); log(['omr.form.create', 'omr.key.set', 'omr.scan.upload', 'omr.scan.review', 'omr.scan.reject', 'omr.batch.grade', 'omr.batch.approve', 'omr.batch.publish', 'omr.batch.regrade', 'omr.sheet.print', 'omr.batch.export'].every((a) => acts.includes(a)), 'creating, keys, photos, reviews, grading, approval, publishing, printing and export are all in the audit log');
   const other = await Form.find({ schoolId: sid }).select('_id'); log(other.length === 2, 'sheets belong to this school only'); await expect('archive refuses while a batch is open', call('POST', `/omr/forms/${fid}/archive`, T), [422]);
+  // ── 12. the phone scanner uses the same reading code as the server ──
+  const sync = require('../scripts/syncOmrClient'); const fsx = require('fs'); const pathx = require('path'); const wantCopies = sync.build();
+  log(Object.entries(wantCopies).every(([n, c]) => { try { return fsx.readFileSync(pathx.join(sync.dst, n), 'utf8') === c; } catch { return false; } }), 'the copies of the layout and image-reading code in the web app are current (run backend/scripts/syncOmrClient.js)');
+  const bd = (await call('GET', `/omr/batches/${bt2._id}`, T)).data; log(bd.form && bd.form.thresholds && bd.form.thresholds.blurMm > 0 && bd.form.idDigits >= 3 && bd.form.classId, 'the sitting view carries the sheet settings the scanner needs');
   void E;
 };

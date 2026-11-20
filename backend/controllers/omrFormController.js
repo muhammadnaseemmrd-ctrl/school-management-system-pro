@@ -42,8 +42,8 @@ const view = (f, extra = {}) => ({ _id: f._id, code: f.code, title: f.title, cla
 exports.list = wrap('forms', async (req, res) => {
   const schoolId = sid(req); const scope = await S.scopeOf(req); const q = { schoolId }; if (req.query.status) q.status = String(req.query.status);
   const rows = (await Form.find(q).sort({ createdAt: -1 }).limit(300)).filter((f) => O.canSeeForm(scope, f)); const ids = rows.map((f) => f._id);
-  const [classes, subjects, batches] = await Promise.all([Class.find({ schoolId }).select('name section'), Subject.find({ schoolId }).select('name'), Batch.find({ schoolId, formId: { $in: ids } }).select('formId status')]);
-  const cn = new Map(classes.map((c) => [String(c._id), `${c.name}${c.section ? ' ' + c.section : ''}`])); const sn = new Map(subjects.map((s) => [String(s._id), s.name]));
+  const [classes, subjects, batches] = await Promise.all([Class.find({ schoolId }).select('standard division'), Subject.find({ schoolId }).select('name'), Batch.find({ schoolId, formId: { $in: ids } }).select('formId status')]);
+  const cn = new Map(classes.map((c) => [String(c._id), `${c.standard}${c.division ? '-' + c.division : ''}`])); const sn = new Map(subjects.map((s) => [String(s._id), s.name]));
   const pending = ids.length ? await Scan.countDocuments({ schoolId, formId: { $in: ids }, status: 'Needs review' }) : 0;
   res.json({ forms: rows.map((f) => view(f, { className: cn.get(String(f.classId)) || '', subjectName: sn.get(String(f.subjectId)) || '', batches: batches.filter((b) => String(b.formId) === String(f._id)).length })), needsReview: pending, defaults: E.DEFAULTS, limits: LIMITS, maxQuestions: MAX_Q });
 });
@@ -105,11 +105,11 @@ exports.archive = wrap('form archive', async (req, res) => {
 // ── printing ──
 exports.sheet = wrap('sheet', async (req, res) => {
   const { f, err } = await O.loadForm(req, req.params.id); if (err) return bad(res, ...err); const schoolId = sid(req); if (f.status === 'Archived') return bad(res, 422, 'This sheet is archived.');
-  const [school, cls, subj] = await Promise.all([School.findOne({ _id: schoolId }).select('name'), Class.findOne({ _id: f.classId, schoolId }).select('name section'), f.subjectId ? Subject.findOne({ _id: f.subjectId, schoolId }).select('name') : null]);
+  const [school, cls, subj] = await Promise.all([School.findOne({ _id: schoolId }).select('name'), Class.findOne({ _id: f.classId, schoolId }).select('standard division'), f.subjectId ? Subject.findOne({ _id: f.subjectId, schoolId }).select('name') : null]);
   let people = null; const mode = String(req.query.mode || 'blank');
   if (mode === 'personal') { const names = await O.namesOf(schoolId, f.candidates.map((c) => c.studentId)); const only = req.query.no ? new Set(String(req.query.no).split(',').map(Number)) : null; people = f.candidates.filter((c) => !only || only.has(c.no)).sort((a, b) => a.no - b.no).map((c) => ({ no: c.no, name: names.get(String(c.studentId))?.name || 'Candidate', admission: names.get(String(c.studentId))?.admissionNumber || '' })); if (!people.length) return bad(res, 404, 'No candidates to print for.'); }
   const copies = Math.max(1, Math.min(200, Number(req.query.copies) || 1));
-  const pdf = await renderSheetPdf({ layout: O.layoutOf(f), form: f, school: school?.name, className: cls ? `${cls.name}${cls.section ? ' ' + cls.section : ''}` : '', subjectName: subj?.name, people, copies });
+  const pdf = await renderSheetPdf({ layout: O.layoutOf(f), form: f, school: school?.name, className: cls ? `Class ${cls.standard}${cls.division ? '-' + cls.division : ''}` : '', subjectName: subj?.name, people, copies });
   await audit(req, { action: 'omr.sheet.print', entityType: 'OmrForm', entityId: f._id, schoolId, detail: { mode, pages: people ? people.length : copies } });
   res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `inline; filename="sheet-${String(f.code).padStart(4, '0')}.pdf"`, 'Cache-Control': 'no-store' }); res.send(pdf);
 });

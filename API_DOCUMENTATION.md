@@ -1276,3 +1276,25 @@ Rules worth knowing:
 - **Arrangements.** Extra time, large text, read aloud, separate room, extra attempts, and make-up windows. A teacher requests, an administrator approves. The reason is visible only to the requester and administrators and never reaches the paper or the class.
 - **Privacy.** The student is told exactly what is recorded: answers and save times, and window focus changes as a note. No camera, microphone or screen recording.
 - **Parents.** `GET /take/family` shows released results only for children whose guardian rights include marks.
+
+
+## Paper exams: answer-sheet scanning (E14) — `/api/omr`
+Administrators and teachers (a teacher works only on classes and subjects they teach). Photos are JPEG data URLs up to about 900 KB; the phone shrinks and checks them first, and the server reads them again.
+
+| Area | Routes |
+|---|---|
+| Answer sheets | `GET|POST /forms`, `GET|PUT /forms/:id`, `POST /forms/:id/archive|candidates`, `GET /forms/:id/layout`, `GET /forms/:id/sheet?mode=blank|named&copies=` (PDF) |
+| Answer key | `POST /forms/:id/key {answers, reason}`, `GET /forms/:id/key/history`. Letters, `(BC)` for two accepted answers, `*` credits everyone, `-` drops the question. Changing a key needs a reason and regrades unpublished sittings |
+| Sittings | `POST /forms/:id/batches {title}`, `GET /batches?status=&formId=`, `GET /batches/:id` (counts, absent candidates, sheet settings) |
+| Sheets | `POST /batches/:id/scans {image, source, capturedAt, rescanOf}`, `GET /batches/:id/scans?status=`, `GET /scans/:id` (answers, fills, thresholds, history), `GET /scans/:id/image?kind=photo` |
+| Checking | `POST /scans/:id/review {decisions:[{q, final}], candidate, accept:[flag], reason}`, `POST /scans/:id/reject {reason}` |
+| Grading | `POST /batches/:id/grade|submit|note|approve|reopen|publish|regrade-published`, `GET /batches/:id/moderation`, `GET /batches/:id/export` (CSV) |
+
+Rules worth knowing:
+- **What the reader decides.** Each question is `ok`, `blank`, `multiple`, `faint` or `low`. Anything but `ok`/`blank` waits for a person. Candidate number and sheet code are read the same way. Thresholds are per sheet (defaults: filled 0.5, faint 0.22, gap 0.3).
+- **Photo checks.** Blurry, too dark, low contrast, mostly blank, wrong sheet, unknown or duplicate candidate block grading until a person accepts them with a reason (wrong sheet can only be rejected). Missing corners ask for a new photo (**Rescan**). Tilt, rotation (any of four ways up), slight misalignment only warn.
+- **Decisions are kept.** Every correction stores who, when, the reader's answer, the final answer and the reason.
+- **Grading.** Right answers earn the sheet's marks, wrong ones lose the negative marks, blanks score zero, and a total never goes below zero. Grading is refused while any sheet needs a person (**422**). Results are deterministic and carry a hash.
+- **Moderation.** Spread of marks, unusual sheets, how each question went, and questions where nearly everyone chose one wrong answer (suspect key). Notes and history are kept.
+- **Approval.** A different administrator from whoever graded, sent, created or corrected (a sole administrator may approve and it is recorded). **Publish** writes ordinary marks scaled to the exam's total and tells students and guardians who may see marks. Published sittings changed by a later key revision are flagged and changed only by `regrade-published` with a reason.
+- **Status codes.** 403 denied, 404 not in your school, 409 already done or layout locked, 422 wrong state, 428 consent, 429 rate limit.

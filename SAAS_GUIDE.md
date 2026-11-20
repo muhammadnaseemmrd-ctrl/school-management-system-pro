@@ -219,3 +219,16 @@ Teachers and administrators find **Quizzes & exams** in the dashboard menu. Stud
 6. **Release.** Results stay hidden until you release them (now or at a set time). Students and parents see them after that; students can ask for a second look within the appeal period, and a different person decides.
 7. **Learn from it.** *Analysis* shows how many got each question right, which questions separate strong from weak students, and how often each choice was picked. Save the figures back to the bank.
 8. **Arrangements.** Teachers request extra time, large text, read aloud or a make-up window for a student; an administrator approves. The reason is private.
+
+
+## Paper exams: answer-sheet scanning (E14)
+Teachers and administrators find **Paper exams (OMR)** in the dashboard menu.
+
+1. **Make an answer sheet.** Choose the class, number of questions (up to 100), choices (2 to 5), marks for a right answer and any marks lost for a wrong one. Print blank sheets, or one sheet for each candidate with the name and number already filled in. The sheet has four corner squares, so a phone photo taken at an angle is straightened.
+2. **Enter the key.** Click a question to change its answer, or paste the whole key. Use `(BC)` when two answers are accepted, `*` to give everyone the marks, `-` to drop a question. Changing a key later needs a reason and regrades anything not yet published.
+3. **Start a sitting and photograph the sheets** with the phone camera (it shows when all four corners are in view) or choose photos from the phone or computer. Each photo is read straight away: *Ready*, *Needs review* or *Needs a new photo*.
+4. **Check what the reader was unsure of.** The review window shows only doubtful questions with a close-up, and you answer with the keyboard or buttons. Blurry, dark or duplicate sheets can be accepted only after you look and write why.
+5. **Grade, send for moderation, approve, publish.** Moderation shows how the class did and flags questions that nearly everyone got wrong in the same way, which usually means the key is wrong. A different administrator approves. Publishing writes the marks into the marks book and tells students and guardians.
+6. **Export** the grades as a CSV once approved.
+
+Photos are kept with the sitting so any decision can be checked later. This version needs a network connection to send photos, and does not mark written answers.

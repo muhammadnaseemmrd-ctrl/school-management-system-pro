@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  AlertCircle, BookOpen, CheckCircle, ClipboardList, GraduationCap, LayoutGrid, 
+  AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
   User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus
 } from 'lucide-react';
@@ -12,6 +12,7 @@ import AttendanceDesk from '../../components/attendance/AttendanceDesk';
 import SafetyDesk from '../../components/safety/SafetyDesk';
 import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
+import OmrDesk from '../../components/omr/OmrDesk';
 import TeacherTimetableDesk from '../../components/timetable/TeacherTimetableDesk';
 import TeacherToday from '../../components/today/TeacherToday';
 import { openProxiedFile } from '../../utils/fileProxy';
@@ -22,7 +23,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'studio', 'assessments'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'studio', 'assessments', 'omr'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -535,6 +536,7 @@ const TeacherDashboard = () => {
                   ['timetablePlan', 'Timetable & cover', Calendar],
                   ['staff', 'My staff record', Users],
                   ['assessments', 'Quizzes & exams', ClipboardList],
+                  ['omr', 'Paper exams (OMR)', ScanLine],
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2234,6 +2236,7 @@ const TeacherDashboard = () => {
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="teacher" />}
             {activeTab === 'studio' && studioAccess && <DocStudio />}
             {activeTab === 'assessments' && <AssessDesk />}
+            {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
             {activeTab === 'timetablePlan' && <TeacherTimetableDesk meId={profileData?._id} />}
             {activeTab === 'today' && <TeacherToday onNavigate={setActiveTab} />}
