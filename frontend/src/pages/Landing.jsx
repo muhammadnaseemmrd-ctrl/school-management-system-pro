@@ -27,6 +27,7 @@ export default function Landing() {
   return (
     <SiteShell>
       <Hero />
+      <AiCenter />
       <ProblemSolution />
       <Ecosystem />
       <SchoolYear />
@@ -34,7 +35,6 @@ export default function Landing() {
       <Scenarios />
       <LiveDemo />
       <Showcase />
-      <AiCenter />
       <Audiences />
       <Pakistan />
       <Trust />

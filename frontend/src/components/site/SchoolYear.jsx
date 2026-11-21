@@ -18,7 +18,7 @@ const Join = ({ on }) => (
     <div className="flex items-center gap-1.5">
       {['Enquiry', 'Accepted', 'Enrolled'].map((t, i) => (
         <React.Fragment key={t}>
-          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: on ? '#2c776c' : '#e3e7e7', color: on ? '#fff' : '#5b6b7b', transition: `background 380ms ${i * 480}ms, color 380ms ${i * 480}ms` }}>{t}</span>
+          <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ background: on ? '#2c776c' : '#e3e7e7', color: on ? '#fff' : '#4a5a6b', transition: `background 380ms ${i * 480}ms, color 380ms ${i * 480}ms` }}>{t}</span>
           {i < 2 && <span className="h-0.5 flex-1 rounded" style={{ background: on ? '#2c776c' : '#cbd5dd', transition: `background 380ms ${i * 480 + 240}ms` }} />}
         </React.Fragment>
       ))}
