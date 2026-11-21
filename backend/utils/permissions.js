@@ -54,6 +54,12 @@ const CATALOG = {
     rule: 'Administrators by default; a dispatcher needs a time-limited grant. Sees routes and riders only: no counselling, health or safeguarding records. Vehicle location exists only while a trip is active.' },
   'procure.request': { label: 'Raise purchase requests for a department', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'Any teacher can report a fault; raising a request needs a time-limited grant. A requester sees only their own requests and can never approve them.' },
+  'accounts.prepare': { label: 'Keep the school\'s books (draft journals, chart of accounts, budgets, bank reconciliations)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; an accountant needs a time-limited grant. An accountant can prepare and submit but never post their own journal, approve their own budget, close a month or sign their own reconciliation.' },
+  'accounts.approve': { label: 'Approve and post journals, approve budgets, close months and sign reconciliations', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a finance controller needs a time-limited grant. Never for something they prepared themselves (a school with one administrator may, and the record says so).' },
+  'accounts.audit': { label: 'Read the school\'s ledger, statements and trails (no changes)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; an auditor needs a time-limited grant. Read only: journals, ledger, statements, fund and grant reports, trails and exports.' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;

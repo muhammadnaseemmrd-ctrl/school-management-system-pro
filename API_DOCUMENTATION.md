@@ -1665,3 +1665,37 @@ Privacy. Positions come only from the driver's phone and are kept only while a t
 Indexes: every `Tp*` collection leads with `schoolId`. Unique: vehicle plate key, driver phone key (when set), route stop `(routeId, seq)`, plan `(routeId, direction)`, trip `tripKey`, rider `(tripId, studentId)`, trip event `(schoolId, tripId, clientKey)` (what makes a repeated action count once), opt-out `(studentId, date, direction)`, incident number. `TransportAssignment` gains `stopId`, `handoff` and `(schoolId, routeId)`.
 
 Not in E22: a map service or turn-by-turn routing (families see a sketch of the route and an estimate, and no outside service is contacted), SMS or WhatsApp alerts (in-app notifications only), RFID or card scanning, and fee billing (the Fees Center keeps monthly route fees).
+
+
+## School ledger and financial statements (E23) — `/api/accounts`
+
+Roles. Administrators do everything, except that a campus-limited administrator gets 403 (the ledger is school-wide). A teacher works under three time-limited permissions (Access and permissions): `accounts.audit` reads the books; `accounts.prepare` also drafts journals, budgets and reconciliations and asks for months to be closed; `accounts.approve` also posts, signs off and manages funds. Each tier includes the one below. Students and parents get 403.
+
+Rule of the whole module: money is whole rupees; a journal must balance to the rupee; a posted line is never edited or deleted. A mistake is reversed by a new journal. Whoever prepared something cannot approve it (403 `maker_checker`), except that a school with one administrator may approve its own work, and the record says so (`sole`).
+
+### Reading
+- `GET /access` → `{admin, approve, prepare, audit, ready}`. `GET /overview` (cash and bank, fees receivable and received in advance, suppliers and salaries owed, year income and expense, journals waiting, months closed through, held postings; an incremental feed run is made first when the last run is over 10 minutes old). `GET /settings` (versioned, with history).
+- `GET /accounts`, `GET /journals?status&type&ym&q&fundId&page&limit`, `GET /journals/:id`, `GET /ledger?code&from&to&fundId[&format=csv]`, `GET /statements/:name[?format=csv]` where name is `trial-balance` (`asOf`), `income-expenditure` (`from`, `to`, `fundId`), `balance-sheet` (`asOf`), `funds`, `budget` (`fy`, `upTo`, `version`), `receipts-payments` (`from`, `to`). `GET /funds`, `GET /funds/:id/lines`, `GET /budgets?fy`, `GET /recons?ym&code`, `GET /periods`, `GET /periods/:ym/checklist`, `GET /periods/:ym/verify`.
+- `GET /check` verifies every journal balances, every posted journal still has its lines and every line still matches the fingerprint taken at posting (kinds `unbalanced`, `missing_lines`, `changed`). `GET /trace/:type/:id` shows the journals made from a record in another module. `GET /feeds` shows the last run and held items. CSV downloads guard cells that begin with `=`, `+`, `-` or `@`.
+
+### Preparing (prepare tier)
+- `POST /journals`, `POST /journals/preview` (checks without saving: balance, accounts, fund rules, budget), `PATCH /journals/:id` (draft or returned, by its preparer), `DELETE /journals/:id` (draft), `POST /journals/:id/submit`, `POST /journals/:id/reverse {reason, date?}`. Types: `manual`, `adjusting`, `opening`; `system` and `reversal` are made by the module. A fund may be named only on income, expense and fixed-asset lines.
+- `POST/PATCH /accounts` (code 2–12 letters, numbers, dots, dashes; unique per school; kind and code cannot change; an account used by an automatic posting cannot be switched off). `POST/PUT/DELETE /budgets` (drafts), `POST /recons` (one per account and month; difference = books − (statement + items)), `POST /periods/:ym/close` (asks for sign-off), `POST /periods/:ym/cancel`, `GET /opening-suggestion`.
+
+### Approving (approve tier)
+- `POST /journals/:id/decide {decision: approve|reject, note}` (reject needs a reason). Approval claims the journal (`posting`), writes the lines, then marks it `posted`; two approvals at once give one 200 and one 409, and a journal left in `posting` by a crash is finished by the next run.
+- `POST/PATCH /funds`, `POST /funds/:id/close|reopen {reason}`, `POST /budgets/:id/approve` (supersedes the earlier version of that year), `POST /recons/:id/sign` (difference must be 0; not the preparer), `POST /periods/:ym/approve` (not the requester; stores the closing fingerprint), `POST /feeds/run`.
+- Fund rules, checked at submit and again at approval: the fund is open, the date is inside its window, the account is on its list, and spending stays within the award. A rule change that would make past spending ineligible is refused. Budget control `off|warn|block` governs manual journals only: `warn` attaches a warning; `block` refuses (422 `over_budget`).
+
+### Administrator
+- `POST /setup {startDate, fiscalStartMonth}` (once; makes the chart of 30 accounts), `PUT /settings {reason, settings}` (budget control, reconciliation requirement, automatic-posting accounts; start date and fiscal month cannot change after the first posting or budget), `POST /sweep` (full feed run plus check), `POST /recons/:id/reopen {reason}` (only while its month is open), `POST /periods/:ym/reopen {reason (10+ chars)}` (only the latest closed month).
+- Cron: `GET /api/cron/accounts` (bearer `CRON_SECRET`, daily 01:45 UTC) runs a full feed pass for every school.
+
+### Automatic postings
+Fee invoices (income by line kind, concessions, bad debts, late fees), fee payments (cash or bank against receivable; unallocated money to fees received in advance; refunds), finalized pay runs (salaries, net pay, tax, advance recovery, other deductions), staff advances, approved supplier bills (fixed assets or the expense account for the category, charged to the purchasing grant's ledger fund) and their payment, and store sales and refunds. Each source keeps the net it has posted; a change posts only the difference, dated today (or the first open month when the original month is closed, marked `shifted`). Invoices dated before the start date are left to the opening balances. A posting that cannot be made (for example a switched-off account) is held with its reason, listed in the overview and in the month-end checklist, and posted by the next run once fixed. Runs are idempotent: one source revision has one journal (unique `sourceKey`).
+
+Months. A month closes only in order, after it has ended, with no draft or waiting journals, a balanced trial balance and (if required) a signed reconciliation for every bank account. While a month waits for sign-off nothing new can be submitted into it (423 `period_locked`).
+
+Indexes: every `Ac*` collection leads with `schoolId`. Unique: account `(schoolId, code)`, period `(schoolId, ym)`, journal `sourceKey` and `reversalOf`, line `(schoolId, journalId, seq)`, fund `pcFundId`, budget `(schoolId, fy, version)`, reconciliation `(schoolId, code, ym)`, source `key`. Lines carry `kind`, `ym`, `date`, `fundId`, `campusId` so statements are one indexed aggregation, not a scan of journals.
+
+Not in E23: multi-currency, depreciation runs, tax returns, bank statement import (reconciliation is typed in), cost-centre reporting beyond the stored field, and campus-level books (the ledger is school-wide; `campusId` is kept on lines for E26).

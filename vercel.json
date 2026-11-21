@@ -66,6 +66,10 @@
     {
       "path": "/api/cron/transport",
       "schedule": "30 0 * * *"
+    },
+    {
+      "path": "/api/cron/accounts",
+      "schedule": "45 1 * * *"
     }
   ]
 }

@@ -165,4 +165,19 @@ router.get('/transport', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: post fees, pay runs, supplier bills and store sales into each school's ledger, and finish any interrupted posting (PRD E23)
+router.get('/accounts', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const F = require('../utils/accounts/feeds');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = { posted: 0, changed: 0, held: 0, scanned: 0 };
+    for (const s of schools) { const r = await F.run(s._id, { full: true }); if (!r.ready) continue; total.posted += r.posted; total.changed += r.changed; total.held += r.held.length; total.scanned += r.scanned; }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;
