@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
+  Plug,
   Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library, ShoppingCart, BusFront, Landmark, Network } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
@@ -26,6 +27,7 @@ import TransportAdmin from '../../components/transport/TransportAdmin';
 import AccountsAdmin from '../../components/accounts/AccountsAdmin';
 import AnalyticsHub from '../../components/analytics/AnalyticsHub';
 import GroupHub from '../../components/group/GroupHub';
+import IntegrationsHub from '../../components/integrations/IntegrationsHub';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -45,7 +47,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1558,6 +1560,7 @@ const AdminDashboard = () => {
                   { id: 'accounts', label: 'School accounts', icon: Landmark },
                   { id: 'analytics', label: 'Measures', icon: BarChart3 },
                   { id: 'group', label: 'Campus group', icon: Network },
+                  { id: 'integrations', label: 'Connections', icon: Plug },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1720,6 +1723,7 @@ const AdminDashboard = () => {
             {activeTab === 'accounts' && <AccountsAdmin />}
             {activeTab === 'analytics' && <AnalyticsHub />}
             {activeTab === 'group' && <GroupHub />}
+            {activeTab === 'integrations' && <IntegrationsHub />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}

@@ -26,6 +26,8 @@ exports.createNotice = async (req, res) => {
       expiresAt,
     });
 
+    if (notice.targetAudience === 'All') require('../utils/integrations/webhook').emit(req.user.schoolId, 'notice.published', { notice }, { eventId: `notice_${notice._id}` });   // only notices meant for everyone leave the school
+
     // Tell everyone who can see it
     try {
       const sid = req.user.schoolId;

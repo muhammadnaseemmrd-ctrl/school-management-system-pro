@@ -195,4 +195,13 @@ router.get('/analytics', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+router.get('/integrations', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try { res.json(await require('../controllers/integrationController').sweepAll()); } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

@@ -33,6 +33,7 @@ import TeacherToday from '../../components/today/TeacherToday';
 import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
+import LearningTools from '../../components/integrations/LearningTools';
 
 const TeacherDashboard = () => {
   const { t } = useLang();
@@ -729,6 +730,7 @@ const TeacherDashboard = () => {
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
+                <LearningTools />
                 {profileData?.isClassTeacher && profileData.classTeacherOf?._id && (
                   <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-[#2a5cac] p-6 text-white shadow-md">
                     <div>
@@ -2281,7 +2283,7 @@ const TeacherDashboard = () => {
             {activeTab === 'familyDesk' && <StaffFamilyDesk />}
             {activeTab === 'careDesk' && <StaffCare />}
             {activeTab === 'timetablePlan' && <TeacherTimetableDesk meId={profileData?._id} />}
-            {activeTab === 'today' && <TeacherToday onNavigate={setActiveTab} />}
+            {activeTab === 'today' && <div className="space-y-6"><LearningTools /><TeacherToday onNavigate={setActiveTab} /></div>}
 
             {activeTab === 'security' && (
               <div className="rounded-2xl border border-[#e3e7e7] bg-[#ffffff] p-6 shadow-sm max-w-xl mx-auto">

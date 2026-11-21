@@ -22,6 +22,8 @@ setInterval(() => {
 }, 10 * 60 * 1000).unref();
 
 module.exports = {
+  makeLimiter,
+  ssoLimiter: makeLimiter({ windowMs: 15 * 60 * 1000, max: 60, message: 'Too many sign-in attempts. Please try again in a few minutes.' }),
   resetForTests: () => buckets.clear(),
   loginLimiter: makeLimiter({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many login attempts. Please try again in a few minutes.' }),
   lookupLimiter: makeLimiter({ windowMs: 15 * 60 * 1000, max: 60, message: 'Too many lookups. Please try again in a few minutes.' }),

@@ -103,11 +103,13 @@ async function syncAlert({ schoolId, student, classId, date, record, marker, mar
   try { const CS = require('./campus'); const campusId = await CS.campusOfClass(schoolId, classId); const r = await require('./group/policy').effective(schoolId, campusId, 'attendance.alertGraceMinutes'); if (Number.isFinite(r.value)) grace = r.value; } catch (e) { grace = st.graceMinutes; }
   const dueAt = verified ? new Date(Date.now() + grace * 60000) : null;
   if (!a) {
-    return AttendanceAlert.create({
+    const made = await AttendanceAlert.create({
       schoolId: sid, studentId: stid, classId, date, kind, detail, markedBy: marker,
       status: verified ? 'Verified' : 'Pending', dueAt,
       ...(verified ? { verifiedBy: marker, verifiedByModel: markerModel, verifiedAt: new Date() } : {}),
     });
+    if (kind === 'Absent') require('./integrations/webhook').emit(sid, 'attendance.absent', { studentId: stid, classId, date, kind }, { eventId: `abs_${made._id}` });
+    return made;
   }
   if (a.status === 'Sent') {
     // already told: only a changed detail (e.g. a corrected arrival time) is worth a follow-up

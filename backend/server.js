@@ -151,6 +151,12 @@ app.use('/api/transport', express.json({ limit: '1mb' }), require('./routes/tran
 app.use('/api/accounts', express.json({ limit: '1mb' }), require('./routes/accountsRoutes'));
 app.use('/api/analytics', express.json({ limit: '1mb' }), require('./routes/analyticsRoutes'));
 app.use('/api/group', express.json({ limit: '200kb' }), require('./routes/groupRoutes'));
+app.use('/api/integrations', express.json({ limit: '100kb' }), require('./routes/integrationRoutes'));
+{ const outside = require('./routes/outsideRoutes');
+  app.use('/api/oneroster/v1p1', outside.oneroster);
+  app.use('/api/open/v1', outside.open);
+  app.use('/api/lti', express.json({ limit: '20kb' }), outside.lti);
+  app.use('/api/sso', express.json({ limit: '5kb' }), outside.sso); }
 app.use('/api/store', express.json({ limit: '200kb' }), require('./routes/storeRoutes'));
 app.use('/api/registrar', express.json({ limit: '200kb' }), require('./routes/registrarRoutes'));
 app.use('/api/campuses', express.json({ limit: '50kb' }), require('./routes/campusRoutes'));
@@ -252,6 +258,11 @@ if (!process.env.VERCEL) server.listen(PORT, () => {
   // Sales and support (PRD E28): quotes expire, invoices get reminders, support deadlines are flagged. On Vercel the daily cron does this.
   require('node-cron').schedule('*/30 * * * *', () => {
     ready.then(async () => { await require('./controllers/salesController').sweep(); await require('./controllers/supportController').sweep(); }).catch((e) => console.error('[sales] sweep failed:', e.message));
+  });
+
+  // Connections (PRD E30): send webhooks that are due and tidy short-lived records. On Vercel the daily cron does this.
+  require('node-cron').schedule('*/5 * * * *', () => {
+    ready.then(() => require('./controllers/integrationController').sweepAll()).catch((e) => console.error('[integrations] sweep failed:', e.message));
   });
 
   // Auto Notice Expiration Cleanup Task

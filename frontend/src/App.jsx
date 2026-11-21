@@ -9,6 +9,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
+const SsoComplete = lazy(() => import('./pages/SsoComplete'));
 const VerifyTranscript = lazy(() => import('./pages/VerifyTranscript'));
 const VerifyCredential = lazy(() => import('./pages/VerifyCredential'));
 const SponsorReport = lazy(() => import('./pages/SponsorReport'));
@@ -92,6 +93,7 @@ function App() {
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <Login />}
           />
           <Route path="/proposal/:token" element={<ProposalPage />} />
+          <Route path="/sso-complete" element={<SsoComplete />} />
           <Route path="/verify" element={<VerifyDocument />} />
           <Route path="/verify/:token" element={<VerifyDocument />} />
           <Route path="/verify-transcript" element={<VerifyTranscript />} />

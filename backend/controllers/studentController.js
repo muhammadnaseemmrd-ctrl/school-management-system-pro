@@ -173,6 +173,7 @@ exports.createStudent = async (req, res) => {
       division: resolvedDivision,
       ...rest,
     });
+    require('../utils/integrations/webhook').emit(req.user.schoolId, 'student.enrolled', { student });
 
     // Update class student count
     if (resolvedClassId) {
@@ -271,6 +272,8 @@ exports.updateStudent = async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
+    if (originalStudent && originalStudent.isActive !== false && student.isActive === false) require('../utils/integrations/webhook').emit(req.user.schoolId, 'student.left', { student });
+
     // Update class student count if class changed
     if (originalStudent && resolvedClassId !== undefined && String(originalStudent.classId) !== String(resolvedClassId)) {      // only when the form actually names a class
       if (originalStudent.classId) {
@@ -324,6 +327,8 @@ exports.deleteStudent = async (req, res) => {
     } catch (cldErr) {
       console.error('Cloudinary cleanup error during student delete:', cldErr);
     }
+
+    require('../utils/integrations/webhook').emit(req.user.schoolId, 'student.left', { student });
 
     // Update class student count
     await Class.findByIdAndUpdate(student.classId, { $inc: { studentCount: -1 } });

@@ -47,6 +47,14 @@ export default function Login() {
     password: '',
   });
 
+  // Sign in through the school's own account provider, when the school has turned that on (PRD E30)
+  const [sso, setSso] = useState(null);
+  useEffect(() => {
+    const code = formData.schoolCode.trim(); setSso(null); if (code.length < 3) return undefined;
+    let live = true; const t = setTimeout(() => { apiClient.get(`/sso/${encodeURIComponent(code)}/info`).then((r) => { if (live && r.data && r.data.enabled) setSso(r.data); }).catch(() => {}); }, 400);
+    return () => { live = false; clearTimeout(t); };
+  }, [formData.schoolCode]);
+
   // Forgot Password Flow States
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetCode, setResetCode] = useState('');
@@ -368,7 +376,7 @@ export default function Login() {
                       placeholder="Enter your password"
                       className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
-                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? "Hide password" : "Show password"} aria-pressed={showPassword} className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
@@ -392,6 +400,14 @@ export default function Login() {
                   )}
                 </button>
               </form>
+              {sso && (
+                <div className="mt-4 border-t border-[#e3e7e7] pt-4">
+                  <p className="mb-2 text-center text-xs text-[#5b6b7b]">Teachers and administrators</p>
+                  <a href={`${apiClient.defaults.baseURL}/sso/${encodeURIComponent(formData.schoolCode.trim())}/start`} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#2a5cac] bg-white px-5 py-3 font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]">
+                    Sign in with your school account
+                  </a>
+                </div>
+              )}
             </>
           )}
 
@@ -553,7 +569,7 @@ export default function Login() {
                       className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
-                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
+                    <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} aria-label={showNewPassword ? "Hide password" : "Show password"} aria-pressed={showNewPassword} className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
@@ -594,7 +610,7 @@ export default function Login() {
                       className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-12 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                       required
                     />
-                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-3.5 text-[#2a5cac] transition hover:text-[#2a5cac]">
+                    <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} aria-label={showConfirmPassword ? "Hide password" : "Show password"} aria-pressed={showConfirmPassword} className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center text-[#2a5cac] transition hover:text-[#2a5cac]">
                       {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>

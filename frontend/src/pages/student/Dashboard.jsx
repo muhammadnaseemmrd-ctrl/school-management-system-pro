@@ -23,6 +23,7 @@ import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
 import { StatusChip } from '../../components/attendance/shared';
+import LearningTools from '../../components/integrations/LearningTools';
 
 const StudentDashboard = () => {
   const { t } = useLang();
@@ -467,6 +468,7 @@ const StudentDashboard = () => {
         {/* TAB 1: OVERVIEW */}
         {activeSubTab === 'dashboard' && (
           <div className="space-y-6">
+            <LearningTools />
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {stats.map((item) => {
                 const Icon = item.icon;

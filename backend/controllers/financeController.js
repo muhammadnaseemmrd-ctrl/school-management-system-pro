@@ -196,6 +196,7 @@ exports.createPayment = async (req, res) => {
       pay.receiptNo = await F.withNumber(Payment, sid, 'receiptNo', (n) => F.receiptNo(n), async (no) => { pay.receiptNo = no; await pay.save(); return no; });
       const r = await F.allocate(pay, await openInvoicesFor(sid, student._id, only?._id)); await pay.save();
       await audit(req, { action: 'finance.payment.cash', entityType: 'FeePayment', entityId: pay._id, schoolId: sid, detail: { amount, receiptNo: pay.receiptNo, credit: r.left } });
+      require('../utils/integrations/webhook').emit(sid, 'payment.received', { payment: pay }, { eventId: `pay_${pay._id}` });
     } else {
       await pay.save();                                            // waits for a bank line or an approved proof
       await audit(req, { action: 'finance.payment.pending', entityType: 'FeePayment', entityId: pay._id, schoolId: sid, detail: { amount, method, reference: pay.reference } });
@@ -225,6 +226,7 @@ exports.confirmPayment = async (req, res) => {
     } else return res.status(422).json({ message: 'A payment is confirmed by a matched bank line or an approved payment proof.' });
     await confirm(req, pay, evidence); await F.allocate(pay, await openInvoicesFor(sid, pay.studentId)); await pay.save();
     await audit(req, { action: 'finance.payment.confirm', entityType: 'FeePayment', entityId: pay._id, schoolId: sid, detail: { evidence } });
+    require('../utils/integrations/webhook').emit(sid, 'payment.received', { payment: pay }, { eventId: `pay_${pay._id}` });
     res.json({ payment: payView(pay) });
   } catch (e) { fail(res, e); }
 };
@@ -386,6 +388,7 @@ exports.matchLine = async (req, res) => {
     await pay.save(); line.status = 'Matched'; line.paymentId = pay._id; await line.save();
     const r = await F.allocate(pay, [inv, ...(await openInvoicesFor(sid, inv.studentId)).filter((x) => String(x._id) !== String(inv._id))]); await pay.save();
     await audit(req, { action: 'finance.bank.match', entityType: 'BankStatementLine', entityId: line._id, schoolId: sid, detail: { invoice: inv.number, amount: line.amount, credit: r.left } });
+    require('../utils/integrations/webhook').emit(sid, 'payment.received', { payment: pay }, { eventId: `pay_${pay._id}` });
     res.json({ payment: payView(pay) });
   } catch (e) { fail(res, e); }
 };
