@@ -9,6 +9,7 @@ import Walkthrough from '../components/site/Walkthrough';
 import Scenarios from '../components/site/Scenarios';
 import LiveDemo from '../components/site/LiveDemo';
 import Showcase from '../components/site/Showcase';
+import AiCenter from '../components/site/AiCenter';
 import Audiences from '../components/site/Audiences';
 import { Pakistan, Trust, Proof, Pricing, DemoSection, Faq, FinalCta } from '../components/site/Sections';
 import useReveal from '../utils/useReveal';
@@ -33,6 +34,7 @@ export default function Landing() {
       <Scenarios />
       <LiveDemo />
       <Showcase />
+      <AiCenter />
       <Audiences />
       <Pakistan />
       <Trust />
