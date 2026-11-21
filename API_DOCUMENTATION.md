@@ -1589,3 +1589,48 @@ Roles: administrators do everything. A teacher works the desk or till only with 
 Indexes: every `Lb*` and `St*` collection leads with `schoolId`. Unique: copy barcode, card barcode `(schoolId, barcode)`, open loan per copy (`activeCopy`), SKU `(schoolId, code)` and barcode, sale `(schoolId, orderNo)` and receipt number, import hash, offline `clientKey`, one open shift per till (`tillKey`) and per cashier (`cashierKey`).
 
 Not in E18: posting to the fee ledger, online payment (charges and store sales are paid at the desk), a public online catalogue, email or SMS reminders, a buyer picker at the till, and lab consumables, IT devices, work orders, space booking, cafeteria, sports and bus rosters (other epics).
+
+## Purchasing, funds, assets and facilities (E19) — `/api/procure`
+
+Roles: administrators do everything. A teacher works under two time-limited permissions granted under Access and permissions: `procure.request` (raise and follow their own purchase requests) and `procure.officer` (work in the purchasing office: suppliers, quotes, orders, goods received, bills, the asset register, repairs, routines, projects). Any teacher can report a fault and sees only the jobs they reported. Campus-limited administrators get `403` because purchasing is school-wide. Students, parents and agents are refused. Another school's records are always `404`.
+
+### Access and rules
+- `GET /access` → `{ officer, request, admin }`. `GET /options` (cost centres, categories, thresholds, this year's approved budget lines and open projects; for requesters).
+- `GET /settings`, `PUT /settings` (administrator; `reason` of 5+ characters; every save is a new version with its history). Rules: `singleApprovalLimit` (above it two different approvers), `quoteThreshold` and `minQuotes` (at or above it, written quotes or a stated reason), `tolerancePercent` (orders against approvals, bills against what was received), `capitalizationThreshold`, `fiscalYearStartMonth`, cost centres, categories and asset kinds with useful lives.
+- `GET /overview` (budget position, what is waiting, repairs open, contracts ending, asset totals).
+
+### Suppliers
+- `GET|POST /vendors`, `GET|PATCH /vendors/:id`. The same name, tax number or bank account cannot be added twice (`409`); keys ignore case, spaces and punctuation. A list never exposes an account number, only its last four digits.
+- Bank details are never edited in place: `POST /vendors/:id/bank` `{ bank, reason }` creates a pending change and `POST /vendors/:id/bank/decide` (administrator, a different person) applies or turns it down. A bank transfer to a supplier is held while a change is pending, or when no account has been approved.
+- Blocking a supplier needs a reason; a blocked supplier cannot be quoted, ordered from or paid.
+
+### Funds, budgets and variations
+- `GET|POST /funds`, `GET /funds/:id` (history), `POST /funds/:id/money` `{ amount, note }` or `{ kind: 'adjust', direction, amount, note }`, `POST /funds/:id/close`. Kinds `general|restricted|grant|donor`; a restricted fund names the categories it allows and may have valid dates. Every change is an append-only entry with the balance after it; a correction is a new entry. `GET /reconcile` checks that every fund, budget line and project equals its entries.
+- `GET|POST /budgets`, `PUT /budgets/:id` (drafts only), `POST /budgets/:id/approve` (a different administrator, the only administrator of a school may approve their own and the record says so), `POST /budgets/:id/close`. One budget per cost centre and year; one line per category.
+- `GET|POST /variations` `{ kind: 'move'|'increase', fromLineId, toLineId, amount, reason }`, `POST /variations/:id/decide` (a different administrator).
+
+### Requests, quotes, orders, goods and bills
+- Requests: `GET|POST /requisitions`, `GET|PATCH /requisitions/:id`, `POST /requisitions/:id/submit` `{ soleSourceReason? }`, `/cancel` `{ reason }`, `/decide` `{ approve, note }` (administrator). A requester sees only their own. Submitting checks the budget line, the fund's category and dates, and what is left (`409` says how much). Money is set aside on final approval, once, by conditional writes: two administrators deciding together produce one `200` and one `409`; above the one-approver limit two different administrators must approve.
+- Quotes (office): `POST /requisitions/:id/quotes`, `DELETE /requisitions/:id/quotes/:key`, `POST /requisitions/:id/choose-quote` (a quote that is not the lowest needs a reason).
+- Orders: `POST /requisitions/:id/order` `{ vendorId, expectedOn, lines? }` (one order per request; an order above the approved amount beyond the tolerance is refused, below it gives the difference back), `GET /orders`, `GET /orders/:id`, `POST /orders/:id/cancel` and `/close` (administrator, with a reason).
+- Goods: `POST /orders/:id/receive` `{ clientKey, lines: [{ lineId, qty, rejected }] }`; the same `clientKey` returns the first receipt (`200`), and two people receiving the last items together cannot exceed what was ordered (`409`, `over_receipt`).
+- Bills: `POST /orders/:id/bills` `{ invoiceNo, amount, invoiceDate, dueOn }` runs the three-way match (`matched|within_tolerance|exception|over`; over is refused `422`; a duplicate invoice number from the same supplier is `409`). `GET /bills`, `POST /bills/:id/decide` (administrator, not the person who entered it; an exception needs `exceptionReason` of 10+ characters), `POST /bills/:id/pay` `{ method, reference, paidOn }` (administrator; paid once even if two administrators pay together), `POST /bills/:id/void` (office; frees the order and the invoice number), `POST /bills/:id/credit` `{ amount, reason }` (a paid bill only; returns money to the budget line and fund).
+
+### Projects
+- `GET|POST /projects`, `GET /projects/:id`, `POST /projects/:id/approve` `{ budgetLineId, fundId?, authorized }`, `POST /projects/:id/phase` `{ phase, note }` (`approved → building → handover → completed`, or `cancelled` with no money set aside), `POST /projects/:id/milestones/:key` `{ done }`, `POST /projects/:id/changes` `{ kind: 'increase'|'scope'|'schedule', amount, endOn, reason }`, `POST /changes/:id/decide` (a different administrator).
+
+### Assets
+- `GET|POST /assets`, `GET|PATCH /assets/:id` (value today, depreciation schedule, history, repair jobs), `GET /assets/by-tag?tag=` (a tag is `AS` + 7 digits + a check digit; a misread is `422` with `reason: 'scan'`), `POST /assets/from-order` `{ orderId, lineId, count, category }` (only what has arrived and is not yet tagged; two people tagging together never tag an item twice), `POST /assets/:id/transfer`, `POST /assets/:id/dispose` `{ how, reason, proceeds }` and `POST /assets/:id/dispose/decide` (a different administrator), `POST /assets/labels` `{ ids }` → PDF. Straight-line depreciation by whole months to the scrap value.
+
+### Repairs, routines and running costs
+- `GET|POST /tickets` (any teacher may report; list is scoped to what they reported unless they are on the office), `PATCH /tickets/:id` (office; `open → assigned → in_progress → done → closed`, finishing needs a note, cancelling needs a reason).
+- `GET|POST /plans`, `PATCH /plans/:id` (a routine opens a job `leadDays` before it is due; one job per routine per due date, enforced by a unique key, so two sweeps at once open one job).
+- `GET|POST /contracts`, `PATCH /contracts/:id` (administrator), `GET /forecast?from&to` (monthly, quarterly and yearly costs on the right dates, clamped to month end).
+
+### Reports (administrator)
+- `GET /reports/:name` for `budget`, `funds`, `pipeline`, `payables`, `projects`, `assets`, `vendors`, `contracts`; add `?format=csv` where a table exists (cells starting with `= + - @` are prefixed to defeat formula injection). `POST /sweep` runs the daily rules now.
+- Cron: `GET /api/cron/procure` daily at 04:15 UTC (opens routine jobs, ends and warns about contracts, tells the office about late bills).
+
+Indexes: every `Pc*` collection leads with `schoolId`. Unique: vendor name, tax number and bank account `(schoolId, key)`, fund name, budget `(schoolId, year, costCentre)`, budget line `(budgetId, category)`, request, order, receipt, bill and ticket numbers, receipt `clientKey`, bill `(schoolId, vendorId, invoiceKey)`, order line `(orderId, n)`, asset tag, routine job `planKey`. Unique indexes ignore a missing key, so a voided or turned-down bill gives its invoice number back.
+
+Not in E19: posting to the general ledger or the fee ledger (E23 will connect it), a payment gateway or bank file export, uploading the supplier's invoice or quote as a file, a supplier portal, purchase returns beyond credit notes, stock-keeping of consumables (E18 store covers uniforms and stationery for sale), and email or SMS alerts (in-app notifications only).

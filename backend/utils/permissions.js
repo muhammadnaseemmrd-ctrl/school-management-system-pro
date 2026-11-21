@@ -46,6 +46,10 @@ const CATALOG = {
     rule: 'Administrators by default; a store cashier needs a time-limited grant and a till assigned to them. A cashier can never approve their own refund or their own stock count.' },
   'store.refund.approve': { label: 'Approve a store refund or a stock count', scope: 'school', defaults: ['admin'], grantable: false, implemented: true,
     rule: 'Administrators only, and never the person who made the sale, the request or the count (a school with one administrator may approve its own and the record says so).' },
+  'procure.officer': { label: 'Work in the purchasing office (suppliers, quotes, orders, goods received, bills, asset register)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a purchasing officer needs a time-limited grant. An officer can never approve a request, a budget, a bank change or a payment, and never approves their own work.' },
+  'procure.request': { label: 'Raise purchase requests for a department', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Any teacher can report a fault; raising a request needs a time-limited grant. A requester sees only their own requests and can never approve them.' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;

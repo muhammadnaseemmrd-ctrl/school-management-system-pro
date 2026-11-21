@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library, ShoppingCart } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -21,6 +21,7 @@ import Migration from '../../components/migration/Migration';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TrainingAdmin from '../../components/training/TrainingAdmin';
 import LibraryAdmin from '../../components/library/LibraryAdmin';
+import ProcureAdmin from '../../components/procure/ProcureAdmin';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -40,7 +41,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'setup'];
+    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1548,6 +1549,7 @@ const AdminDashboard = () => {
                   { id: 'registrar', label: 'Registrar', icon: GraduationCap },
                   { id: 'training', label: 'Training', icon: BookOpenCheck },
                   { id: 'library', label: 'Library & store', icon: Library },
+                  { id: 'purchasing', label: 'Purchasing & assets', icon: ShoppingCart },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
                   const Icon = item.icon;
@@ -1705,6 +1707,7 @@ const AdminDashboard = () => {
             {activeTab === 'registrar' && <RegistrarAdmin />}
             {activeTab === 'training' && <TrainingAdmin />}
             {activeTab === 'library' && <LibraryAdmin />}
+            {activeTab === 'purchasing' && <ProcureAdmin />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}
