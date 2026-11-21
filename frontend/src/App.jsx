@@ -14,6 +14,7 @@ const VerifyCredential = lazy(() => import('./pages/VerifyCredential'));
 const SponsorReport = lazy(() => import('./pages/SponsorReport'));
 const Courses = lazy(() => import('./pages/Courses'));
 const Learn = lazy(() => import('./pages/Learn'));
+const Driver = lazy(() => import('./pages/Driver'));
 const ProposalPage = lazy(() => import('./pages/ProposalPage'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const StudentDashboard = lazy(() => import('./pages/student/Dashboard'));
@@ -101,6 +102,7 @@ function App() {
           <Route path="/courses/:code" element={<Courses />} />
           <Route path="/courses/:code/:slug" element={<Courses />} />
           <Route path="/learn" element={<Learn />} />
+          <Route path="/driver" element={<Driver />} />
           <Route
             path="/superadmin/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SuperAdminLogin />}

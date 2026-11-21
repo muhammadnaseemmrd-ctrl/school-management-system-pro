@@ -48,6 +48,10 @@ const CATALOG = {
     rule: 'Administrators only, and never the person who made the sale, the request or the count (a school with one administrator may approve its own and the record says so).' },
   'procure.officer': { label: 'Work in the purchasing office (suppliers, quotes, orders, goods received, bills, asset register)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'Administrators by default; a purchasing officer needs a time-limited grant. An officer can never approve a request, a budget, a bank change or a payment, and never approves their own work.' },
+  'transport.manage': { label: 'Manage transport (vehicles, drivers, routes, stops, riders, inspections)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a transport manager needs a time-limited grant. A vehicle that fails a critical inspection cannot start a trip until a later inspection passes.' },
+  'transport.dispatch': { label: 'Dispatch school buses (today\'s trips, boarding, exceptions, incidents)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a dispatcher needs a time-limited grant. Sees routes and riders only: no counselling, health or safeguarding records. Vehicle location exists only while a trip is active.' },
   'procure.request': { label: 'Raise purchase requests for a department', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'Any teacher can report a fault; raising a request needs a time-limited grant. A requester sees only their own requests and can never approve them.' },
 };

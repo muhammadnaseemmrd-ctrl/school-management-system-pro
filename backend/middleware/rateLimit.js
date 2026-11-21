@@ -25,5 +25,6 @@ module.exports = {
   resetForTests: () => buckets.clear(),
   loginLimiter: makeLimiter({ windowMs: 15 * 60 * 1000, max: 20, message: 'Too many login attempts. Please try again in a few minutes.' }),
   lookupLimiter: makeLimiter({ windowMs: 15 * 60 * 1000, max: 60, message: 'Too many lookups. Please try again in a few minutes.' }),
+  driverLimiter: makeLimiter({ windowMs: 60 * 1000, max: 200, message: 'Too many requests from this phone. Wait a moment and try again.' }),
   signupLimiter: makeLimiter({ windowMs: 60 * 60 * 1000, max: 10, message: 'Too many sign-ups from this address. Please try again later.' }),
 };

@@ -15,6 +15,7 @@ const PURPOSES = {
   trip_participation: { label: 'Off-site trips', detail: 'The child may take part in trips and visits away from school.', subjects: ['student'], version: '2026-1' },
   health_sharing: { label: 'Sharing health and allergy details with activity staff', detail: 'Staff running a trip or activity may see the child\'s allergy and emergency health notes.', subjects: ['student'], version: '2026-1' },
   data_sharing: { label: 'Sharing contact details with the class list', detail: 'The parent\'s name and phone may appear on the class contact list shared with other families.', subjects: ['student'], version: '2026-1' },
+  bus_tracking: { label: 'Seeing the school bus on a map during a trip', detail: 'While the child\'s bus trip is under way, the family may see where the school vehicle is. Nothing is shown before or after the trip, and the child\'s own phone is never tracked.', subjects: ['student'], version: '2026-1' },
   ai_tools: { label: 'AI-assisted learning tools', detail: 'The child\'s work may be used with AI-assisted learning tools chosen by the school.', subjects: ['student'], version: '2026-1' },
   news_messages: { label: 'School news and event invitations', detail: 'The school may send news and invitations that are not required notices.', subjects: ['parent'], version: '2026-1' },
   staff_directory: { label: 'Name and photo on the school page', detail: 'The school may show the teacher\'s name and photo on its public page.', subjects: ['teacher'], version: '2026-1' },

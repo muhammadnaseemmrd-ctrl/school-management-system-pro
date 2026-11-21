@@ -385,6 +385,10 @@ exports.assignTransport = async (req, res) => {
     }
     const route = await TransportRoute.findOne({ _id: routeId, schoolId: req.user.schoolId });
     if (!route) return res.status(404).json({ message: 'Route not found' });
+    // a stop belongs to one route, so a child moved to another route loses the old stop (it is chosen again in Transport)
+    const had = await TransportAssignment.find({ schoolId: req.user.schoolId, studentId: { $in: valid.map((s) => s._id) } }).select('studentId routeId');
+    const moved = had.filter((a) => String(a.routeId) !== String(route._id)).map((a) => a.studentId);
+    if (moved.length) await TransportAssignment.updateMany({ schoolId: req.user.schoolId, studentId: { $in: moved } }, { $unset: { stopId: '' } });
     await Promise.all(valid.map((s) => TransportAssignment.findOneAndUpdate(
       { schoolId: req.user.schoolId, studentId: s._id }, { routeId: route._id, pickupPoint }, { upsert: true, new: true }
     )));

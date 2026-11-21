@@ -150,4 +150,19 @@ router.get('/procure', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: make today's and tomorrow's trips, close trips that never ran or were left open, drop old positions and remind the office about documents and inspections (PRD E22)
+router.get('/transport', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const V = require('../utils/transport/views');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = { made: 0, missed: 0, closedStale: 0, purged: 0, warned: 0 };
+    for (const s of schools) { const r = await V.sweep(s._id); for (const k of Object.keys(total)) total[k] += r[k]; }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;
