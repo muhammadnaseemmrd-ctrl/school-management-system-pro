@@ -8,6 +8,7 @@ import apiClient from './utils/apiClient';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import SchoolRegistration from './pages/SchoolRegistration';
+const About = lazy(() => import('./pages/About'));
 const VerifyDocument = lazy(() => import('./pages/VerifyDocument'));
 const SsoComplete = lazy(() => import('./pages/SsoComplete'));
 const VerifyTranscript = lazy(() => import('./pages/VerifyTranscript'));
@@ -96,6 +97,7 @@ function App() {
             path="/login"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <Login />}
           />
+          <Route path="/about" element={<About />} />
           <Route path="/proposal/:token" element={<ProposalPage />} />
           <Route path="/sso-complete" element={<SsoComplete />} />
           <Route path="/verify" element={<VerifyDocument />} />

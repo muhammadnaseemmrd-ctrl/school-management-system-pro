@@ -1,0 +1,30 @@
+/* Public site only. Motion here is decoration; it all switches off for people who ask for less motion. */
+@keyframes site-float { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -9px, 0); } }
+@keyframes site-dash { to { stroke-dashoffset: -24; } }
+@keyframes site-pop { from { opacity: 0; transform: translateY(10px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes site-travel { 0% { left: 0%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { left: 100%; opacity: 0; } }
+@keyframes site-pulse { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.35); opacity: 0.4; } }
+@keyframes site-sweep { from { background-position: 0% 50%; } to { background-position: 200% 50%; } }
+@keyframes site-in-right { from { opacity: 0; transform: translateX(22px); } to { opacity: 1; transform: none; } }
+@keyframes site-in-left { from { opacity: 0; transform: translateX(-22px); } to { opacity: 1; transform: none; } }
+
+.site-float { animation: site-float 7s ease-in-out infinite; will-change: transform; }
+.site-float-b { animation-duration: 9s; animation-delay: -2s; }
+.site-float-c { animation-duration: 8s; animation-delay: -4s; }
+.site-pop { animation: site-pop 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.site-in-right { animation: site-in-right 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.site-in-left { animation: site-in-left 380ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.site-hotspot { box-shadow: 0 0 0 9999px rgba(15, 27, 45, 0.42); }
+.site-pulse-dot { animation: site-pulse 1.8s ease-in-out infinite; }
+.site-parallax { transform: translate3d(calc(var(--px, 0) * var(--d, 0) * 1px), calc(var(--py, 0) * var(--d, 0) * 1px), 0); transition: transform 180ms ease-out; }
+.site-tilt { transform: perspective(1400px) rotateX(var(--rx, 2deg)) rotateY(var(--ry, -4deg)); transition: transform 260ms ease-out; transform-style: preserve-3d; }
+.site-line-draw { stroke-dasharray: 6 6; animation: site-dash 1.2s linear infinite; }
+.site-sweep-text { background-size: 200% 100%; animation: site-sweep 8s linear infinite; }
+
+/* the scattered-to-connected scene moves with a plain CSS transition */
+.site-chip { transition: left 900ms cubic-bezier(0.22, 0.9, 0.2, 1), top 900ms cubic-bezier(0.22, 0.9, 0.2, 1), transform 900ms cubic-bezier(0.22, 0.9, 0.2, 1), opacity 500ms ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .site-float, .site-pop, .site-in-right, .site-in-left, .site-pulse-dot, .site-line-draw, .site-sweep-text { animation: none !important; }
+  .site-chip, .site-parallax, .site-tilt { transition: none !important; }
+}
