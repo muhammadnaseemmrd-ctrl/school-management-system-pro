@@ -60,6 +60,8 @@ const CATALOG = {
     rule: 'Administrators by default; a finance controller needs a time-limited grant. Never for something they prepared themselves (a school with one administrator may, and the record says so).' },
   'accounts.audit': { label: 'Read the school\'s ledger, statements and trails (no changes)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'Administrators by default; an auditor needs a time-limited grant. Read only: journals, ledger, statements, fund and grant reports, trails and exports.' },
+  'analytics.lead': { label: 'See whole-school attendance and learning measures (curriculum lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a curriculum lead needs a time-limited grant. Read only, learning and attendance only: no fees, staff or help-desk figures, and groups smaller than the school\'s minimum stay hidden. Without it a teacher sees only their own classes.' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;

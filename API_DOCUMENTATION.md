@@ -1699,3 +1699,33 @@ Months. A month closes only in order, after it has ended, with no draft or waiti
 Indexes: every `Ac*` collection leads with `schoolId`. Unique: account `(schoolId, code)`, period `(schoolId, ym)`, journal `sourceKey` and `reversalOf`, line `(schoolId, journalId, seq)`, fund `pcFundId`, budget `(schoolId, fy, version)`, reconciliation `(schoolId, code, ym)`, source `key`. Lines carry `kind`, `ym`, `date`, `fundId`, `campusId` so statements are one indexed aggregation, not a scan of journals.
 
 Not in E23: multi-currency, depreciation runs, tax returns, bank statement import (reconciliation is typed in), cost-centre reporting beyond the stored field, and campus-level books (the ledger is school-wide; `campusId` is kept on lines for E26).
+
+
+## Analytics, measures and reports (E25) — `/api/analytics`
+
+Roles and levels. Administrators and teachers only (others get 403). Each person has a level: `teacher` (own classes only), `lead` (a teacher with the `analytics.lead` permission grant: learning and attendance for the whole school), `admin`. A campus-limited administrator sees only the classes of their campuses and never a measure that covers the whole school. `GET /access` → `{level, limited, classes, measures, groupBys, admin, today}`.
+
+What a measure is. Measures are defined in code (15: attendance rate, unexcused absence, excused share, registers not taken, children often absent, average mark, pass rate, fees collected, fees overdue, admissions conversion, help desk first reply and resolution, library overdue, bus on time, staff attendance). Each names its numerator, denominator and who sees it. Care and safeguarding records are never read.
+
+Small groups. A group (class, grade, campus) with fewer than `minCell` children (1 to 30, default 5) returns `suppressed: true` and no number. Where hiding one group would let it be worked out from the total and its neighbours, a second group is hidden too.
+
+### Reading
+- `GET /catalog` (measures this person may see, and those hidden with the reason), `GET /overview?from&to&groupBy` (every visible measure with change against the period before, exceptions from the lines the school set, open jobs), `GET /measures/:key?from&to&groupBy` (total, groups, month series, numerator, denominator, version). `groupBy` is `none|class|standard|campus`. Periods are at most 400 days.
+- `GET /progress?from&to` average marks by class and subject across exams, oldest first. `GET /ageing?groupBy` (administrators) fees owed on open invoices by 0, 1–30, 31–60, 61–90, over 90 days late; invoice-based, not a forecast. `GET /funnel?from&to` (whole-school administrators) admissions reached at least each step, and the roll by grade. `GET /health` (whole-school administrators) age of the latest register, marks and invoices, failed family messages, held postings, failed schedules, late jobs.
+
+### Definitions (whole-school administrators)
+- `GET /definitions`, `PUT /definitions/:key {reason, params, alert, target, minCell, minLevel}` proposes a new version, `POST /definitions/:key/decide {approve, note}` (a different administrator; a school with one administrator may decide its own and the version records `soleAdmin`; turning down needs a note), `POST /definitions` makes a custom measure (a built-in narrowed to `filters.standards` and, for learning measures, `filters.subjectIds`; at most 40), `POST /definitions/:key/retire {reason}`. One change may wait at a time (409 `pending`). `minLevel` can only be raised, never opened to more people.
+
+### Saved reports and schedules
+- `POST /runs {title, kind: manual|pack, keys, from, to, groupBy}` saves what this person may see, with each measure's definition version and a SHA-256 of the figures. A saved run is never changed. `GET /runs`, `GET /runs/:id`, `GET /runs/:id/file/csv|pdf` (a board pack as a PDF). A person opens runs they made or were sent, and an administrator of the whole school opens all of them.
+- `GET/POST /schedules`, `PATCH /schedules/:id {active, …}`, `POST /schedules/:id/run`, `POST /sweep`. A schedule is weekly (day of week) or monthly (day 1–28), covers the last 7 or 30 days, the last full month or the month so far, and has 1–60 recipients. One run is made per distinct view (level and campus scope), so each recipient only gets what their role allows; the list shows what each will not see. At most 30 are active. Cron: `GET /api/cron/analytics` (bearer `CRON_SECRET`, daily 02:20 UTC) runs due schedules, once per period (unique on school, schedule, period, scope) and notifies recipients in the app.
+
+### Jobs
+- `GET /jobs?status&page`, `POST /jobs {title, detail, ownerId, ownerRole, dueOn, metricKey, groupKey, classId}` (administrators; the date within 180 days; one open job per measure and group, 409), `POST /jobs/:id/done {note}` (the owner or an administrator), `POST /jobs/:id/drop {reason}`, `POST /jobs/:id/reassign {ownerId, ownerRole, dueOn}`. `GET /people` lists the administrators and teachers who can own one.
+
+### Teacher time pulse (voluntary)
+- Teachers: `GET /pulse/me`, `POST /pulse/join`, `POST /pulse/leave {erase}` (erase deletes every entry), `PUT /pulse/entry {week: "2026-W07", category, minutes}` (marking, attendance, planning, family, forms, documents; weeks in the last 26, not future). Only the teacher reads their own entries. `GET /pulse/report` (whole-school administrators) gives average minutes a week per kind of work, and a figure only where at least 5 teachers who are currently joined have entered; otherwise it is hidden. No name is ever returned.
+
+Indexes: every `An*` collection leads with `schoolId`. Unique: metric `(schoolId, key)`, run `(schoolId, scheduleId, periodKey, scopeKey)` for scheduled runs, pulse `(schoolId, teacherId, kind, week, category)`. Open job lookup by `(schoolId, status, dueOn)` and `(schoolId, metricKey, groupKey, status)`.
+
+Not in E25: planned against unplanned withdrawal reasons (the school does not record why a child left), email or WhatsApp delivery (in-app only), curriculum coverage from lesson outcomes, individual staff analytics, forecasting. Custom measures use their own default parameters; they do not inherit later changes to the measure they narrow.

@@ -70,6 +70,10 @@
     {
       "path": "/api/cron/accounts",
       "schedule": "45 1 * * *"
+    },
+    {
+      "path": "/api/cron/analytics",
+      "schedule": "20 2 * * *"
     }
   ]
 }

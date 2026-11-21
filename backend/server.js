@@ -149,6 +149,7 @@ app.use('/api/library', express.json({ limit: '1mb' }), require('./routes/librar
 app.use('/api/procure', express.json({ limit: '1mb' }), require('./routes/procureRoutes'));
 app.use('/api/transport', express.json({ limit: '1mb' }), require('./routes/transportRoutes'));
 app.use('/api/accounts', express.json({ limit: '1mb' }), require('./routes/accountsRoutes'));
+app.use('/api/analytics', express.json({ limit: '1mb' }), require('./routes/analyticsRoutes'));
 app.use('/api/store', express.json({ limit: '200kb' }), require('./routes/storeRoutes'));
 app.use('/api/registrar', express.json({ limit: '200kb' }), require('./routes/registrarRoutes'));
 app.use('/api/campuses', express.json({ limit: '50kb' }), require('./routes/campusRoutes'));

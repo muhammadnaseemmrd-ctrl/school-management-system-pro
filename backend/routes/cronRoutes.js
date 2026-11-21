@@ -180,4 +180,19 @@ router.get('/accounts', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: run the scheduled reports that are due and remind owners of overdue jobs (PRD E25)
+router.get('/analytics', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const R = require('../utils/analytics/runs');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = { ran: 0, failed: 0, reminded: 0 };
+    for (const s of schools) { const r = await R.sweep(s._id); total.ran += r.ran; total.failed += r.failed; total.reminded += r.reminded; }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

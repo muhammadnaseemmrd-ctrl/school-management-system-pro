@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
-  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library, Wrench, BusFront, Landmark } from 'lucide-react';
+  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library, Wrench, BusFront, Landmark, BarChart3 } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -21,6 +21,7 @@ import useLibraryPresence from '../../components/library/useLibraryPresence';
 import ProcureTeacher from '../../components/procure/ProcureTeacher';
 import useProcurePresence from '../../components/procure/useProcurePresence';
 import TransportAdmin from '../../components/transport/TransportAdmin';
+import AnalyticsHub from '../../components/analytics/AnalyticsHub';
 import useTransportPresence from '../../components/transport/useTransportPresence';
 import AccountsAdmin from '../../components/accounts/AccountsAdmin';
 import useAccountsPresence from '../../components/accounts/useAccountsPresence';
@@ -37,7 +38,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -567,6 +568,7 @@ const TeacherDashboard = () => {
                   ['purchasing', pur.officer ? 'Purchasing office' : 'Repairs & purchasing', Wrench],
                   ...(trp.dispatch || trp.manage ? [['transport', 'Transport', BusFront]] : []),
                   ...(acc.has ? [['accounts', 'School accounts', Landmark]] : []),
+                  ['analytics', 'Measures', BarChart3],
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2271,6 +2273,7 @@ const TeacherDashboard = () => {
             {activeTab === 'purchasing' && <ProcureTeacher officer={pur.officer} request={pur.request} />}
             {activeTab === 'transport' && (trp.dispatch || trp.manage) && <TransportAdmin admin={false} manage={trp.manage} dispatch />}
             {activeTab === 'accounts' && acc.has && <AccountsAdmin t={acc} />}
+            {activeTab === 'analytics' && <AnalyticsHub teacher />}
             {activeTab === 'training' && hasTraining && <TrainingTeacher />}
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
