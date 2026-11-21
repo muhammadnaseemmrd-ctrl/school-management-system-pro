@@ -120,4 +120,19 @@ router.get('/training', async (req, res) => {
   } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: release reservations nobody collected, remind borrowers of due and overdue books, release unclaimed store pickups, flag low stock (PRD E18)
+router.get('/library', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const D = require('../utils/library/desk'); const T = require('../utils/library/store');
+    const schools = await School.find({ isActive: { $ne: false } }).select('_id').limit(500); const total = { expired: 0, reminded: 0, overdue: 0, orders: 0 };
+    for (const s of schools) { const r = await D.sweep(s._id); for (const k of Object.keys(r)) total[k] += r[k]; total.orders += await T.sweepOrders(s._id); await T.lowStock(s._id, { notify: true }); }
+    res.json({ schools: schools.length, ...total });
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

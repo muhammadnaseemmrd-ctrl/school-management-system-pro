@@ -54,6 +54,10 @@
     {
       "path": "/api/cron/training",
       "schedule": "35 4 * * *"
+    },
+    {
+      "path": "/api/cron/library",
+      "schedule": "50 3 * * *"
     }
   ]
 }

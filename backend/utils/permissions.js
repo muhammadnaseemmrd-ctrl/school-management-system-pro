@@ -40,6 +40,12 @@ const CATALOG = {
     rule: 'Drafts can change; a new version goes live only when a different administrator approves it. Documents already issued keep the design they were printed with.' },
   'documents.print': { label: 'Print documents and run print batches', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'A print officer can print and report printer problems, but cannot issue, revoke or change designs.' },
+  'library.desk.operate': { label: 'Run the library desk (issue, return, fines, textbooks)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a librarian needs a time-limited grant. Fines come from the published policy and can only be waived by an administrator with a reason.' },
+  'store.till.operate': { label: 'Sell at the school store till (sales, stock in, counts)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a store cashier needs a time-limited grant and a till assigned to them. A cashier can never approve their own refund or their own stock count.' },
+  'store.refund.approve': { label: 'Approve a store refund or a stock count', scope: 'school', defaults: ['admin'], grantable: false, implemented: true,
+    rule: 'Administrators only, and never the person who made the sale, the request or the count (a school with one administrator may approve its own and the record says so).' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;
