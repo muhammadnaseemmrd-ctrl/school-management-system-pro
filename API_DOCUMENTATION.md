@@ -1729,3 +1729,27 @@ Small groups. A group (class, grade, campus) with fewer than `minCell` children 
 Indexes: every `An*` collection leads with `schoolId`. Unique: metric `(schoolId, key)`, run `(schoolId, scheduleId, periodKey, scopeKey)` for scheduled runs, pulse `(schoolId, teacherId, kind, week, category)`. Open job lookup by `(schoolId, status, dueOn)` and `(schoolId, metricKey, groupKey, status)`.
 
 Not in E25: planned against unplanned withdrawal reasons (the school does not record why a child left), email or WhatsApp delivery (in-app only), curriculum coverage from lesson outcomes, individual staff analytics, forecasting. Custom measures use their own default parameters; they do not inherit later changes to the measure they narrow.
+
+## Multi-campus group operations (E26) — `/api/group`
+
+Administrators only. A school-wide administrator (no campus membership) sees every campus. A campus administrator sees only their own campuses, and every total is computed from those campuses alone, so nothing outside them can be worked out by subtraction. Campuses outside a person's access answer `404`.
+
+**Group view**
+- `GET /access` — `{wide, campuses[{campusId,name,code,isDefault,status}], today, canDecide}`.
+- `GET /rollup?from&to` — every campus the viewer may see: children, classes, teachers, places and fill (`capacity.students`), attendance, fees collected and average mark (same definitions as `/api/analytics`, same small-group hiding: under five children shows no figure, and the next smallest group is hidden with it), each with the target it is held to, the gap, and how many rules are the campus's own, set aside, or waiting. Also `group` totals over the visible campuses, `exceptions` (campuses under a target, urgent first), `hidden` (measures the viewer may not see) and a `scopeNote`. A look across campuses is written to the audit trail (`group.view`), once per person in ten minutes.
+- `GET /rollup/:campusId?from&to` — one campus: its classes with the same measures, and the rules that apply.
+
+**Rules**
+Seven rules: `attendance.alertGraceMinutes`, `fees.lateGraceDays`, `fees.lateFeeAmount`, `target.attendanceRate`, `target.feeCollection`, `target.learningAverage`, and `capacity.students` (campus only). A value resolves as: campus override (if the group has not locked the rule and the value is inside the group's limits) → group value → the module's own setting → nothing. `fees.lateGraceDays` and `fees.lateFeeAmount` are read by the late-fee run (`POST /api/finance/late-fees/run`, per campus of the child's class) and `attendance.alertGraceMinutes` by absence alerts, so a published rule changes behaviour. With no rule published, behaviour is unchanged.
+- `GET /policies/catalog` — the rules with units, widest range, what reads them.
+- `GET /policies?campusId&asOf` — what applies at a campus, with `source {kind: campus|group|setting|default, version}`, `locked`, `lo`/`hi`, `groupValue`, `override`, `ignored` (`locked`|`limits`), `canOverride`, and any waiting change. `asOf` reads the past.
+- `GET /policies/group` — the group's own values, limits, locks and the number of campuses with their own (waiting changes only for school-wide administrators).
+- `GET /policies/pending` — changes waiting. A campus administrator sees only requests for their campuses.
+- `GET /policies/history?key&campusId` — every version with who made it, why, who decided and when; `soleAdmin` marks a decision made by the only school-wide administrator.
+- `GET /effective?campusId` — the values in force, for other tools.
+- `PUT /policies/group/:key` — school-wide only. `{value|null, lo, hi, locked, reason}`; a limit-only change has no value. `PUT /policies/campus/:campusId/:key` — `{value|null, reason}`; `null` removes the campus's own value. A campus administrator may ask only for campuses they administer, inside the group's limits (`422` with `reason:'limits'`, `lo`, `hi`); a locked rule answers `409 reason:'locked'`. Both create a version waiting for approval; one waiting version per rule and scope (`409`).
+- `POST /policies/:id/decide` — school-wide only. `{approve, note}`; turning down needs a note. The person who made a group change cannot decide it (`403 reason:'maker_checker'`); a school with one school-wide administrator may decide its own and the version records `soleAdmin`. A campus request is decided by any school-wide administrator. A request is checked again when it is decided, so one that no longer fits the group's limits answers `409 reason:'limits'`.
+
+Versions are never edited or deleted. A published version replaces the previous one (`superseded`). An override that falls outside new limits, or under a new lock, is set aside, not deleted, and applies again if the group allows it. Notifications go to the other school-wide administrators when a change is waiting, and to the maker when it is decided.
+
+Not in E26: users who belong to several schools or an organisation above the school, sharing a template between separate schools, a campus switcher across every module (campus scoping already applies in each module), and rules for modules other than attendance alerts and late fees.

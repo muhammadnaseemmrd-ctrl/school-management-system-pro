@@ -98,13 +98,27 @@ exports.voidInvoice = async (req, res) => {
 
 exports.runLateFees = async (req, res) => {
   try {
-    const sid = req.user.schoolId; const st = await settings(sid);
-    if (!st.lateFeeAmount) return res.status(422).json({ message: 'Set a late fee amount in the finance settings first.' });
-    const cutoff = new Date(Date.now() - (st.graceDays || 0) * 864e5);
-    const rows = (await Invoice.find({ schoolId: sid, status: { $in: ['Open', 'PartiallyPaid'] }, lateFeeApplied: false })).filter((i) => new Date(i.dueDate) < cutoff);
-    for (const inv of rows) { inv.lines.push({ key: `late:${inv._id}`, kind: 'late', title: 'Late fee', amount: st.lateFeeAmount, discount: 0, net: st.lateFeeAmount, discounts: [], lateFee: true }); inv.total += st.lateFeeAmount; inv.lateFeeApplied = true; await inv.save(); }
-    await audit(req, { action: 'finance.late-fees.run', entityType: 'FeeInvoice', entityId: 'late-fees', schoolId: sid, detail: { applied: rows.length, amount: st.lateFeeAmount } });
-    res.json({ applied: rows.length, amount: st.lateFeeAmount });
+    // the grace period and the late fee can be set for the group and changed by a campus inside the group's limits (PRD E26);
+    // with no policy they are the school's own finance settings, so nothing changes until a policy is published
+    const sid = req.user.schoolId; const policy = require('../utils/group/policy'); const CS = require('../utils/campus');
+    const Class = require('../models/Class'); const Student = require('../models/Student');
+    const open = await Invoice.find({ schoolId: sid, status: { $in: ['Open', 'PartiallyPaid'] }, lateFeeApplied: false });
+    const def = String((await CS.ensureDefault(sid))._id);
+    const classCampus = new Map((await Class.find({ schoolId: sid }).select('campusId')).map((c) => [String(c._id), c.campusId ? String(c.campusId) : def]));
+    const kids = new Map((await Student.find({ schoolId: sid, _id: { $in: [...new Set(open.map((i) => String(i.studentId)))] } }).select('classId')).map((s) => [String(s._id), s.classId ? classCampus.get(String(s.classId)) || def : def]));
+    const rules = new Map();
+    const ruleFor = async (campus) => { if (!rules.has(campus)) rules.set(campus, { days: (await policy.effective(sid, campus, 'fees.lateGraceDays')).value, amount: (await policy.effective(sid, campus, 'fees.lateFeeAmount')).value }); return rules.get(campus); };
+    for (const c of new Set([def, ...classCampus.values()])) await ruleFor(c);
+    if (![...rules.values()].some((r) => r.amount > 0)) return res.status(422).json({ message: 'Set a late fee amount in the finance settings first.' });
+    let applied = 0; let total = 0;
+    for (const inv of open) {
+      const r = await ruleFor(kids.get(String(inv.studentId)) || def);
+      if (!(r.amount > 0) || !(new Date(inv.dueDate) < new Date(Date.now() - (r.days || 0) * 864e5))) continue;
+      inv.lines.push({ key: `late:${inv._id}`, kind: 'late', title: 'Late fee', amount: r.amount, discount: 0, net: r.amount, discounts: [], lateFee: true }); inv.total += r.amount; inv.lateFeeApplied = true; await inv.save(); applied += 1; total += r.amount;
+    }
+    const amounts = [...new Set([...rules.values()].filter((r) => r.amount > 0).map((r) => r.amount))];
+    await audit(req, { action: 'finance.late-fees.run', entityType: 'FeeInvoice', entityId: 'late-fees', schoolId: sid, detail: { applied, total } });
+    res.json({ applied, amount: amounts.length === 1 ? amounts[0] : null, total });
   } catch (e) { fail(res, e); }
 };
 

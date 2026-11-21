@@ -327,7 +327,7 @@ const expect = async (label, p, okStatuses = [200, 201]) => {
   await require('./omrChecks')({ call, expect, log, tokens, base });
   await require('./earlyChecks')({ call, expect, log, tokens, base });
   await require('./commsChecks')({ call, expect, log, tokens, base });
-  for (const m of ['careChecks', 'careChecks2', 'careChecks3', 'themeChecks', 'salesChecks', 'migrationChecks', 'accessChecks', 'registrarChecks', 'trainingChecks', 'libraryChecks', 'procureChecks', 'transportChecks','accountsChecks','analyticsChecks']) await require('./' + m)({ call, expect, log, tokens, base });
+  for (const m of ['careChecks', 'careChecks2', 'careChecks3', 'themeChecks', 'salesChecks', 'migrationChecks', 'accessChecks', 'registrarChecks', 'trainingChecks', 'libraryChecks', 'procureChecks', 'transportChecks','accountsChecks','analyticsChecks','groupChecks']) await require('./' + m)({ call, expect, log, tokens, base });
 
   console.log(`\n${checks - failures}/${checks} checks passed`);
   server.close(); process.exit(failures ? 1 : 0);

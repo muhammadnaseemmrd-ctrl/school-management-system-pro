@@ -98,7 +98,10 @@ async function syncAlert({ schoolId, student, classId, date, record, marker, mar
   const detail = detailFor({ ...record, date, kind });
   let a = await AttendanceAlert.findOne({ studentId: stid, date, kind });
   const verified = !st.requireVerification;
-  const dueAt = verified ? new Date(Date.now() + st.graceMinutes * 60000) : null;
+  // the wait can be set for the group and changed by a campus inside the group's limits (PRD E26); with no policy it is the school's own setting
+  let grace = st.graceMinutes;
+  try { const CS = require('./campus'); const campusId = await CS.campusOfClass(schoolId, classId); const r = await require('./group/policy').effective(schoolId, campusId, 'attendance.alertGraceMinutes'); if (Number.isFinite(r.value)) grace = r.value; } catch (e) { grace = st.graceMinutes; }
+  const dueAt = verified ? new Date(Date.now() + grace * 60000) : null;
   if (!a) {
     return AttendanceAlert.create({
       schoolId: sid, studentId: stid, classId, date, kind, detail, markedBy: marker,
