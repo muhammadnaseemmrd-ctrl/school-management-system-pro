@@ -28,3 +28,12 @@
   .site-float, .site-pop, .site-in-right, .site-in-left, .site-pulse-dot, .site-line-draw, .site-sweep-text { animation: none !important; }
   .site-chip, .site-parallax, .site-tilt { transition: none !important; }
 }
+
+/* school year + hands-on demo */
+@keyframes site-ripple { 0% { box-shadow: 0 0 0 0 rgba(224, 137, 111, 0.6); } 100% { box-shadow: 0 0 0 16px rgba(224, 137, 111, 0); } }
+@keyframes site-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes site-check { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+.site-ripple { animation: site-ripple 1.2s ease-out 1; }
+@media (prefers-reduced-motion: reduce) {
+  .site-ripple { animation: none !important; }
+}

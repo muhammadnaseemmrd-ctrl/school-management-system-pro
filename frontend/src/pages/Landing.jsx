@@ -4,8 +4,10 @@ import SiteShell from '../components/site/SiteShell';
 import Hero from '../components/site/Hero';
 import ProblemSolution from '../components/site/ProblemSolution';
 import Ecosystem from '../components/site/Ecosystem';
+import SchoolYear from '../components/site/SchoolYear';
 import Walkthrough from '../components/site/Walkthrough';
 import Scenarios from '../components/site/Scenarios';
+import LiveDemo from '../components/site/LiveDemo';
 import Showcase from '../components/site/Showcase';
 import Audiences from '../components/site/Audiences';
 import { Pakistan, Trust, Proof, Pricing, DemoSection, Faq, FinalCta } from '../components/site/Sections';
@@ -26,8 +28,10 @@ export default function Landing() {
       <Hero />
       <ProblemSolution />
       <Ecosystem />
+      <SchoolYear />
       <Walkthrough />
       <Scenarios />
+      <LiveDemo />
       <Showcase />
       <Audiences />
       <Pakistan />
