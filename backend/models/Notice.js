@@ -62,6 +62,10 @@ const noticeSchema = new mongoose.Schema(
       ref: 'Exam',
       default: null,
     },
+    // written with the assistant and approved by a person (E31): families can see that, and who checked it
+    aiAssisted: { type: Boolean, default: false },
+    aiDraftNo: { type: String, default: '' },
+    aiReviewedBy: { type: String, default: '' },
   },
   { timestamps: true }
 );

@@ -1785,3 +1785,53 @@ Four kinds of connection, all owned by the school and all read-only toward the s
 Indexes: `Connector` `(schoolId, kind, status)`, `keyPrefix` (unique, sparse), `previousPrefix`, `(schoolId, name)`; `WebhookDelivery` unique `(connectorId, eventId, replayKey)`, `(schoolId, status, nextAttemptAt)`, `(connectorId, createdAt)`; `DisclosureLog` `(schoolId, at)`, `(connectorId, at)`; `IntState` unique `(kind, key)`, `expiresAt`. Timers: `/api/cron/integrations` (daily on Vercel, every five minutes with node-cron elsewhere) sends what is due and tidies short-lived records; sending also starts right after an event and when the overview opens.
 
 Not in E30: Google Classroom, LTI deep linking, grade return and roster services, writing to the school through OneRoster (read-only), results or grades in OneRoster, switching off password sign-in, email or WhatsApp delivery, more than the five webhook events, and a full outbound proxy (private addresses are blocked at the moment of connecting, but there is no separate egress proxy).
+
+
+## Writing assistant (E31) — `/api/ai`
+
+Off by default. A drafter writes a first version; a person reads, changes and approves it. Children's names, numbers and care notes are never sent anywhere, and nothing is used to train a model. Every call is recorded in an append-only trail.
+
+- `GET /me` — `{userId, level, enabled, kinds[], limits, used}` for the signed-in person (teachers see their own use, administrators see the school's).
+- **Rules (administrator)** — `GET /policy` (what is in force, any change waiting, `kinds`, `ranges`), `PUT /policy` `{enabled, purposes{lesson_plan,notice,question_set,rubric_feedback,translation}, provider: builtin|external, limits{perUserPerHour, perSchoolPerDay, draftRetentionDays}, external{baseUrl (https), model, apiKey, termsConfirmed}, reason}` — a proposal only; `POST /policy/decide` `{decision: approve|reject, note}` must come from a different administrator (a school with one administrator may approve its own change); `POST /policy/test {which}` tests the outside model. The key is stored sealed and shown only as its last four characters.
+- **Words** — `GET|PUT /glossary` (the school's own English → Urdu words).
+- **Sources** — `GET /sources`, `GET /sources/:id`, `POST /sources` (title, subject, grade, licence kind, text), `POST /sources/:id/decide` (approved by someone other than who added it), `POST /sources/:id/retire`, `GET /search?q`. Only approved sources are used.
+- **Drafts** — `GET /drafts?scope=mine|review|all&status`, `POST /drafts` `{kind, topic|facts|rubricId|text, …}` (`422` with `reason` `person_name`, `student_id`, `care_note` and similar when the request holds something that may not be sent; the offending text is not echoed), `GET|PUT /drafts/:id` (edit by hand), `POST /drafts/:id/submit`, `POST /drafts/:id/decide {decision: approve|reject|return, note, confirmed[]}` (a different person from the requester; every section and question must be confirmed, every warning acknowledged), `POST /drafts/:id/withdraw`, `POST /drafts/:id/publish` (once: a notice becomes a Notice, questions become draft items in the question bank).
+- `GET /audit?draftId&page&limit` → `{rows, total}`; `GET /report?days` (drafts, approval rate, median review hours, refusals, model errors, per day, top users, `trainingUse`); `GET /fee-checks`, `POST /fee-checks/:key/checked`.
+- `GET /api/cron/ai` (bearer `CRON_SECRET`) removes draft text past its retention and ends stale reviews.
+
+Indexes: `AiDraft` `(schoolId, status, createdAt)`, `(schoolId, requesterId)`, unique `(schoolId, number)`; `AiAudit` `(schoolId, at)`, `(schoolId, draftId)`; `AiSource` `(schoolId, status)`.
+
+Not in E31: no student-facing chat, no automatic publishing, no grading of student work, no images or voice.
+
+## Alumni, giving, quality, board, service hours and annual report (E32) — `/api/advancement`
+
+Staff routes need the school-wide administrator or a grant: `alumni.lead`, `giving.officer`, `quality.lead`. Board routes are for members of the board.
+
+- `GET /me` — `{alumni, giving, quality, wide, board:{role,userName}|null}`; `GET /people` — `{people:[{id,name,role}]}` of active staff, for choosing an owner or a board member.
+- **Graduates** — `GET /alumni`, `POST /alumni` `{name, gradYear, classLabel, studentId?}` (a child still enrolled is refused), `POST /alumni/bulk {rows[≤200]}` (bad rows are named), `POST /alumni/:id/link` (new private link `al_<8>_<secret>`, shown once; the old one stops), `PUT /alumni/:id/consent` (recorded by staff), `POST /alumni/:id/erase`, `GET /alumni/directory`, `GET /alumni/audience?channel=email|phone&purpose`, `GET /alumni/employment` (groups under the minimum are hidden).
+- **Events** — `GET|POST /events`, `PUT /events/:id`, `POST /events/:id/status {Published|Closed|Held|Cancelled}`, `GET /events/:id/rsvps`.
+- **Giving** — `GET /giving/overview`; funds `GET|POST /giving/funds`, `PUT /giving/funds/:id` (widening a restriction needs `reason`); pledges `GET|POST /giving/pledges`, `POST /giving/pledges/:id/status {Cancelled|WrittenOff, reason}`; gifts `GET|POST /giving/gifts` (idempotency key; a reused bank reference is `409 duplicate_reference` unless `allowDuplicateReference`; receipt `RCP-YYYY-NNNNN`), `POST /giving/gifts/:id/acknowledge`, `POST /giving/gifts/:id/reverse {reason}` (a different person; gifts are never edited or deleted); spends `GET|POST /giving/spends`, `POST /giving/spends/:id/decide` (a different administrator; restricted funds only for allowed uses; a compare-and-set stops two approvals overspending a fund); campaigns `GET|POST /giving/campaigns`, `PUT /giving/campaigns/:id`, `POST /giving/campaigns/:id/ask`, `POST /giving/campaigns/:id/decide`, `POST /giving/campaigns/:id/close`.
+- **Quality** — `GET /quality/overview|coverage`, standards `GET|POST /quality/standards`, `PUT /quality/standards/:id`, evidence `GET|POST /quality/evidence`, `POST /quality/evidence/:id/review` (not the submitter), review cycles `GET|POST /quality/cycles`, `POST /quality/cycles/:id/complete`, findings `GET|POST /quality/findings`, `POST /quality/findings/:id/plan` (owner), `POST /quality/findings/:id/close` (someone other than the owner, with proof).
+- **Board** — `GET /board/me|members`, `POST /board/members`, `DELETE /board/members/:id`; meetings `GET|POST /board/meetings`, `GET|PUT /board/meetings/:id`, `POST /board/meetings/:id/resolutions`, `PUT /board/meetings/:id/minutes` (drafted by one person; `rev` must match), `POST /board/meetings/:id/minutes/approve` (two others).
+- **Service hours** — `GET|POST /service`, `GET /service/summary`, `POST /service/:id/reject {reason}`, a student's own `GET|POST /service/mine`, `POST /service/:id/link` (new supervisor link `sv_…`).
+- **Annual report** — `GET|POST /reports`, `GET /reports/:id`, `POST /reports/:id/refresh`, `POST|DELETE /reports/:id/stories`, `POST /reports/:id/approve` (freezes a SHA-256 of the figures and stories), `POST /reports/:id/publish` (only if the hash still matches), `GET /reports/:id/pdf`.
+- **Public (no sign-in, private link or public code, rate limited, nothing personal returned)** — `GET /api/public/alumni/:token`, `PUT /alumni/:token/consent`, `POST /alumni/:token/employment|rsvp|withdraw`, `GET /api/public/campaigns/:code` (anonymous donors are never named), `GET|POST /api/public/service/:token` (single-use confirmation by the supervisor), `GET /api/public/annual/:code`.
+- `GET /api/cron/advancement` (bearer `CRON_SECRET`) closes unanswered service entries after 90 days, marks overdue pledges and findings, and closes ended campaigns.
+
+Indexes: every collection by `(schoolId, status)` plus its lookup key — `Alumnus` `(schoolId, gradYear)`, unique link prefix; `Gift` unique `(schoolId, receiptNo)` and `(schoolId, idempotencyKey)`; `Campaign` unique `code`; `BoardMinutes` unique `(meetingId)`; `AnnualReport` unique `(schoolId, year)` and `code`.
+
+Not in E32: gifts are not yet posted to the E23 ledger; board members must be staff users; nothing is emailed or sent by WhatsApp (lists and CSV only); the employment survey is voluntary; a service confirmation rests on the supervisor holding the private link.
+
+## Security devices and evidence (E34) — `/api/security`, `/api/device-events`
+
+Strictly a pilot: a written plan, two different people approving it, an end date, and a manual alternative. A scan is only extra evidence of arrival; it never marks a child absent and never leads to a sanction on its own. Biometric data is rejected.
+
+- `GET /me` — `{lead, dpo, operate, either}` for the signed-in person. Roles come from grants `security.lead`, `security.dpo`, `security.operate`; an administrator holds all.
+- **Pilots** — `GET|POST /pilots` (title, kind, purpose, legalBasis, dpiaRef, retentionDays 1–365, manualAlternative, reviewOn within 180 days), `PUT /pilots/:id` (draft only), `POST /pilots/:id/ask`, `POST /pilots/:id/approve` (the data protection officer and the security lead, two different people, neither the author), `POST /pilots/:id/pause|resume|end`. A pilot pauses by itself at its review date.
+- **Devices** — `GET|POST /devices` (kind per pilot kind: reader, counter, camera), `POST /devices/:id/rotate-key`, `POST /devices/:id/status`. A key `sk_…` is shown once.
+- **Device events** — `POST /api/device-events` and `/heartbeat` with `X-Device-Id` and `X-Device-Key`; metadata only (time, kind, device, a badge or counter value); images, templates and similar fields are refused. `GET /events` lists signals; `POST /events/:id/decide {use|dismiss}`.
+- **Evidence** — `GET|POST /incidents`, `GET /incidents/:id`, `GET /incidents/:id/access` (append-only log of who opened what), `PUT /incidents/:id/viewers`, `POST /incidents/:id/items` (a reference, not the file; retention 30–730 days), `POST /incidents/:id/close`, `POST /incidents/:id/hold` and `/release` (released by a different officer), exports `POST /incidents/:id/exports`, `GET /exports`, `POST /exports/:id/decide` (two approvers, expires after 7 days), `POST /exports/:id/fulfil`.
+- **Families** — `GET /my-signals` (parent or student: only the short facts about their own child), `GET|POST /my-appeals`; staff `GET|POST /appeals`, `POST /appeals/:id/decide` (someone who was not in the original decision; if upheld the signal and any evidence tied to it are removed).
+- `GET /api/cron/security` (bearer `CRON_SECRET`) pauses pilots past review, flags devices that stopped reporting, expires export requests and destroys evidence past retention (with a certificate) unless on legal hold.
+
+Not in E34: no face, fingerprint or voice recognition, no cameras that identify people, no live video, and the older E08 gate pilot ingest is unchanged.

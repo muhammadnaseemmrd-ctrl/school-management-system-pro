@@ -9,6 +9,7 @@ import FamilyMessages from '../../components/comms/FamilyMessages';
 import FamilyCare from '../../components/care/FamilyCare';
 import LibraryMe from '../../components/library/LibraryMe';
 import TransportMe from '../../components/transport/TransportMe';
+import FamilySignals from '../../components/security/FamilySignals';
 import { FamilyConsent } from '../../components/access/Consents';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
@@ -30,7 +31,7 @@ const BANNER = {
   Present: 'bg-emerald-700', Late: 'bg-[#8a4636]', HalfDay: 'bg-amber-700', Absent: 'bg-rose-700', Leave: 'bg-[#2a5cac]', None: 'bg-[#5b6b7b]',
 };
 
-const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['library', 'Library & store', Library], ['bus', 'School bus', BusFront], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['library', 'Library & store', Library], ['bus', 'School bus', BusFront], ['devices', 'What devices recorded', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
 const fileName = (u = '') => decodeURIComponent((u.split('?')[0].split('/').pop() || 'Attachment')).slice(0, 40);
 
 const ParentDashboard = () => {
@@ -215,6 +216,7 @@ const ParentDashboard = () => {
             {tab === 'messages' && <FamilyMessages />}
             {tab === 'wellbeing' && <FamilyCare role="parent" />}
             {tab === 'consent' && <FamilyConsent />}
+            {tab === 'devices' && <FamilySignals />}
             {tab === 'bus' && (<div className="space-y-4"><Switcher />{childId ? <TransportMe key={childId} role="parent" childId={childId} /> : <Card><p>{t('No child selected.')}</p></Card>}</div>)}
             {tab === 'library' && (<div className="space-y-4"><Switcher />{childId ? <LibraryMe key={childId} role="parent" childId={childId} /> : <Card><p>{t('No child selected.')}</p></Card>}</div>)}
             {tab === 'desk' && <FamilyDesk role="parent" kids={(data?.children || []).filter((c) => !c.attendanceHidden)} />}

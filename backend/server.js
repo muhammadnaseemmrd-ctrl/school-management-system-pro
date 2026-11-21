@@ -150,6 +150,10 @@ app.use('/api/procure', express.json({ limit: '1mb' }), require('./routes/procur
 app.use('/api/transport', express.json({ limit: '1mb' }), require('./routes/transportRoutes'));
 app.use('/api/accounts', express.json({ limit: '1mb' }), require('./routes/accountsRoutes'));
 app.use('/api/analytics', express.json({ limit: '1mb' }), require('./routes/analyticsRoutes'));
+app.use('/api/ai', express.json({ limit: '1mb' }), require('./routes/aiRoutes'));
+app.use('/api/advancement', express.json({ limit: '1mb' }), require('./routes/advancementRoutes'));
+app.use('/api/security', express.json({ limit: '1mb' }), require('./routes/securityRoutes'));
+app.use('/api/device-events', express.json({ limit: '256kb' }), require('./routes/deviceEventRoutes'));
 app.use('/api/group', express.json({ limit: '200kb' }), require('./routes/groupRoutes'));
 app.use('/api/integrations', express.json({ limit: '100kb' }), require('./routes/integrationRoutes'));
 { const outside = require('./routes/outsideRoutes');
@@ -263,6 +267,14 @@ if (!process.env.VERCEL) server.listen(PORT, () => {
   // Connections (PRD E30): send webhooks that are due and tidy short-lived records. On Vercel the daily cron does this.
   require('node-cron').schedule('*/5 * * * *', () => {
     ready.then(() => require('./controllers/integrationController').sweepAll()).catch((e) => console.error('[integrations] sweep failed:', e.message));
+  });
+
+  // Security pilots (PRD E34): pause pilots past their review, notice silent devices, delete expired device data. Writing assistant (E31) and advancement (E32) upkeep run daily. On Vercel the daily crons do this.
+  require('node-cron').schedule('*/15 * * * *', () => {
+    ready.then(async () => { const School = require('./models/School'); const C = require('./controllers/securityController'); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) await C.sweepSchool(sc._id); }).catch((e) => console.error('[security] sweep failed:', e.message));
+  });
+  require('node-cron').schedule('40 3 * * *', () => {
+    ready.then(async () => { const School = require('./models/School'); await require('./controllers/aiController').sweepAll(); for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) { await require('./controllers/advancementController').sweepSchool(sc._id); await require('./controllers/qualityController').sweepSchool(sc._id); } }).catch((e) => console.error('[advancement] sweep failed:', e.message));
   });
 
   // Auto Notice Expiration Cleanup Task

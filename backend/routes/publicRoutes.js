@@ -18,6 +18,14 @@ router.get('/training/:code/course/:slug', lookupLimiter, trL.pubCourse);
 router.post('/training/:code/quote', lookupLimiter, trL.pubQuote);
 router.post('/training/:code/checkout', signupLimiter, trL.pubCheckout);
 router.get('/registrar/verify/:key', lookupLimiter, require('../controllers/regStudentController').verify);
+// Alumni, fundraising, service-hour confirmation and published annual reports (PRD E32). Private links and public codes only; nothing personal is returned.
+const advL = require('../middleware/rateLimit').makeLimiter({ windowMs: 15 * 60 * 1000, max: 40, message: 'Too many requests. Please try again in a few minutes.' });
+const advA = require('../controllers/advancementController'); const advQ = require('../controllers/qualityController');
+router.get('/alumni/:token', lookupLimiter, advA.pubAlumnus); router.put('/alumni/:token/consent', advL, advA.pubConsent); router.post('/alumni/:token/employment', advL, advA.pubEmployment);
+router.post('/alumni/:token/rsvp', advL, advA.pubRsvp); router.post('/alumni/:token/withdraw', advL, advA.pubWithdraw);
+router.get('/campaigns/:code', lookupLimiter, advA.pubCampaign);
+router.get('/service/:token', lookupLimiter, advQ.pubLog); router.post('/service/:token', advL, advQ.pubConfirm);
+router.get('/annual/:code', lookupLimiter, advQ.pubReport);
 // Which school owns this web address (PRD E27 white-label sign-in). Name, code, logo and colours only.
 router.get('/brand', lookupLimiter, require('../controllers/themeController').publicBrand);
 

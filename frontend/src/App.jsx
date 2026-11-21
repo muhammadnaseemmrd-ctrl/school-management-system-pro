@@ -13,6 +13,10 @@ const SsoComplete = lazy(() => import('./pages/SsoComplete'));
 const VerifyTranscript = lazy(() => import('./pages/VerifyTranscript'));
 const VerifyCredential = lazy(() => import('./pages/VerifyCredential'));
 const SponsorReport = lazy(() => import('./pages/SponsorReport'));
+const AlumniPage = lazy(() => import('./pages/AlumniPage'));
+const CampaignPage = lazy(() => import('./pages/CampaignPage'));
+const ServiceConfirm = lazy(() => import('./pages/ServiceConfirm'));
+const AnnualReportPage = lazy(() => import('./pages/AnnualReportPage'));
 const Courses = lazy(() => import('./pages/Courses'));
 const Learn = lazy(() => import('./pages/Learn'));
 const Driver = lazy(() => import('./pages/Driver'));
@@ -101,6 +105,10 @@ function App() {
           <Route path="/verify-credential" element={<VerifyCredential />} />
           <Route path="/verify-credential/:key" element={<VerifyCredential />} />
           <Route path="/sponsor/:key" element={<SponsorReport />} />
+          <Route path="/alumni/:token" element={<AlumniPage />} />
+          <Route path="/campaigns/:code" element={<CampaignPage />} />
+          <Route path="/service/:token" element={<ServiceConfirm />} />
+          <Route path="/annual/:code" element={<AnnualReportPage />} />
           <Route path="/courses/:code" element={<Courses />} />
           <Route path="/courses/:code/:slug" element={<Courses />} />
           <Route path="/learn" element={<Learn />} />

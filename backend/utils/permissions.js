@@ -62,6 +62,20 @@ const CATALOG = {
     rule: 'Administrators by default; an auditor needs a time-limited grant. Read only: journals, ledger, statements, fund and grant reports, trails and exports.' },
   'analytics.lead': { label: 'See whole-school attendance and learning measures (curriculum lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
     rule: 'Administrators by default; a curriculum lead needs a time-limited grant. Read only, learning and attendance only: no fees, staff or help-desk figures, and groups smaller than the school\'s minimum stay hidden. Without it a teacher sees only their own classes.' },
+  'ai.review': { label: 'Check and approve writing the assistant drafted (curriculum lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators by default; a curriculum lead needs a time-limited grant. May approve assistant notices and question sets written by someone else and approve teaching sources. Never for their own draft (a school with one administrator may, and the record says so). Every approval is kept.' },
+  'alumni.lead': { label: 'Look after the alumni list, events and campaigns (alumni lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default; an alumni lead needs a time-limited grant. Contact details are visible only for graduates who agreed; no current-student records.' },
+  'giving.officer': { label: 'Record pledges and gifts and spend restricted donor funds', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default; a fund officer needs a time-limited grant. A restricted fund can only be spent on what its donors allowed, and never approved by the person who asked.' },
+  'quality.lead': { label: 'Run accreditation evidence, review cycles and audit findings (quality lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default; a quality lead needs a time-limited grant. Evidence is reviewed by someone other than who submitted it; findings are closed by someone other than their owner.' },
+  'security.lead': { label: 'Lead security pilots, incident evidence and exports (security lead)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default. A pilot needs an approved written plan, and exporting evidence needs two different approvers.' },
+  'security.dpo': { label: 'Approve security pilots and hold or release evidence (data protection officer)', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default. Checks the purpose, legal basis, retention and the manual alternative before a device is switched on.' },
+  'security.operate': { label: 'See device health and signals held for review', scope: 'school', defaults: ['admin'], grantable: true, implemented: true,
+    rule: 'Administrators of the whole school by default. Sees device status and held signals, not incident evidence.' },
 };
 const MAX_GRANT_DAYS = 90;
 const MAX_BREAK_GLASS_MIN = 60;

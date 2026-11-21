@@ -1,48 +1,53 @@
 const Notice = require('../models/Notice');
 const N = require('../utils/notify');
 
+// Make a notice and tell everyone who can see it. Used by the notice screen and by approved assistant drafts (E31).
+// user: { userId, role, schoolId }. extra: { aiAssisted, aiDraftNo, aiReviewedBy }.
+exports.publishNotice = async (user, { title, category, content, targetAudience, targetClassId, isPinned, priority, attachments, visibleDays }, extra = {}) => {
+  let expiresAt = undefined;
+  if (visibleDays && Number(visibleDays) > 0) {
+    expiresAt = new Date(Date.now() + Number(visibleDays) * 24 * 60 * 60 * 1000);
+  }
+
+  const notice = await Notice.create({
+    schoolId: user.schoolId,
+    title,
+    category: category || 'General',
+    content,
+    createdBy: user.userId,
+    createdByModel: user.role === 'teacher' ? 'Teacher' : 'User',
+    targetAudience,
+    targetClassId,
+    isPinned,
+    priority,
+    attachments: attachments || [],
+    expiresAt,
+    ...(extra.aiAssisted ? { aiAssisted: true, aiDraftNo: extra.aiDraftNo || '', aiReviewedBy: extra.aiReviewedBy || '' } : {}),
+  });
+
+  if (notice.targetAudience === 'All') require('../utils/integrations/webhook').emit(user.schoolId, 'notice.published', { notice }, { eventId: `notice_${notice._id}` });   // only notices meant for everyone leave the school
+
+  // Tell everyone who can see it
+  try {
+    const sid = user.schoolId;
+    let to = [];
+    const aud = notice.targetAudience;
+    if (aud === 'All') to = [...await N.admins(sid), ...await N.teachers(sid), ...await N.students(sid), ...await N.parents(sid)];
+    else if (aud === 'Students') { const st = await N.students(sid); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
+    else if (aud === 'Teachers') to = await N.teachers(sid);
+    else if (aud === 'Class Specific' && targetClassId) { const st = await N.students(sid, { classId: targetClassId }); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
+    else if (aud === 'Individual' && notice.targetUserId) { const role = await N.resolveRole(notice.targetUserId); if (role) to = [{ id: notice.targetUserId, role }]; }
+    const linkFor = { admin: '/admin/dashboard#/notices', teacher: '/teacher/dashboard#/notices', student: '/student/dashboard#/notices', parent: '/parent/dashboard#/notices' };
+    await Promise.all(['admin', 'teacher', 'student', 'parent'].map((role) =>
+      N.notify({ schoolId: sid, recipients: to.filter((r) => r.role === role), title: `New notice: ${notice.title}`, body: String(notice.content || '').slice(0, 140), link: linkFor[role], type: 'notice', exclude: user.userId })));
+  } catch (e) { console.error('notice notify', e.message); }
+  return notice;
+};
+
 // Create Notice
 exports.createNotice = async (req, res) => {
   try {
-    const { title, category, content, targetAudience, targetClassId, isPinned, priority, attachments, visibleDays } = req.body;
-
-    let expiresAt = undefined;
-    if (visibleDays && Number(visibleDays) > 0) {
-      expiresAt = new Date(Date.now() + Number(visibleDays) * 24 * 60 * 60 * 1000);
-    }
-
-    const notice = await Notice.create({
-      schoolId: req.user.schoolId,
-      title,
-      category: category || 'General',
-      content,
-      createdBy: req.user.userId,
-      createdByModel: req.user.role === 'teacher' ? 'Teacher' : 'User',
-      targetAudience,
-      targetClassId,
-      isPinned,
-      priority,
-      attachments: attachments || [],
-      expiresAt,
-    });
-
-    if (notice.targetAudience === 'All') require('../utils/integrations/webhook').emit(req.user.schoolId, 'notice.published', { notice }, { eventId: `notice_${notice._id}` });   // only notices meant for everyone leave the school
-
-    // Tell everyone who can see it
-    try {
-      const sid = req.user.schoolId;
-      let to = [];
-      const aud = notice.targetAudience;
-      if (aud === 'All') to = [...await N.admins(sid), ...await N.teachers(sid), ...await N.students(sid), ...await N.parents(sid)];
-      else if (aud === 'Students') { const st = await N.students(sid); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
-      else if (aud === 'Teachers') to = await N.teachers(sid);
-      else if (aud === 'Class Specific' && targetClassId) { const st = await N.students(sid, { classId: targetClassId }); to = [...st, ...await N.parentsOf(sid, st.map((s) => s.id))]; }
-      else if (aud === 'Individual' && notice.targetUserId) { const role = await N.resolveRole(notice.targetUserId); if (role) to = [{ id: notice.targetUserId, role }]; }
-      const linkFor = { admin: '/admin/dashboard#/notices', teacher: '/teacher/dashboard#/notices', student: '/student/dashboard#/notices', parent: '/parent/dashboard#/notices' };
-      await Promise.all(['admin', 'teacher', 'student', 'parent'].map((role) =>
-        N.notify({ schoolId: sid, recipients: to.filter((r) => r.role === role), title: `New notice: ${notice.title}`, body: String(notice.content || '').slice(0, 140), link: linkFor[role], type: 'notice', exclude: req.user.userId })));
-    } catch (e) { console.error('notice notify', e.message); }
-
+    const notice = await exports.publishNotice(req.user, req.body);
     res.status(201).json({
       message: 'Notice created successfully',
       notice,

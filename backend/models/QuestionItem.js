@@ -26,6 +26,7 @@ const schema = new mongoose.Schema({
   license: { kind: { type: String, enum: ['original', 'adapted', 'licensed', 'open'], default: 'original' }, source: { type: String, default: '' }, holder: { type: String, default: '' } },
   sharing: { type: String, enum: ['private', 'school'], default: 'private' },
   locked: { type: Boolean, default: false },
+  aiAssisted: { type: Boolean, default: false }, aiDraftNo: { type: String, default: '' },   // E31: drafted with the assistant, checked by a person
   changeNote: { type: String, default: '' }, supersedesId: { type: mongoose.Schema.Types.ObjectId },
   usage: { quizzes: { type: Number, default: 0 }, attempts: { type: Number, default: 0 }, correct: { type: Number, default: 0 }, lastUsedAt: Date },
 }, { timestamps: true });

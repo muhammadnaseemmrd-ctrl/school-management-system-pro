@@ -162,4 +162,4 @@ exports.updateRubric = wrap('updateRubric', async (req, res) => {
   Object.assign(doc, r.rubric); await doc.save(); res.json({ rubric: rubView(doc) });
 });
 exports.archiveRubric = wrap('archiveRubric', async (req, res) => { const doc = await Rubric.findOne({ _id: oid(req.params.id), schoolId: sid(req) }); if (!doc) return bad(res, 404, 'Rubric not found.'); doc.archived = req.body?.archived !== false; await doc.save(); res.json({ rubric: rubView(doc) }); });
-exports.KINDS = KINDS; exports.view = view; exports.visible = visible;
+exports.KINDS = KINDS; exports.view = view; exports.visible = visible; exports.cleanItem = clean;

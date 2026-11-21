@@ -204,4 +204,40 @@ router.get('/integrations', async (req, res) => {
   try { res.json(await require('../controllers/integrationController').sweepAll()); } catch (e) { res.status(500).json({ message: e.message }); }
 });
 
+// Daily: expire old assistant drafts and clear stored prompts past their retention (PRD E31)
+router.get('/ai', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try { res.json(await require('../controllers/aiController').sweepAll()); } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// Daily: alumni, giving and quality upkeep: close campaigns, chase late pledges, expire evidence, remind reviews and findings (PRD E32)
+router.get('/advancement', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try { const School = require('../models/School'); const A = require('../controllers/advancementController'); const Q = require('../controllers/qualityController'); const out = { schools: 0, closed: 0, reminded: 0, expired: 0, cyclesReminded: 0, findingsOverdue: 0 };
+    for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) { const x = await A.sweepSchool(sc._id); const y = await Q.sweepSchool(sc._id); out.schools += 1; out.closed += x.closed; out.reminded += x.reminded; out.expired += y.expired; out.cyclesReminded += y.cyclesReminded; out.findingsOverdue += y.findingsOverdue; }
+    res.json(out); } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
+// Daily and often: pause pilots past their review date, delete expired device data, notice silent devices, expire exports, destroy evidence on schedule (PRD E34)
+router.get('/security', async (req, res) => {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return res.status(503).json({ message: 'CRON_SECRET is not configured' });
+  const given = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  const a = Buffer.from(given); const b = Buffer.from(secret);
+  if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return res.status(401).json({ message: 'Unauthorized' });
+  try {
+    const School = require('../models/School'); const C = require('../controllers/securityController'); const out = { schools: 0, paused: 0, eventsDeleted: 0, offline: 0, exportsExpired: 0, destroyed: 0 };
+    for (const sc of await School.find({ isActive: { $ne: false } }).select('_id').limit(500)) { const x = await C.sweepSchool(sc._id); out.schools += 1; for (const k of Object.keys(x)) out[k] += x[k]; }
+    res.json(out);
+  } catch (e) { res.status(500).json({ message: e.message }); }
+});
+
 module.exports = router;

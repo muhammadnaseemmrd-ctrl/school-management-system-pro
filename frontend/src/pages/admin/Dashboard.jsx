@@ -3,7 +3,7 @@ import {
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
   Plug,
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library, ShoppingCart, BusFront, Landmark, Network } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -28,6 +28,9 @@ import AccountsAdmin from '../../components/accounts/AccountsAdmin';
 import AnalyticsHub from '../../components/analytics/AnalyticsHub';
 import GroupHub from '../../components/group/GroupHub';
 import IntegrationsHub from '../../components/integrations/IntegrationsHub';
+import AssistantHub from '../../components/assistant/AssistantHub';
+import AdvancementHub from '../../components/advancement/AdvancementHub';
+import SecurityHub from '../../components/security/SecurityHub';
 import TimetablePlanning from '../../components/timetable/TimetablePlanning';
 import SyncDesk from '../../components/today/SyncDesk';
 import DocStudio from '../../components/studio/DocStudio';
@@ -47,7 +50,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
+    const validTabs = ['assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1560,6 +1563,9 @@ const AdminDashboard = () => {
                   { id: 'accounts', label: 'School accounts', icon: Landmark },
                   { id: 'analytics', label: 'Measures', icon: BarChart3 },
                   { id: 'group', label: 'Campus group', icon: Network },
+                  { id: 'assistant', label: 'Writing assistant', icon: Sparkles },
+                  { id: 'advancement', label: 'Alumni, giving & quality', icon: HeartHandshake },
+                  { id: 'securityDevices', label: 'Security devices', icon: SecurityIcon },
                   { id: 'integrations', label: 'Connections', icon: Plug },
                   { id: 'access', label: 'Access & permissions', icon: Shield }
                 ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
@@ -1724,6 +1730,9 @@ const AdminDashboard = () => {
             {activeTab === 'analytics' && <AnalyticsHub />}
             {activeTab === 'group' && <GroupHub />}
             {activeTab === 'integrations' && <IntegrationsHub />}
+            {activeTab === 'assistant' && <AssistantHub admin />}
+            {activeTab === 'advancement' && <AdvancementHub />}
+            {activeTab === 'securityDevices' && <SecurityHub />}
             {activeTab === 'timetablePlan' && <TimetablePlanning />}
             {activeTab === 'syncDesk' && <SyncDesk />}
             {activeTab === 'studio' && <DocStudio />}

@@ -78,6 +78,18 @@
     {
       "path": "/api/cron/integrations",
       "schedule": "10 3 * * *"
+    },
+    {
+      "path": "/api/cron/ai",
+      "schedule": "40 3 * * *"
+    },
+    {
+      "path": "/api/cron/advancement",
+      "schedule": "50 3 * * *"
+    },
+    {
+      "path": "/api/cron/security",
+      "schedule": "0 4 * * *"
     }
   ]
 }

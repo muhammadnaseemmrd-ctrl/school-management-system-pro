@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
-  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library, Wrench, BusFront, Landmark, BarChart3 } from 'lucide-react';
+  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library, Wrench, BusFront, Landmark, BarChart3, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -34,12 +34,16 @@ import { openProxiedFile } from '../../utils/fileProxy';
 import { useLang } from '../../i18n/LanguageContext';
 import ClassAttendanceSheet from '../../components/attendance/ClassAttendanceSheet';
 import LearningTools from '../../components/integrations/LearningTools';
+import AssistantHub from '../../components/assistant/AssistantHub';
+import AdvancementHub from '../../components/advancement/AdvancementHub';
+import SecurityHub from '../../components/security/SecurityHub';
+import usePresence from '../../components/advancement/usePresence';
 
 const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'assistant', 'advancement', 'securityDevices'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -95,6 +99,7 @@ const TeacherDashboard = () => {
   const pur = useProcurePresence();
   const trp = useTransportPresence();
   const acc = useAccountsPresence();
+  const pres = usePresence();
   const hasTraining = useTrainingPresence('teacher');
   useEffect(() => { apiClient.get('/studio/overview').then((r) => setStudioAccess(!!(r.data.can?.manage || r.data.can?.issue || r.data.can?.print))).catch(() => setStudioAccess(false)); }, []);
   const [myGrievances, setMyGrievances] = useState([]);
@@ -570,6 +575,9 @@ const TeacherDashboard = () => {
                   ...(trp.dispatch || trp.manage ? [['transport', 'Transport', BusFront]] : []),
                   ...(acc.has ? [['accounts', 'School accounts', Landmark]] : []),
                   ['analytics', 'Measures', BarChart3],
+                  ['assistant', 'Writing assistant', Sparkles],
+                  ...(pres.advancement ? [['advancement', 'Alumni, giving & quality', HeartHandshake]] : []),
+                  ...(pres.security ? [['securityDevices', 'Security devices', SecurityIcon]] : []),
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2276,6 +2284,9 @@ const TeacherDashboard = () => {
             {activeTab === 'transport' && (trp.dispatch || trp.manage) && <TransportAdmin admin={false} manage={trp.manage} dispatch />}
             {activeTab === 'accounts' && acc.has && <AccountsAdmin t={acc} />}
             {activeTab === 'analytics' && <AnalyticsHub teacher />}
+            {activeTab === 'assistant' && <AssistantHub />}
+            {activeTab === 'advancement' && pres.advancement && <AdvancementHub />}
+            {activeTab === 'securityDevices' && pres.security && <SecurityHub />}
             {activeTab === 'training' && hasTraining && <TrainingTeacher />}
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}
