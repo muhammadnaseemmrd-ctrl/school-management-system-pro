@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, Clock, ClipboardList, LayoutGrid, 
   MessageSquare, Sparkles, Lock, User, FileText, Send, Image, History, 
-  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse, GraduationCap } from 'lucide-react';
+  MapPin, Phone, ShieldAlert, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse, GraduationCap, Library } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import TakeQuiz from '../../components/assess/TakeQuiz';
@@ -10,6 +10,8 @@ import FamilyDesk from '../../components/attendance/FamilyDesk';
 import FamilyCare from '../../components/care/FamilyCare';
 import RegistrarStudent from '../../components/registrar/RegistrarStudent';
 import useRegistrarPresence from '../../components/registrar/usePresence';
+import LibraryMe from '../../components/library/LibraryMe';
+import useLibraryPresence from '../../components/library/useLibraryPresence';
 import StudentCourses from '../../components/training/StudentCourses';
 import useTrainingPresence from '../../components/training/usePresence';
 import apiClient from '../../utils/apiClient';
@@ -26,6 +28,7 @@ const StudentDashboard = () => {
   const { has } = usePlan();
   const [profileData, setProfileData] = useState(null);
   const hasRecord = useRegistrarPresence('student');
+  const lib = useLibraryPresence('student');
   const hasCourses = useTrainingPresence('student');
   const [myGrievances, setMyGrievances] = useState([]);
   const [studentHomework, setStudentHomework] = useState([]);
@@ -36,7 +39,7 @@ const StudentDashboard = () => {
   const [uploadingHomeworkId, setUploadingHomeworkId] = useState(null);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support', 'record', 'courses'];
+    const validTabs = ['dashboard', 'homework', 'attendance', 'notices', 'timetable', 'marks', 'fees', 'profile', 'grievances', 'security', 'desk', 'documents', 'quizzes', 'support', 'record', 'courses', 'library'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -329,6 +332,7 @@ const StudentDashboard = () => {
                   ['support', 'Wellbeing & support', HeartPulse],
                   ['quizzes', 'Quizzes & exams', ClipboardList],
                   ...(hasRecord ? [['record', 'Academic record', GraduationCap]] : []),
+                  ...(lib.has ? [['library', 'Library & store', Library]] : []),
                   ...(hasCourses ? [['courses', 'Training courses', BookOpenCheck]] : []),
                   ['documents', 'My documents', FileText],
                   ['notices', 'Notice Board', Bell],
@@ -807,6 +811,7 @@ const StudentDashboard = () => {
         {activeSubTab === 'documents' && <MyDocuments />}
         {activeSubTab === 'quizzes' && <TakeQuiz />}
         {activeSubTab === 'record' && hasRecord && <RegistrarStudent />}
+        {activeSubTab === 'library' && lib.has && <LibraryMe role="student" />}
         {activeSubTab === 'courses' && hasCourses && <StudentCourses />}
         {activeSubTab === 'support' && <FamilyCare role="student" />}
         {activeSubTab === 'desk' && <FamilyDesk role="student" kids={profileData ? [{ _id: profileData._id, name: profileData.name }] : []} />}

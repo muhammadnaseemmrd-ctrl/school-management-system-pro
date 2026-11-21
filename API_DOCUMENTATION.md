@@ -1556,3 +1556,36 @@ The link goes in the `X-Learner-Key` header (`lk_` + 48 hex; only its SHA-256 ha
 - Cron: `GET /api/cron/training` daily (pause overdue instalments after the grace days, cancel unpaid holds, start and close cohorts, send session reminders 26 hours ahead).
 
 Indexes: every `Tr*` collection leads with `schoolId` except the two keys that are looked up without a school. Unique: course `(schoolId, slug)`, order `(schoolId, orderNo)`, sponsor invoice `(schoolId, invoiceNo)`, credential `(schoolId, serial)` and `verifyKey`, learner `keyHash` (unique only where set, so learners without a link do not collide), entitlement `(schoolId, learnerId, courseId)`, submission `(schoolId, learnerId, courseId, lessonId, attempt)`. Lookups: orders by status and date and by `refs`, posts by course and status (`reportCount` is top-level so the report limit is a plain filter), submissions by status, sessions and slots by start time.
+
+## Library and school store (E18) — `/api/library`, `/api/store`
+
+Roles: administrators do everything. A teacher works the desk or till only with a time-limited permission (`library.desk.operate`, `store.till.operate`, granted under Access and permissions). Students, teachers and parents use `/me` routes for their own records. Campus-limited administrators receive `403`. Barcodes are `BK` (copy), `LC` (library card) and `ST` (store item) plus seven digits and a Luhn check digit; a misread code is refused before any lookup.
+
+### Library — people and portal
+- `GET /me/enabled` → `{ enabled }` (lightweight check used to show the tab). `GET /me` (card, loans, reservations, charges; parents pass `childId` and need the guardian right), `GET /me/titles?q=`, `POST /me/reserve` `{ titleId }`, `POST /me/reservations/:id/cancel`, `POST /me/loans/:id/renew`.
+- `GET /access` → `{ has, desk, till }` for a teacher.
+
+### Library — desk (administrator or granted teacher)
+- `GET /overview`, `GET|PUT /policy` (PUT is administrator only: loan days, limits per role, renewals, grace days, fine per day, cap, lost-book percent and handling, damage percent, hold days, `reason` required; each save is a new version and each charge remembers the version it was made under).
+- Catalogue: `GET|POST /titles`, `GET|PATCH /titles/:id`, `POST /titles/:id/copies` `{ count }`, `GET /copies/lookup?barcode=`, `PATCH /copies/:id` (status, condition, shelf, withdraw with reason).
+- People and cards: `GET /people?q=`, `GET /cards`, `GET /cards/lookup?cardId|card|studentId|teacherId`, `POST /cards/:id/status` (block or unblock needs a reason).
+- Lending: `POST /issue` `{ cardId|card, barcode, dueOn? }`, `POST /return` `{ barcode, damage? }` (late fine from the policy; lost-then-found voids the open lost charge and flags a refund if it was paid; damage sets the copy status), `POST /loans/:id/renew`, `POST /loans/:id/lost`, `GET /loans` and `GET /loans.csv`.
+- Reservations: `GET|POST /reservations`, `POST /reservations/:id/cancel` (the next person in line is offered a returned copy and has the hold days to collect it).
+- Charges: `GET /fines`, `POST /fines/:id/pay`, `POST /fines/:id/waive` (reason of 10+ characters).
+- Offline desk: `POST /sync` `{ ops: [{ clientKey, type, … , capturedAt }] }` up to 100; every op is idempotent on `clientKey`, returns `{ ok, result|message, retry, late }` per op, and a failed op never blocks the others.
+- Textbooks: `GET /textbooks/needs?classId&year`, `POST /textbooks/class-set` (issues one copy per student, refuses to overdraw stock and says exactly how many were issued).
+- Import: `POST /import/preview` (CSV rows classified `add|conflict|same|duplicate|problem`), `POST /import/commit` with decisions for conflicts; repeating the same file is a no-op (hash key).
+- Labels: `POST /labels/copies`, `POST /labels/cards` → PDF. `GET /reports/usage`, `POST /sweep` (administrator: runs the daily rules now).
+
+### School store (administrator or granted teacher at the till)
+- `GET /overview`, `GET|PUT /settings`. Items: `GET /skus`, `POST /skus` (duplicate code → `409`), `PATCH /skus/:id`. `POST /receive` `{ skuRef, qty, unitCost, supplier }`, `GET /movements`, `GET /low-stock`, `GET /reconcile` (stock on the shelf against the sum of movements).
+- Tills and shifts: `GET|POST /tills`, `PATCH /tills/:id`, `GET /shift`, `POST /shifts/open` (one open shift per till and per cashier), `POST /shifts/:id/close` `{ counted, note }` (a large difference needs a note and is flagged), `GET /shifts`.
+- Sales: `POST /sales` (cart, discount, cash received; stock is taken by conditional writes so two tills cannot sell the last item), `GET /sales`, `GET /sales/:id` (receipt `RC-…`).
+- Pickup orders: family `GET|POST /me/orders` (reserves stock); staff `GET /orders`, `POST /orders/:id/pay`, `POST /orders/:id/cancel`; unpaid holds are released by the daily sweep.
+- Refunds: `POST /refunds` `{ saleId, lines, reason }`, `GET /refunds`, `POST /refunds/:id/decide` — a different administrator must approve (the sole administrator of a school may approve their own); approval restocks or writes off and reduces the open shift's cash.
+- Counts: `GET|POST /counts`, `GET /counts/:id`, `PUT /counts/:id` (save), `POST /counts/:id/submit`, `POST /counts/:id/decide` (different approver; the shelf follows the approved figures through movements). `GET /reports/day?date=`.
+- Cron: `GET /api/cron/library` daily at 03:50 UTC (overdue marking, hold expiry, unpaid order release).
+
+Indexes: every `Lb*` and `St*` collection leads with `schoolId`. Unique: copy barcode, card barcode `(schoolId, barcode)`, open loan per copy (`activeCopy`), SKU `(schoolId, code)` and barcode, sale `(schoolId, orderNo)` and receipt number, import hash, offline `clientKey`, one open shift per till (`tillKey`) and per cashier (`cashierKey`).
+
+Not in E18: posting to the fee ledger, online payment (charges and store sales are paid at the desk), a public online catalogue, email or SMS reminders, a buyer picker at the till, and lab consumables, IT devices, work orders, space booking, cafeteria, sports and bus rosters (other epics).

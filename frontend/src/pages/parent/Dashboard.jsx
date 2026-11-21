@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck, MoreHorizontal } from 'lucide-react';
+import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck, MoreHorizontal, Library } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyQuizResults from '../../components/assess/FamilyQuizResults';
@@ -7,6 +7,7 @@ import FamilyDesk from '../../components/attendance/FamilyDesk';
 import FamilyNursery from '../../components/early/FamilyNursery';
 import FamilyMessages from '../../components/comms/FamilyMessages';
 import FamilyCare from '../../components/care/FamilyCare';
+import LibraryMe from '../../components/library/LibraryMe';
 import { FamilyConsent } from '../../components/access/Consents';
 import apiClient from '../../utils/apiClient';
 import { useLang } from '../../i18n/LanguageContext';
@@ -28,7 +29,7 @@ const BANNER = {
   Present: 'bg-emerald-700', Late: 'bg-[#8a4636]', HalfDay: 'bg-amber-700', Absent: 'bg-rose-700', Leave: 'bg-[#2a5cac]', None: 'bg-[#5b6b7b]',
 };
 
-const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['library', 'Library & store', Library], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
 const fileName = (u = '') => decodeURIComponent((u.split('?')[0].split('/').pop() || 'Attachment')).slice(0, 40);
 
 const ParentDashboard = () => {
@@ -213,6 +214,7 @@ const ParentDashboard = () => {
             {tab === 'messages' && <FamilyMessages />}
             {tab === 'wellbeing' && <FamilyCare role="parent" />}
             {tab === 'consent' && <FamilyConsent />}
+            {tab === 'library' && (<div className="space-y-4"><Switcher />{childId ? <LibraryMe key={childId} role="parent" childId={childId} /> : <Card><p>{t('No child selected.')}</p></Card>}</div>)}
             {tab === 'desk' && <FamilyDesk role="parent" kids={(data?.children || []).filter((c) => !c.attendanceHidden)} />}
 
             {tab === 'fees' && (

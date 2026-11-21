@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
-  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse } from 'lucide-react';
+  User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ProfileEditor from '../../components/ProfileEditor';
@@ -16,6 +16,8 @@ import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
 import RegistrarTeacher from '../../components/registrar/RegistrarTeacher';
 import useRegistrarPresence from '../../components/registrar/usePresence';
+import LibraryTeacher from '../../components/library/LibraryTeacher';
+import useLibraryPresence from '../../components/library/useLibraryPresence';
 import TrainingTeacher from '../../components/training/TrainingTeacher';
 import useTrainingPresence from '../../components/training/usePresence';
 import OmrDesk from '../../components/omr/OmrDesk';
@@ -29,7 +31,7 @@ const TeacherDashboard = () => {
   const { t } = useLang();
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training'];
+    const validTabs = ['overview', 'students', 'homework', 'notices', 'timetable', 'attendance', 'marks', 'profile', 'grievances', 'security', 'staff', 'attendanceDesk', 'safetyDesk', 'timetablePlan', 'today', 'earlyYears', 'familyDesk', 'careDesk', 'studio', 'assessments', 'omr', 'registrar', 'training', 'library'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -81,6 +83,7 @@ const TeacherDashboard = () => {
   const [profileData, setProfileData] = useState(null);
   const [studioAccess, setStudioAccess] = useState(false);
   const hasRegistrar = useRegistrarPresence('teacher');
+  const lib = useLibraryPresence('teacher');
   const hasTraining = useTrainingPresence('teacher');
   useEffect(() => { apiClient.get('/studio/overview').then((r) => setStudioAccess(!!(r.data.can?.manage || r.data.can?.issue || r.data.can?.print))).catch(() => setStudioAccess(false)); }, []);
   const [myGrievances, setMyGrievances] = useState([]);
@@ -551,6 +554,7 @@ const TeacherDashboard = () => {
                   ['omr', 'Paper exams (OMR)', ScanLine],
                   ...(hasRegistrar ? [['registrar', 'Courses & advising', GraduationCap]] : []),
                   ...(hasTraining ? [['training', 'Training courses', BookOpenCheck]] : []),
+                  ...(lib.has ? [['library', 'Library', Library]] : []),
                   ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
                 ].map(([id, label, Icon]) => (
                   <button
@@ -2251,6 +2255,7 @@ const TeacherDashboard = () => {
             {activeTab === 'studio' && studioAccess && <DocStudio />}
             {activeTab === 'assessments' && <AssessDesk />}
             {activeTab === 'registrar' && hasRegistrar && <RegistrarTeacher />}
+            {activeTab === 'library' && lib.has && <LibraryTeacher desk={lib.desk} till={lib.till} />}
             {activeTab === 'training' && hasTraining && <TrainingTeacher />}
             {activeTab === 'omr' && <OmrDesk />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="teacher" meId={profileData?._id} />}

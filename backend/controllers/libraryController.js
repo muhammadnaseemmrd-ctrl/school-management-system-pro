@@ -117,6 +117,7 @@ async function myCard(req) {
   }
   throw new Fail(403, 'Not available.');
 }
+exports.enabled = wrap('lib.enabled', async (req, res) => { res.json({ enabled: (await S.getLib(sid(req))).enabled }); });
 exports.me = wrap('lib.me', async (req, res) => {
   const card = await myCard(req); const v = await C.cardView(sid(req), card); const { enabled, policy } = await S.getLib(sid(req));
   if (req.user.role === 'parent' && !req.guardian.rights.viewFees) { v.fines = []; v.owed = 0; }

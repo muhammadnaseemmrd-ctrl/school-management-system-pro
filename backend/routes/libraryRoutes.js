@@ -13,7 +13,7 @@ const wide = async (req, res, next) => { try { if (req.user.role === 'admin' && 
 /* ── students, teachers and parents ── */
 const me = express.Router();
 me.use(authenticate, authorize('student', 'teacher', 'parent'), wide);
-me.get('/', L.me); me.get('/titles', L.meTitles); me.post('/reserve', L.meReserve); me.post('/reservations/:id/cancel', L.meCancel); me.post('/loans/:id/renew', L.meRenew);
+me.get('/enabled', L.enabled); me.get('/', L.me); me.get('/titles', L.meTitles); me.post('/reserve', L.meReserve); me.post('/reservations/:id/cancel', L.meCancel); me.post('/loans/:id/renew', L.meRenew);
 router.use('/me', me);
 
 /* ── the desk and the office ── */
