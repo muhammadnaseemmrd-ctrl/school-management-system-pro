@@ -59,10 +59,18 @@ const authenticate = async (req, res, next) => {
   if (decoded.role === 'agent') {
     const path = String(req.originalUrl || '').split('?')[0].replace(/^\/api(?=\/)/, '');
     const ok = /^\/(agent|notifications)(\/|$)/.test(path) || (req.method === 'GET' && path === '/auth/profile');
-    if (!ok) return res.status(403).json({ message: 'Access denied' });
+    if (!ok) return res.status(403).json({ message: 'Access denied', code: 'OUT_OF_SCOPE' });
   }
 
-  if (decoded.role !== 'superadmin' && decoded.role !== 'agent' && decoded.schoolId) {
+  // A group director has no school either. Their token opens their own portal and nothing else, so
+  // it can never reach a school's records even by accident.
+  if (decoded.role === 'director') {
+    const path = String(req.originalUrl || '').split('?')[0].replace(/^\/api(?=\/)/, '');
+    const ok = /^\/(director|notifications)(\/|$)/.test(path) || (req.method === 'GET' && path === '/auth/profile');
+    if (!ok) return res.status(403).json({ message: 'Access denied', code: 'OUT_OF_SCOPE' });
+  }
+
+  if (decoded.role !== 'superadmin' && decoded.role !== 'agent' && decoded.role !== 'director' && decoded.schoolId) {
     try {
       const block = await getSchoolBlock(decoded.schoolId);
       if (block.blocked) {
@@ -73,7 +81,7 @@ const authenticate = async (req, res, next) => {
     }
   }
   // Display name for records and the audit log (tokens carry only the id). Cached so most requests cost nothing.
-  if (decoded.role !== 'superadmin' && decoded.role !== 'agent') {
+  if (decoded.role !== 'superadmin' && decoded.role !== 'agent' && decoded.role !== 'director') {
     try { req.actorName = await actorNameOf(decoded.role, decoded.userId); } catch (e) { req.actorName = ''; }
   }
   next();

@@ -98,6 +98,20 @@ module.exports = async ({ call, expect, log, tokens, base }) => {
   await expect('a closed campus takes no classes', PO(`/campuses/${spare.data.campus._id}/classes`, { classIds: [String(X.c1._id)] }, X.A), [409]);
   await expect('a campus can reopen', PA(`/campuses/${spare.data.campus._id}`, { status: 'active' }, X.A), [200]);
 
+  // ── 3b. the people who work at each branch ──
+  const st0 = await expect('the staff of each branch can be listed', G('/campuses/staff', X.A), [200]);
+  log(Array.isArray(st0.data.teachers) && Array.isArray(st0.data.staff) && !!st0.data.defaultCampusId, 'teachers and staff come back with the branch each one is at');
+  log(st0.data.teachers.every((t) => t.campusId === st0.data.defaultCampusId), 'everybody starts at the main branch');
+  await expect('nobody to move is refused', PO(`/campuses/${north._id}/staff`, { teacherIds: [] }, X.A), [400]);
+  const mvS = await expect('a teacher moves to the new branch', PO(`/campuses/${north._id}/staff`, { teacherIds: [String(X.t._id)] }, X.A), [200]);
+  log(mvS.data.moved === 1, 'the move is reported');
+  const st1 = await G('/campuses/staff', X.A);
+  log(st1.data.teachers.find((t) => String(t._id) === String(X.t._id)).campusId === String(north._id), 'that teacher now works at the new branch');
+  const ovS = await G('/campuses', X.A);
+  log(ovS.data.campuses.find((c) => c._id === north._id).teachers === 1, 'the branch counts the teacher');
+  await expect('a branch outside this school is not found', PO(`/campuses/${yCampus._id}/staff`, { teacherIds: [String(X.t._id)] }, X.A), [404]);
+  await expect('the teacher moves back to the main branch', PO(`/campuses/${main._id}/staff`, { teacherIds: [String(X.t._id)] }, X.A), [200]);
+
   // ── 4. a campus administrator sees only their campus ──
   await expect('a campus admin is added', PO('/campuses/members', { userId: String(X.a2._id), campusId: north._id }, X.A), [201]);
   await expect('adding the same one twice is refused', PO('/campuses/members', { userId: String(X.a2._id), campusId: north._id }, X.A), [409]);

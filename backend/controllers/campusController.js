@@ -21,18 +21,24 @@ const schoolWide = async (req, res) => { if (await CS.scopeOf(req.user)) { bad(r
 exports.overview = wrap('campus.overview', async (req, res) => {
   const schoolId = sid(req);
   await CS.ensureDefault(schoolId);
-  const [campuses, classes, members, school] = await Promise.all([
+  const Teacher = require('../models/Teacher');
+  const Employee = require('../models/Employee');
+  const [campuses, classes, members, school, teachers, staff] = await Promise.all([
     Campus.find({ schoolId }).sort({ isDefault: -1, name: 1 }),
     Class.find({ schoolId }).select('campusId studentCount standard division'),
     CampusMembership.find({ schoolId }),
     School.findById(schoolId).select('organizationId name'),
+    Teacher.find({ schoolId }).select('campusId'),
+    Employee.find({ schoolId, status: { $ne: 'Separated' } }).select('campusId'),
   ]);
   const def = campuses.find((c) => c.isDefault);
   const live = members.filter((m) => !m.revokedAt);
   const per = {};
-  campuses.forEach((c) => { per[String(c._id)] = { classes: 0, students: 0, admins: 0 }; });
+  campuses.forEach((c) => { per[String(c._id)] = { classes: 0, students: 0, admins: 0, teachers: 0, staff: 0 }; });
   classes.forEach((c) => { const k = String(c.campusId || def._id); if (per[k]) { per[k].classes += 1; per[k].students += c.studentCount || 0; } });
   live.forEach((m) => { if (per[String(m.campusId)]) per[String(m.campusId)].admins += 1; });
+  teachers.forEach((t) => { const k = String(t.campusId || def._id); if (per[k]) per[k].teachers += 1; });
+  staff.forEach((e) => { const k = String(e.campusId || def._id); if (per[k]) per[k].staff += 1; });
   const sc = await CS.scopeOf(req.user);
   const org = school?.organizationId ? await Organization.findById(school.organizationId).select('name slug') : null;
   res.json({
@@ -115,6 +121,47 @@ exports.classes = wrap('campus.classes', async (req, res) => {
   const rows = await Class.find({ schoolId }).select('standard division campusId studentCount');
   res.json({ classes: rows.filter((c) => !sc || sc.classIds.has(String(c._id))).map((c) => ({ _id: c._id, name: `${c.standard}-${c.division}`, campusId: c.campusId || def._id, students: c.studentCount || 0 }))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })) });
+});
+
+// ── the people who work at each branch ──
+// A teacher or a member of staff belongs to one branch. Nobody is hidden by this: it is for the
+// office to know who is where, and for the branch roll-up to be honest. An empty branch means the
+// main one, the same as for a class.
+exports.staff = wrap('campus.staff', async (req, res) => {
+  const schoolId = sid(req);
+  const Teacher = require('../models/Teacher');
+  const Employee = require('../models/Employee');
+  const def = await CS.ensureDefault(schoolId);
+  const sc = await CS.scopeOf(req.user);
+  const [teachers, staffRows] = await Promise.all([
+    Teacher.find({ schoolId }).select('name email campusId designation').sort({ name: 1 }).limit(2000),
+    Employee.find({ schoolId, status: { $ne: 'Separated' } }).select('name code kind campusId teacherId').sort({ name: 1 }).limit(2000),
+  ]);
+  const mine = (campusId) => !sc || sc.campusIds.includes(String(campusId || def._id));
+  res.json({
+    teachers: teachers.filter((t) => mine(t.campusId)).map((t) => ({ _id: t._id, name: t.name, email: t.email, role: t.designation || 'Teacher', campusId: String(t.campusId || def._id) })),
+    staff: staffRows.filter((e) => mine(e.campusId)).map((e) => ({ _id: e._id, name: e.name, code: e.code, role: e.kind, linkedTeacher: !!e.teacherId, campusId: String(e.campusId || def._id) })),
+    defaultCampusId: String(def._id),
+  });
+});
+
+// move teachers and staff to a branch
+exports.assignStaff = wrap('campus.assignStaff', async (req, res) => {
+  const schoolId = sid(req);
+  const Teacher = require('../models/Teacher');
+  const Employee = require('../models/Employee');
+  const target = oid(req.params.id) ? await Campus.findOne({ _id: oid(req.params.id), schoolId }) : null;
+  if (!target) return bad(res, 404, 'Campus not found');
+  if (target.status !== 'active') return bad(res, 409, 'That campus is closed.');
+  if (!(await CS.canAccessCampus(req.user, target._id))) return bad(res, 403, 'That campus is outside your access.');
+  const teacherIds = Array.isArray(req.body?.teacherIds) ? [...new Set(req.body.teacherIds.map(String))].filter(oid) : [];
+  const staffIds = Array.isArray(req.body?.staffIds) ? [...new Set(req.body.staffIds.map(String))].filter(oid) : [];
+  if (!teacherIds.length && !staffIds.length) return bad(res, 400, 'Choose the people to move.');
+  if (teacherIds.length + staffIds.length > 400) return bad(res, 400, 'Move at most 400 people at a time.');
+  const t = teacherIds.length ? await Teacher.updateMany({ schoolId, _id: { $in: teacherIds.map(oid) } }, { $set: { campusId: target._id } }) : { modifiedCount: 0 };
+  const e = staffIds.length ? await Employee.updateMany({ schoolId, _id: { $in: staffIds.map(oid) } }, { $set: { campusId: target._id } }) : { modifiedCount: 0 };
+  await audit(req, { action: 'campus.assign-staff', entityType: 'Campus', entityId: target._id, schoolId, detail: { campus: target.name, teachers: teacherIds.length, staff: staffIds.length } });
+  res.json({ moved: (t.modifiedCount ?? teacherIds.length) + (e.modifiedCount ?? staffIds.length), campus: shape(target) });
 });
 
 // ── campus administrators ──

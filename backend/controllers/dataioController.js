@@ -150,7 +150,8 @@ async function listFor(def, schoolId) {
         admissionDate: s.admissionDate ? new Date(s.admissionDate).toISOString().slice(0, 10) : '',
       }));
     }
-    case 'teachers':
+    case 'teachers': {
+      const camps = new Map((await M.Campus.find({ schoolId }).select('name')).map((c) => [String(c._id), c.name]));
       return take(await M.Teacher.find({ schoolId }).limit(EXPORT_MAX), (t) => ({
         name: t.name, email: t.email, employeeId: t.employeeId || '', phone: t.phone || '', gender: t.gender || '',
         dateOfBirth: t.dateOfBirth ? new Date(t.dateOfBirth).toISOString().slice(0, 10) : '', cnicNumber: t.cnicNumber || '',
@@ -158,12 +159,17 @@ async function listFor(def, schoolId) {
         joiningDate: t.joiningDate ? new Date(t.joiningDate).toISOString().slice(0, 10) : '',
         qualification: (t.qualifications || [])[0]?.degree || '', experience: t.experience || 0,
         subjects: '', basicSalary: t.salaryDetails?.basicSalary || 0, currentAddress: t.currentAddress || '',
+        campus: camps.get(String(t.campusId)) || '',
       }));
-    case 'staff':
+    }
+    case 'staff': {
+      const camps = new Map((await M.Campus.find({ schoolId }).select('name')).map((c) => [String(c._id), c.name]));
       return take(await M.Employee.find({ schoolId }).limit(EXPORT_MAX), (e) => ({
         code: e.code, name: e.name, kind: e.kind, department: e.department || '', phone: e.phone || '', email: e.email || '',
         joinDate: e.joinDate ? new Date(e.joinDate).toISOString().slice(0, 10) : '', status: e.status, basicSalary: e.basicSalary || 0,
+        campus: camps.get(String(e.campusId)) || '',
       }));
+    }
     case 'guardians': {
       const rows = await M.Parent.find({ schoolId }).limit(EXPORT_MAX);
       const kids = await M.Student.find({ schoolId }).select('admissionNumber');

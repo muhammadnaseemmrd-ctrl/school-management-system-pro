@@ -13,6 +13,7 @@ const apiClient = axios.create({
 const signInPath = () => {
   const p = window.location.pathname;
   if (p.startsWith('/agent')) return '/agent/login';
+  if (p.startsWith('/director')) return '/director/login';
   if (p.startsWith('/superadmin')) return '/superadmin/login';
   return '/login';
 };
@@ -43,6 +44,12 @@ apiClient.interceptors.response.use(
       sessionStorage.setItem('loggedOut', '1');
       sessionStorage.setItem('blockedMessage', msg);
       window.location.href = signInPath();
+      return Promise.reject(error);
+    }
+
+    // A door that is simply not for this kind of account is a refusal, not a stale token. Trying to
+    // refresh would end in signing a perfectly valid session out.
+    if (error.response?.status === 403 && error.response.data?.code === 'OUT_OF_SCOPE') {
       return Promise.reject(error);
     }
 

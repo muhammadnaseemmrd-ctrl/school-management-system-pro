@@ -132,6 +132,9 @@ const teacherSchema = new mongoose.Schema(
 
     // 3. Professional Information
     designation: String,
+    // Which branch of the school this teacher works at. Empty means the main branch, the same way
+    // a class with no branch belongs to the main one.
+    campusId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campus', default: null },
     department: String,
     joiningDate: Date,
     employmentType: {

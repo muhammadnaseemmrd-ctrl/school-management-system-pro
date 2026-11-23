@@ -7,6 +7,7 @@ const schema = new mongoose.Schema({
   kind: { type: String, enum: ['teacher', 'admin', 'clerk', 'guard', 'cleaner', 'driver', 'technician', 'librarian', 'counselor', 'visiting', 'vendor'], required: true },
   teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'Teacher', default: null },
   positionId: { type: mongoose.Schema.Types.ObjectId, ref: 'Position', default: null },
+  campusId: { type: mongoose.Schema.Types.ObjectId, ref: 'Campus', default: null },   // which branch they work at; empty means the main one
   department: { type: String, default: '' }, managerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Employee', default: null },
   phone: { type: String, default: '' }, email: { type: String, default: '', lowercase: true },
   joinDate: { type: Date, default: Date.now },

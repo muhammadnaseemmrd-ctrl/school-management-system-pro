@@ -29,7 +29,9 @@ const ParentDashboard = lazy(() => import('./pages/parent/Dashboard'));
 import SuperAdminLogin from './pages/superadmin/Login';
 const SuperAdminDashboard = lazy(() => import('./pages/superadmin/Dashboard'));
 import AgentLogin from './pages/agent/Login';
+import DirectorLogin from './pages/director/Login';
 const AgentDashboard = lazy(() => import('./pages/agent/Dashboard'));
+const DirectorDashboard = lazy(() => import('./pages/director/Dashboard'));
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -124,6 +126,10 @@ function App() {
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <AgentLogin />}
           />
           <Route
+            path="/director/login"
+            element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <DirectorLogin />}
+          />
+          <Route
             path="/register"
             element={isAuthenticated && user?.role ? <Navigate to={`/${user.role}/dashboard`} replace /> : <SchoolRegistration />}
           />
@@ -175,6 +181,14 @@ function App() {
                 element={
                   <ProtectedRoute requiredRole="agent">
                     <AgentDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/director/*"
+                element={
+                  <ProtectedRoute requiredRole="director">
+                    <DirectorDashboard />
                   </ProtectedRoute>
                 }
               />

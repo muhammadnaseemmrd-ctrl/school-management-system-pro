@@ -94,7 +94,7 @@ const schoolSchema = new mongoose.Schema(
     teacherLimit: { type: Number, default: 10 },
     subscriptionExpiresAt: { type: Date, default: null },
     suspendedReason: { type: String, default: '' },
-    createdVia: { type: String, enum: ['self-signup', 'superadmin', 'seed'], default: 'self-signup' },
+    createdVia: { type: String, enum: ['self-signup', 'superadmin', 'seed', 'director'], default: 'self-signup' },
     // Partner agent who brought this school (E24). The percentage is frozen when the school is linked.
     agentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent', default: null },
     agentCommissionPercent: { type: Number, default: 0 },

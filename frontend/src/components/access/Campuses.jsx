@@ -6,10 +6,10 @@ import { call, useGet, Loading, Note } from '../early/earlyKit';
 
 // Campuses of one school, which classes sit on which, and which administrators are limited to a campus (PRD E01).
 export default function Campuses() {
-  const ov = useGet('/campuses'); const cls = useGet('/campuses/classes');
+  const ov = useGet('/campuses'); const cls = useGet('/campuses/classes'); const stf = useGet('/campuses/staff');
   const me = ov.data?.me; const wide = me?.schoolWide;
-  const [form, setForm] = useState(null); const [move, setMove] = useState(null); const [busy, setBusy] = useState(false);
-  const reload = () => { ov.reload(); cls.reload(); };
+  const [form, setForm] = useState(null); const [move, setMove] = useState(null); const [movePeople, setMovePeople] = useState(null); const [busy, setBusy] = useState(false);
+  const reload = () => { ov.reload(); cls.reload(); stf.reload(); };
   const run = async (fn, ok) => { setBusy(true); const r = await call(fn, ok, reload); setBusy(false); return r; };
   const campuses = ov.data?.campuses || []; const active = campuses.filter((c) => c.status === 'active');
 
@@ -37,10 +37,13 @@ export default function Campuses() {
               <dl className="mt-3 grid grid-cols-3 gap-2 text-center text-sm">
                 <div className="rounded-lg bg-[#f7f6f2] p-2"><dt className="text-[11px] text-[#5b6b7b]">Classes</dt><dd className="font-bold">{c.classes}</dd></div>
                 <div className="rounded-lg bg-[#f7f6f2] p-2"><dt className="text-[11px] text-[#5b6b7b]">Students</dt><dd className="font-bold">{c.students}</dd></div>
+                <div className="rounded-lg bg-[#f7f6f2] p-2"><dt className="text-[11px] text-[#5b6b7b]">Teachers</dt><dd className="font-bold">{c.teachers ?? 0}</dd></div>
+                <div className="rounded-lg bg-[#f7f6f2] p-2"><dt className="text-[11px] text-[#5b6b7b]">Other staff</dt><dd className="font-bold">{c.staff ?? 0}</dd></div>
                 <div className="rounded-lg bg-[#f7f6f2] p-2"><dt className="text-[11px] text-[#5b6b7b]">Limited admins</dt><dd className="font-bold">{c.admins}</dd></div>
               </dl>
               <div className="mt-3 flex flex-wrap gap-2">
                 {c.status === 'active' && <button className={`${btnGhost} !px-3 !py-1.5 !text-xs`} onClick={() => setMove({ campus: c, ids: [] })}>Move classes here</button>}
+                {c.status === 'active' && <button className={`${btnGhost} !px-3 !py-1.5 !text-xs`} onClick={() => setMovePeople({ campus: c, teacherIds: [], staffIds: [] })}>Move staff here</button>}
                 {wide && <button className={`${btnGhost} !px-3 !py-1.5 !text-xs`} onClick={() => setForm({ ...c })}>Edit</button>}
                 {wide && !c.isDefault && c.status === 'active' && <button className={`${btnDanger} !px-3 !py-1.5 !text-xs`} disabled={busy} onClick={() => run(() => apiClient.patch(`/campuses/${c._id}`, { status: 'closed' }), 'Campus closed')}>Close</button>}
                 {wide && c.status === 'closed' && <button className={`${btnGhost} !px-3 !py-1.5 !text-xs`} disabled={busy} onClick={() => run(() => apiClient.patch(`/campuses/${c._id}`, { status: 'active' }), 'Campus reopened')}>Reopen</button>}
@@ -74,6 +77,58 @@ export default function Campuses() {
         <div className="mt-4 flex justify-end gap-2"><button className={btnGhost} onClick={() => setMove(null)}>Cancel</button>
           <button disabled={busy || !move.ids.length} className={btnPrimary} onClick={async () => { if (await run(() => apiClient.post(`/campuses/${move.campus._id}/classes`, { classIds: move.ids }), 'Classes moved')) setMove(null); }}>Move {move.ids.length || ''}</button></div>
       </Modal>}
+
+      {movePeople && (() => {
+        const all = stf.data || { teachers: [], staff: [] };
+        const here = String(movePeople.campus._id);
+        const teachers = (all.teachers || []).filter((t) => String(t.campusId) !== here);
+        const others = (all.staff || []).filter((e) => String(e.campusId) !== here && !e.linkedTeacher);
+        const whereNow = (id) => campuses.find((x) => String(x._id) === String(id))?.name || 'main campus';
+        const picked = movePeople.teacherIds.length + movePeople.staffIds.length;
+        const toggle = (key, id) => setMovePeople({ ...movePeople, [key]: movePeople[key].includes(id) ? movePeople[key].filter((i) => i !== id) : [...movePeople[key], id] });
+        return (
+          <Modal title={`Move staff to ${movePeople.campus.name}`} onClose={() => setMovePeople(null)}>
+            <p className="mb-2 text-sm text-[#5b6b7b]">Which branch somebody works at. It does not change what they can see or do.</p>
+            <div className="max-h-72 space-y-3 overflow-y-auto rounded-lg border border-[#e3e7e7] p-2">
+              {!!teachers.length && (
+                <div>
+                  <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#4f5f70]">Teachers</p>
+                  {teachers.map((t) => (
+                    <label key={t._id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-[#f7f6f2]">
+                      <input type="checkbox" checked={movePeople.teacherIds.includes(t._id)} onChange={() => toggle('teacherIds', t._id)} />
+                      <span className="font-semibold">{t.name}</span>
+                      <span className="text-xs text-[#5b6b7b]">{t.role} · now at {whereNow(t.campusId)}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              {!!others.length && (
+                <div>
+                  <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-[#4f5f70]">Other staff and guards</p>
+                  {others.map((e) => (
+                    <label key={e._id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-[#f7f6f2]">
+                      <input type="checkbox" checked={movePeople.staffIds.includes(e._id)} onChange={() => toggle('staffIds', e._id)} />
+                      <span className="font-semibold">{e.name}</span>
+                      <span className="text-xs text-[#5b6b7b]">{e.role} · {e.code} · now at {whereNow(e.campusId)}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+              {!teachers.length && !others.length && <p className="p-3 text-sm text-[#5b6b7b]">Everybody you can see already works at this branch.</p>}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button className={btnGhost} onClick={() => setMovePeople(null)}>Cancel</button>
+              <button
+                disabled={busy || !picked}
+                className={btnPrimary}
+                onClick={async () => { if (await run(() => apiClient.post(`/campuses/${movePeople.campus._id}/staff`, { teacherIds: movePeople.teacherIds, staffIds: movePeople.staffIds }), 'Staff moved')) setMovePeople(null); }}
+              >
+                Move {picked || ''}
+              </button>
+            </div>
+          </Modal>
+        );
+      })()}
 
       {ov.error && <p role="alert" className="text-sm text-[#9f1239]">{errMsg({ message: ov.error })}</p>}
     </div>

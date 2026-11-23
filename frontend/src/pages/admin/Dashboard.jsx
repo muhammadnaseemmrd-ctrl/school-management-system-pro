@@ -3,7 +3,7 @@ import {
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
   Plug,
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, FileSpreadsheet, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, FileSpreadsheet, Building2, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -20,6 +20,7 @@ import ThemeStudio from '../../components/theme/ThemeStudio';
 import HelpDesk from '../../components/support/HelpDesk';
 import Migration from '../../components/migration/Migration';
 import DataCentre from '../../components/dataio/DataCentre';
+import Campuses from '../../components/access/Campuses';
 import ImportPanel from '../../components/dataio/ImportPanel';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TrainingAdmin from '../../components/training/TrainingAdmin';
@@ -53,7 +54,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
+    const validTabs = ['branches', 'dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1558,6 +1559,7 @@ const AdminDashboard = () => {
                   { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
                   { id: 'brand', label: 'Brand & theme', icon: Palette },
                   { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
+                  { id: 'branches', label: 'Branches', icon: Building2 },
                   { id: 'dataCentre', label: 'Import from Excel', icon: FileSpreadsheet },
                   { id: 'migration', label: 'Import & new year', icon: Upload },
                   { id: 'registrar', label: 'Registrar', icon: GraduationCap },
@@ -1725,6 +1727,7 @@ const AdminDashboard = () => {
             {activeTab === 'careDesk' && <StaffCare isAdmin />}
             {activeTab === 'brand' && <ThemeStudio />}
             {activeTab === 'saasSupport' && <HelpDesk />}
+            {activeTab === 'branches' && <Campuses />}
             {activeTab === 'dataCentre' && <DataCentre />}
             {activeTab === 'migration' && <Migration />}
             {activeTab === 'registrar' && <RegistrarAdmin />}

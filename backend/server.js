@@ -128,6 +128,7 @@ app.use('/api/fees', require('./routes/feeRoutes'));
 app.use('/api/files', fileProxyRoutes);
 app.use('/api/superadmin', superAdminRoutes);
 app.use('/api/agent', require('./routes/agentRoutes'));
+app.use('/api/director', require('./routes/directorRoutes'));
 app.use('/api/parents', gate('parentPortal'), parentRoutes);
 app.use('/api/guardians', guardianRoutes);
 app.use('/api/permissions', permissionRoutes);

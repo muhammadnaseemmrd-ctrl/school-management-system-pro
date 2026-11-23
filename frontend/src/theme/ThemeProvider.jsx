@@ -25,7 +25,7 @@ const platformHost = (h) => !h || h === 'localhost' || /^[\d.]+$/.test(h) || h.i
 export function ThemeProvider({ children }) {
   const { user, isAuthenticated } = useSelector((s) => s.auth);
   const { lang } = useLang();
-  const schoolUser = !!user && isAuthenticated && user.role !== 'superadmin' && user.role !== 'agent';
+  const schoolUser = !!user && isAuthenticated && user.role !== 'superadmin' && user.role !== 'agent' && user.role !== 'director';
   const [live, setLive] = useState(() => { try { const c = JSON.parse(localStorage.getItem(CACHE) || 'null'); return c ? { tokens: clean(c.tokens), version: c.version || 0 } : { tokens: { ...DEFAULTS }, version: 0 }; } catch (e) { return { tokens: { ...DEFAULTS }, version: 0 }; } });
   const [hostBrand, setHostBrand] = useState(() => { try { return JSON.parse(sessionStorage.getItem(HOST) || 'null'); } catch (e) { return null; } });
   const [userMode, setUserModeState] = useState(() => { try { const m = localStorage.getItem(MODE); return m === 'light' || m === 'dark' ? m : 'auto'; } catch (e) { return 'auto'; } });

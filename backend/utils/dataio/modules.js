@@ -248,10 +248,12 @@ const teachers = {
     { key: 'subjects', label: 'Subjects', type: 'list', maxItems: 12, width: 24, example: 'Physics, Maths', note: 'Separate with commas. The subject must already exist.' },
     { key: 'basicSalary', label: 'Basic salary', type: 'number', minValue: 0, width: 14, example: 60000 },
     { key: 'currentAddress', label: 'Address', max: 200, width: 26, example: 'House 9, F-11, Islamabad' },
+    { key: 'campus', label: 'Branch', max: 40, width: 16, example: 'Main campus', note: 'Which branch they work at. Leave empty for the main branch.' },
   ],
   prepare: async ({ schoolId, school }) => ({
     schoolId, school,
     subjects: new Map((await M.Subject.find({ schoolId }).select('name code')).map((s) => [nameKey(s.name), s])),
+    campuses: new Map((await M.Campus.find({ schoolId }).select('name code')).map((x) => [nameKey(x.name), x])),
   }),
   refine: async (value, row, c) => {
     if (value.subjects) {
@@ -259,6 +261,12 @@ const teachers = {
       for (const s of value.subjects) { const hit = c.subjects.get(nameKey(s)); if (hit) ids.push(hit._id); else missing.push(s); }
       value._subjectIds = ids;
       if (missing.length) row.warnings.push(`These subjects are not set up yet and were left off: ${missing.join(', ')}`);
+    }
+    if (value.campus) {
+      const cp = c.campuses.get(nameKey(value.campus));
+      if (cp) value._campusId = cp._id;
+      else if (c.pending && c.pending.campuses && c.pending.campuses.has(nameKey(value.campus))) row.warnings.push(`The branch "${value.campus}" is on the Branches sheet of this same file.`);
+      else throw new Error(`No branch is called "${value.campus}". Add the branch first.`);
     }
   },
   label1: (v) => clean(v.name, 60),
@@ -285,6 +293,7 @@ const teachers = {
       joiningDate: value.joiningDate || undefined, experience: value.experience || 0,
       currentAddress: value.currentAddress || undefined,
       subjectIds: value._subjectIds || [],
+      campusId: value._campusId || null,
       qualifications: value.qualification ? [{ degree: value.qualification }] : [],
       salaryDetails: value.basicSalary ? { basicSalary: value.basicSalary } : undefined,
     });
@@ -292,7 +301,7 @@ const teachers = {
     try {
       const code = value.employeeId || `T-${String(await M.Employee.countDocuments({ schoolId: c.schoolId }) + 1).padStart(4, '0')}`;
       if (!(await M.Employee.findOne({ schoolId: c.schoolId, code }))) {
-        await M.Employee.create({ schoolId: c.schoolId, code, name: value.name, kind: 'teacher', teacherId: t._id, department: value.department || '', phone: value.phone || '', email: value.email, joinDate: value.joiningDate || new Date(), status: 'Active', basicSalary: value.basicSalary || 0 });
+        await M.Employee.create({ schoolId: c.schoolId, code, name: value.name, kind: 'teacher', teacherId: t._id, department: value.department || '', phone: value.phone || '', email: value.email, joinDate: value.joiningDate || new Date(), status: 'Active', basicSalary: value.basicSalary || 0, campusId: value._campusId || null });
       }
     } catch (e) { /* the teacher is saved either way */ }
     return { id: t._id, label: value.name, credential: { role: 'teacher', name: value.name, email: value.email, temporaryPassword: temp } };
@@ -303,6 +312,7 @@ const teachers = {
     if (value.dateOfBirth) set.dateOfBirth = value.dateOfBirth;
     if (value.joiningDate) set.joiningDate = value.joiningDate;
     if (value._subjectIds && value._subjectIds.length) set.subjectIds = value._subjectIds;
+    if (value._campusId) set.campusId = value._campusId;
     const changed = Object.keys(set).map((k) => ({ field: k, from: String(hit.doc[k] ?? ''), to: String(set[k]) }));
     if (Object.keys(set).length) await M.Teacher.updateOne({ _id: hit.id, schoolId: c.schoolId }, { $set: set });
     return { id: hit.id, changed };
@@ -326,8 +336,16 @@ const staff = {
     { key: 'joinDate', label: 'Joining date', type: 'date', width: 16, example: '2025-01-15' },
     { key: 'status', label: 'Status', type: 'choice', enum: ['Onboarding', 'Active', 'Separated'], default: 'Active', width: 14, example: 'Active' },
     { key: 'basicSalary', label: 'Basic salary', type: 'number', minValue: 0, width: 14, example: 35000 },
+    { key: 'campus', label: 'Branch', max: 40, width: 16, example: 'Main campus', note: 'Which branch they work at. Leave empty for the main branch.' },
   ],
-  prepare: async ({ schoolId }) => ({ schoolId }),
+  prepare: async ({ schoolId }) => ({ schoolId, campuses: new Map((await M.Campus.find({ schoolId }).select('name code')).map((x) => [nameKey(x.name), x])) }),
+  refine: async (value, row, c) => {
+    if (!value.campus) return;
+    const cp = c.campuses.get(nameKey(value.campus));
+    if (cp) value._campusId = cp._id;
+    else if (c.pending && c.pending.campuses && c.pending.campuses.has(nameKey(value.campus))) row.warnings.push(`The branch "${value.campus}" is on the Branches sheet of this same file.`);
+    else throw new Error(`No branch is called "${value.campus}". Add the branch first.`);
+  },
   label1: (v) => clean(v.name, 60),
   match: async (value, c) => {
     const hit = await M.Employee.findOne({ schoolId: c.schoolId, code: value.code });
@@ -342,6 +360,7 @@ const staff = {
       schoolId: c.schoolId, code: value.code, name: value.name, kind: value.kind,
       department: value.department || '', phone: value.phone || '', email: value.email || '',
       joinDate: value.joinDate || new Date(), status: value.status || 'Active', basicSalary: value.basicSalary || 0,
+      campusId: value._campusId || null,
     });
     return { id: e._id, label: value.name };
   },
@@ -350,6 +369,7 @@ const staff = {
     for (const k of ['name', 'kind', 'department', 'phone', 'email', 'status']) if (value[k]) set[k] = value[k];
     if (value.basicSalary != null) set.basicSalary = value.basicSalary;
     if (value.joinDate) set.joinDate = value.joinDate;
+    if (value._campusId) set.campusId = value._campusId;
     const changed = Object.keys(set).map((k) => ({ field: k, from: String(hit.doc[k] ?? ''), to: String(set[k]) }));
     await M.Employee.updateOne({ _id: hit.id, schoolId: c.schoolId }, { $set: set });
     return { id: hit.id, changed };

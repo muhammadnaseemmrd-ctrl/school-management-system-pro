@@ -18,7 +18,7 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { user, school } = useSelector((state) => state.auth);
   const { t, lang } = useLang();
-  const isSchoolUser = !!user && user.role !== 'superadmin' && user.role !== 'agent';
+  const isSchoolUser = !!user && user.role !== 'superadmin' && user.role !== 'agent' && user.role !== 'director';
   const branding = useBranding(isSchoolUser);
 
   const handleLogout = () => {
@@ -52,7 +52,7 @@ const Navbar = () => {
             )}
             <div className="min-w-0">
               <h1 className="max-w-[8rem] truncate text-lg font-extrabold tracking-tight text-[#1b2837] sm:max-w-xs">{(isSchoolUser && pickSchoolName(branding, lang)) || 'Aulensia'}</h1>
-              <p className="text-xs text-[#5b6b7b]">{user?.role === 'superadmin' ? t('Platform console') : user?.role === 'agent' ? t('Partner portal') : t('School management system')}</p>
+              <p className="text-xs text-[#5b6b7b]">{user?.role === 'superadmin' ? t('Platform console') : user?.role === 'agent' ? t('Partner portal') : user?.role === 'director' ? t('Group office') : t('School management system')}</p>
             </div>
           </div>
 
@@ -64,7 +64,7 @@ const Navbar = () => {
                 {school?.name && <span className="text-[#5b6b7b]">· {pickSchoolName(school, lang)}</span>}
               </div>
             )}
-            {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}
+            {(isSchoolUser || user?.role === 'agent' || user?.role === 'director') && <NotificationBell />}
             <AppearanceToggle />
             <LanguageToggle />
             <button
