@@ -3,7 +3,7 @@ import {
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
   Plug,
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, FileSpreadsheet, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -19,6 +19,8 @@ import StaffCare from '../../components/care/StaffCare';
 import ThemeStudio from '../../components/theme/ThemeStudio';
 import HelpDesk from '../../components/support/HelpDesk';
 import Migration from '../../components/migration/Migration';
+import DataCentre from '../../components/dataio/DataCentre';
+import ImportPanel from '../../components/dataio/ImportPanel';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TrainingAdmin from '../../components/training/TrainingAdmin';
 import LibraryAdmin from '../../components/library/LibraryAdmin';
@@ -37,6 +39,7 @@ import DocStudio from '../../components/studio/DocStudio';
 import AssessDesk from '../../components/assess/AssessDesk';
 import OmrDesk from '../../components/omr/OmrDesk';
 import { useLang } from '../../i18n/LanguageContext';
+import { pickSchoolName } from '../../utils/schoolName';
 import AdminAttendance from '../../components/attendance/AdminAttendance';
 import StudentAttendanceAdmin from '../../components/attendance/StudentAttendanceAdmin';
 import FeesCenter from '../../components/fees/FeesCenter';
@@ -45,12 +48,12 @@ import usePlan from '../../utils/usePlan';
 import { PROVINCES } from '../../utils/pakistan';
 
 const AdminDashboard = () => {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { has } = usePlan();
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
+    const validTabs = ['dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -102,7 +105,8 @@ const AdminDashboard = () => {
   const [showAddSubjectModal, setShowAddSubjectModal] = useState(false);
   const [creatingSubject, setCreatingSubject] = useState(false);
   const [subjectForm, setSubjectForm] = useState({ name: '', code: '', maxMarks: 100, minMarks: 35, standards: [], lecturesPerStandard: [] });
-  const [schoolName, setSchoolName] = useState('');
+  const [schoolDoc, setSchoolDoc] = useState(null);
+  const schoolName = pickSchoolName(schoolDoc, lang);
   const [editingSubjectId, setEditingSubjectId] = useState(null);
   const [editingExamId, setEditingExamId] = useState(null);
   const [selectedExamStd, setSelectedExamStd] = useState(null);
@@ -622,7 +626,7 @@ const AdminDashboard = () => {
 
       const resProfile = await apiClient.get('/auth/profile').catch(() => null);
       if (resProfile?.data?.user) {
-        setSchoolName(resProfile.data.user.schoolId?.name || '');
+        setSchoolDoc(resProfile.data.user.schoolId || null);
       }
 
       const resClasses = await apiClient.get('/classes?limit=1000').catch(() => ({ data: { classes: [] } }));
@@ -1554,6 +1558,7 @@ const AdminDashboard = () => {
                   { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
                   { id: 'brand', label: 'Brand & theme', icon: Palette },
                   { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
+                  { id: 'dataCentre', label: 'Import from Excel', icon: FileSpreadsheet },
                   { id: 'migration', label: 'Import & new year', icon: Upload },
                   { id: 'registrar', label: 'Registrar', icon: GraduationCap },
                   { id: 'training', label: 'Training', icon: BookOpenCheck },
@@ -1697,7 +1702,7 @@ const AdminDashboard = () => {
               <Menu className="h-5 w-5" />
             </button>
             <div className="flex-1 rounded-2xl bg-paper p-3.5 text-[#1b2837] shadow-sm flex justify-between items-center flex-wrap gap-4">
-              <h1 className="text-sm md:text-base font-black tracking-tight uppercase">WELCOME ADMIN of "{schoolName || 'Your School'}"</h1>
+              <h1 className="text-sm md:text-base font-black tracking-tight uppercase"><span>WELCOME ADMIN of</span> "<span>{schoolName || 'Your School'}</span>"</h1>
             </div>
           </div>
 
@@ -1720,6 +1725,7 @@ const AdminDashboard = () => {
             {activeTab === 'careDesk' && <StaffCare isAdmin />}
             {activeTab === 'brand' && <ThemeStudio />}
             {activeTab === 'saasSupport' && <HelpDesk />}
+            {activeTab === 'dataCentre' && <DataCentre />}
             {activeTab === 'migration' && <Migration />}
             {activeTab === 'registrar' && <RegistrarAdmin />}
             {activeTab === 'training' && <TrainingAdmin />}
@@ -1931,6 +1937,7 @@ const AdminDashboard = () => {
                   >
                     <Plus className="h-4 w-4" /> Add Teacher
                   </button>
+                  <ImportPanel module="teachers" title="Teachers" onDone={() => fetchData()} />
                 </div>
 
                 {(() => {
@@ -2125,8 +2132,13 @@ const AdminDashboard = () => {
                 {!selectedStandard ? (
                   <div className="space-y-6">
                     <div className="bg-[#ffffff] border border-[#e3e7e7] rounded-3xl p-6 shadow-sm">
-                      <h3 className="text-lg font-bold text-[#1b2837] mb-1">Standard-Wise Student Records</h3>
-                      <p className="text-sm text-[#5b6b7b]">Select a standard and division card below to view its enrolled students.</p>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="text-lg font-bold text-[#1b2837] mb-1">Standard-Wise Student Records</h3>
+                          <p className="text-sm text-[#5b6b7b]">Select a standard and division card below to view its enrolled students.</p>
+                        </div>
+                        <ImportPanel module="students" title="Students" onDone={() => fetchData()} />
+                      </div>
                     </div>
 
                     {classes.length === 0 ? (
@@ -2448,6 +2460,7 @@ const AdminDashboard = () => {
                   >
                     <Plus className="h-4 w-4" /> Add Subject
                   </button>
+                  <ImportPanel module="subjects" title="Subjects" onDone={() => fetchData()} />
                 </div>
 
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

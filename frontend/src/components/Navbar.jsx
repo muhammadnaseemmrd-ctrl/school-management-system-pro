@@ -9,6 +9,7 @@ import LanguageToggle from './LanguageToggle';
 import AppearanceToggle from './AppearanceToggle';
 import NotificationBell from './NotificationBell';
 import useBranding, { clearBranding } from '../utils/useBranding';
+import { pickSchoolName } from '../utils/schoolName';
 import { LogoMark } from './Logo';
 
 const Navbar = () => {
@@ -16,7 +17,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, school } = useSelector((state) => state.auth);
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const isSchoolUser = !!user && user.role !== 'superadmin' && user.role !== 'agent';
   const branding = useBranding(isSchoolUser);
 
@@ -50,7 +51,7 @@ const Navbar = () => {
               <LogoMark className="h-10 w-10 drop-shadow-sm" />
             )}
             <div className="min-w-0">
-              <h1 className="max-w-[8rem] truncate text-lg font-extrabold tracking-tight text-[#1b2837] sm:max-w-xs">{(isSchoolUser && branding?.name) || 'Aulensia'}</h1>
+              <h1 className="max-w-[8rem] truncate text-lg font-extrabold tracking-tight text-[#1b2837] sm:max-w-xs">{(isSchoolUser && pickSchoolName(branding, lang)) || 'Aulensia'}</h1>
               <p className="text-xs text-[#5b6b7b]">{user?.role === 'superadmin' ? t('Platform console') : user?.role === 'agent' ? t('Partner portal') : t('School management system')}</p>
             </div>
           </div>
@@ -60,7 +61,7 @@ const Navbar = () => {
               <div className="flex items-center gap-2 rounded-full border border-[#e3e7e7] bg-[#ffffff] px-3 py-2 text-sm text-[#3b4a5c]">
                 <Shield size={16} className="text-[#2a5cac]" />
                 <span className="capitalize">{t(user.role.charAt(0).toUpperCase() + user.role.slice(1))}</span>
-                {school?.name && <span className="text-[#5b6b7b]">· {school.name}</span>}
+                {school?.name && <span className="text-[#5b6b7b]">· {pickSchoolName(school, lang)}</span>}
               </div>
             )}
             {(isSchoolUser || user?.role === 'agent') && <NotificationBell />}

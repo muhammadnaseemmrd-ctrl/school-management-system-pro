@@ -144,6 +144,9 @@ app.use('/api/early', require('./routes/earlyRoutes'));
 app.use('/api/care', express.json({ limit: '200kb' }), require('./routes/careRoutes'));
 app.use('/api/theme', express.json({ limit: '100kb' }), require('./routes/themeRoutes'));
 app.use('/api/migration', express.json({ limit: '3mb' }), require('./routes/migrationRoutes'));
+// Filling a module from a sheet. The body is the checked rows coming back from the browser, so it
+// needs more room than a normal request; the file itself goes through multer, not here.
+app.use('/api/dataio', express.json({ limit: '4mb' }), require('./routes/dataioRoutes'));
 app.use('/api/training', express.json({ limit: '300kb' }), require('./routes/trainingRoutes'));
 app.use('/api/library', express.json({ limit: '1mb' }), require('./routes/libraryRoutes'));
 app.use('/api/procure', express.json({ limit: '1mb' }), require('./routes/procureRoutes'));

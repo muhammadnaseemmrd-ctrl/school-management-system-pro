@@ -47,7 +47,7 @@ const SchoolForm = ({ part }) => {
       const r = await apiClient.get('/schools/my');
       const s = r.data.school; setSchool(s);
       setF({
-        name: s.name || '', motto: s.motto || '', academicYear: s.academicYear || '', phone: s.phone || '', website: s.website || '',
+        name: s.name || '', nameUr: s.nameUr || '', motto: s.motto || '', academicYear: s.academicYear || '', phone: s.phone || '', website: s.website || '',
         principalName: s.principalName || '', principalEmail: s.principalEmail || '', timezone: s.timezone || 'Asia/Karachi', logo: s.logo || '',
         address: { street: '', city: '', province: '', postalCode: '', country: 'Pakistan', ...(s.address || {}) },
         paymentInfo: { bankName: '', accountTitle: '', accountNumber: '', iban: '', jazzcash: '', easypaisa: '', instructions: '', ...(s.paymentInfo || {}) },
@@ -115,6 +115,7 @@ const SchoolForm = ({ part }) => {
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="School name"><input className={inputCls} value={f.name} onChange={set('name')} /></Field>
+        <Field label="School name in Urdu"><input className={inputCls} dir="rtl" lang="ur" value={f.nameUr} onChange={set('nameUr')} placeholder="اسکول کا نام" maxLength={160} /><p className="mt-1 text-[11px] text-[#5b6b7b]">Shown instead of the English name while a page is in Urdu. Leave it empty to keep the English name.</p></Field>
         <Field label="Motto / tagline"><input className={inputCls} value={f.motto} onChange={set('motto')} /></Field>
         <Field label="Academic year"><input className={inputCls} value={f.academicYear} onChange={set('academicYear')} placeholder="2026-2027" /></Field>
         <Field label="School phone"><input className={inputCls} value={f.phone} onChange={set('phone')} /></Field>

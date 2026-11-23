@@ -4,6 +4,22 @@ const mongoose = require('../lib/pgdoc');
 const Agent = require('../models/Agent');
 const { hashPassword, validatePasswordStrength } = require('../utils/password');
 
+// Keeps the school's Urdu name available to the screen translator: the English name is the
+// source label, the Urdu name its text. Clearing the Urdu name removes the override again.
+async function syncNameOverride(schoolId, before, after) {
+  if (!after) return;
+  const TranslationOverride = require('../models/TranslationOverride');
+  const oldName = String(before.name || '').trim();
+  const name = String(after.name || '').trim();
+  const ur = String(after.nameUr || '').trim();
+  if (oldName && oldName !== name) await TranslationOverride.deleteMany({ schoolId, lang: 'ur', source: oldName });
+  if (!name) return;
+  if (ur) await TranslationOverride.updateOne({ schoolId, lang: 'ur', source: name }, { $set: { text: ur, note: 'School name', updatedByName: 'School settings' } }, { upsert: true });
+  else await TranslationOverride.deleteMany({ schoolId, lang: 'ur', source: name });
+  try { require('./i18nController').forgetOverrides(schoolId); } catch (e) { /* the wording map simply refreshes a moment later */ }
+}
+exports._syncNameOverride = syncNameOverride;
+
 // Public self-service school sign-up (always starts on the Free plan).
 // Platform owners create schools on any plan via /api/superadmin/schools.
 exports.createSchool = async (req, res) => {
@@ -164,11 +180,17 @@ exports.updateSchool = async (req, res) => {
     }
 
     // Admins may only edit profile fields – never plan, limits, status or ownership
-    const allowed = ['name', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail', 'motto', 'academicYear', 'paymentInfo', 'timezone'];
+    const allowed = ['name', 'nameUr', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail', 'motto', 'academicYear', 'paymentInfo', 'timezone'];
     if (req.body.timezone !== undefined) {
       try { new Intl.DateTimeFormat('en', { timeZone: req.body.timezone }); } catch (e) { return res.status(400).json({ message: 'Invalid time zone (use a name like Asia/Karachi)' }); }
     }
     if (req.body.name !== undefined && !String(req.body.name).trim()) return res.status(400).json({ message: 'School name cannot be empty' });
+    if (req.body.nameUr !== undefined) {
+      const un = String(req.body.nameUr).trim();
+      if (un.length > 160) return res.status(400).json({ message: 'The Urdu name can be up to 160 characters.' });
+      if (/[<>]/.test(un)) return res.status(400).json({ message: 'Plain text only: no < or >.' });
+      req.body.nameUr = un;
+    }
     if (req.body.logo && !/^(https?:\/\/|\/api\/files\/stored\/)/.test(req.body.logo)) return res.status(400).json({ message: 'Invalid logo' });
     if (req.body.paymentInfo) {
       const pi = {};
@@ -178,11 +200,19 @@ exports.updateSchool = async (req, res) => {
     const patch = {};
     allowed.forEach((k) => { if (req.body[k] !== undefined) patch[k] = req.body[k]; });
 
+    const before = (patch.name !== undefined || patch.nameUr !== undefined)
+      ? await School.findById(req.params.id).select('name nameUr')
+      : null;
+
     const school = await School.findByIdAndUpdate(
       req.params.id,
       patch,
       { new: true, runValidators: true }
     ).populate('adminId', 'name email');
+
+    // The Urdu name is kept as a wording override too, so every screen that shows the
+    // English name picks it up through the usual translation layer.
+    if (before) await syncNameOverride(req.user.schoolId, before, school).catch((e) => console.error('nameUr sync:', e.message));
 
     if (!school) {
       return res.status(404).json({ message: 'School not found' });
@@ -269,7 +299,7 @@ exports.getMyPlan = async (req, res) => {
 exports.getBranding = async (req, res) => {
   try {
     if (!req.user.schoolId) return res.json({ branding: null });
-    const s = await School.findById(req.user.schoolId).select('name logo motto academicYear paymentInfo phone email website');
+    const s = await School.findById(req.user.schoolId).select('name nameUr logo motto academicYear paymentInfo phone email website');
     res.json({ branding: s });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };

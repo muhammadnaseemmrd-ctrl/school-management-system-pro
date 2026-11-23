@@ -15,7 +15,10 @@ module.exports = async ({ call, expect, log, tokens }) => {
   const assignBackup = new Map([sara, ot, tc].map((t) => [String(t._id), JSON.parse(JSON.stringify(t.subjectClassAssignments || []))]));
   await Version.deleteMany({ schoolId: sid }); await Room.deleteMany({ schoolId: sid }); await Cover.deleteMany({ schoolId: sid, source: { $in: ['adhoc', 'swap'] } }); await Swap.deleteMany({ schoolId: sid });
   const mondayOf = (n) => { let d = H.addDays(H.todayStr(), 1); while (H.dow(d) !== 1) d = H.addDays(d, 1); return H.addDays(d, 7 * n); };
-  const monday = mondayOf(0);
+  // Two weeks out, so this never lands on the Monday the staff checks book leave for. Both suites
+  // ran on the same Monday when the test day itself was a Monday, and the swap was then refused
+  // because the teacher was away.
+  const monday = mondayOf(2);
 
   // ── fixtures: two classes, two subjects, a grid of three 45-minute periods ──
   await Class.deleteMany({ schoolId: sid, standard: '88' }); await Subject.deleteMany({ schoolId: sid, code: { $in: ['E10M', 'E10S'] } });

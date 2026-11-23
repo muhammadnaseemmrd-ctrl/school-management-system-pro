@@ -9,8 +9,11 @@ import LanguageToggle from '../components/LanguageToggle';
 import AppearanceToggle from '../components/AppearanceToggle';
 import { useTheme } from '../theme/ThemeProvider';
 import Logo from '../components/Logo';
+import { useLang } from '../i18n/LanguageContext';
+import { pickSchoolName } from '../utils/schoolName';
 
 export default function Login() {
+  const { lang } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -284,7 +287,7 @@ export default function Login() {
           <div className="relative">
             <div className="mb-6">
               {hostBrand?.school ? (
-                <div className="flex items-center gap-3" data-no-i18n>{hostBrand.school.logo && <img src={hostBrand.school.logo} alt="" className="h-14 w-14 rounded-2xl border border-[#e3e7e7] bg-white object-contain" />}<div><p className="text-xl font-extrabold text-[#1b2837]">{hostBrand.school.name}</p>{hostBrand.school.motto && <p className="text-sm text-[#5b6b7b]">{hostBrand.school.motto}</p>}</div></div>
+                <div className="flex items-center gap-3" data-no-i18n>{hostBrand.school.logo && <img src={hostBrand.school.logo} alt="" className="h-14 w-14 rounded-2xl border border-[#e3e7e7] bg-white object-contain" />}<div><p className="text-xl font-extrabold text-[#1b2837]">{pickSchoolName(hostBrand.school, lang)}</p>{hostBrand.school.motto && <p className="text-sm text-[#5b6b7b]">{hostBrand.school.motto}</p>}</div></div>
               ) : <Logo size="lg" subtitle="Login portal" />}
             </div>
 

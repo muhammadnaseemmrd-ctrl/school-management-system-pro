@@ -7,6 +7,12 @@ const schoolSchema = new mongoose.Schema(
       required: [true, 'School name is required'],
       trim: true,
     },
+    // The school's own name in Urdu. Shown wherever the name appears while the screen is in Urdu.
+    nameUr: {
+      type: String,
+      default: '',
+      trim: true,
+    },
     code: {
       type: String,
       required: [true, 'School code is required'],

@@ -8,6 +8,7 @@ const ph = (s) => (String(s).match(/\{\w+\}/g) || []).sort().join('|');
 const ARABIC = /[؀-ۿݐ-ݿ]/;
 const cache = new Map();
 const forget = (s) => cache.delete(String(s));
+exports.forgetOverrides = forget; // other parts of the app change wording too (the school's Urdu name)
 exports.overrides = wrap('overrides', async (req, res) => {
   const s = sid(req); const k = String(s); const hit = cache.get(k); let map = hit && Date.now() - hit.at < 15000 ? hit.map : null;
   if (!map) { map = {}; for (const r of await TranslationOverride.find({ schoolId: s, lang: 'ur' }).limit(3000)) map[r.source] = r.text; cache.set(k, { map, at: Date.now() }); }

@@ -104,8 +104,8 @@ exports.removeDomain = wrap('removeDomain', async (req, res) => { const d = awai
 // The sign-in page asks who owns the address it was opened on. Nothing private: name, code, logo and colours.
 exports.publicBrand = wrap('publicBrand', async (req, res) => {
   const d = await T.hostSchool(req.query.host); if (!d) return res.status(404).json({ message: 'Unknown address' });
-  const sc = await School.findOne({ _id: d.schoolId }).select('name code logo motto isActive'); if (!sc || sc.isActive === false) return res.status(404).json({ message: 'Unknown address' });
-  res.set('Cache-Control', 'public, max-age=60'); res.json({ school: { name: sc.name, code: sc.code, logo: sc.logo || null, motto: sc.motto || '' }, theme: (await T.live(d.schoolId)).tokens, host: d.host });
+  const sc = await School.findOne({ _id: d.schoolId }).select('name nameUr code logo motto isActive'); if (!sc || sc.isActive === false) return res.status(404).json({ message: 'Unknown address' });
+  res.set('Cache-Control', 'public, max-age=60'); res.json({ school: { name: sc.name, nameUr: sc.nameUr || '', code: sc.code, logo: sc.logo || null, motto: sc.motto || '' }, theme: (await T.live(d.schoolId)).tokens, host: d.host });
 });
 
 // Daily: look again at live addresses; if the records are gone tell the administrators once
