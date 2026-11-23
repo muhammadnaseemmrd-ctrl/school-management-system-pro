@@ -15,6 +15,10 @@ router.post('/late-fees/run', c.runLateFees);
 router.get('/invoices', c.listInvoices);
 router.get('/invoices/:id', c.getInvoice);
 router.get('/invoices/:id/challan', c.challan);
+// printed from the school's own design in the documents studio, when it has chosen one
+router.get('/document-templates', c.documentTemplates);
+router.post('/invoices/:id/document', c.invoiceDocument);
+router.post('/payments/:id/document', c.paymentDocument);
 router.post('/invoices/:id/void', c.voidInvoice);
 router.get('/sessions', c.listSessions);
 router.post('/sessions/open', c.openSession);

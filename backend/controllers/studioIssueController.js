@@ -29,6 +29,8 @@ const view = (i) => ({ _id: i._id, serial: i.serial, family: i.family, familyLab
 const pdfHeaders = (res, name, inline = true) => res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `${inline ? 'inline' : 'attachment'}; filename="${name}.pdf"`, 'Cache-Control': 'private, no-store' });
 
 // ── issue ──
+// Also used by Fee management, so a fee voucher or receipt printed from the fee screens is the
+// same document, with the same serial and the same trail, as one issued from the documents studio.
 async function issueOne(req, { tpl, ver, subjectId, custom, term, validUntil, locale, replace, replaceReason }) {
   const schoolId = sid(req); const w = who(req); const type = F.SUBJECT[tpl.family];
   let existing = null;
@@ -61,6 +63,9 @@ async function issueOne(req, { tpl, ver, subjectId, custom, term, validUntil, lo
   }
   return { skipped: 'Could not allocate a serial number.' };
 }
+
+exports._issueOne = issueOne;
+exports._view = view;
 
 exports.issue = wrap(async (req, res) => {
   const schoolId = sid(req); const b = req.body || {};

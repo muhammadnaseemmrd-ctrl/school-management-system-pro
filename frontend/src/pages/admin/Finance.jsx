@@ -46,6 +46,69 @@ const Overview = ({ onGo }) => {
   );
 };
 
+// Printing from the school's own design in the documents studio. A school that has not chosen a
+// design keeps the plain printable page below, so nothing stops working while they draw one.
+const printDesigned = async (path, body) => {
+  try {
+    const r = await apiClient.post(path, body || {});
+    window.open(`${r.data.pdfPath}?token=${encodeURIComponent(localStorage.getItem('accessToken') || '')}`, '_blank', 'noopener');
+    return true;
+  } catch (e) {
+    if (e?.response?.data?.code === 'NO_TEMPLATE') { toast.error('No design chosen yet. Pick one under Fees → Settings.'); return false; }
+    toast.error(errMsg(e, 'Could not print it'));
+    return false;
+  }
+};
+
+const useFeeTemplates = () => {
+  const [fams, setFams] = useState(null);
+  const load = useCallback(() => { apiClient.get('/finance/document-templates').then((r) => setFams(r.data.families)).catch(() => setFams([])); }, []);
+  useEffect(() => { load(); }, [load]);
+  const chosen = (key) => (fams || []).find((f) => f.key === key)?.chosen || '';
+  return { fams, chosen, reload: load };
+};
+
+// Which of the school's own designs the fee screens print from.
+const FeeDesigns = () => {
+  const tpl = useFeeTemplates();
+  const [busy, setBusy] = useState(false);
+  const save = async (key, id) => {
+    setBusy(true);
+    try {
+      await apiClient.put('/finance/settings', { templates: Object.fromEntries((tpl.fams || []).map((f) => [f.key, f.key === key ? id : f.chosen])) });
+      toast.success(id ? 'Design chosen' : 'Design cleared');
+      tpl.reload();
+    } catch (e) { toast.error(errMsg(e)); }
+    setBusy(false);
+  };
+  if (!tpl.fams) return null;
+  const none = tpl.fams.every((f) => !f.templates.length);
+  return (
+    <Card>
+      <p className="font-semibold">Printed fee documents</p>
+      <p className="mt-1 text-sm text-[#5b6b7b]">
+        Fee screens can print from a design you have drawn in the documents studio, so a challan or a receipt carries your
+        own layout, a serial number and a page a parent can check it on. Leave a kind unchosen and the plain printable page
+        is used instead.
+      </p>
+      {none ? (
+        <p className="mt-3 rounded-lg bg-[#f7f6f2] p-3 text-sm text-[#5b6b7b]">No fee designs yet. Make a challan, invoice or receipt in <b>Documents studio</b>, approve a version, then come back here.</p>
+      ) : (
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {tpl.fams.map((f) => (
+            <Field key={f.key} label={f.label}>
+              <select className={inputCls} disabled={busy} value={f.chosen} onChange={(e) => save(f.key, e.target.value)}>
+                <option value="">Plain printable page</option>
+                {f.templates.map((t) => <option key={t._id} value={t._id} disabled={!t.ready}>{t.name}{t.ready ? '' : ' (not approved yet)'}</option>)}
+              </select>
+            </Field>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+};
+
 /* ───────── invoices ───────── */
 const Generate = ({ onClose, onDone }) => {
   const [classes, setClasses] = useState([]); const [f, setF] = useState({ classId: '', period: '', dueDate: '' }); const [prev, setPrev] = useState(null); const [busy, setBusy] = useState(false);
@@ -96,6 +159,7 @@ const Challan = ({ id, onClose }) => {
 const Invoices = () => {
   const [status, setStatus] = useState(''); const [search, setSearch] = useState(''); const [gen, setGen] = useState(false); const [show, setShow] = useState(null); const [voidFor, setVoidFor] = useState(null); const [reason, setReason] = useState('');
   const l = useList('/finance/invoices', 'invoices', { status, search });
+  const tpl = useFeeTemplates();
   const doVoid = async () => { try { await apiClient.post(`/finance/invoices/${voidFor._id}/void`, { reason }); toast.success('Invoice voided'); setVoidFor(null); setReason(''); l.reload(); } catch (e) { toast.error(errMsg(e)); } };
   return (
     <Card className="!p-0">
@@ -107,7 +171,7 @@ const Invoices = () => {
       <Body l={l} cols={6} empty={{ title: 'No invoices yet', text: 'Generate invoices for a class to give each family one challan to pay.' }}>
         <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><Th>Invoice</Th><Th>Student</Th><Th>Due</Th><Th>Total</Th><Th>Balance</Th><Th>Status</Th><Th /></tr></thead><tbody>
           {l.rows.map((i) => <tr key={i._id} className="border-t border-[#e3e7e7]"><td className="px-3 py-2 font-medium">{i.number}<div className="text-xs text-[#5b6b7b]">{i.period}</div></td><td className="px-3 py-2">{i.studentName}</td><td className="px-3 py-2">{fmtDate(i.dueDate)}</td><td className="px-3 py-2" dir="ltr">{pkr(i.total)}</td><td className="px-3 py-2" dir="ltr">{pkr(i.balance)}</td><td className="px-3 py-2"><Pill value={TONE[i.status]}>{i.status === 'PartiallyPaid' ? 'Part paid' : i.status === 'WrittenOff' ? 'Written off' : i.status}</Pill></td>
-            <td className="px-3 py-2 text-end"><button className="text-xs font-semibold text-[#2a5cac]" onClick={() => setShow(i._id)} disabled={i.status === 'Void'}>Challan</button>{!['Void'].includes(i.status) && i.paid === 0 && <button className="ms-3 text-xs font-semibold text-[#9f1239]" onClick={() => setVoidFor(i)}>Void</button>}</td></tr>)}
+            <td className="px-3 py-2 text-end"><button className="text-xs font-semibold text-[#2a5cac]" onClick={() => setShow(i._id)} disabled={i.status === 'Void'}>Challan</button>{tpl.chosen('challan') && i.status !== 'Void' && <button className="ms-3 text-xs font-semibold text-[#2a5cac]" onClick={() => printDesigned(`/finance/invoices/${i._id}/document`, { kind: 'challan' })}>Print design</button>}{!['Void'].includes(i.status) && i.paid === 0 && <button className="ms-3 text-xs font-semibold text-[#9f1239]" onClick={() => setVoidFor(i)}>Void</button>}</td></tr>)}
         </tbody></table></div>
         <Pager pagination={l.pagination} onPage={l.setPage} />
       </Body>
@@ -143,6 +207,7 @@ const Receive = ({ onClose, onDone, till }) => {
 const Payments = ({ till }) => {
   const [status, setStatus] = useState(''); const [rcv, setRcv] = useState(false); const [conf, setConf] = useState(null); const [rc, setRc] = useState(null);
   const l = useList('/finance/payments', 'payments', { status });
+  const tpl = useFeeTemplates();
   const openReceipt = async (id) => { try { setRc((await apiClient.get(`/finance/payments/${id}/receipt`)).data); } catch (e) { toast.error(errMsg(e)); } };
   return (
     <Card className="!p-0">
@@ -153,7 +218,7 @@ const Payments = ({ till }) => {
       <Body l={l} cols={6} empty={{ title: 'No payments yet', text: 'Receive cash at your till, or record a bank transfer and match it to the statement.' }}>
         <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr><Th>Receipt</Th><Th>Student</Th><Th>Method</Th><Th>Amount</Th><Th>Received</Th><Th>Status</Th><Th /></tr></thead><tbody>
           {l.rows.map((p) => <tr key={p._id} className="border-t border-[#e3e7e7]"><td className="px-3 py-2 font-medium">{p.receiptNo || '—'}</td><td className="px-3 py-2">{p.studentName}</td><td className="px-3 py-2">{p.method}<div className="text-xs text-[#5b6b7b]">{p.reference}</div></td><td className="px-3 py-2" dir="ltr">{pkr(p.amount)}{p.refunded > 0 && <div className="text-xs text-[#8a4636]">refunded {pkr(p.refunded)}</div>}</td><td className="px-3 py-2">{fmtDate(p.receivedAt)}</td><td className="px-3 py-2"><Pill value={TONE[p.status]}>{p.status}</Pill></td>
-            <td className="px-3 py-2 text-end">{p.status === 'Confirmed' && <button className="text-xs font-semibold text-[#2a5cac]" onClick={() => openReceipt(p._id)}>Receipt</button>}{p.status === 'Pending' && <button className="text-xs font-semibold text-[#2a5cac]" onClick={() => setConf(p)}>Confirm</button>}</td></tr>)}
+            <td className="px-3 py-2 text-end">{p.status === 'Confirmed' && <button className="text-xs font-semibold text-[#2a5cac]" onClick={() => openReceipt(p._id)}>Receipt</button>}{p.status === 'Confirmed' && tpl.chosen('receipt') && <button className="ms-3 text-xs font-semibold text-[#2a5cac]" onClick={() => printDesigned(`/finance/payments/${p._id}/document`)}>Print design</button>}{p.status === 'Pending' && <button className="text-xs font-semibold text-[#2a5cac]" onClick={() => setConf(p)}>Confirm</button>}</td></tr>)}
         </tbody></table></div>
         <Pager pagination={l.pagination} onPage={l.setPage} />
       </Body>
@@ -294,6 +359,7 @@ const Rules = () => {
   const sf = (k) => (e) => setF({ ...f, [k]: e.target.value });
   return (
     <div className="space-y-4">
+      <FeeDesigns />
       <Card><p className="font-semibold">Late fees</p><div className="mt-2 flex flex-wrap items-end gap-3"><Field label="Grace days"><input inputMode="numeric" className={`${inputCls} !w-28`} value={set.graceDays} onChange={(e) => setSet({ ...set, graceDays: e.target.value })} /></Field><Field label="Late fee (Rs)"><input inputMode="numeric" className={`${inputCls} !w-32`} value={set.lateFeeAmount} onChange={(e) => setSet({ ...set, lateFeeAmount: e.target.value })} /></Field><button className={btnGhost} onClick={saveSet}>Save</button><button className={btnGhost} onClick={runLate}>Apply to overdue invoices</button></div><p className="mt-2 text-xs text-[#5b6b7b]">Each invoice gets the late fee once.</p></Card>
       <Card className="!p-0">
         <div className="flex items-center gap-2 border-b border-[#e3e7e7] p-3"><p className="text-sm text-[#5b6b7b]">Scholarships, concessions and sibling discounts. Another admin must approve each one before it applies.</p><button className={`${btnPrimary} ms-auto`} onClick={() => setAdd(true)}>New rule</button></div>

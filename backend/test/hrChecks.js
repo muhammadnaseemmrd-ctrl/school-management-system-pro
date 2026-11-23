@@ -76,10 +76,22 @@ module.exports = async ({ call, expect, log, tokens }) => {
   await expect('leave beyond balance is refused', call('POST', '/hr/leave', A, { employeeId: teach._id, type: 'casual', fromDate: leaveDay, toDate: H.addDays(leaveDay, 20), reason: 'Long trip' }), [422]);
   const lv = (await expect('request leave', call('POST', '/hr/leave', A, { employeeId: teach._id, type: 'annual', fromDate: leaveDay, toDate: leaveDay, reason: 'Family wedding' }), [201])).data.leave;
   await expect('overlapping leave is refused', call('POST', '/hr/leave', A, { employeeId: teach._id, type: 'sick', fromDate: leaveDay, toDate: leaveDay, reason: 'Unwell' }), [422]);
-  await expect('reject needs a note', call('POST', `/hr/leave/${lv._id}/decide`, A, { decision: 'reject' }), [400]);
-  const dec = (await expect('approve leave', call('POST', `/hr/leave/${lv._id}/decide`, A, { decision: 'approve' }), [200])).data;
+  await expect('reject needs a note', call('POST', `/hr/leave/${lv._id}/decide`, T2, { decision: 'reject' }), [400]);
+  // asking and deciding are two jobs: whoever wrote the request down does not also approve it
+  await expect('the person who recorded a request cannot approve it', call('POST', `/hr/leave/${lv._id}/decide`, A, { decision: 'approve' }), [403]);
+  const lvList = (await call('GET', '/hr/leave?status=Requested', A)).data;
+  const mineRow = lvList.leave.find((x) => String(x._id) === String(lv._id));
+  log(mineRow && mineRow.canDecide === false && /another administrator/i.test(mineRow.blockedReason || ''), 'the screen is told why, instead of offering a button that fails');
+  log(mineRow && mineRow.onBehalf === true, 'a request the office wrote down says so');
+  const dec = (await expect('another administrator approves it', call('POST', `/hr/leave/${lv._id}/decide`, T2, { decision: 'approve' }), [200])).data;
   log(dec.coverNeeded === 2, 'approved leave creates cover for each of the teacher’s two lessons');
-  await expect('decided leave cannot be decided again', call('POST', `/hr/leave/${lv._id}/decide`, A, { decision: 'approve' }), [422]);
+  log(dec.leave.soleApproval === false, 'and it is not recorded as a sole-administrator approval');
+  await expect('decided leave cannot be decided again', call('POST', `/hr/leave/${lv._id}/decide`, T2, { decision: 'approve' }), [422]);
+
+  // a teacher who asks for their own leave is a different case: the office still decides it
+  const own = (await expect('a teacher asks for their own leave', call('POST', '/hr/me/leave', tokens.teacher, { type: 'casual', fromDate: H.addDays(leaveDay, 28), toDate: H.addDays(leaveDay, 28), reason: 'Family matter' }), [201])).data.leave;
+  log(own.onBehalf === false, 'their own request is not marked as recorded by the office');
+  await expect('and an administrator decides it', call('POST', `/hr/leave/${own._id}/decide`, A, { decision: 'reject', note: 'Exams that week' }), [200]);
   const cv = (await call('GET', `/hr/cover?date=${leaveDay}`, A)).data.cover; const c1 = cv.find((x) => x.startTime === '09:00');
   const cand = (await call('GET', `/hr/cover/${c1._id}/candidates`, A)).data.candidates.map((x) => String(x._id));
   log(cand.includes(String(other._id)) && !cand.includes(String(sara._id)) && !cand.includes(String(busy._id)), 'candidates exclude the absent teacher and anyone with expired mandatory training');
@@ -91,7 +103,7 @@ module.exports = async ({ call, expect, log, tokens }) => {
   await expect('a teacher cannot cover two overlapping lessons', call('POST', `/hr/cover/${clash._id}/assign`, A, { coverTeacherId: String(other._id) }), [422]); await Cover.deleteOne({ _id: clash._id });
   const rost = await call('POST', '/hr/roster', A, { employeeId: teach._id, date: leaveDay, shiftId: shift._id }); log(rost.data.skipped?.some((s) => /leave/i.test(s.why)), 'nobody is rostered on a day of approved leave');
   await expect('the teacher can cancel their own leave', (async () => { const l2 = (await call('POST', '/hr/me/leave', tokens.teacher, { type: 'casual', fromDate: H.addDays(leaveDay, 14), toDate: H.addDays(leaveDay, 14), reason: 'Personal errand' })).data.leave; return call('POST', `/hr/me/leave/${l2._id}/cancel`, tokens.teacher); })(), [200]);
-  const lv3 = (await call('POST', '/hr/leave', A, { employeeId: teach._id, type: 'casual', fromDate: H.addDays(leaveDay, 21), toDate: H.addDays(leaveDay, 21), reason: 'Seminar' })).data.leave; await call('POST', `/hr/leave/${lv3._id}/decide`, A, { decision: 'approve' }); await expect('approved future leave can be cancelled', call('POST', `/hr/leave/${lv3._id}/cancel`, A), [200]);
+  const lv3 = (await call('POST', '/hr/leave', A, { employeeId: teach._id, type: 'casual', fromDate: H.addDays(leaveDay, 21), toDate: H.addDays(leaveDay, 21), reason: 'Seminar' })).data.leave; await call('POST', `/hr/leave/${lv3._id}/decide`, T2, { decision: 'approve' }); await expect('approved future leave can be cancelled', call('POST', `/hr/leave/${lv3._id}/cancel`, A), [200]);
 
   // attendance
   const today = H.todayStr(); let day = today.slice(0, 8) + '01'; while (H.dow(day) === 0) day = H.addDays(day, 1);

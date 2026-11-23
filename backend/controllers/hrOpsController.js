@@ -32,6 +32,26 @@ async function leaveBalances(sid, e) {
   out.unpaid = { used: await usedDays(sid, e._id, 'unpaid', year) }; return out;
 }
 exports.leaveBalances = leaveBalances;
+// Separating asking from deciding. Whoever recorded a request cannot also approve it, and nobody
+// approves their own. A school with a single administrator cannot find a second pair of eyes, so
+// that case is allowed and written down as such rather than quietly ignored.
+const soleAdmin = async (schoolId) => (await require('../models/User').countDocuments({ schoolId, role: 'admin', isActive: { $ne: false } })) <= 1;
+const checkChecker = async (req, { requestedBy, employeeId, what }) => {
+  const sid = req.user.schoolId;
+  const meId = String(req.user.userId);
+  if (employeeId) {
+    const mine = await Employee.findOne({ schoolId: sid, _id: employeeId }).select('teacherId');
+    const staffUser = mine && mine.teacherId ? String(mine.teacherId) : null;
+    if (staffUser && staffUser === meId) return { error: `You cannot approve your own ${what}. Another administrator must decide.` };
+  }
+  if (requestedBy && String(requestedBy) === meId) {
+    if (await soleAdmin(sid)) return { sole: true };
+    return { error: `The person who recorded this ${what} cannot approve it. Another administrator must decide.` };
+  }
+  return {};
+};
+exports._checkChecker = checkChecker;
+
 const onLeave = async (sid, employeeId, date) => !!(await Leave.findOne({ schoolId: sid, employeeId, status: 'Approved', fromDate: { $lte: date }, toDate: { $gte: date } }));
 
 async function requestLeave(req, res, e) {
@@ -43,7 +63,8 @@ async function requestLeave(req, res, e) {
   const clash = await Leave.findOne({ schoolId: sid, employeeId: e._id, status: { $in: ['Requested', 'Approved'] }, fromDate: { $lte: b.toDate }, toDate: { $gte: b.fromDate } });
   if (clash) return res.status(422).json({ message: `This overlaps leave from ${clash.fromDate} to ${clash.toDate}.` });
   if (b.type !== 'unpaid') { const bal = (await leaveBalances(sid, e))[b.type]; if (days > bal.left) return res.status(422).json({ message: `Only ${bal.left} ${b.type} days are left this year, and ${days} were asked for.` }); }
-  const l = await Leave.create({ schoolId: sid, employeeId: e._id, type: b.type, fromDate: b.fromDate, toDate: b.toDate, days, reason: str(b.reason, 300), requestedByName: req.actorName || e.name });
+  const onBehalf = req.user.role === 'admin' && String(e.teacherId || '') !== String(req.user.userId);
+  const l = await Leave.create({ schoolId: sid, employeeId: e._id, type: b.type, fromDate: b.fromDate, toDate: b.toDate, days, reason: str(b.reason, 300), requestedBy: req.user.userId, requestedByRole: req.user.role, onBehalf, requestedByName: req.actorName || e.name });
   await audit(req, { action: 'hr.leave.request', entityType: 'LeaveRequest', entityId: l._id, schoolId: sid, detail: { employee: e.code, days, type: l.type } });
   await N.notify({ schoolId: sid, recipients: await N.admins(sid), title: 'Leave request', body: `${e.name}: ${days} day${days > 1 ? 's' : ''} from ${b.fromDate}`, link: '/admin/dashboard#/staff', type: 'general' });
   return res.status(201).json({ leave: l });
@@ -64,11 +85,13 @@ exports.decideLeave = async (req, res) => {
     const sid = req.user.schoolId; const l = isId(req.params.id) ? await Leave.findOne({ _id: req.params.id, schoolId: sid }) : null; if (!l) return res.status(404).json({ message: 'Leave request not found' });
     const d = req.body?.decision; if (!['approve', 'reject'].includes(d)) return res.status(400).json({ message: 'Choose approve or reject.' });
     if (l.status !== 'Requested') return res.status(422).json({ message: `This request was already ${l.status.toLowerCase()}.` }); if (d === 'reject' && str(req.body?.note).length < 3) return res.status(400).json({ message: 'Write why it is rejected.' });
+    const gate = await checkChecker(req, { requestedBy: l.requestedBy, employeeId: l.employeeId, what: 'leave request' });
+    if (gate.error) return res.status(403).json({ message: gate.error });
     const e = await Employee.findOne({ _id: l.employeeId, schoolId: sid });
     if (d === 'approve' && l.type !== 'unpaid') { const bal = (await leaveBalances(sid, e))[l.type]; if (l.days > bal.left) return res.status(422).json({ message: `Only ${bal.left} ${l.type} days are left, so this cannot be approved.` }); }
-    l.status = d === 'approve' ? 'Approved' : 'Rejected'; l.decidedByName = req.actorName || ''; l.decidedAt = new Date(); l.decisionNote = str(req.body?.note, 200); await l.save();
+    l.status = d === 'approve' ? 'Approved' : 'Rejected'; l.decidedBy = req.user.userId; l.decidedByName = req.actorName || ''; l.decidedAt = new Date(); l.decisionNote = str(req.body?.note, 200); l.soleApproval = !!gate.sole; await l.save();
     let cover = 0; if (d === 'approve') cover = await makeCover(sid, l, e);
-    await audit(req, { action: `hr.leave.${d}`, entityType: 'LeaveRequest', entityId: l._id, schoolId: sid, detail: { employee: e.code, days: l.days, coverNeeded: cover } });
+    await audit(req, { action: `hr.leave.${d}`, entityType: 'LeaveRequest', entityId: l._id, schoolId: sid, detail: { employee: e.code, days: l.days, coverNeeded: cover, sole: !!gate.sole } });
     if (e.teacherId) await N.notify({ schoolId: sid, recipients: [{ id: e.teacherId, role: 'teacher' }], title: `Leave ${l.status.toLowerCase()}`, body: `${l.fromDate} to ${l.toDate}`, type: 'general' });
     if (cover) await N.notify({ schoolId: sid, recipients: await N.admins(sid), title: 'Cover needed', body: `${cover} lesson${cover > 1 ? 's' : ''} need a teacher while ${e.name} is away`, link: '/admin/dashboard#/staff', type: 'general' });
     res.json({ leave: l, coverNeeded: cover });
@@ -88,8 +111,23 @@ exports.listLeave = async (req, res) => {
   try {
     const sid = req.user.schoolId; const { p, l } = pg(req.query); const q = { schoolId: sid }; if (req.query.status) q.status = String(req.query.status); if (isId(req.query.employeeId)) q.employeeId = req.query.employeeId;
     const [rows, total] = await Promise.all([Leave.find(q).sort({ createdAt: -1 }).skip((p - 1) * l).limit(l), Leave.countDocuments(q)]);
-    const names = new Map((await Employee.find({ schoolId: sid, _id: { $in: rows.map((r) => r.employeeId) } }).select('name code')).map((x) => [String(x._id), x.name]));
-    res.json({ leave: rows.map((r) => ({ ...JSON.parse(JSON.stringify(r)), employeeName: names.get(String(r.employeeId)) || '' })), pagination: { page: p, limit: l, total, pages: Math.ceil(total / l) } });
+    const emps = await Employee.find({ schoolId: sid, _id: { $in: rows.map((r) => r.employeeId) } }).select('name code teacherId');
+    const names = new Map(emps.map((x) => [String(x._id), x.name]));
+    const staffUser = new Map(emps.map((x) => [String(x._id), String(x.teacherId || '')]));
+    // the screen is told who may decide each one, so the button is not offered and then refused
+    const sole = await soleAdmin(sid);
+    const meId = String(req.user.userId);
+    const shape = (r) => {
+      const own = staffUser.get(String(r.employeeId)) === meId;
+      const mine = r.requestedBy && String(r.requestedBy) === meId;
+      let why = '';
+      if (r.status === 'Requested') {
+        if (own) why = 'You cannot approve your own leave.';
+        else if (mine && !sole) why = 'You recorded this request, so another administrator must decide it.';
+      }
+      return { ...JSON.parse(JSON.stringify(r)), employeeName: names.get(String(r.employeeId)) || '', canDecide: r.status === 'Requested' && !why, blockedReason: why };
+    };
+    res.json({ leave: rows.map(shape), soleAdmin: sole, pagination: { page: p, limit: l, total, pages: Math.ceil(total / l) } });
   } catch (e) { fail(res, e); }
 };
 
@@ -228,7 +266,8 @@ exports.requestOvertime = async (req, res) => {
 exports.decideOvertime = async (req, res) => {
   try {
     const sid = req.user.schoolId; const o = isId(req.params.id) ? await Overtime.findOne({ _id: req.params.id, schoolId: sid }) : null; if (!o) return res.status(404).json({ message: 'Overtime entry not found' });
-    if (String(o.requestedBy) === String(req.user.userId)) return res.status(403).json({ message: 'The person who entered overtime cannot approve it. Another admin must decide.' });
+    const gate = await checkChecker(req, { requestedBy: o.requestedBy, employeeId: o.employeeId, what: 'overtime entry' });
+    if (gate.error) return res.status(403).json({ message: gate.error });
     if (o.status !== 'Requested') return res.status(422).json({ message: `This entry was already ${o.status.toLowerCase()}.` }); if (!['approve', 'reject'].includes(req.body?.decision)) return res.status(400).json({ message: 'Choose approve or reject.' });
     if (await closedPeriod(sid, o.period)) return res.status(422).json({ message: 'That month’s payroll is already final.' });
     o.status = req.body.decision === 'approve' ? 'Approved' : 'Rejected'; o.approvedByName = req.actorName || ''; o.decidedAt = new Date(); await o.save();
@@ -259,7 +298,8 @@ exports.requestAdvance = async (req, res) => {
 exports.decideAdvance = async (req, res) => {
   try {
     const sid = req.user.schoolId; const a = isId(req.params.id) ? await Advance.findOne({ _id: req.params.id, schoolId: sid }) : null; if (!a) return res.status(404).json({ message: 'Advance not found' });
-    if (String(a.requestedBy) === String(req.user.userId)) return res.status(403).json({ message: 'The person who entered the advance cannot approve it. Another admin must decide.' }); if (a.status !== 'Requested') return res.status(422).json({ message: `This advance is already ${a.status.toLowerCase()}.` });
+    const gate = await checkChecker(req, { requestedBy: a.requestedBy, employeeId: a.employeeId, what: 'advance' });
+    if (gate.error) return res.status(403).json({ message: gate.error }); if (a.status !== 'Requested') return res.status(422).json({ message: `This advance is already ${a.status.toLowerCase()}.` });
     if (!['approve', 'reject'].includes(req.body?.decision)) return res.status(400).json({ message: 'Choose approve or reject.' }); a.status = req.body.decision === 'approve' ? 'Active' : 'Rejected'; a.decidedByName = req.actorName || ''; a.decidedAt = new Date(); await a.save();
     await audit(req, { action: `hr.advance.${req.body.decision}`, entityType: 'StaffAdvance', entityId: a._id, schoolId: sid, detail: { amount: a.amount } }); res.json({ advance: a });
   } catch (e) { fail(res, e); }

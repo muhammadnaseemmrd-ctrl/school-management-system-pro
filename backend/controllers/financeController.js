@@ -16,7 +16,12 @@ const day = (v) => { const d = v ? new Date(v) : null; return d && !Number.isNaN
 const studentIn = (sid, id) => (isId(id) ? Student.findOne({ _id: id, schoolId: sid }).populate('classId', 'standard division') : null);
 const invView = (i) => ({ _id: i._id, number: i.number, challanCode: i.challanCode, studentId: i.studentId, period: i.period, issueDate: i.issueDate, dueDate: i.dueDate, lines: i.lines, total: i.total, adjusted: i.adjusted, writtenOff: i.writtenOff, paid: i.paid, balance: F.balanceOf(i), status: i.status, lateFeeApplied: i.lateFeeApplied, voidReason: i.voidReason });
 const payView = (p) => ({ _id: p._id, studentId: p.studentId, amount: p.amount, method: p.method, reference: p.reference, receivedAt: p.receivedAt, status: p.status, receiptNo: p.receiptNo, evidence: p.evidence, allocations: p.allocations, refunded: p.refunded, refunds: p.refunds, unallocated: F.unallocated(p), createdByName: p.createdByName, confirmedByName: p.confirmedByName });
-const settings = async (sid) => { const s = await AppSetting.findOne({ key: `finance:${sid}` }); return { graceDays: 0, lateFeeAmount: 0, ...(s?.value || {}) }; };
+const settings = async (sid) => { const s = await AppSetting.findOne({ key: `finance:${sid}` }); return { graceDays: 0, lateFeeAmount: 0, templates: {}, ...(s?.value || {}) }; };
+
+// The designed documents a fee screen can print from. The studio holds the designs; fee
+// management only remembers which one to use for a voucher, an invoice and a receipt, so a school
+// that has drawn its own challan does not have to go and find it every time.
+const FEE_FAMILIES = { challan: 'Fee challan', invoice: 'Invoice', receipt: 'Receipt' };
 
 /* ───────── invoices ───────── */
 exports.generate = async (req, res) => {
@@ -125,12 +130,105 @@ exports.runLateFees = async (req, res) => {
 exports.getSettings = async (req, res) => { try { res.json({ settings: await settings(req.user.schoolId) }); } catch (e) { fail(res, e); } };
 exports.putSettings = async (req, res) => {
   try {
-    const g = whole(req.body?.graceDays); const a = whole(req.body?.lateFeeAmount);
+    const sid = req.user.schoolId;
+    const cur = await settings(sid);
+    const g = req.body?.graceDays === undefined ? cur.graceDays : whole(req.body.graceDays);
+    const a = req.body?.lateFeeAmount === undefined ? cur.lateFeeAmount : whole(req.body.lateFeeAmount);
     if (!(g >= 0 && g <= 90)) return res.status(400).json({ message: 'Grace days must be a whole number from 0 to 90.' });
     if (!(a >= 0 && a <= 100000)) return res.status(400).json({ message: 'The late fee must be a whole number of rupees, 0 or more.' });
-    await AppSetting.updateOne({ key: `finance:${req.user.schoolId}` }, { $set: { value: { graceDays: g, lateFeeAmount: a } } }, { upsert: true });
-    await audit(req, { action: 'finance.settings', entityType: 'AppSetting', entityId: 'finance', schoolId: req.user.schoolId, detail: { graceDays: g, lateFeeAmount: a } });
-    res.json({ settings: { graceDays: g, lateFeeAmount: a } });
+
+    let templates = cur.templates || {};
+    if (req.body?.templates && typeof req.body.templates === 'object') {
+      const DocTemplate = require('../models/DocTemplate');
+      const next = {};
+      for (const family of Object.keys(FEE_FAMILIES)) {
+        const raw = req.body.templates[family];
+        if (raw === undefined) { if (templates[family]) next[family] = templates[family]; continue; }
+        if (!raw) continue;                                  // cleared on purpose
+        if (!isId(raw)) return res.status(400).json({ message: `That is not a ${FEE_FAMILIES[family].toLowerCase()} design.` });
+        const tpl = await DocTemplate.findOne({ _id: raw, schoolId: sid });
+        if (!tpl) return res.status(404).json({ message: `That ${FEE_FAMILIES[family].toLowerCase()} design was not found.` });
+        if (tpl.family !== family) return res.status(422).json({ message: `"${tpl.name}" is a ${tpl.family} design, not a ${FEE_FAMILIES[family].toLowerCase()}.` });
+        if (tpl.archived) return res.status(422).json({ message: `"${tpl.name}" is archived. Restore it or choose another.` });
+        if (!tpl.liveVersionId) return res.status(422).json({ message: `"${tpl.name}" has no approved version yet. Approve it in the documents studio first.` });
+        next[family] = String(tpl._id);
+      }
+      templates = next;
+    }
+
+    await AppSetting.updateOne({ key: `finance:${sid}` }, { $set: { value: { graceDays: g, lateFeeAmount: a, templates } } }, { upsert: true });
+    await audit(req, { action: 'finance.settings', entityType: 'AppSetting', entityId: 'finance', schoolId: sid, detail: { graceDays: g, lateFeeAmount: a, templates } });
+    res.json({ settings: { graceDays: g, lateFeeAmount: a, templates } });
+  } catch (e) { fail(res, e); }
+};
+
+// Which designs a school could print fees from, and which one it uses now.
+exports.documentTemplates = async (req, res) => {
+  try {
+    const sid = req.user.schoolId;
+    const DocTemplate = require('../models/DocTemplate');
+    const rows = await DocTemplate.find({ schoolId: sid, family: { $in: Object.keys(FEE_FAMILIES) }, archived: { $ne: true } }).sort({ family: 1, name: 1 }).limit(200);
+    const cur = await settings(sid);
+    res.json({
+      families: Object.entries(FEE_FAMILIES).map(([key, label]) => ({
+        key,
+        label,
+        chosen: cur.templates?.[key] || '',
+        templates: rows.filter((t) => t.family === key).map((t) => ({ _id: t._id, name: t.name, ready: !!t.liveVersionId })),
+      })),
+    });
+  } catch (e) { fail(res, e); }
+};
+
+// Print a fee document from the school's own design. The studio does the issuing, so the document
+// gets a serial, a verification page and the same trail as any other document the school issues.
+const issueFrom = async (req, res, { family, subjectId, label }) => {
+  const sid = req.user.schoolId;
+  const cur = await settings(sid);
+  const templateId = req.body?.templateId || cur.templates?.[family];
+  if (!templateId) return res.status(422).json({ message: `No ${FEE_FAMILIES[family].toLowerCase()} design has been chosen yet. Choose one in fee settings.`, code: 'NO_TEMPLATE' });
+  const DocTemplate = require('../models/DocTemplate');
+  const Version = require('../models/DocTemplateVersion');
+  const tpl = isId(templateId) ? await DocTemplate.findOne({ _id: templateId, schoolId: sid }) : null;
+  if (!tpl || tpl.family !== family) return res.status(404).json({ message: `That ${FEE_FAMILIES[family].toLowerCase()} design was not found.` });
+  if (tpl.archived) return res.status(422).json({ message: 'That design is archived. Choose another in fee settings.' });
+  const ver = tpl.liveVersionId ? await Version.findOne({ _id: tpl.liveVersionId, schoolId: sid }) : null;
+  if (!ver || ver.state !== 'Published') return res.status(422).json({ message: 'That design has no approved version yet. Approve it in the documents studio first.' });
+
+  const { _issueOne, _view } = require('./studioIssueController');
+  const Issuance = require('../models/DocIssuance');
+
+  // A challan or a receipt is one document. Printing it again hands back the same one, with the
+  // same serial, rather than minting a new number every time somebody presses print. Asking for a
+  // fresh one (after the amount has changed, say) is a deliberate choice.
+  if (!req.body?.fresh) {
+    const already = await Issuance.findOne({ schoolId: sid, family, subjectId, status: 'Issued' }).sort({ issuedAt: -1 });
+    if (already) return res.json({ document: _view(already), pdfPath: `/api/studio/issuances/${already._id}/pdf`, reused: true });
+  }
+
+  const out = await _issueOne(req, { tpl, ver, subjectId: String(subjectId), custom: {}, locale: req.body?.locale === 'ur' ? 'ur' : 'en', replace: !!req.body?.replace, replaceReason: String(req.body?.replaceReason || 'Reprinted from fee management') });
+  if (!out.doc) return res.status(422).json({ message: out.skipped || `The ${label} could not be made.` });
+  res.status(201).json({ document: _view(out.doc), pdfPath: `/api/studio/issuances/${out.doc._id}/pdf` });
+};
+
+exports.invoiceDocument = async (req, res) => {
+  try {
+    const sid = req.user.schoolId;
+    const inv = isId(req.params.id) ? await Invoice.findOne({ _id: req.params.id, schoolId: sid }) : null;
+    if (!inv) return res.status(404).json({ message: 'Invoice not found' });
+    if (inv.status === 'Void') return res.status(422).json({ message: 'A void invoice has nothing to print.' });
+    const family = req.query.kind === 'invoice' || req.body?.kind === 'invoice' ? 'invoice' : 'challan';
+    await issueFrom(req, res, { family, subjectId: inv._id, label: FEE_FAMILIES[family].toLowerCase() });
+  } catch (e) { fail(res, e); }
+};
+
+exports.paymentDocument = async (req, res) => {
+  try {
+    const sid = req.user.schoolId;
+    const pay = isId(req.params.id) ? await Payment.findOne({ _id: req.params.id, schoolId: sid }) : null;
+    if (!pay) return res.status(404).json({ message: 'Payment not found' });
+    if (pay.status !== 'Confirmed') return res.status(422).json({ message: 'A receipt exists only for a confirmed payment.' });
+    await issueFrom(req, res, { family: 'receipt', subjectId: pay._id, label: 'receipt' });
   } catch (e) { fail(res, e); }
 };
 
