@@ -49,8 +49,14 @@ Content-Type: application/json
 {
   "email": "admin@school.com",
   "password": "password123",
-  "schoolCode": "SCHOOL001"
+  "schoolCode": "SCHOOL001"   // optional: without it the account is found by e-mail
 }
+
+// If the same e-mail has more than one account the reply is
+// { "requiresChoice": true, "accounts": [{ "id", "role", "name", "schoolId", "schoolName" }] }
+// Repeat the request with "pick": { "id", "role" }.
+// Signed in: GET /auth/accounts lists the accounts you can switch to (same e-mail, same school or linked schools in one organization);
+// POST /auth/switch-account { "id", "role" } returns a new session for that account.
 
 Response: 200
 {

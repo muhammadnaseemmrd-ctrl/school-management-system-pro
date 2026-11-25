@@ -92,11 +92,6 @@ export default function Login() {
   };
 
   const validateLoginForm = () => {
-    if (!formData.schoolCode.trim()) {
-      toast.error('School code is required');
-      return false;
-    }
-
     if (!formData.email.includes('@')) {
       toast.error('Please enter a valid email');
       return false;
@@ -110,58 +105,46 @@ export default function Login() {
     return true;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateLoginForm()) return;
+  // Several accounts share this e-mail (for example a teacher who is also a parent): ask which one to open.
+  const [choices, setChoices] = useState(null);
 
+  const finishLogin = (data) => {
+    const { user, school, accessToken, refreshToken } = data;
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    // Clear the loggedOut guard so this fresh login is trusted
+    sessionStorage.removeItem('loggedOut');
+    dispatch(setUser(user));
+    dispatch(setSchool(school));
+    toast.success('Login successful!');
+    setTimeout(() => {
+      const dest = { admin: '/admin/dashboard', teacher: '/teacher/dashboard', student: '/student/dashboard', parent: '/parent/dashboard', superadmin: '/superadmin/dashboard' }[user.role] || '/';
+      navigate(dest, { replace: true });
+    }, 1000);
+  };
+
+  const signIn = async (pick) => {
     setLoading(true);
-
     try {
       const response = await apiClient.post('/auth/login', {
         email: formData.email,
         password: formData.password,
-        schoolCode: formData.schoolCode,
+        ...(formData.schoolCode.trim() ? { schoolCode: formData.schoolCode.trim() } : {}),
+        ...(pick ? { pick } : {}),
       });
-
-      const { user, school, accessToken, refreshToken } = response.data;
-
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-
-      // Clear the loggedOut guard so this fresh login is trusted
-      sessionStorage.removeItem('loggedOut');
-
-      dispatch(setUser(user));
-      dispatch(setSchool(school));
-
-      toast.success('Login successful!');
-
-      setTimeout(() => {
-        switch (user.role) {
-          case 'admin':
-            navigate('/admin/dashboard', { replace: true });
-            break;
-          case 'teacher':
-            navigate('/teacher/dashboard', { replace: true });
-            break;
-          case 'student':
-            navigate('/student/dashboard', { replace: true });
-            break;
-          case 'parent':
-            navigate('/parent/dashboard', { replace: true });
-            break;
-          case 'superadmin':
-            navigate('/superadmin/dashboard', { replace: true });
-            break;
-          default:
-            navigate('/', { replace: true });
-        }
-      }, 1000);
+      if (response.data.requiresChoice) { setChoices(response.data.accounts); return; }
+      finishLogin(response.data);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateLoginForm()) return;
+    await signIn(null);
   };
 
   // Forgot password step 1: Request OTP code
@@ -324,25 +307,25 @@ export default function Login() {
               <div className="mb-6">
                 <p className="text-sm font-semibold uppercase tracking-[0.25em] text-[#5b6b7b]">Welcome back</p>
                 <h2 className="mt-2 text-3xl font-black tracking-tight text-[#1b2837]">Login to your dashboard</h2>
-                <p className="mt-2 text-[#3b4a5c]">Use the school code you got during registration.</p>
+                <p className="mt-2 text-[#3b4a5c]">Sign in with your email and password. We find your school for you.</p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">School Code *</label>
-                  <div className="relative">
-                    <Building2 className="absolute left-3 top-3.5 h-5 w-5 text-[#2a5cac]" />
-                    <input
-                      type="text"
-                      name="schoolCode"
-                      value={formData.schoolCode}
-                      onChange={handleChange}
-                      placeholder="e.g. SCHOOL001"
-                      className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white uppercase"
-                    />
-                  </div>
+              {choices ? (
+                <div className="space-y-3" role="group" aria-label="Choose an account">
+                  <p className="text-sm text-[#3b4a5c]">This email is used for more than one account. Which one do you want to open now? You can switch later from the top bar.</p>
+                  {choices.map((a) => (
+                    <button key={`${a.role}-${a.id}`} type="button" disabled={loading} onClick={() => signIn({ id: a.id, role: a.role })} className="flex w-full items-center justify-between gap-3 rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 text-start transition hover:border-[#2a5cac] hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2a5cac] disabled:opacity-60">
+                      <span className="min-w-0">
+                        <span className="block truncate font-semibold capitalize text-[#1b2837]">{a.role}: {a.name}</span>
+                        <span className="block truncate text-xs text-[#5b6b7b]">{a.schoolName}</span>
+                      </span>
+                      <ArrowRight className="h-4 w-4 shrink-0 text-[#2a5cac]" />
+                    </button>
+                  ))}
+                  <button type="button" onClick={() => setChoices(null)} className="text-sm font-semibold text-[#2a5cac] hover:underline">Use a different email</button>
                 </div>
-
+              ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">Email Address *</label>
                   <div className="relative">
@@ -403,6 +386,7 @@ export default function Login() {
                   )}
                 </button>
               </form>
+              )}
               {sso && (
                 <div className="mt-4 border-t border-[#e3e7e7] pt-4">
                   <p className="mb-2 text-center text-xs text-[#5b6b7b]">Teachers and administrators</p>

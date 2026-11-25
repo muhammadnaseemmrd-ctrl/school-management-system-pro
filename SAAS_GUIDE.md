@@ -7,7 +7,7 @@ This guide covers what was added on top of the original project so it can be sol
 | Role | Sign in at | Notes |
 |---|---|---|
 | Super Admin (platform owner) | `/superadmin/login` (API: `POST /api/superadmin/login`) | Account is created on server start from `SUPERADMIN_EMAIL` / `SUPERADMIN_PASSWORD` |
-| School Admin, Teacher, Student, Parent | `/login` | School code + email + password |
+| School Admin, Teacher, Student, Parent | `/login` | Email + password (school code optional). If one email has several accounts, you pick one; a Switch account button then moves between them |
 
 The original project had no super admin. Set the two `SUPERADMIN_*` variables in `backend/.env` (or in the host's environment settings) and start the server; the owner account is created automatically. To recover a lost password, set `SUPERADMIN_FORCE_RESET=true` once, restart, then remove it.
 

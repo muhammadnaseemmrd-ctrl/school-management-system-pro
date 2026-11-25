@@ -25,16 +25,24 @@ exports._syncNameOverride = syncNameOverride;
 exports.createSchool = async (req, res) => {
   try {
     const { name, email, phone, address, principalName, principalEmail, adminName, adminEmail, adminPassword } = req.body;
-    const code = String(req.body.code || '').trim().toUpperCase();
+    let code = String(req.body.code || '').trim().toUpperCase();
 
-    if (!name || !code || !email || !phone || !adminName || !adminEmail || !adminPassword) {
-      return res.status(400).json({ message: 'School name, code, email, phone, admin name, admin email and password are required' });
+    if (!name || !email || !phone || !adminName || !adminEmail || !adminPassword) {
+      return res.status(400).json({ message: 'School name, email, phone, admin name, admin email and password are required' });
     }
     if (!validatePasswordStrength(adminPassword)) {
       return res.status(400).json({ message: 'Password must be at least 6 characters, contain 1 capital letter, 1 number, and 1 special character' });
     }
 
-    // Check if school exists
+    // The code is an internal id now: people sign in with e-mail. Make one from the name unless the caller supplied it.
+    if (!code) {
+      const stem = String(name).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6) || 'SCHOOL';
+      for (let i = 0; i < 8 && !code; i += 1) {
+        const tryCode = `${stem}${Math.floor(1000 + Math.random() * 9000)}`;
+        if (!(await School.findOne({ code: tryCode }))) code = tryCode;
+      }
+      if (!code) return res.status(500).json({ message: 'Could not create the school. Please try again.' });
+    }
     const schoolExists = await School.findOne({ code });
     if (schoolExists) {
       return res.status(400).json({ message: 'School with this code already exists' });

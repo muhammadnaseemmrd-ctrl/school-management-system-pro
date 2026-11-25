@@ -196,72 +196,138 @@ exports.register = async (req, res) => {
 };
 
 // Login User
+// A school can be used for sign-in when it is active and its subscription has not lapsed.
+const schoolBlock = (school) => {
+  if (!school.isActive) return { status: 423, message: school.suspendedReason || 'This school account has been suspended. Please contact support.' };
+  if (school.subscriptionExpiresAt && school.subscriptionExpiresAt < new Date()) return { status: 423, message: 'This school subscription has expired. Please contact the platform owner to renew.' };
+  return null;
+};
+
+// Every school-scoped account (admin, teacher, student, parent) that uses this e-mail.
+const accountsByEmail = async (email, { schoolId = null, withPassword = false } = {}) => {
+  const scope = schoolId ? { schoolId } : {};
+  const pw = (q) => (withPassword ? q.select('+password') : q);
+  const [admins, teachers, students, parents] = await Promise.all([
+    pw(User.find({ email, role: 'admin', ...scope })),
+    pw(Teacher.find({ email, ...scope })),
+    pw(Student.find({ email, ...scope })),
+    pw(Parent.find({ email, ...scope })),
+  ]);
+  return [...admins, ...teachers, ...students, ...parents].slice(0, 25);
+};
+
+// Accounts that may be opened right now (person active, school active and paid up), described for the picker.
+const describeAccounts = async (accounts) => {
+  const ids = [...new Set(accounts.map((a) => String(a.schoolId)))];
+  const schools = await School.find({ _id: { $in: ids } }).select('name code isActive suspendedReason subscriptionExpiresAt organizationId');
+  const byId = new Map(schools.map((sc) => [String(sc._id), sc]));
+  return accounts
+    .filter((a) => a.isActive !== false && byId.has(String(a.schoolId)) && !schoolBlock(byId.get(String(a.schoolId))))
+    .map((a) => ({ id: String(a._id), role: a.role, name: a.name, schoolId: String(a.schoolId), schoolName: byId.get(String(a.schoolId)).name }));
+};
+
+// Signs the person in: tokens, last-login stamp and the response the app expects.
+const startSession = async (res, user) => {
+  const accessToken = generateAccessToken(user._id, user.schoolId, user.role);
+  const refreshToken = generateRefreshToken(user._id, user.schoolId, user.role);
+  user.refreshTokens.push({ token: refreshToken });
+  user.lastLogin = new Date();
+  await user.save();
+  user.password = undefined;
+  const schoolData = await School.findById(user.schoolId).populate('adminId', 'name email phone');
+  res.json({ message: 'Login successful', user, school: schoolData, accessToken, refreshToken });
+};
+
+// Sign in with e-mail and password. The school code is optional: without it the person is found by e-mail in every school.
+// When the same e-mail belongs to several accounts (for example a teacher who is also a parent) the reply lists them
+// and the app asks which one to open; it then repeats the request with `pick`.
 exports.login = async (req, res) => {
   try {
-    const { email, password, schoolCode } = req.body;
+    const { email, password, schoolCode, pick } = req.body;
 
-    if (!email || !password || !schoolCode) {
-      return res.status(400).json({ message: 'Email, password, and school code are required' });
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
-
-    // Find school by code (exact first, then case-insensitive)
-    const cleanCode = String(schoolCode).trim();
-    const school = (await School.findOne({ code: cleanCode })) ||
-      (await School.findOne({ code: cleanCode }).collation({ locale: 'en', strength: 2 }));
-    if (!school) {
-      return res.status(404).json({ message: 'School does not exist' });
-    }
-    if (!school.isActive) {
-      return res.status(423).json({ message: school.suspendedReason || 'This school account has been suspended. Please contact support.' });
-    }
-    if (school.subscriptionExpiresAt && school.subscriptionExpiresAt < new Date()) {
-      return res.status(423).json({ message: 'This school subscription has expired. Please contact the platform owner to renew.' });
-    }
-
-    // Look the e-mail up in every school-scoped collection and accept the
-    // first account whose password matches (same e-mail can exist in two roles).
     const normalizedEmail = String(email).toLowerCase().trim();
-    const candidates = [
-      await User.findOne({ email: normalizedEmail, schoolId: school._id, role: 'admin' }).select('+password'),
-      await Teacher.findOne({ email: normalizedEmail, schoolId: school._id }).select('+password'),
-      await Student.findOne({ email: normalizedEmail, schoolId: school._id }).select('+password'),
-      await Parent.findOne({ email: normalizedEmail, schoolId: school._id }).select('+password'),
-    ].filter(Boolean);
 
-    let user = null;
-    for (const c of candidates) {
-      if (await comparePassword(password, c.password)) {
-        user = c;
-        break;
+    let school = null;
+    if (schoolCode && String(schoolCode).trim()) {
+      const cleanCode = String(schoolCode).trim();
+      school = (await School.findOne({ code: cleanCode })) ||
+        (await School.findOne({ code: cleanCode }).collation({ locale: 'en', strength: 2 }));
+      if (!school) return res.status(404).json({ message: 'School does not exist' });
+      const blocked = schoolBlock(school);
+      if (blocked) return res.status(blocked.status).json({ message: blocked.message });
+    }
+
+    const found = await accountsByEmail(normalizedEmail, { schoolId: school ? school._id : null, withPassword: true });
+    const matched = [];
+    for (const c of found) {
+      if (c.password && await comparePassword(password, c.password)) matched.push(c);
+    }
+    const usable = new Set((await describeAccounts(matched)).map((d) => d.id));
+    const options = matched.filter((c) => usable.has(String(c._id)));
+
+    if (!options.length) {
+      // A right password on a suspended or expired school, or a deactivated account, says so rather than "invalid".
+      if (matched.length) {
+        const first = await School.findById(matched[0].schoolId);
+        const blocked = first && schoolBlock(first);
+        if (blocked) return res.status(blocked.status).json({ message: blocked.message });
+        return res.status(403).json({ message: 'This account has been deactivated. Please contact your school administrator.' });
+      }
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    let user = options[0];
+    if (options.length > 1) {
+      if (pick && pick.id && pick.role) {
+        user = options.find((c) => String(c._id) === String(pick.id) && c.role === pick.role);
+        if (!user) return res.status(400).json({ message: 'That account is not available. Please sign in again.' });
+      } else {
+        return res.json({ requiresChoice: true, message: 'Choose which account to open', accounts: await describeAccounts(options) });
       }
     }
 
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
-    }
-    if (user.isActive === false) {
-      return res.status(403).json({ message: 'This account has been deactivated. Please contact your school administrator.' });
-    }
+    await startSession(res, user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-    // Generate tokens
-    const accessToken = generateAccessToken(user._id, user.schoolId, user.role);
-    const refreshToken = generateRefreshToken(user._id, user.schoolId, user.role);
+// Accounts the signed-in person can switch to without signing in again: same e-mail and the same school,
+// or another school in the same organization (linked schools).
+const switchTargets = async (current) => {
+  const email = String(current.email || '').toLowerCase().trim();
+  if (!email) return [];
+  const mine = await School.findById(current.schoolId).select('organizationId');
+  const all = await accountsByEmail(email);
+  const sameOrg = mine && mine.organizationId
+    ? new Set((await School.find({ organizationId: mine.organizationId }).select('_id')).map((x) => String(x._id)))
+    : new Set();
+  return all.filter((a) => String(a.schoolId) === String(current.schoolId) || sameOrg.has(String(a.schoolId)));
+};
 
-    // Save refresh token
-    user.refreshTokens.push({ token: refreshToken });
-    user.lastLogin = new Date();
-    await user.save();
+exports.myAccounts = async (req, res) => {
+  try {
+    const current = await findUserByIdAndRole(req.user.userId, req.user.role);
+    if (!current) return res.status(404).json({ message: 'User not found' });
+    res.json({ current: { id: String(current._id), role: current.role }, accounts: await describeAccounts(await switchTargets(current)) });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
-    user.password = undefined;
-    const schoolData = await School.findById(user.schoolId).populate('adminId', 'name email phone');
-
-    res.json({
-      message: 'Login successful',
-      user,
-      school: schoolData,
-      accessToken,
-      refreshToken,
-    });
+exports.switchAccount = async (req, res) => {
+  try {
+    const { id, role } = req.body || {};
+    if (!id || !role) return res.status(400).json({ message: 'Choose an account to switch to' });
+    const current = await findUserByIdAndRole(req.user.userId, req.user.role);
+    if (!current) return res.status(404).json({ message: 'User not found' });
+    const target = (await switchTargets(current)).find((a) => String(a._id) === String(id) && a.role === role);
+    if (!target) return res.status(403).json({ message: 'You cannot switch to that account' });
+    if ((await describeAccounts([target])).length === 0) return res.status(403).json({ message: 'That account is not available right now' });
+    await startSession(res, target);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -15,6 +15,8 @@ router.post('/reset-password', authController.resetPassword);
 
 // Profile Routes
 router.get('/profile', authenticate, authController.getProfile);
+router.get('/accounts', authenticate, authController.myAccounts);
+router.post('/switch-account', authenticate, authController.switchAccount);
 router.put('/profile', authenticate, authController.updateProfile);
 router.put('/change-password', authenticate, authController.changePassword);
 

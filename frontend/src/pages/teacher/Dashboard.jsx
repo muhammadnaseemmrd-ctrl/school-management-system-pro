@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import useScrollTop from '../../utils/useScrollTop';
+import SidebarNav from '../../components/SidebarNav';
 import { 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
@@ -55,6 +57,7 @@ const TeacherDashboard = () => {
     if (tabFromHash) return tabFromHash;
     return localStorage.getItem('teacherActiveTab') || 'today';
   });
+  const mainRef = useScrollTop(activeTab);
 
   useEffect(() => {
     // Ensure hash is set on initial mount
@@ -507,6 +510,55 @@ const TeacherDashboard = () => {
     { icon: AlertCircle, title: 'Ungraded Submissions', value: ungradedCount, tone: 'bg-rose-500/10 text-rose-700' },
   ];
 
+  const handleNavSelect = (id) => {
+    setActiveTab(id);
+    setSearchQuery('');
+    setIsSidebarOpen(false);
+  };
+
+  // Tabs grouped by what a teacher is trying to do. Tabs the school or the teacher has no access to are left out.
+  const navGroups = [
+    { id: 'home', label: 'Home', icon: LayoutGrid, items: [
+      { id: 'today', label: 'Today', icon: Clock },
+      { id: 'overview', label: 'Overview', icon: LayoutGrid },
+    ] },
+    { id: 'myclass', label: 'My Classes', icon: Users, hint: 'Students, homework, timetable and notices', items: [
+      { id: 'students', label: 'Students List', icon: Users },
+      { id: 'homework', label: 'Homework & Grading', icon: ClipboardList },
+      { id: 'timetable', label: 'My Class Timetable', icon: Calendar },
+      ...(profileData?.isClassTeacher ? [{ id: 'attendance', label: t('Take Attendance'), icon: CheckCircle }] : []),
+      { id: 'notices', label: 'Notice Board', icon: Bell },
+    ] },
+    { id: 'exams', label: 'Exams & Quizzes', icon: ClipboardList, items: [
+      { id: 'assessments', label: 'Quizzes & exams', icon: ClipboardList },
+      { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
+      ...(hasRegistrar ? [{ id: 'registrar', label: 'Courses & advising', icon: GraduationCap }] : []),
+      ...(hasTraining ? [{ id: 'training', label: 'Training courses', icon: BookOpenCheck }] : []),
+    ] },
+    { id: 'care', label: 'Attendance & Care', icon: CheckCircle, hint: 'Attendance desk, gate, nursery and student care', items: [
+      { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
+      { id: 'safetyDesk', label: 'Gate & safety', icon: ShieldAlert },
+      { id: 'earlyYears', label: 'Nursery', icon: Users },
+      { id: 'careDesk', label: 'Student care', icon: HeartPulse },
+    ] },
+    { id: 'comms', label: 'Communication', icon: Mail, items: [
+      { id: 'familyDesk', label: 'Family messages', icon: Mail },
+      { id: 'assistant', label: 'Writing assistant', icon: Sparkles },
+      ...(studioAccess ? [{ id: 'studio', label: 'Documents studio', icon: FileText }] : []),
+    ] },
+    { id: 'work', label: 'School Work', icon: Wrench, hint: 'Your staff record, cover, purchasing, library and reports', items: [
+      { id: 'staff', label: 'My staff record', icon: Users },
+      { id: 'timetablePlan', label: 'Timetable & cover', icon: Calendar },
+      ...(lib.has ? [{ id: 'library', label: 'Library', icon: Library }] : []),
+      { id: 'purchasing', label: pur.officer ? 'Purchasing office' : 'Repairs & purchasing', icon: Wrench },
+      ...(trp.dispatch || trp.manage ? [{ id: 'transport', label: 'Transport', icon: BusFront }] : []),
+      ...(acc.has ? [{ id: 'accounts', label: 'School accounts', icon: Landmark }] : []),
+      { id: 'analytics', label: 'Measures', icon: BarChart3 },
+      ...(pres.advancement ? [{ id: 'advancement', label: 'Alumni, giving & quality', icon: HeartHandshake }] : []),
+      ...(pres.security ? [{ id: 'securityDevices', label: 'Security devices', icon: SecurityIcon }] : []),
+    ] },
+  ];
+
   return (
     <div className="min-h-screen bg-[#f7f6f2] flex flex-col md:flex-row text-[#1b2837]">
       <Toaster position="top-right" />
@@ -529,84 +581,7 @@ const TeacherDashboard = () => {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
-              <div className="space-y-1">
-                {[
-                  ['overview', 'Overview', LayoutGrid],
-                  ['students', 'Students List', Users],
-                ].map(([id, label, Icon]) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      setActiveTab(id);
-                      setSearchQuery('');
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === id ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                  >
-                    <Icon className="h-4 w-4" /> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Management</p>
-              <div className="space-y-1">
-                {[
-                  ['homework', 'Homework & Grading', ClipboardList],
-                  ['notices', 'Notice Board', Bell],
-                  ['timetable', 'My Class Timetable', Calendar],
-                  ['attendanceDesk', 'Attendance desk', CheckCircle],
-                  ['today', 'Today', Clock],
-                  ['safetyDesk', 'Gate & safety', ShieldAlert],
-                  ['earlyYears', 'Nursery', Users],
-                  ['familyDesk', 'Family messages', Mail],
-                  ['careDesk', 'Student care', HeartPulse],
-                  ['timetablePlan', 'Timetable & cover', Calendar],
-                  ['staff', 'My staff record', Users],
-                  ['assessments', 'Quizzes & exams', ClipboardList],
-                  ['omr', 'Paper exams (OMR)', ScanLine],
-                  ...(hasRegistrar ? [['registrar', 'Courses & advising', GraduationCap]] : []),
-                  ...(hasTraining ? [['training', 'Training courses', BookOpenCheck]] : []),
-                  ...(lib.has ? [['library', 'Library', Library]] : []),
-                  ['purchasing', pur.officer ? 'Purchasing office' : 'Repairs & purchasing', Wrench],
-                  ...(trp.dispatch || trp.manage ? [['transport', 'Transport', BusFront]] : []),
-                  ...(acc.has ? [['accounts', 'School accounts', Landmark]] : []),
-                  ['analytics', 'Measures', BarChart3],
-                  ['assistant', 'Writing assistant', Sparkles],
-                  ...(pres.advancement ? [['advancement', 'Alumni, giving & quality', HeartHandshake]] : []),
-                  ...(pres.security ? [['securityDevices', 'Security devices', SecurityIcon]] : []),
-                  ...(studioAccess ? [['studio', 'Documents studio', FileText]] : []),
-                ].map(([id, label, Icon]) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      setActiveTab(id);
-                      setSearchQuery('');
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === id ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                  >
-                    <Icon className="h-4 w-4" /> {label}
-                  </button>
-                ))}
-
-                {profileData?.isClassTeacher && (
-                  <button
-                    onClick={() => {
-                      setActiveTab('attendance');
-                      setSearchQuery('');
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeTab === 'attendance' ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                  >
-                    <CheckCircle className="h-4 w-4" /> {t('Take Attendance')}
-                  </button>
-                )}
-              </div>
-            </div>
+            <SidebarNav groups={navGroups} activeTab={activeTab} onSelect={handleNavSelect} />
 
             <div>
               <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Marks Entry</p>
@@ -714,7 +689,7 @@ const TeacherDashboard = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
+      <div ref={mainRef} className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
         <div className="max-w-7xl mx-auto space-y-6 w-full flex-1">
           {/* Top Header Row with Hamburger Trigger */}
           <div className="flex items-center gap-3">

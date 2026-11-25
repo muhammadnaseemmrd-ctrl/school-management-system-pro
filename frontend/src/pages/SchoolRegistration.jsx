@@ -90,12 +90,6 @@ export default function SchoolRegistration() {
           return;
         }
 
-        if (!formData.schoolCode.trim()) {
-          toast.error('School code is required');
-          setLoading(false);
-          return;
-        }
-
         if (!formData.adminName.trim()) {
           toast.error('Admin name is required');
           setLoading(false);
@@ -104,7 +98,6 @@ export default function SchoolRegistration() {
 
         await apiClient.post('/schools', {
           name: formData.schoolName,
-          code: formData.schoolCode,
           email: formData.email,
           phone: formData.phone,
           address: {
@@ -155,7 +148,7 @@ export default function SchoolRegistration() {
       setTimeout(() => {
         navigate('/login', {
           state: {
-            schoolCode: role === 'admin' ? formData.schoolCode : formData.schoolCodeForMember,
+            schoolCode: role === 'admin' ? '' : formData.schoolCodeForMember,
             email: formData.email,
           },
         });
@@ -202,7 +195,7 @@ export default function SchoolRegistration() {
 
           <div className="mt-8 rounded-3xl border border-[#e3e7e7] bg-[#f7f6f2] p-4 text-sm text-[#3b4a5c]">
             <p className="font-semibold text-[#1b2837]">School registration flow</p>
-            <p className="mt-2 leading-6">Fill the form once, create the school, and then login with the same school code for role-based access.</p>
+            <p className="mt-2 leading-6">Fill the form once, create the school, and then sign in with your email and password.</p>
           </div>
         </div>
 
@@ -229,19 +222,6 @@ export default function SchoolRegistration() {
                       className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-3 pl-10 pr-4 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
                     />
                   </div>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-semibold text-[#3b4a5c]">School Code *</label>
-                  <input
-                    type="text"
-                    name="schoolCode"
-                    value={formData.schoolCode}
-                    onChange={handleChange}
-                    placeholder="e.g. SCHOOL001"
-                    className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] px-4 py-3 outline-none transition placeholder:text-[#5b6b7b] focus:border-[#2a5cac] focus:bg-white"
-                  />
-                  <p className="mt-1 text-xs text-[#5b6b7b]">Used for login later.</p>
                 </div>
 
                 <div>

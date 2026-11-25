@@ -8,6 +8,7 @@ import { useLang } from '../i18n/LanguageContext';
 import LanguageToggle from './LanguageToggle';
 import AppearanceToggle from './AppearanceToggle';
 import NotificationBell from './NotificationBell';
+import SwitchAccount from './SwitchAccount';
 import useBranding, { clearBranding } from '../utils/useBranding';
 import { pickSchoolName } from '../utils/schoolName';
 import { LogoMark } from './Logo';
@@ -64,6 +65,7 @@ const Navbar = () => {
                 {school?.name && <span className="text-[#5b6b7b]">· {pickSchoolName(school, lang)}</span>}
               </div>
             )}
+            {isSchoolUser && <SwitchAccount />}
             {(isSchoolUser || user?.role === 'agent' || user?.role === 'director') && <NotificationBell />}
             <AppearanceToggle />
             <LanguageToggle />
@@ -93,6 +95,7 @@ const Navbar = () => {
                 {t('Signed in as')} <span className="font-semibold capitalize">{t(user.role.charAt(0).toUpperCase() + user.role.slice(1))}</span>
               </div>
             )}
+            {isSchoolUser && <SwitchAccount block />}
             <button
               onClick={handleLogout}
               className="flex w-full items-center justify-between rounded-2xl border border-[#2a5cac] bg-[#ffffff] px-4 py-3 text-start text-sm font-semibold text-[#2a5cac] transition hover:bg-[#eef2f8]"

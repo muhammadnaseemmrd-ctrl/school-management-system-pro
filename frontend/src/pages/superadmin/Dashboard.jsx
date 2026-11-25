@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import useScrollTop from '../../utils/useScrollTop';
 import {
   BarChart3, Building2, CheckCircle2, Copy, GraduationCap, KeyRound, Lock, Menu, PauseCircle, PlayCircle,
   Plus, Search, Trash2, Users, X, Wallet, UserCheck, CalendarClock, Layers, Pencil, Gift, Archive, Briefcase, Receipt, Scale, Inbox, 
@@ -37,6 +38,7 @@ const emptyForm = { name: '', code: '', email: '', phone: '', city: '', adminNam
 
 const SuperAdminDashboard = () => {
   const [tab, setTab] = useState(() => localStorage.getItem('superadminActiveTab') || 'overview');
+  const mainRef = useScrollTop(tab);
   const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
   const [stats, setStats] = useState(null);
   const [plans, setPlans] = useState({});
@@ -210,7 +212,7 @@ const SuperAdminDashboard = () => {
       </div>
       {open && <div onClick={() => setOpen(false)} className="fixed inset-0 z-40 bg-black/35 md:hidden" />}
 
-      <div className="flex max-h-screen flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
+      <div ref={mainRef} className="flex max-h-screen flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-7xl flex-1 space-y-6">
           <div className="flex items-center gap-3">
             <button onClick={() => setOpen(!open)} className="rounded-xl border border-[#e3e7e7] bg-white p-2.5 text-[#2a5cac] shadow-sm"><Menu className="h-5 w-5" /></button>

@@ -84,6 +84,22 @@ export default function Organizations() {
         <div><h2 className="flex items-center gap-2 text-lg font-bold"><Network className="h-5 w-5" /> Organizations</h2>
           <p className="mt-1 max-w-2xl text-sm text-[#5b6b7b]">Put schools that belong to one owner or trust into a group. Schools in a group still cannot see each other's students, staff or money.</p></div>
         <button className={btnPrimary} onClick={() => setForm({ name: '', contactName: '', contactEmail: '' })}>New organization</button></div></Card>
+      <Card>
+        <details className="group" open={orgs.length === 0}>
+          <summary className="cursor-pointer text-sm font-black text-[#2a5cac] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2a5cac]">How organizations work (read this first)</summary>
+          <div className="mt-3 space-y-3 text-sm text-[#3b4a5c]">
+            <ol className="list-decimal space-y-1.5 ps-5">
+              <li><b>Create the organization.</b> It is just a name for one owner or trust, for example &quot;Sunrise Education Trust&quot;.</li>
+              <li><b>Add schools to it.</b> Use &quot;Add a school&quot; and pick from schools that are not in a group yet. A school can be in one group at a time.</li>
+              <li><b>Appoint a director.</b> Under &quot;Directors&quot;, give the owner&apos;s representative an email. They get a first-time password and sign in at <span className="font-mono">/director/login</span>.</li>
+              <li><b>The director works across the group.</b> They open the schools of the group, open new schools if you allowed it, and appoint the people who run each school. They never read a school&apos;s students, staff or money.</li>
+              <li><b>People in several linked schools.</b> If one email is used in two schools of the same group (for example a teacher at one branch and a parent at another), that person sees a Switch account button and moves between them without signing in again.</li>
+            </ol>
+            <p className="rounded-xl bg-[#f7f6f2] p-3"><b>Example:</b> You create &quot;Sunrise Trust&quot;, add &quot;Sunrise Boys&quot; and &quot;Sunrise Girls&quot;, and appoint Ms. Rana as director. She signs in, opens both schools, and appoints a principal for each. Sunrise Boys still cannot see Sunrise Girls&apos; records.</p>
+            <p className="text-xs text-[#5b6b7b]"><b>Suspending</b> an organization stops new schools being added to it. <b>Removing</b> a school from a group does not delete the school or its data.</p>
+          </div>
+        </details>
+      </Card>
       <Loading g={g}>{orgs.length === 0 ? <Card><EmptyState title="No organizations yet" text="Create one, then add schools to it." /></Card> : (
         <div className="grid gap-4 md:grid-cols-2">{orgs.map((o) => (
           <Card key={o._id}><div className="flex items-start justify-between gap-2"><div><p className="font-bold">{o.name}</p><p className="text-xs text-[#5b6b7b]">{o.contactName || 'No contact'}{o.contactEmail ? ` · ${o.contactEmail}` : ''}</p></div>

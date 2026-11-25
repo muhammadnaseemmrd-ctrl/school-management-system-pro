@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import useScrollTop from '../../utils/useScrollTop';
 import { 
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
@@ -8,6 +9,7 @@ import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
 import AccessPermissions from './AccessPermissions';
+import SidebarNav from '../../components/SidebarNav';
 import Admissions from './Admissions';
 import Finance from './Finance';
 import Staff from './Staff';
@@ -66,6 +68,7 @@ const AdminDashboard = () => {
     if (tabFromHash) return tabFromHash;
     return localStorage.getItem('adminActiveTab') || 'overview';
   });
+  const mainRef = useScrollTop(activeTab);
 
   useEffect(() => {
     // Ensure hash is set on initial mount
@@ -1511,6 +1514,86 @@ const AdminDashboard = () => {
     return aFirst.localeCompare(bFirst);
   });
 
+  const handleNavSelect = (id) => {
+    setActiveTab(id);
+    setSearchQuery('');
+    setSelectedExamName(null);
+    setSelectedExamKeys([]);
+    setSelectedManageClassStd(null);
+    setSelectedFeeStd(null);
+    setIsSidebarOpen(false);
+  };
+
+  // Every tab belongs to one plain-language group. Feature flags hide the tabs the school's plan does not include.
+  const navNeeds = { attendance: 'attendance', parents: 'parentPortal', exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' };
+  const pendingGrievances = grievances.filter(g => g.status === 'Pending').length;
+  const navGroups = [
+    { id: 'home', label: 'Overview', icon: BarChart3, items: [{ id: 'overview', label: 'Overview', icon: BarChart3 }] },
+    { id: 'users', label: 'User Management', icon: Users, hint: 'Students, teachers, parents and staff', items: [
+      { id: 'students', label: 'Students', icon: GraduationCap },
+      { id: 'teachers', label: 'Teachers', icon: Users },
+      { id: 'parents', label: 'Parents & Guardians', icon: Users },
+      { id: 'staff', label: 'Staff & payroll', icon: Users },
+    ] },
+    { id: 'admissions', label: 'Admissions & Records', icon: GraduationCap, hint: 'New students, records and importing data', items: [
+      { id: 'admissions', label: 'Admissions', icon: GraduationCap },
+      { id: 'registrar', label: 'Registrar', icon: GraduationCap },
+      { id: 'dataCentre', label: 'Import from Excel', icon: FileSpreadsheet },
+      { id: 'migration', label: 'Import & new year', icon: Upload },
+    ] },
+    { id: 'academics', label: 'Academics', icon: BookOpen, hint: 'Classes, subjects, timetable and exams', items: [
+      { id: 'classes', label: 'Classes', icon: GraduationCap },
+      { id: 'subjects', label: 'Subjects', icon: BookOpen },
+      { id: 'teacherAssignments', label: 'Teacher assignments', icon: BookOpenCheck },
+      { id: 'timetable', label: 'Timetable', icon: Calendar },
+      { id: 'timetablePlan', label: 'Timetable planning', icon: Calendar },
+      { id: 'exams', label: 'Exams', icon: ClipboardList },
+      { id: 'assessments', label: 'Quizzes & exams', icon: ClipboardList },
+      { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
+      { id: 'training', label: 'Training', icon: BookOpenCheck },
+    ] },
+    { id: 'attendanceSafety', label: 'Attendance & Safety', icon: CheckCircle, hint: 'Daily attendance, gate, nursery and student care', items: [
+      { id: 'attendance', label: 'Attendance', icon: CheckCircle },
+      { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
+      { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
+      { id: 'earlyYears', label: 'Nursery', icon: Users },
+      { id: 'careDesk', label: 'Student care', icon: HeartPulse },
+    ] },
+    { id: 'money', label: 'Fees & Finance', icon: Wallet, hint: 'Fees, payments, accounts and purchasing', items: [
+      { id: 'finance', label: 'Fee collection', icon: Wallet },
+      { id: 'fees', label: 'Fee setup', icon: DollarSign },
+      { id: 'feesCenter', label: 'Payments & Other Fees', icon: Wallet, badge: pendingProofs },
+      { id: 'accounts', label: 'School accounts', icon: Landmark },
+      { id: 'purchasing', label: 'Purchasing & assets', icon: ShoppingCart },
+    ] },
+    { id: 'comms', label: 'Communication', icon: Mail, hint: 'Notices, messages, complaints and documents', items: [
+      { id: 'notices', label: 'Notices', icon: Bell },
+      { id: 'familyDesk', label: 'Family messages', icon: Mail },
+      { id: 'grievances', label: 'Grievances', icon: Shield, badge: pendingGrievances },
+      { id: 'assistant', label: 'Writing assistant', icon: Sparkles },
+      { id: 'studio', label: 'Documents studio', icon: FileText },
+    ] },
+    { id: 'campus', label: 'Campus Services', icon: Library, items: [
+      { id: 'library', label: 'Library & store', icon: Library },
+      { id: 'transport', label: 'Transport', icon: BusFront },
+    ] },
+    { id: 'organisation', label: 'Branches & Reports', icon: Building2, hint: 'Several campuses, measures, alumni and quality', items: [
+      { id: 'branches', label: 'Branches', icon: Building2 },
+      { id: 'group', label: 'Campus group', icon: Network },
+      { id: 'analytics', label: 'Measures', icon: BarChart3 },
+      { id: 'advancement', label: 'Alumni, giving & quality', icon: HeartHandshake },
+    ] },
+    { id: 'settings', label: 'Settings', icon: Settings, hint: 'School setup, look, permissions and connections', items: [
+      { id: 'setup', label: 'School Setup', icon: Settings },
+      { id: 'brand', label: 'Brand & theme', icon: Palette },
+      { id: 'access', label: 'Access & permissions', icon: Shield },
+      { id: 'securityDevices', label: 'Security devices', icon: SecurityIcon },
+      { id: 'integrations', label: 'Connections', icon: Plug },
+      { id: 'syncDesk', label: 'Offline sync', icon: WifiOff },
+      { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
+    ] },
+  ].map((g) => ({ ...g, items: g.items.filter((i) => (navNeeds[i.id] ? has(navNeeds[i.id]) : true)) }));
+
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#1b2837] flex overflow-hidden">
       <Toaster position="top-right" />
@@ -1535,120 +1618,7 @@ const AdminDashboard = () => {
 
           {/* Sidebar Navigation Options */}
           <div className="space-y-4">
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
-              <div className="space-y-1">
-                 {[
-                  { id: 'overview', label: 'Overview', icon: BarChart3 },
-                  { id: 'attendance', label: 'Attendance', icon: CheckCircle },
-                  { id: 'teachers', label: 'Teachers List', icon: Users },
-                  { id: 'students', label: 'Students List', icon: GraduationCap },
-                  { id: 'parents', label: 'Parents & Guardians', icon: Users },
-                  { id: 'admissions', label: 'Admissions', icon: GraduationCap },
-                  { id: 'finance', label: 'Fee collection', icon: Wallet },
-                  { id: 'staff', label: 'Staff & payroll', icon: Users },
-                  { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
-                  { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
-                  { id: 'earlyYears', label: 'Nursery', icon: Users },
-                  { id: 'familyDesk', label: 'Family messages', icon: Mail },
-                  { id: 'careDesk', label: 'Student care', icon: HeartPulse },
-                  { id: 'timetablePlan', label: 'Timetable planning', icon: Calendar },
-                  { id: 'syncDesk', label: 'Offline sync', icon: WifiOff },
-                  { id: 'studio', label: 'Documents studio', icon: FileText },
-                  { id: 'assessments', label: 'Quizzes & exams', icon: ClipboardList },
-                  { id: 'omr', label: 'Paper exams (OMR)', icon: ScanLine },
-                  { id: 'brand', label: 'Brand & theme', icon: Palette },
-                  { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
-                  { id: 'branches', label: 'Branches', icon: Building2 },
-                  { id: 'dataCentre', label: 'Import from Excel', icon: FileSpreadsheet },
-                  { id: 'migration', label: 'Import & new year', icon: Upload },
-                  { id: 'registrar', label: 'Registrar', icon: GraduationCap },
-                  { id: 'training', label: 'Training', icon: BookOpenCheck },
-                  { id: 'library', label: 'Library & store', icon: Library },
-                  { id: 'purchasing', label: 'Purchasing & assets', icon: ShoppingCart },
-                  { id: 'transport', label: 'Transport', icon: BusFront },
-                  { id: 'accounts', label: 'School accounts', icon: Landmark },
-                  { id: 'analytics', label: 'Measures', icon: BarChart3 },
-                  { id: 'group', label: 'Campus group', icon: Network },
-                  { id: 'assistant', label: 'Writing assistant', icon: Sparkles },
-                  { id: 'advancement', label: 'Alumni, giving & quality', icon: HeartHandshake },
-                  { id: 'securityDevices', label: 'Security devices', icon: SecurityIcon },
-                  { id: 'integrations', label: 'Connections', icon: Plug },
-                  { id: 'access', label: 'Access & permissions', icon: Shield }
-                ].filter(item => ({ attendance: 'attendance', parents: 'parentPortal' }[item.id] ? has({ attendance: 'attendance', parents: 'parentPortal' }[item.id]) : true)).map(item => {
-                  const Icon = item.icon;
-                  const active = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setActiveTab(item.id);
-                        setSearchQuery('');
-                        setSelectedExamName(null);
-                        setSelectedExamKeys([]);
-                        setSelectedManageClassStd(null);
-                        setSelectedFeeStd(null);
-                      }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                    >
-                      <Icon className="h-4 w-4" /> {item.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Management</p>
-              <div className="space-y-1">
-                {[
-                  { id: 'classes', label: 'Manage Classes', icon: GraduationCap },
-                  { id: 'subjects', label: 'Manage Subjects', icon: BookOpen },
-                  { id: 'exams', label: 'Manage Exams', icon: ClipboardList },
-                  { id: 'notices', label: 'Manage Notice', icon: Bell },
-                  { id: 'grievances', label: 'Manage Grievance', icon: Shield },
-                  { id: 'fees', label: 'Manage Fees', icon: DollarSign },
-                  { id: 'feesCenter', label: 'Payments & Other Fees', icon: Wallet },
-                  { id: 'teacherAssignments', label: 'Teacher Assignments', icon: BookOpenCheck },
-                  { id: 'timetable', label: 'Manage Timetable', icon: Calendar },
-                  { id: 'setup', label: 'School Setup', icon: Settings }
-                ].filter(item => {
-                  const need = { exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' }[item.id];
-                  return need ? has(need) : true;
-                }).map(item => {
-                  const Icon = item.icon;
-                  const active = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => {
-                        setActiveTab(item.id);
-                        setSearchQuery('');
-                        setSelectedExamName(null);
-                        setSelectedExamKeys([]);
-                        setSelectedManageClassStd(null);
-                        setSelectedFeeStd(null);
-                      }}
-                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${active ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="flex-1 text-left">{item.label}</span>
-                      {item.id === 'feesCenter' && pendingProofs > 0 && (
-                        <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white shrink-0 leading-none">{pendingProofs}</span>
-                      )}
-                      {item.id === 'grievances' && (() => {
-                        const count = grievances.filter(g => g.status === 'Pending').length;
-                        return count > 0 ? (
-                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white shrink-0 leading-none">
-                            {count}
-                          </span>
-                        ) : null;
-                      })()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <SidebarNav groups={navGroups} activeTab={activeTab} onSelect={handleNavSelect} />
 
             <div>
               <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Quick Creation</p>
@@ -1692,7 +1662,7 @@ const AdminDashboard = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
+      <div ref={mainRef} className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
         <div className="max-w-7xl mx-auto space-y-6 w-full flex-1">
           {/* Top Header Row with Hamburger Trigger */}
           <div className="flex items-center gap-3">
@@ -2142,9 +2112,55 @@ const AdminDashboard = () => {
                         </div>
                         <ImportPanel module="students" title="Students" onDone={() => fetchData()} />
                       </div>
+                      <div className="mt-4">
+                        <label htmlFor="student-search" className="sr-only">Search students</label>
+                        <div className="relative">
+                          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#5b6b7b]" />
+                          <input
+                            id="student-search"
+                            type="search"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search any student by name, roll number, registration number or email"
+                            className="w-full rounded-2xl border border-[#e3e7e7] bg-[#f7f6f2] py-2.5 pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-[#2a5cac]"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    {classes.length === 0 ? (
+                    {searchQuery.trim() ? (
+                      <div className="rounded-3xl border border-[#e3e7e7] bg-[#ffffff] p-3 shadow-sm">
+                        {sortedStudents.length === 0 ? (
+                          <p className="px-3 py-8 text-center text-sm font-semibold text-[#5b6b7b]">No student matches "{searchQuery.trim()}". Try a shorter name or a roll number.</p>
+                        ) : (
+                          <ul className="divide-y divide-[#f1f1ee]">
+                            {sortedStudents.slice(0, 50).map((s) => {
+                              const cls = (s.classId && s.classId.standard) ? s.classId : classes.find((c) => c._id === (s.classId?._id || s.classId));
+                              return (
+                                <li key={s._id}>
+                                  <button
+                                    onClick={() => {
+                                      if (!cls) return;
+                                      setSelectedStandard(cls.standard);
+                                      setSelectedDivision(cls.division);
+                                      setSelectedClassId(cls._id);
+                                    }}
+                                    className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-[#f7f6f2] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2a5cac]"
+                                  >
+                                    <span className="min-w-0">
+                                      <span className="block truncate text-sm font-bold text-[#1b2837]">{s.name}</span>
+                                      <span className="block truncate text-xs text-[#5b6b7b]">Roll {s.rollNumber || '—'}{s.registrationNumber ? ` · Reg ${s.registrationNumber}` : ''}</span>
+                                    </span>
+                                    <span className="shrink-0 rounded-full bg-[#2a5cac]/10 px-2.5 py-1 text-[11px] font-extrabold text-[#2a5cac]">{cls ? `${cls.standard} ${cls.division}` : 'No class'}</span>
+                                  </button>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                        {sortedStudents.length > 50 && <p className="px-3 pt-2 text-center text-xs text-[#5b6b7b]">Showing the first 50 of {sortedStudents.length}. Type more to narrow down.</p>}
+                      </div>
+                    ) : classes.length === 0 ? (
                       <div className="text-center py-12 rounded-3xl border border-dashed border-[#e3e7e7] bg-[#ffffff]">
                         <p className="text-[#5b6b7b] font-semibold">No classes or standards configured yet.</p>
                         <p className="text-xs text-[#2a5cac] mt-1">Click the "Class Setup" button above to configure your school standards.</p>
@@ -5574,7 +5590,7 @@ const AdminDashboard = () => {
                       <input type="text" value={studentForm.religion || ''} onChange={(e) => setStudentForm({...studentForm, religion: e.target.value})} className="w-full rounded-xl border border-[#e3e7e7] bg-[#f7f6f2] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-[#3b4a5c] mb-1">Mother Tongue (Optional)</label>
+                      <label className="block text-xs font-bold text-[#3b4a5c] mb-1">Mother Language (Optional)</label>
                       <input type="text" value={studentForm.motherTongue || ''} onChange={(e) => setStudentForm({...studentForm, motherTongue: e.target.value})} className="w-full rounded-xl border border-[#e3e7e7] bg-[#f7f6f2] px-3 py-2 text-sm outline-none" />
                     </div>
                     <div>
@@ -6068,7 +6084,7 @@ const AdminDashboard = () => {
                           <p className="font-bold">B-Form / CNIC No.:</p><p>{selectedStudentForDetails.cnicNumber || 'N/A'}</p>
                           <p className="font-bold">Nationality:</p><p>{selectedStudentForDetails.nationality || 'Pakistani'}</p>
                           <p className="font-bold">Religion:</p><p>{selectedStudentForDetails.religion || 'N/A'}</p>
-                          <p className="font-bold">Mother Tongue:</p><p>{selectedStudentForDetails.motherTongue || 'N/A'}</p>
+                          <p className="font-bold">Mother Language:</p><p>{selectedStudentForDetails.motherTongue || 'N/A'}</p>
                         </div>
                       </div>
 

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import useScrollTop from '../../utils/useScrollTop';
+import SidebarNav from '../../components/SidebarNav';
 import { 
   AlertCircle, BookOpen, CheckCircle, Clock, ClipboardList, LayoutGrid, 
   MessageSquare, Sparkles, Lock, User, FileText, Send, Image, History, 
@@ -55,6 +57,7 @@ const StudentDashboard = () => {
     if (tabFromHash) return tabFromHash;
     return localStorage.getItem('studentActiveTab') || 'dashboard';
   });
+  const mainRef = useScrollTop(activeSubTab);
 
   useEffect(() => {
     // Ensure hash is set on initial mount
@@ -284,6 +287,35 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleNavSelect = (id) => {
+    setActiveSubTab(id);
+    setIsSidebarOpen(false);
+  };
+
+  const navGroups = [
+    { id: 'home', label: 'Dashboard Overview', icon: LayoutGrid, items: [{ id: 'dashboard', label: 'Dashboard Overview', icon: LayoutGrid }] },
+    { id: 'learn', label: 'Learning', icon: BookOpen, hint: 'Homework, quizzes, records and courses', items: [
+      { id: 'homework', label: 'My Homework', icon: ClipboardList },
+      { id: 'quizzes', label: 'Quizzes & exams', icon: ClipboardList },
+      { id: 'timetable', label: 'My Class Timetable', icon: Calendar },
+      ...(hasRecord ? [{ id: 'record', label: 'Academic record', icon: GraduationCap }] : []),
+      ...(hasCourses ? [{ id: 'courses', label: 'Training courses', icon: BookOpenCheck }] : []),
+      { id: 'documents', label: 'My documents', icon: FileText },
+    ] },
+    { id: 'me', label: 'Attendance & Wellbeing', icon: CheckCircle, hint: 'Attendance, leave, support and what devices recorded', items: [
+      { id: 'attendance', label: 'Roster & Attendance', icon: CheckCircle },
+      { id: 'desk', label: 'Leave, alerts & check-in', icon: Bell },
+      { id: 'support', label: 'Wellbeing & support', icon: HeartPulse },
+      { id: 'devices', label: 'What devices recorded', icon: ShieldAlert },
+    ] },
+    { id: 'school', label: 'School Life', icon: Library, items: [
+      { id: 'notices', label: 'Notice Board', icon: Bell },
+      ...(lib.has ? [{ id: 'library', label: 'Library & store', icon: Library }] : []),
+      { id: 'bus', label: 'School bus', icon: BusFront },
+      { id: 'service', label: 'Community service', icon: Award },
+    ] },
+  ];
+
   return (
     <div className="min-h-screen bg-[#f7f6f2] flex flex-col md:flex-row text-[#1b2837]">
       <Toaster position="top-right" />
@@ -306,58 +338,7 @@ const StudentDashboard = () => {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Directories</p>
-              <div className="space-y-1">
-                {[
-                  ['dashboard', 'Dashboard Overview', LayoutGrid],
-                ].map(([id, label, Icon]) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      setActiveSubTab(id);
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                  >
-                    <Icon className="h-4 w-4" /> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Academics</p>
-              <div className="space-y-1">
-                {[
-                  ['homework', 'My Homework', ClipboardList],
-                  ['attendance', 'Roster & Attendance', CheckCircle],
-                  ['desk', 'Leave, alerts & check-in', Bell],
-                  ['support', 'Wellbeing & support', HeartPulse],
-                  ['quizzes', 'Quizzes & exams', ClipboardList],
-                  ...(hasRecord ? [['record', 'Academic record', GraduationCap]] : []),
-                  ...(lib.has ? [['library', 'Library & store', Library]] : []),
-                  ['bus', 'School bus', BusFront],
-                  ['service', 'Community service', Award],
-                  ['devices', 'What devices recorded', ShieldAlert],
-                  ...(hasCourses ? [['courses', 'Training courses', BookOpenCheck]] : []),
-                  ['documents', 'My documents', FileText],
-                  ['notices', 'Notice Board', Bell],
-                  ['timetable', 'My Class Timetable', Calendar],
-                ].map(([id, label, Icon]) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      setActiveSubTab(id);
-                      setIsSidebarOpen(false);
-                    }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${activeSubTab === id ? 'bg-[#2a5cac] text-white' : 'text-[#3b4a5c] hover:bg-[#2a5cac]/10'}`}
-                  >
-                    <Icon className="h-4 w-4" /> {label}
-                  </button>
-                ))}
-              </div>
-            </div>
+            <SidebarNav groups={navGroups} activeTab={activeSubTab} onSelect={handleNavSelect} />
 
             <div>
               <p className="text-[10px] text-[#5b6b7b] font-bold uppercase tracking-wider mb-2 px-2">Academic Marks</p>
@@ -453,7 +434,7 @@ const StudentDashboard = () => {
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
+      <div ref={mainRef} className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 max-h-screen flex flex-col">
         <div className="max-w-7xl mx-auto space-y-6 w-full flex-1">
           {/* Top Header Row with Hamburger Trigger */}
           <div className="flex items-center gap-3">
@@ -894,7 +875,7 @@ const StudentDashboard = () => {
                   <div><span className="font-semibold block text-xs text-[#5b6b7b]">B-Form / CNIC No.:</span>{profileData.cnicNumber || 'N/A'}</div>
                   <div><span className="font-semibold block text-xs text-[#5b6b7b]">Nationality:</span>{profileData.nationality || 'N/A'}</div>
                   <div><span className="font-semibold block text-xs text-[#5b6b7b]">Religion:</span>{profileData.religion || 'N/A'}</div>
-                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#5b6b7b]">Mother Tongue:</span>{profileData.motherTongue || 'N/A'}</div>
+                  <div className="col-span-2"><span className="font-semibold block text-xs text-[#5b6b7b]">Mother Language:</span>{profileData.motherTongue || 'N/A'}</div>
                 </div>
               </div>
 
