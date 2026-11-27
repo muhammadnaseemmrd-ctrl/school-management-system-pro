@@ -36,6 +36,8 @@ router.get('/assets', anyStudio, T.listAssets); router.post('/assets', manage, u
 router.put('/assets/:id/license', manage, T.updateAssetLicense); router.post('/assets/:id/verify', manage, T.verifyAsset); router.post('/assets/:id/retire', manage, T.retireAsset);
 
 router.get('/subjects', need('documents.issue', 'documents.template.manage'), T.subjects);
+// what a school can hand one person, reached from that person's own record
+router.get('/person/:kind/:id', need('documents.issue', 'documents.print', 'documents.template.manage'), I.forPerson);
 router.post('/issue', issue, I.issue); router.get('/issuances', anyStudio, I.list); router.get('/issuances/:id', anyStudio, I.get);
 router.get('/issuances/:id/pdf', need('documents.issue', 'documents.print'), I.pdf); router.get('/issuances/:id/snapshot', need('documents.issue', 'documents.print'), I.snapshot);
 router.post('/issuances/:id/revoke', issue, I.revoke); router.post('/issuances/:id/replace', issue, I.replace);

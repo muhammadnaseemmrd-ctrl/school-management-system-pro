@@ -104,11 +104,18 @@ const countsFor = async (schoolIds) => {
 };
 
 const schoolHead = (s, counts) => ({
-  _id: s._id, name: s.name, nameUr: s.nameUr || '', code: s.code, email: s.email, phone: s.phone,
+  _id: s._id, name: s.name, nameUr: s.nameUr || '', institutionType: s.institutionType || 'school',
+  institutionLabel: require('../utils/institutionTypes').get(s.institutionType).label,
+  code: s.code, email: s.email, phone: s.phone,
   city: s.address?.city || '', principalName: s.principalName || '', principalEmail: s.principalEmail || '',
   plan: s.plan, isActive: s.isActive, studentLimit: s.studentLimit, teacherLimit: s.teacherLimit,
   subscriptionExpiresAt: s.subscriptionExpiresAt || null, createdAt: s.createdAt,
   counts: counts[String(s._id)] || { students: 0, teachers: 0, classes: 0, campuses: 0, admins: 0 },
+});
+
+exports.institutionTypes = wrap('institutionTypes', async (req, res) => {
+  const IT = require('../utils/institutionTypes');
+  res.json({ types: IT.catalogue() });
 });
 
 exports.overview = wrap('overview', async (req, res) => {
@@ -184,8 +191,11 @@ exports.createSchool = wrap('createSchool', async (req, res) => {
     return bad(res, 400, 'The password needs at least 6 characters with a capital letter, a number and a symbol. Leave it empty and we will make one.');
   }
 
+  const IT = require('../utils/institutionTypes');
+  const institutionType = IT.keys.includes(String(b.institutionType)) ? String(b.institutionType) : IT.DEFAULT;
+
   const school = await School.create({
-    _id: schoolId, name, nameUr: clean(b.nameUr, 160), code, adminId, email, phone,
+    _id: schoolId, name, nameUr: clean(b.nameUr, 160), institutionType, code, adminId, email, phone,
     address: { city: clean(b.city, 60), country: 'Pakistan' },
     principalName: adminName, principalEmail: adminEmail, isActive: true,
     organizationId: req.director.organizationId,
@@ -208,11 +218,17 @@ exports.updateSchool = wrap('updateSchool', async (req, res) => {
   const set = {};
   if (b.name !== undefined) { const n = clean(b.name, 120); if (n.length < 2) return bad(res, 400, 'Give the school a name.'); set.name = n; }
   if (b.nameUr !== undefined) set.nameUr = clean(b.nameUr, 160);
+  if (b.institutionType !== undefined) {
+    const IT = require('../utils/institutionTypes');
+    if (!IT.keys.includes(String(b.institutionType))) return bad(res, 400, `Choose one of: ${IT.keys.join(', ')}.`);
+    set.institutionType = String(b.institutionType);
+  }
   if (b.phone !== undefined) set.phone = clean(b.phone, 32);
   if (b.city !== undefined) set.address = { ...(s.address || {}), city: clean(b.city, 60) };
   if (b.principalName !== undefined) set.principalName = clean(b.principalName, 80);
   if (!Object.keys(set).length) return bad(res, 400, 'Nothing to change.');
   await School.updateOne({ _id: s._id }, { $set: set });
+  if (set.institutionType) require('../middleware/institution').forget(s._id);
   await audit(req, { action: 'director.school.update', entityType: 'School', entityId: s._id, schoolId: s._id, detail: set });
   res.json({ ok: true });
 });
@@ -276,6 +292,28 @@ exports.setAdminActive = wrap('setAdminActive', async (req, res) => {
   await User.updateOne({ _id: u._id }, { $set: { isActive: active, ...(active ? {} : { refreshTokens: [] }) } });
   await audit(req, { action: active ? 'director.admin.enable' : 'director.admin.disable', entityType: 'User', entityId: u._id, schoolId: s._id, detail: { email: u.email } });
   res.json({ ok: true });
+});
+
+/* ───────────────────────── money across the group ─────────────────────────
+   Totals and the schools' own expense lines. A group office decides budgets and staffing from
+   these; it still cannot open a named child's fee record, and nothing below returns one.      */
+
+const Fin = require('../utils/director/finance');
+
+exports.finance = wrap('finance', async (req, res) => {
+  const period = ['month', 'year', 'all'].includes(req.query.period) ? req.query.period : 'year';
+  const out = await Fin.forGroup(req.director.organizationId, period);
+  await audit(req, { action: 'director.finance.read', entityType: 'Organization', entityId: req.director.organizationId, detail: { period, schools: out.schools.length } }).catch(() => {});
+  res.json(out);
+});
+
+exports.schoolFinance = wrap('schoolFinance', async (req, res) => {
+  const s = await ownSchool(req);
+  if (!s) return bad(res, 404, 'That school is not in your group.');
+  const period = ['month', 'year', 'all'].includes(req.query.period) ? req.query.period : 'year';
+  const out = await Fin.detailFor(s._id, period);
+  await audit(req, { action: 'director.finance.school', entityType: 'School', entityId: s._id, schoolId: s._id, detail: { period } }).catch(() => {});
+  res.json({ school: { _id: s._id, name: s.name, code: s.code, institutionType: s.institutionType || 'school' }, ...out });
 });
 
 /* ───────────────────────── the director's own account ───────────────────────── */

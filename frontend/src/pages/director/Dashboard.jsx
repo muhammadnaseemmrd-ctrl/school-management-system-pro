@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import apiClient from '../../utils/apiClient';
 import { Card, Modal, Stat, btnGhost, btnPrimary, btnDanger, errMsg, inputCls, fmtDate } from '../../components/ui';
+import GroupFinance from '../../components/director/GroupFinance';
 
 const Field = ({ label, hint, children }) => (
   <label className="block">
@@ -100,7 +101,7 @@ function SchoolView({ id, onBack, onChanged, canAppoint }) {
           <div>
             <h2 className="text-xl font-black text-[#1b2837]">{s.name}</h2>
             {s.nameUr && <p className="text-lg text-[#1b2837]" dir="rtl" lang="ur">{s.nameUr}</p>}
-            <p className="mt-1 text-sm text-[#5b6b7b]">School code <b className="font-mono">{s.code}</b> · {s.email} · {s.phone}{s.city ? ` · ${s.city}` : ''}</p>
+            <p className="mt-1 text-sm text-[#5b6b7b]">{s.institutionLabel || 'School'} · code <b className="font-mono">{s.code}</b> · {s.email} · {s.phone}{s.city ? ` · ${s.city}` : ''}</p>
             {!s.isActive && <p className="mt-2 inline-block rounded-full bg-[#fff1f2] px-3 py-1 text-xs font-bold text-[#9f1239]">Closed — nobody here can sign in</p>}
           </div>
           <div className="flex gap-2">
@@ -208,6 +209,9 @@ export default function DirectorDashboard() {
   const [make, setMake] = useState(null);
   const [busy, setBusy] = useState(false);
   const [creds, setCreds] = useState(null);
+  const [tab, setTab] = useState('schools');
+  const [kinds, setKinds] = useState([]);
+  useEffect(() => { apiClient.get('/director/institution-types').then((r) => setKinds(r.data.types || [])).catch(() => {}); }, []);
 
   const load = useCallback(() => {
     apiClient.get('/director/overview').then((r) => setD(r.data)).catch((e) => toast.error(errMsg(e, 'Could not load the group')));
@@ -226,7 +230,7 @@ export default function DirectorDashboard() {
   };
 
   return (
-    <div className="page-ready">
+    <div className="page-ready mx-auto max-w-7xl px-4 py-6">
       <Toaster position="top-right" />
       <div className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-[#e3e7e7] bg-white px-4 py-3">
         <Building2 className="h-6 w-6 text-[#2a5cac]" />
@@ -236,8 +240,22 @@ export default function DirectorDashboard() {
         </div>
       </div>
 
+      <nav className="mb-4 flex flex-wrap gap-2" aria-label="Group office sections">
+        {[{ id: 'schools', label: 'Schools' }, { id: 'finance', label: 'Money' }].map((x) => (
+          <button
+            key={x.id}
+            type="button"
+            aria-current={tab === x.id ? 'page' : undefined}
+            onClick={() => { setTab(x.id); setOpen(null); }}
+            className={`rounded-full px-4 py-2 text-sm font-bold ${tab === x.id ? 'bg-[#1b2837] text-white' : 'bg-white text-[#4f5f70] border border-[#e3e7e7]'}`}
+          >
+            {x.label}
+          </button>
+        ))}
+      </nav>
+
       <main className="space-y-5">
-        {!d ? (
+        {tab === 'finance' ? <GroupFinance /> : !d ? (
           <div className="flex h-40 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#2a5cac]" /></div>
         ) : open ? (
           <SchoolView id={open} onBack={() => { setOpen(null); load(); }} onChanged={load} canAppoint={d.director.canAppointAdmins} />
@@ -266,7 +284,7 @@ export default function DirectorDashboard() {
                   <p className="text-xs text-[#5b6b7b]">Open one to see who runs it, appoint somebody, or close it.</p>
                 </div>
                 {d.director.canCreateSchools && (
-                  <button type="button" className={btnPrimary} onClick={() => setMake({ name: '', nameUr: '', code: '', email: '', phone: '', city: '', adminName: '', adminEmail: '' })}>
+                  <button type="button" className={btnPrimary} onClick={() => setMake({ name: '', nameUr: '', institutionType: 'school', code: '', email: '', phone: '', city: '', adminName: '', adminEmail: '' })}>
                     <Plus className="h-4 w-4" /> Open a school
                   </button>
                 )}
@@ -291,6 +309,7 @@ export default function DirectorDashboard() {
                         <div className="min-w-0">
                           <p className="truncate font-bold text-[#1b2837]">{s.name}</p>
                           <p className="font-mono text-xs text-[#5b6b7b]">{s.code}{s.city ? ` · ${s.city}` : ''}</p>
+                          <p className="text-xs font-semibold text-[#2a5cac]">{s.institutionLabel || 'School'}</p>
                         </div>
                         <Building2 className="h-4 w-4 flex-shrink-0 text-[#2a5cac]" />
                       </div>
@@ -314,6 +333,11 @@ export default function DirectorDashboard() {
         <Modal title="Open a school in this group" onClose={() => setMake(null)} wide>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="School name"><input className={inputCls} value={make.name} onChange={(e) => setMake({ ...make, name: e.target.value })} placeholder="Iqra Model School, Satellite Town" /></Field>
+            <Field label="What kind of institution" hint={(kinds.find((k) => k.key === make.institutionType) || {}).blurb || 'It decides which screens the staff there see.'}>
+              <select className={inputCls} value={make.institutionType} onChange={(e) => setMake({ ...make, institutionType: e.target.value })}>
+                {(kinds.length ? kinds : [{ key: 'school', label: 'School' }]).map((k) => <option key={k.key} value={k.key}>{k.label}</option>)}
+              </select>
+            </Field>
             <Field label="School name in Urdu" hint="Optional. Shown while a page is in Urdu."><input className={inputCls} dir="rtl" lang="ur" value={make.nameUr} onChange={(e) => setMake({ ...make, nameUr: e.target.value })} /></Field>
             <Field label="School code" hint="People type this when they sign in."><input className={`${inputCls} font-mono uppercase`} value={make.code} onChange={(e) => setMake({ ...make, code: e.target.value.toUpperCase() })} placeholder="IQ-ST" /></Field>
             <Field label="City"><input className={inputCls} value={make.city} onChange={(e) => setMake({ ...make, city: e.target.value })} /></Field>

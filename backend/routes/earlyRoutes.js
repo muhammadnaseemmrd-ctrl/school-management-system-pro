@@ -8,6 +8,8 @@ const P = require('../controllers/earlyPickupController');
 
 const staff = authorize('admin', 'teacher'); const admin = authorize('admin'); const family = authorize('parent'); const anyone = authorize('admin', 'teacher', 'parent');
 router.use(authenticate);
+// a kind of institution that does not use this part is refused here, not merely in the menu
+router.use(require('../middleware/institution').needsScreen('earlyYears'));
 
 // settings and rooms
 router.get('/settings', staff, R.getSettings); router.put('/settings', admin, R.putSettings);

@@ -13,6 +13,13 @@ const schoolSchema = new mongoose.Schema(
       default: '',
       trim: true,
     },
+    // What kind of place this is. It decides which screens its staff see: a school has a nursery
+    // and no registrar, a university the other way round.
+    institutionType: {
+      type: String,
+      enum: ['school', 'college', 'university', 'academy', 'institute'],
+      default: 'school',
+    },
     code: {
       type: String,
       required: [true, 'School code is required'],

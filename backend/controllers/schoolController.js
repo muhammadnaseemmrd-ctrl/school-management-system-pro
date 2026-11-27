@@ -20,6 +20,22 @@ async function syncNameOverride(schoolId, before, after) {
 }
 exports._syncNameOverride = syncNameOverride;
 
+// What kinds of place there are, and what this one is. The browser filters its menu from the
+// `hide` list, so a screen can never appear in a menu the server would refuse to serve.
+exports.institutionTypes = async (req, res) => {
+  try {
+    const IT = require('../utils/institutionTypes');
+    let mine = null;
+    if (req.user?.schoolId) {
+      const sc = await School.findById(req.user.schoolId).select('institutionType');
+      mine = IT.shapeFor(sc?.institutionType);
+    }
+    res.json({ types: IT.catalogue(), mine, switchable: IT.SWITCHABLE });
+  } catch (e) {
+    res.status(500).json({ message: 'Could not load the kinds of institution.' });
+  }
+};
+
 // Public self-service school sign-up (always starts on the Free plan).
 // Platform owners create schools on any plan via /api/superadmin/schools.
 exports.createSchool = async (req, res) => {
@@ -188,11 +204,15 @@ exports.updateSchool = async (req, res) => {
     }
 
     // Admins may only edit profile fields – never plan, limits, status or ownership
-    const allowed = ['name', 'nameUr', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail', 'motto', 'academicYear', 'paymentInfo', 'timezone'];
+    const allowed = ['name', 'nameUr', 'institutionType', 'phone', 'address', 'logo', 'website', 'principalName', 'principalEmail', 'motto', 'academicYear', 'paymentInfo', 'timezone'];
     if (req.body.timezone !== undefined) {
       try { new Intl.DateTimeFormat('en', { timeZone: req.body.timezone }); } catch (e) { return res.status(400).json({ message: 'Invalid time zone (use a name like Asia/Karachi)' }); }
     }
     if (req.body.name !== undefined && !String(req.body.name).trim()) return res.status(400).json({ message: 'School name cannot be empty' });
+    if (req.body.institutionType !== undefined) {
+      const IT = require('../utils/institutionTypes');
+      if (!IT.keys.includes(String(req.body.institutionType))) return res.status(400).json({ message: `Choose one of: ${IT.keys.join(', ')}.` });
+    }
     if (req.body.nameUr !== undefined) {
       const un = String(req.body.nameUr).trim();
       if (un.length > 160) return res.status(400).json({ message: 'The Urdu name can be up to 160 characters.' });
@@ -221,6 +241,7 @@ exports.updateSchool = async (req, res) => {
     // The Urdu name is kept as a wording override too, so every screen that shows the
     // English name picks it up through the usual translation layer.
     if (before) await syncNameOverride(req.user.schoolId, before, school).catch((e) => console.error('nameUr sync:', e.message));
+    if (patch.institutionType !== undefined) require('../middleware/institution').forget(req.params.id);
 
     if (!school) {
       return res.status(404).json({ message: 'School not found' });
@@ -307,7 +328,7 @@ exports.getMyPlan = async (req, res) => {
 exports.getBranding = async (req, res) => {
   try {
     if (!req.user.schoolId) return res.json({ branding: null });
-    const s = await School.findById(req.user.schoolId).select('name nameUr logo motto academicYear paymentInfo phone email website');
+    const s = await School.findById(req.user.schoolId).select('name nameUr institutionType logo motto academicYear paymentInfo phone email website');
     res.json({ branding: s });
   } catch (e) { res.status(500).json({ message: e.message }); }
 };

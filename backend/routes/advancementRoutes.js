@@ -11,6 +11,8 @@ router.post('/service/mine', authenticate, authorize('student'), Q.addMyLog);
 router.post('/service/:id/link', authenticate, authorize('student', 'admin', 'teacher'), Q.newLogLink);
 
 router.use(authenticate, authorize('admin', 'teacher'));
+// a kind of institution that does not use this part is refused here, not merely in the menu
+router.use(require('../middleware/institution').needsScreen('advancement'));
 const alumni = V.guard('alumni.lead'); const giving = V.guard('giving.officer'); const quality = V.guard('quality.lead'); const wide = V.adminWide;
 
 // the board: membership is managed by a school-wide administrator; the papers are only for members

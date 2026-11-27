@@ -14,6 +14,8 @@ router.get('/', authenticate, authorize('superadmin'), schoolController.getAllSc
 router.get('/my-plan', authenticate, schoolController.getMyPlan);
 
 router.get('/branding', authenticate, schoolController.getBranding);
+// what kind of place this is, and what that means for the screens its staff see
+router.get('/institution-types', authenticate, schoolController.institutionTypes);
 router.get('/billing', authenticate, authorize('admin'), schoolController.getBilling);
 
 // Get My School (For Admin)

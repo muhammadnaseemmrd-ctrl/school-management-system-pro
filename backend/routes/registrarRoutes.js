@@ -13,6 +13,8 @@ const anyone = authorize('admin', 'teacher', 'student');
 // The registrar covers the whole school, so an administrator limited to one campus is kept out (PRD E01 scope).
 const wide = async (req, res, next) => { try { if (await CS.scopeOf(req.user)) return res.status(403).json({ message: 'The registrar is school-wide. Ask a school-wide administrator.' }); next(); } catch (e) { next(e); } };
 router.use(authenticate);
+// a kind of institution that does not use this part is refused here, not merely in the menu
+router.use(require('../middleware/institution').needsScreen('registrar'));
 
 router.get('/overview', admin, wide, G.overview);
 router.get('/settings', admin, wide, C.settings); router.put('/settings', admin, wide, C.saveSettings);

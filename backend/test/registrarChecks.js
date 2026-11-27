@@ -6,6 +6,7 @@ module.exports = async ({ call, expect, log, tokens, base }) => {
   const { generateAccessToken } = require('../utils/jwt'); const { hashPassword } = require('../utils/password'); const E = require('../utils/registrar/engine');
   console.log('\n— University registrar and degree audit —');
 
+
   // ── 1. the rules on their own (no database) ──
   const mkE = (code, term, grade, credits = 3, x = {}) => ({ _id: code + term, courseCode: code, courseTitle: code, termId: term, termStart: term, credits, grade, gradeState: 'final', status: 'completed', ...x });
   const hist = [mkE('MTH101', '2024-1', 'A'), mkE('CS101', '2024-1', 'F'), mkE('CS101', '2024-2', 'B'), mkE('ENG101', '2024-1', 'C+'), mkE('PHY101', '2024-1', 'W')];
@@ -22,7 +23,7 @@ module.exports = async ({ call, expect, log, tokens, base }) => {
   // ── 2. two schools ──
   const pw = await hashPassword('Reg@12345');
   const mk = async (code) => {
-    const s = await School.create({ name: `${code} College`, code, email: `${code.toLowerCase()}@reg.test`, phone: '+92-300-1111111', principalName: 'P', adminId: new mg.Types.ObjectId(), isActive: true, studentLimit: 0 });
+    const s = await School.create({ name: `${code} College`, code, institutionType: 'university', email: `${code.toLowerCase()}@reg.test`, phone: '+92-300-1111111', principalName: 'P', adminId: new mg.Types.ObjectId(), isActive: true, studentLimit: 0 });
     const a = await User.create({ schoolId: s._id, name: `${code} Registrar`, email: `admin@${code.toLowerCase()}.test`, password: pw, role: 'admin', isActive: true });
     const t = await Teacher.create({ schoolId: s._id, schoolCode: code, schoolName: `${code} College`, name: `${code} Dr Hamid`, email: `t1@${code.toLowerCase()}.test`, password: pw, isActive: true });
     const t2 = await Teacher.create({ schoolId: s._id, schoolCode: code, schoolName: `${code} College`, name: `${code} Dr Nida`, email: `t2@${code.toLowerCase()}.test`, password: pw, isActive: true });

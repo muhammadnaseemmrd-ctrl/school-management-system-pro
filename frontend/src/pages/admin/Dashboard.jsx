@@ -23,6 +23,8 @@ import HelpDesk from '../../components/support/HelpDesk';
 import Migration from '../../components/migration/Migration';
 import DataCentre from '../../components/dataio/DataCentre';
 import Campuses from '../../components/access/Campuses';
+import useInstitution from '../../utils/useInstitution';
+import PersonDocuments from '../../components/studio/PersonDocuments';
 import ImportPanel from '../../components/dataio/ImportPanel';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TrainingAdmin from '../../components/training/TrainingAdmin';
@@ -52,11 +54,14 @@ import { PROVINCES } from '../../utils/pakistan';
 
 const AdminDashboard = () => {
   const { t, lang } = useLang();
+  const inst = useInstitution();   // a school, a college, a university, an academy or an institute
+  // cards, certificates and report cards for one person, opened from their own row
+  const [docsFor, setDocsFor] = useState(null);
   const { has } = usePlan();
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['branches', 'dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
+    const validTabs = ['staffAttendance', 'branches', 'dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1524,8 +1529,14 @@ const AdminDashboard = () => {
     setIsSidebarOpen(false);
   };
 
+  // A handful of menu names follow the kind of place. The rest read the same everywhere.
+  const NAV_WORDS = {
+    students: (i) => i.word('learners'),
+    classes: (i) => i.word('groups'),
+  };
+
   // Every tab belongs to one plain-language group. Feature flags hide the tabs the school's plan does not include.
-  const navNeeds = { attendance: 'attendance', parents: 'parentPortal', exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' };
+  const navNeeds = { attendance: 'attendance', staffAttendance: 'attendance', parents: 'parentPortal', exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' };
   const pendingGrievances = grievances.filter(g => g.status === 'Pending').length;
   const navGroups = [
     { id: 'home', label: 'Overview', icon: BarChart3, items: [{ id: 'overview', label: 'Overview', icon: BarChart3 }] },
@@ -1553,7 +1564,8 @@ const AdminDashboard = () => {
       { id: 'training', label: 'Training', icon: BookOpenCheck },
     ] },
     { id: 'attendanceSafety', label: 'Attendance & Safety', icon: CheckCircle, hint: 'Daily attendance, gate, nursery and student care', items: [
-      { id: 'attendance', label: 'Attendance', icon: CheckCircle },
+      { id: 'attendance', label: 'Student attendance', icon: CheckCircle },
+      { id: 'staffAttendance', label: 'Teacher & staff attendance', icon: Users },
       { id: 'attendanceDesk', label: 'Attendance desk', icon: CheckCircle },
       { id: 'safetyDesk', label: 'Gate & safety', icon: Shield },
       { id: 'earlyYears', label: 'Nursery', icon: Users },
@@ -1592,11 +1604,20 @@ const AdminDashboard = () => {
       { id: 'syncDesk', label: 'Offline sync', icon: WifiOff },
       { id: 'saasSupport', label: 'Help & invoices', icon: LifeBuoy },
     ] },
-  ].map((g) => ({ ...g, items: g.items.filter((i) => (navNeeds[i.id] ? has(navNeeds[i.id]) : true)) }));
+  ]
+    .map((g) => ({
+      ...g,
+      items: g.items
+        .filter((i) => (navNeeds[i.id] ? has(navNeeds[i.id]) : true))
+        .filter((i) => !inst.hidden(i.id))
+        .map((i) => (NAV_WORDS[i.id] ? { ...i, label: NAV_WORDS[i.id](inst) } : i)),
+    }))
+    .filter((g) => g.items.length);
 
   return (
     <div className="min-h-screen bg-[#f7f6f2] text-[#1b2837] flex overflow-hidden">
       <Toaster position="top-right" />
+      {docsFor && <PersonDocuments kind={docsFor.kind} id={docsFor.id} name={docsFor.name} onClose={() => setDocsFor(null)} />}
       
       {/* Collapsible Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#ffffff] border-r border-[#e3e7e7] transform transition-transform duration-300 ease-in-out p-5 flex flex-col justify-between shadow-2xl md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:-ml-64'} shrink-0`}>
@@ -1690,6 +1711,7 @@ const AdminDashboard = () => {
             {activeTab === 'admissions' && <Admissions />}
             {activeTab === 'finance' && <Finance />}
             {activeTab === 'staff' && <Staff />}
+            {activeTab === 'staffAttendance' && <Staff open="attendance" />}
             {activeTab === 'attendanceDesk' && <AttendanceDesk role="admin" />}
             {activeTab === 'safetyDesk' && <SafetyDesk role="admin" />}
             {activeTab === 'earlyYears' && <EarlyDesk isAdmin />}
@@ -2078,6 +2100,7 @@ const AdminDashboard = () => {
                                               </div>
                                               <div className="flex gap-1 shrink-0">
                                                 <button onClick={() => handleOpenEditTeacher(teacher)} className="p-1.5 text-[#2a5cac] hover:bg-[#2a5cac]/10 rounded-lg transition" title="Edit"><Edit className="h-3.5 w-3.5" /></button>
+                                                <button type="button" onClick={() => setDocsFor({ kind: 'teacher', id: teacher._id, name: teacher.name })} className="p-1.5 text-[#2a5cac] hover:bg-[#2a5cac]/10 rounded-lg transition" title="Staff badge and letters"><FileText className="h-3.5 w-3.5" /></button>
                                                 <button onClick={() => handleDeleteTeacher(teacher._id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg transition" title="Delete"><Trash2 className="h-3.5 w-3.5" /></button>
                                               </div>
                                             </div>
@@ -2261,6 +2284,14 @@ const AdminDashboard = () => {
                                   title="Edit Student"
                                 >
                                   <Edit className="h-5 w-5" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setDocsFor({ kind: 'student', id: student._id, name: student.name })}
+                                  className="p-2 text-[#2a5cac] hover:bg-[#2a5cac]/10 rounded-xl transition"
+                                  title="Cards, certificates and report cards"
+                                >
+                                  <FileText className="h-5 w-5" />
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteStudent(student._id)}

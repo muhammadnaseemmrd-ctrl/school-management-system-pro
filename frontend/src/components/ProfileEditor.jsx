@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Camera, FileText, Loader2, Trash2, Upload } from 'lucide-react';
+import { Camera, Eye, EyeOff, FileText, KeyRound, Loader2, Trash2, Upload } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import apiClient from '../utils/apiClient';
 import { compressImage } from '../utils/imageCompress';
@@ -7,7 +7,14 @@ import { openProxiedFile } from '../utils/fileProxy';
 import { useLang } from '../i18n/LanguageContext';
 
 const inputCls = 'w-full rounded-xl border border-[#e3e7e7] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#2a5cac]';
-const Field = ({ label, children }) => (<div><label className="mb-1 block text-xs font-bold text-[#3b4a5c]">{label}</label>{children}</div>);
+// The label wraps its control, so a screen reader reads the two together. A label beside an
+// input, with nothing tying them, is a label for nobody.
+const Field = ({ label, children }) => (
+  <label className="block">
+    <span className="mb-1 block text-xs font-bold text-[#3b4a5c]">{label}</span>
+    {children}
+  </label>
+);
 
 const upload = async (file, purpose) => {
   const f = await compressImage(file);
@@ -29,6 +36,10 @@ const ProfileEditor = () => {
   const [busyPhoto, setBusyPhoto] = useState(false);
   const [doc, setDoc] = useState({ title: '', category: 'Other', file: null });
   const [busyDoc, setBusyDoc] = useState(false);
+  // changing your own password. Every other role had this screen; an administrator did not.
+  const [pwd, setPwd] = useState({ old: '', next: '', again: '' });
+  const [showPwd, setShowPwd] = useState(false);
+  const [busyPwd, setBusyPwd] = useState(false);
   const photoRef = useRef(null);
   const docRef = useRef(null);
 
@@ -52,6 +63,18 @@ const ProfileEditor = () => {
       setData(r.data.profile); toast.success(t('Profile saved'));
     } catch (err) { toast.error(err.response?.data?.message || t('Could not save')); }
     finally { setSaving(false); }
+  };
+
+  const changePassword = async (e) => {
+    e.preventDefault();
+    if (pwd.next !== pwd.again) return toast.error(t('The two new passwords are not the same'));
+    try {
+      setBusyPwd(true);
+      await apiClient.put('/auth/change-password', { oldPassword: pwd.old, newPassword: pwd.next });
+      setPwd({ old: '', next: '', again: '' });
+      toast.success(t('Password changed'));
+    } catch (err) { toast.error(err.response?.data?.message || t('Could not change the password')); }
+    finally { setBusyPwd(false); }
   };
 
   const changePhoto = async (e) => {
@@ -116,11 +139,36 @@ const ProfileEditor = () => {
       </form>
 
       <div className="border-t border-[#eef2f8] pt-4">
+        <h4 className="flex items-center gap-2 text-sm font-black uppercase tracking-wide text-[#5b6b7b]"><KeyRound className="h-4 w-4" />{t('Change my password')}</h4>
+        <p className="mt-1 text-xs text-[#5b6b7b]">{t('At least 6 characters with a capital letter, a number and a symbol. You stay signed in here; anywhere else you are signed in is signed out.')}</p>
+        <form onSubmit={changePassword} className="mt-3 grid gap-3 sm:grid-cols-3">
+          <Field label={t('Current password')}>
+            <input type={showPwd ? 'text' : 'password'} autoComplete="current-password" className={inputCls} value={pwd.old} onChange={(e) => setPwd({ ...pwd, old: e.target.value })} />
+          </Field>
+          <Field label={t('New password')}>
+            <input type={showPwd ? 'text' : 'password'} autoComplete="new-password" className={inputCls} value={pwd.next} onChange={(e) => setPwd({ ...pwd, next: e.target.value })} />
+          </Field>
+          <Field label={t('New password again')}>
+            <input type={showPwd ? 'text' : 'password'} autoComplete="new-password" className={inputCls} value={pwd.again} onChange={(e) => setPwd({ ...pwd, again: e.target.value })} />
+          </Field>
+          <div className="sm:col-span-3 flex flex-wrap items-center gap-3">
+            <button disabled={busyPwd || !pwd.old || pwd.next.length < 6} className="rounded-xl bg-[#2a5cac] px-5 py-2.5 text-sm font-black text-white hover:bg-[#234c91] disabled:opacity-50">
+              {busyPwd ? t('Changing...') : t('Change password')}
+            </button>
+            <button type="button" onClick={() => setShowPwd(!showPwd)} className="inline-flex items-center gap-1.5 text-xs font-bold text-[#2a5cac]">
+              {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}{showPwd ? t('Hide passwords') : t('Show passwords')}
+            </button>
+            {pwd.next && pwd.again && pwd.next !== pwd.again && <span className="text-xs font-bold text-[#9f1239]">{t('The two new passwords are not the same')}</span>}
+          </div>
+        </form>
+      </div>
+
+      <div className="border-t border-[#eef2f8] pt-4">
         <h4 className="text-sm font-black uppercase tracking-wide text-[#5b6b7b]">{t('My documents')}</h4>
         <p className="mt-1 text-xs text-[#5b6b7b]">{t('Upload certificates, ID copies or other papers. The school admin can see them. Photos, PDF or Word files up to 4 MB.')}</p>
         <form onSubmit={addDoc} className="mt-3 grid gap-2 sm:grid-cols-[1fr_9rem_auto_auto]">
-          <input className={inputCls} placeholder={t('Document name')} value={doc.title} onChange={(e) => setDoc({ ...doc, title: e.target.value })} />
-          <select className={inputCls} value={doc.category} onChange={(e) => setDoc({ ...doc, category: e.target.value })}>{cats.map((c) => <option key={c}>{c}</option>)}</select>
+          <input aria-label={t('Document name')} className={inputCls} placeholder={t('Document name')} value={doc.title} onChange={(e) => setDoc({ ...doc, title: e.target.value })} />
+          <select aria-label={t('Document category')} className={inputCls} value={doc.category} onChange={(e) => setDoc({ ...doc, category: e.target.value })}>{cats.map((c) => <option key={c}>{c}</option>)}</select>
           <input ref={docRef} type="file" className="hidden" accept="image/*,application/pdf,.doc,.docx" onChange={(e) => setDoc({ ...doc, file: e.target.files?.[0] || null })} />
           <button type="button" onClick={() => docRef.current?.click()} className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#a9b4bf] bg-white px-3 py-2.5 text-xs font-bold text-[#2a5cac]"><Upload className="h-4 w-4" /><span className="max-w-[8rem] truncate">{doc.file ? doc.file.name : t('Choose file')}</span></button>
           <button disabled={busyDoc || !doc.file} className="rounded-xl bg-[#2a5cac] px-4 py-2.5 text-xs font-black text-white disabled:opacity-40">{busyDoc ? '...' : t('Add')}</button>

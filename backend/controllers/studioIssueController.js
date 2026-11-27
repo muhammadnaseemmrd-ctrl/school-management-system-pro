@@ -64,6 +64,36 @@ async function issueOne(req, { tpl, ver, subjectId, custom, term, validUntil, lo
   return { skipped: 'Could not allocate a serial number.' };
 }
 
+// Everything a school can hand this one person, and everything it already has. Built so an
+// administrator looking at a child can see "ID card, report card, leaving certificate" without
+// first knowing that such things live in a Documents studio.
+exports.forPerson = wrap(async (req, res) => {
+  const school = sid(req);
+  const kind = String(req.params.kind || '').toLowerCase();
+  if (!['student', 'teacher'].includes(kind)) return res.status(404).json({ message: 'Documents are issued to a student or a teacher.' });
+  const id = req.params.id;
+  if (!oid(id)) return res.status(404).json({ message: 'Person not found' });
+
+  const Person = require(kind === 'student' ? '../models/Student' : '../models/Teacher');
+  const person = await Person.findOne({ _id: oid(id), schoolId: school }).select('name admissionNumber email');
+  if (!person) return res.status(404).json({ message: 'Person not found' });
+
+  const families = Object.entries(F.SUBJECT).filter(([, subject]) => subject === kind).map(([family]) => family);
+
+  const DocTemplate = require('../models/DocTemplate');
+  const rows = await DocTemplate.find({ schoolId: school, family: { $in: families }, archived: { $ne: true } }).sort({ family: 1, name: 1 }).limit(100);
+  const Issuance = require('../models/DocIssuance');
+  const already = await Issuance.find({ schoolId: school, subjectId: oid(id) }).sort({ issuedAt: -1 }).limit(50);
+
+  res.json({
+    person: { _id: person._id, kind, name: person.name, ref: person.admissionNumber || person.email || '' },
+    designs: rows.map((t) => ({ _id: t._id, name: t.name, family: t.family, familyLabel: F.FAMILY_LABEL[t.family] || t.family, ready: !!t.liveVersionId })),
+    issued: already.map(view),
+    // the families this school has drawn nothing for yet, so the screen can say what is missing
+    missing: families.filter((f) => !rows.some((t) => t.family === f && t.liveVersionId)),
+  });
+});
+
 exports._issueOne = issueOne;
 exports._view = view;
 

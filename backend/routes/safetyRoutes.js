@@ -11,6 +11,8 @@ const { can } = require('../utils/permissions');
 router.post('/device/scan', field.deviceAuth, gate.deviceScan);
 
 router.use(authenticate);
+// a kind of institution that does not use this part is refused here, not merely in the menu
+router.use(require('../middleware/institution').needsScreen('safetyDesk'));
 const office = authorize('admin'); const staff = authorize('admin', 'teacher'); const anyone = authorize('admin', 'teacher', 'parent', 'student');
 // Gate duty belongs to administrators and to teachers an administrator has given a time-limited gate-duty grant
 const onDuty = async (req, res, next) => { try { if ((await can(req.user, 'safety.gate.operate')).allowed) return next(); return res.status(403).json({ message: 'You are not on gate duty.' }); } catch (e) { return res.status(500).json({ message: e.message }); } };

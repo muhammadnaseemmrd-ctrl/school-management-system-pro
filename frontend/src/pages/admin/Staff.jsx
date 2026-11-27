@@ -231,8 +231,11 @@ const Setup = () => {
 };
 
 const TABS = [['overview', 'Overview'], ['people', 'People'], ['roster', 'Roster'], ['attendance', 'Attendance'], ['leave', 'Leave & cover'], ['time', 'Overtime & advances'], ['payroll', 'Payroll'], ['exits', 'Exits'], ['setup', 'Setup']];
-export default function Staff() {
-  const [tab, setTab] = useState('overview');
+export default function Staff({ open }) {
+  // `open` lets the sidebar point straight at one part, for example staff attendance, which
+  // people were not finding under a tab called "Staff and payroll".
+  const [tab, setTab] = useState(TABS.some(([id]) => id === open) ? open : 'overview');
+  useEffect(() => { if (open && TABS.some(([id]) => id === open)) setTab(open); }, [open]);
   const body = { overview: <Overview onGo={setTab} />, people: <People />, roster: <Roster />, attendance: <Attendance />, leave: <Leave />, time: <Time />, payroll: <Payroll />, exits: <Exits />, setup: <Setup /> }[tab];
   return (
     <div className="space-y-4">
