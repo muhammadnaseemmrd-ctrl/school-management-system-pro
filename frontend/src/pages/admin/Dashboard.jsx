@@ -4,7 +4,7 @@ import {
   ArrowRight, BarChart3, Bell, BookOpen, GraduationCap, Users, Search, 
   Mail, Phone, Calendar, Shield, DollarSign, Award, MapPin, Plus, 
   Plug,
-  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, FileSpreadsheet, Building2, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
+  Trash2, X, ClipboardList, ScanLine, BookOpenCheck, CheckCircle, Edit, Pencil, Settings, Menu, Wallet, WifiOff, FileText, HeartPulse, Palette, LifeBuoy, Upload, FileSpreadsheet, Building2, Compass, Library, ShoppingCart, BusFront, Landmark, Network, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import apiClient from '../../utils/apiClient';
 import ParentsManager from './ParentsManager';
@@ -25,6 +25,7 @@ import DataCentre from '../../components/dataio/DataCentre';
 import Campuses from '../../components/access/Campuses';
 import useInstitution from '../../utils/useInstitution';
 import PersonDocuments from '../../components/studio/PersonDocuments';
+import GuideCenter from '../../components/guide/GuideCenter';
 import ImportPanel from '../../components/dataio/ImportPanel';
 import RegistrarAdmin from '../../components/registrar/RegistrarAdmin';
 import TrainingAdmin from '../../components/training/TrainingAdmin';
@@ -61,7 +62,7 @@ const AdminDashboard = () => {
   const [pendingProofs, setPendingProofs] = useState(0);
   const getTabFromHash = () => {
     const hash = window.location.hash.replace('#/', '');
-    const validTabs = ['staffAttendance', 'branches', 'dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
+    const validTabs = ['guide', 'staffAttendance', 'branches', 'dataCentre', 'assistant', 'advancement', 'securityDevices', 'overview', 'teachers', 'students', 'classes', 'subjects', 'exams', 'notices', 'grievances', 'fees', 'teacherAssignments', 'timetable', 'parents', 'attendance', 'feesCenter', 'access', 'admissions', 'finance', 'staff', 'attendanceDesk', 'safetyDesk', 'earlyYears', 'familyDesk', 'careDesk', 'timetablePlan', 'syncDesk', 'studio', 'assessments', 'omr', 'brand', 'saasSupport', 'migration', 'registrar', 'training', 'library', 'purchasing', 'transport', 'accounts', 'analytics', 'group', 'integrations', 'setup'];
     if (hash && validTabs.includes(hash)) {
       return hash;
     }
@@ -1539,7 +1540,7 @@ const AdminDashboard = () => {
   const navNeeds = { attendance: 'attendance', staffAttendance: 'attendance', parents: 'parentPortal', exams: 'marks', notices: 'notices', grievances: 'complaints', fees: 'fees', feesCenter: 'fees', timetable: 'timetable' };
   const pendingGrievances = grievances.filter(g => g.status === 'Pending').length;
   const navGroups = [
-    { id: 'home', label: 'Overview', icon: BarChart3, items: [{ id: 'overview', label: 'Overview', icon: BarChart3 }] },
+    { id: 'home', label: 'Overview', icon: BarChart3, items: [{ id: 'overview', label: 'Overview', icon: BarChart3 }, { id: 'guide', label: 'How it works', icon: Compass }] },
     { id: 'users', label: 'User Management', icon: Users, hint: 'Students, teachers, parents and staff', items: [
       { id: 'students', label: 'Students', icon: GraduationCap },
       { id: 'teachers', label: 'Teachers', icon: Users },
@@ -1719,6 +1720,7 @@ const AdminDashboard = () => {
             {activeTab === 'careDesk' && <StaffCare isAdmin />}
             {activeTab === 'brand' && <ThemeStudio />}
             {activeTab === 'saasSupport' && <HelpDesk />}
+            {activeTab === 'guide' && <GuideCenter role="admin" />}
             {activeTab === 'branches' && <Campuses />}
             {activeTab === 'dataCentre' && <DataCentre />}
             {activeTab === 'migration' && <Migration />}

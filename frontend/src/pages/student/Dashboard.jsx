@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import useScrollTop from '../../utils/useScrollTop';
 import SidebarNav from '../../components/SidebarNav';
-import { 
+import GuideCenter from '../../components/guide/GuideCenter';
+import { Compass, 
   AlertCircle, BookOpen, CheckCircle, Clock, ClipboardList, LayoutGrid, 
   MessageSquare, Sparkles, Lock, User, FileText, Send, Image, History, 
   MapPin, Phone, ShieldAlert, Award, BookOpenCheck, Bell, Menu, X, DollarSign, Calendar, HeartPulse, GraduationCap, Library, BusFront } from 'lucide-react';
@@ -293,7 +294,7 @@ const StudentDashboard = () => {
   };
 
   const navGroups = [
-    { id: 'home', label: 'Dashboard Overview', icon: LayoutGrid, items: [{ id: 'dashboard', label: 'Dashboard Overview', icon: LayoutGrid }] },
+    { id: 'home', label: 'Dashboard Overview', icon: LayoutGrid, items: [{ id: 'dashboard', label: 'Dashboard Overview', icon: LayoutGrid }, { id: 'guide', label: 'How it works', icon: Compass }] },
     { id: 'learn', label: 'Learning', icon: BookOpen, hint: 'Homework, quizzes, records and courses', items: [
       { id: 'homework', label: 'My Homework', icon: ClipboardList },
       { id: 'quizzes', label: 'Quizzes & exams', icon: ClipboardList },
@@ -451,6 +452,7 @@ const StudentDashboard = () => {
           </div>
 
         {/* TAB 1: OVERVIEW */}
+        {activeSubTab === 'guide' && <GuideCenter role="student" />}
         {activeSubTab === 'dashboard' && (
           <div className="space-y-6">
             <LearningTools />

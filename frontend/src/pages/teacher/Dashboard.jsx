@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import useScrollTop from '../../utils/useScrollTop';
 import SidebarNav from '../../components/SidebarNav';
-import { 
+import GuideCenter from '../../components/guide/GuideCenter';
+import { Compass, 
   AlertCircle, BookOpen, CheckCircle, ClipboardList, ScanLine, GraduationCap, LayoutGrid, 
   Users, Wand2, Search, Mail, Phone, Calendar, MapPin, Lock, Unlock, Clock,
   User, FileText, Send, Image, History, ShieldAlert, DollarSign, Award, X, Bell, BookOpenCheck, Menu, Trash2, Plus, HeartPulse, Library, Wrench, BusFront, Landmark, BarChart3, Sparkles, HeartHandshake, ShieldCheck as SecurityIcon } from 'lucide-react';
@@ -521,6 +522,7 @@ const TeacherDashboard = () => {
     { id: 'home', label: 'Home', icon: LayoutGrid, items: [
       { id: 'today', label: 'Today', icon: Clock },
       { id: 'overview', label: 'Overview', icon: LayoutGrid },
+      { id: 'guide', label: 'How it works', icon: Compass },
     ] },
     { id: 'myclass', label: 'My Classes', icon: Users, hint: 'Students, homework, timetable and notices', items: [
       { id: 'students', label: 'Students List', icon: Users },
@@ -711,6 +713,7 @@ const TeacherDashboard = () => {
         ) : (
           <>
             {/* OVERVIEW TAB */}
+            {activeTab === 'guide' && <GuideCenter role="teacher" />}
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <LearningTools />

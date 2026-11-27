@@ -1,0 +1,54 @@
+/* Animations for the flow diagrams. No colours here: the theme rewrites colours at build time,
+   so anything fixed lives in an inline style on the element itself. */
+
+@keyframes guide-travel {
+  0%   { offset-distance: 0%;   opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
+@keyframes guide-draw { to { stroke-dashoffset: 0; } }
+@keyframes guide-pop {
+  0%   { transform: scale(0.82); opacity: 0; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes guide-ring {
+  0%   { transform: scale(1);   opacity: 0.55; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+@keyframes guide-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.55; }
+}
+@keyframes guide-slide-in {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+/* a dot running along an edge of the map */
+.guide-spark {
+  offset-rotate: 0deg;
+  animation: guide-travel 2.6s linear infinite;
+}
+/* an edge drawing itself once */
+.guide-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: guide-draw 1.1s var(--ease-out, ease-out) forwards;
+}
+.guide-pop   { animation: guide-pop 420ms var(--ease-out, ease-out) backwards; }
+.guide-ring  { animation: guide-ring 1.8s ease-out infinite; transform-origin: center; }
+.guide-pulse { animation: guide-pulse 1.6s ease-in-out infinite; }
+.guide-step  { animation: guide-slide-in 260ms var(--ease-out, ease-out) backwards; }
+
+/* Somebody who has asked for less movement gets the whole picture at rest: every node and every
+   line is already in place, nothing travels, nothing blinks. */
+@media (prefers-reduced-motion: reduce) {
+  .guide-spark { display: none; }
+  .guide-line  { stroke-dashoffset: 0; animation: none; }
+  .guide-pop,
+  .guide-ring,
+  .guide-pulse,
+  .guide-step  { animation: none; opacity: 1; transform: none; }
+}

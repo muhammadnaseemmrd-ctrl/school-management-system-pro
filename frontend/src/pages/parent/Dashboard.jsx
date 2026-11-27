@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import useScrollTop from '../../utils/useScrollTop';
-import { Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck, Library, BusFront } from 'lucide-react';
+import { Compass, Bell, CalendarDays, Home, Lock, AlertTriangle, ChevronRight, ChevronLeft, Wallet, Paperclip, Pin, ExternalLink, FileText, ClipboardList, MessageSquare, HeartPulse, ShieldCheck, Library, BusFront } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import MyDocuments from '../../components/studio/MyDocuments';
 import FamilyQuizResults from '../../components/assess/FamilyQuizResults';
@@ -13,6 +13,7 @@ import TransportMe from '../../components/transport/TransportMe';
 import FamilySignals from '../../components/security/FamilySignals';
 import { FamilyConsent } from '../../components/access/Consents';
 import apiClient from '../../utils/apiClient';
+import GuideCenter from '../../components/guide/GuideCenter';
 import { useLang } from '../../i18n/LanguageContext';
 import AttendanceReportView from '../../components/attendance/AttendanceReportView';
 import { Ring, STATUS, StatusChip, todaySentence } from '../../components/attendance/shared';
@@ -32,9 +33,9 @@ const BANNER = {
   Present: 'bg-emerald-700', Late: 'bg-[#8a4636]', HalfDay: 'bg-amber-700', Absent: 'bg-rose-700', Leave: 'bg-[#2a5cac]', None: 'bg-[#5b6b7b]',
 };
 
-const ALL_TABS = [['home', 'Home', Home], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['library', 'Library & store', Library], ['bus', 'School bus', BusFront], ['devices', 'What devices recorded', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
+const ALL_TABS = [['home', 'Home', Home], ['guide', 'How it works', Compass], ['attendance', 'Attendance', CalendarDays], ['desk', 'Leave & alerts', Bell], ['messages', 'Messages & help', MessageSquare], ['wellbeing', 'Wellbeing', HeartPulse], ['quizzes', 'Quizzes & exams', ClipboardList], ['documents', 'Documents', FileText], ['consent', 'Permissions', ShieldCheck], ['library', 'Library & store', Library], ['bus', 'School bus', BusFront], ['devices', 'What devices recorded', ShieldCheck], ['fees', 'Fees', Wallet], ['notices', 'Notices', Bell], ['nursery', 'Nursery', Home], ['account', 'My account', Lock]];
 const GROUPS = [
-  { id: 'home', label: 'Home', icon: Home, ids: ['home'] },
+  { id: 'home', label: 'Home', icon: Home, ids: ['home', 'guide'] },
   { id: 'school', label: 'School life', icon: CalendarDays, ids: ['attendance', 'desk', 'notices', 'nursery', 'bus'] },
   { id: 'learning', label: 'Learning', icon: ClipboardList, ids: ['quizzes', 'documents', 'library'] },
   { id: 'family', label: 'Family & care', icon: HeartPulse, ids: ['messages', 'wellbeing', 'consent', 'devices'] },
@@ -281,6 +282,7 @@ const ParentDashboard = () => {
               </div>
             )}
 
+            {tab === 'guide' && <GuideCenter role="parent" />}
             {tab === 'account' && (
               <div className="space-y-5">
               <ProfileEditor />

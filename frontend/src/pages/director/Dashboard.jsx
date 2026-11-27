@@ -13,6 +13,7 @@ import {
 import apiClient from '../../utils/apiClient';
 import { Card, Modal, Stat, btnGhost, btnPrimary, btnDanger, errMsg, inputCls, fmtDate } from '../../components/ui';
 import GroupFinance from '../../components/director/GroupFinance';
+import GuideCenter from '../../components/guide/GuideCenter';
 
 const Field = ({ label, hint, children }) => (
   <label className="block">
@@ -241,7 +242,7 @@ export default function DirectorDashboard() {
       </div>
 
       <nav className="mb-4 flex flex-wrap gap-2" aria-label="Group office sections">
-        {[{ id: 'schools', label: 'Schools' }, { id: 'finance', label: 'Money' }].map((x) => (
+        {[{ id: 'schools', label: 'Schools' }, { id: 'finance', label: 'Money' }, { id: 'guide', label: 'How it works' }].map((x) => (
           <button
             key={x.id}
             type="button"
@@ -255,7 +256,7 @@ export default function DirectorDashboard() {
       </nav>
 
       <main className="space-y-5">
-        {tab === 'finance' ? <GroupFinance /> : !d ? (
+        {tab === 'guide' ? <GuideCenter role="director" /> : tab === 'finance' ? <GroupFinance /> : !d ? (
           <div className="flex h-40 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#2a5cac]" /></div>
         ) : open ? (
           <SchoolView id={open} onBack={() => { setOpen(null); load(); }} onChanged={load} canAppoint={d.director.canAppointAdmins} />
